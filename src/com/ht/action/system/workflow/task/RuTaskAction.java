@@ -918,21 +918,21 @@ public class RuTaskAction extends BaseAction
 			//纸海图、电子海图
 			if(("u_task_ztkz_shenhe".equals(taskDefId) && "SEA_MAP_COMPILATION_ELECTRONIC:1:20".contains(processDefId)) || 
 				("u_task_zhijian_shenhe".equals(taskDefId) && "SEA_MAP_COMPILATION_PAPER:1:32".contains(processDefId))	) {
-	//		System.out.println("审定员根据任务分配自动分配");
+
 			
 			//获取任务分配人员
 			taskDefId="u_task_distribution_shending";
 			String userNo = "028346"; //陈欣
 	
-	//		System.out.println(taskId);
+	
 			
 		    String planuser = this.taskFormService.getplanName(taskId, processInstId, processDefId, taskDefId, userNo, parentProcessInstId);
-	//		System.out.println(planuser);
+
 			
 		
 			
 			ITaskInfo  iTaskInfo= 	workflowService.getOneTaskListByProcessInstId(processInstId);
-	//    System.out.println(iTaskInfo.getId());	
+
 			
 			try {
 				taskFormService.assignedUser(iTaskInfo.getId(), processInstId, processDefId, taskDefId, planuser, parentProcessInstId);

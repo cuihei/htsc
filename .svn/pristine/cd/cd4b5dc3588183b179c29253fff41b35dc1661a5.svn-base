@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.system.workflow.assign.AssignUserRecord" table="ASSIGN_USER_RECORD">
+        <id name="id" type="java.lang.String">
+            <column name="ID" />
+            <generator class="assigned" />
+        </id>
+        <property name="hisUser" type="java.lang.String">
+            <column name="HIS_USER" />
+        </property>
+        <property name="assignUser" type="java.lang.String">
+            <column name="ASSIGN_USER" />
+        </property>
+        <property name="processInstId" type="java.lang.String">
+            <column name="PROCESS_INST_ID" />
+        </property>
+        <property name="type" type="java.lang.String">
+            <column name="TYPE" />
+        </property>
+              <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getAll">
+    	<![CDATA[ from AssignUserRecord]]>
+    </query>
+    
+    <query name="getRecordByProcessInstIdAndHisUser">
+    	<![CDATA[ from AssignUserRecord where processInstId =:processInstId and hisUser=:hisUser]]>
+    </query>
+    <query name="getRecordByProcessInstIdAndType">
+    	<![CDATA[ from AssignUserRecord where processInstId =:processInstId and type=:type]]>
+    </query>
+    <query name="getRecordByProcessInstIdAndAssignUser">
+    	<![CDATA[ from AssignUserRecord where processInstId =:processInstId and assignUser=:assignUser]]>
+    </query>
+</hibernate-mapping>

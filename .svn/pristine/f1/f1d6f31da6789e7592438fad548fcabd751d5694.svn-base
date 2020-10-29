@@ -1,0 +1,47 @@
+package com.ht.persistence.dao.inter.complication.formprop;
+
+import java.util.List;
+
+import com.ht.persistence.model.complication.formprop.ProcessPlan;
+
+/**
+ * ProcessPlanDao接口
+ */
+public interface ProcessPlanDao {
+	/**
+	 * 增加一个ProcessPlan
+	 * @param ProcessPlan ProcessPlan实体
+	 */
+	public void addProcessPlan(ProcessPlan ProcessPlan);
+
+	/**
+	 * 更新一个ProcessPlan
+	 * @param ProcessPlan ProcessPlan实体
+	 */
+	public void modifyProcessPlan(ProcessPlan ProcessPlan);
+
+	/**
+	 * 删除ProcessPlan 相关
+	 * @param ProcessPlan ProcessPlan对象
+	 */
+	public void delProcessPlan(ProcessPlan ProcessPlan);
+	
+
+	/**
+	 * 获取一条ProcessPlan
+	 * @param ProcessPlan ProcessPlan对象
+	 * @return ProcessPlan实体
+	 */
+	public ProcessPlan getProcessPlan(ProcessPlan ProcessPlan);
+
+	/**
+	 * 根据formid和propValue 查询
+	 * @param fromId
+	 * @param propValue
+	 * @return
+	 * @throws Exception
+	 */
+	public List<ProcessPlan> getByProcess(ProcessPlan ProcessPlan);
+	/*判断是否有退回的流程 2018.9.10*/
+	public String getProcessByBack(String processinstid, String taskInstId, String userno);
+}

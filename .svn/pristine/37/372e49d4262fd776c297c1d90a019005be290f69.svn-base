@@ -1,0 +1,358 @@
+package com.ht.persistence.dao.impl.complication.formprop;
+
+import java.util.List;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.complication.formprop.FormValueDao;
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.formprop.FormValue;
+
+import sun.org.mozilla.javascript.internal.Undefined;
+
+/**
+ * FormValue 接口的实现类
+ * @author 侯晨
+ */
+public class FormValueDaoImpl extends BaseDaoImpl implements FormValueDao
+{
+
+	/**
+	 * 增加一个FormValue
+	 * @param FormValue FormValue实体
+	 */
+	@Override
+	public void addFormValue(FormValue formValue)
+	{
+		//FormValue [id=09111543072140019, formId=11031831406120018, propKey=gcmc, processInstId=312519, taskInstId=312554, rowFlag=09111543072060018, propValue=444, form=null]
+		this.save(formValue);
+	}
+
+	/**
+	 * 更新一个FormValue
+	 * @param FormValue FormValue实体
+	 */
+	@Override
+	public void modifyFormValue(FormValue formValue)
+	{
+		formValue = (FormValue) this.merge(formValue);
+		this.update(formValue);
+	}
+
+	/**
+	 * 删除FormValue 相关
+	 * @param FormValue FormValue对象
+	 */
+	@Override
+	public void delFormValue(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery("delete FORM_VALUE where ROW_FLAG= ? ");
+		query.setString(0, formValue.getRowFlag());
+		query.addEntity(FormValue.class);
+		int cnt = query.executeUpdate();
+		System.out.println(cnt);
+	}
+
+	/**
+	 * 获取所有FormValue
+	 * @return FormValue列表
+	 */
+	@Override
+	public List<FormValue> getFormValue()
+	{
+		try
+		{
+			@SuppressWarnings("unchecked")
+			List<FormValue> result = this.findByNamedQuery("getFormValue");
+			return result;
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * 获取一条FormValue
+	 * @param FormValue FormValue对象getFormIdByTTIdAndPIId
+	 * @return FormValue实体
+	 */
+	@Override
+	public FormValue getFormValue(FormValue formValue)
+	{
+		@SuppressWarnings("unchecked")
+		List<FormValue> result = this.findByNamedQueryAndNamedParam("getFormValueById", "id", formValue.getId());
+		if (result.size() > 0) { return result.get(0); }
+		return null;
+	}
+
+	/**
+	 * 获取formId集合
+	 * @param FormValue FormValue对象
+	 * @return FormValue实体
+	 */
+
+	@Override
+	public List<FormValue> getFormIdByTTIdAndPIId(FormValue formValue)
+	{
+		try
+		{
+			String[] names =
+			{ "taskInstId", "processInstId" };
+			String[] params =
+			{ formValue.getTaskInstId(), formValue.getProcessInstId() };
+			/* List<FormValue> result = this.findByNamedQueryAndNamedParam("getFormIdByTTIdAndPIId", names, params); */
+			SQLQuery query = this
+					.getSession()
+					.createSQLQuery(
+							"SELECT distinct b.id,b.name From form_value a LEFT JOIN form b ON a.form_id=b.id WHERE a.task_inst_id=? and a.process_inst_id =?");
+			query.setString(0, formValue.getTaskInstId());
+			query.setString(1, formValue.getProcessInstId());
+			query.addEntity(Form.class);
+			@SuppressWarnings("unchecked")
+			List<Form> result = query.list();
+			if (result.size() > 0) { return null; }
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByPt(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =? and t.TASK_INST_ID =?  and t.form_id = ? order by t.modify_date");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getTaskInstId());
+		query.setString(2, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+	
+
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByPF(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =?   and t.form_id = ? order by t.modify_date");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+	
+	/**
+	 * 通过流程ID，获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByPf(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =?  and 3=3    and t.form_id = ? order by t.row_flag,t.creation_date desc");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<FormValue> getFormValueByProcessInstId(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =? and 1=1  and t.form_id = ? order by t.modify_date,t.row_flag");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+	
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<FormValue> getFormValueByPidAndFidAndPropKey(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =? and 2=2   and t.form_id = ? and t.PROP_KEY = ?");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.setString(2, formValue.getPropKey());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+
+	@Override
+	public List<FormValue> getFormValueByFromId(FormValue formValue)
+	{
+		@SuppressWarnings("unchecked")
+		List<FormValue> result = this.findByNamedQueryAndNamedParam("getFormValueByFromId", "formId", formValue.getFormId());
+		return result;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByRowFlag(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROP_KEY =? and t.ROW_FLAG =? order by t.modify_date,t.prop_key");
+		query.setString(0, formValue.getPropKey());
+		query.setString(1, formValue.getRowFlag());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+
+	/**
+	 * 根据表单id和流程id，查出当前流程的最新一条任务ID(排除当前任务ID)
+	 * */
+	@Override
+	public String getTaskIdBypft(FormValue fv)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select *  from form_value where form_id = ? and process_inst_id = ? and task_inst_id <> ? order by modify_date desc");
+		query.setString(0, fv.getFormId());
+		query.setString(1, fv.getProcessInstId());
+		query.setString(2, fv.getTaskInstId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		if(list.size()>0){
+			return list.get(0).getTaskInstId();
+		}
+		return null;
+	}
+
+	@Override
+	public List<FormValue> getFormValueByFromIdAndPropValue(FormValue formValue) {
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select *  from form_value where form_id = ? and prop_value like ?");
+		query.setString(0, formValue.getFormId());
+		query.setString(1, "%"+formValue.getPropValue()+"%");
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		if(list.size()>0){
+			return list;
+		}
+		return null;
+	}
+
+	@Override
+	public void addFormValueByTaskId(String processInstId, String loginUser,String taskinstid){
+	
+	/* 添加流程版本：判断第几版。2018.9.20
+	 * 取版本号不为空的总数----1、为空：给所有任务实例添加版本号>第1版
+		                                  |
+		                                  |---2、不为空：遍历任务实例FROMid     ----1、版本号为空=>给该实例赋值第1版
+		                                                                                                |
+		                                                                                                |----2、版本不为空=>取版本号最大值+1
+		*/
+	
+		//获取最大的版本号
+		int bb=0;
+		///先查询任务流程ID是否有退回的记录条数。
+	    String sqlcount = "SELECT count(*)  from form_value where form_bb is not null and process_inst_id='"+processInstId+"'";
+	    Query query1 = getSession().createSQLQuery(sqlcount);
+	    Integer count = Integer.valueOf(((Number)query1.uniqueResult()).intValue());
+	  
+	    if(count.intValue()==0) {
+	    	//如果查询出来 版本号为空的条数为0 则给所有的实例ID添加版本号。
+	    	String sqlinsert = "update form_value set form_bb='第1版' where PROCESS_INST_ID='" + processInstId+ "' and form_bb is null ";
+			Query query2 = getSession().createSQLQuery(sqlinsert);
+			query2.executeUpdate();
+	    }else {
+	    	//遍历所有form_id   为任务实例ID 每个过程为一个ID
+	    	SQLQuery query = this.getSession().createSQLQuery( "select distinct form_id  from form_value  where  process_inst_id='" + processInstId+ "'");
+		 //	query.addEntity(FormValue.class);
+	    	List<String> list = query.list();
+   	    	for (int i = 0; i < list.size(); i++) {
+	    		
+   	    		
+   	    	//	查询版本号不为空的条数
+   	        String sqlcounttaskid = "SELECT count(*)  from form_value where form_bb is not null and   form_id='"+list.get(i)+"'   and process_inst_id='"+processInstId+"'";
+   	 	    Query querytaskid = getSession().createSQLQuery(sqlcounttaskid);
+   	 	    Integer counttaskid = Integer.valueOf(((Number)querytaskid.uniqueResult()).intValue());
+   	    		
+   	    		if(counttaskid>0) {
+   	    			String sql =	"select max(regexp_replace(form_bb,'[^0-9]'))   from form_value where form_id='"+list.get(i)+"' and PROCESS_INST_ID='"+processInstId+"'";
+   				    SQLQuery querystr = this.getSession().createSQLQuery(sql);  
+   				    String str = querystr.uniqueResult().toString(); 
+   				     bb = Integer.parseInt((String.valueOf(str)));    
+   				     
+   					String sqlinsert = "update form_value set form_bb='第" +(bb+1) + "版' where PROCESS_INST_ID='" + processInstId+ "' and  form_id='"+list.get(i)+"' and form_bb is null ";
+   					Query query2 = getSession().createSQLQuery(sqlinsert);
+   					query2.executeUpdate();	   	    		
+   	    		}else {
+   	    			String sqlinsert = "update form_value set form_bb='第1版' where PROCESS_INST_ID='" + processInstId+ "' and  form_id='"+list.get(i)+"' ";
+   					Query query2 = getSession().createSQLQuery(sqlinsert);
+   					query2.executeUpdate();	
+   	    		}
+   	    		  	    	
+	  			}
+	  	    	
+	
+	    }
+			
+
+/*		if(bb>0) {
+			/// 退回后直接将退回的表单添加版本号
+			String sqlinsert = "update form_value set form_bb='第" +(bb+1) + "版' where PROCESS_INST_ID='" + processInstId+ "' and form_bb is null  ";
+			Query query2 = getSession().createSQLQuery(sqlinsert);
+			query2.executeUpdate();
+			}else {
+			/// 退回后直接将退回的表单添加版本号
+			String sqlinsert = "update form_value set form_bb='第1版' where PROCESS_INST_ID='" + processInstId+ "' and form_bb is null ";
+			Query query2 = getSession().createSQLQuery(sqlinsert);
+			query2.executeUpdate();
+				
+		}
+				*/
+			
+/*      String sql =	"select max(regexp_replace(form_bb,'[^0-9]'))   from form_value where  PROCESS_INST_ID='"+processInstId+"'";
+	    SQLQuery query = this.getSession().createSQLQuery(sql);  
+	    String str = query.uniqueResult().toString();  
+	    String taskid=String.valueOf(str);  
+	     */
+		
+/*
+	    String sqlinsert = "update FORM_VALUE set TASK_ID='"+taskid+"' where PROCESS_INST_ID='"+processInstId+"' and creator='"+loginUser+"'  and TASK_INST_ID='"+taskinstid+"'";
+	    Query query2 = getSession().createSQLQuery(sqlinsert);
+	    query2.executeUpdate();
+	   // getSession().getTransaction().commit();
+
+	    */
+		
+		// TODO 自动生成的方法存根
+		
+	}
+}

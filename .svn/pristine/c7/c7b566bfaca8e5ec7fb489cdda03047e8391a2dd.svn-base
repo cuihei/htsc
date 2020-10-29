@@ -1,0 +1,59 @@
+package com.ht.persistence.dao.inter.complication.form;
+
+import java.util.List;
+
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.form.FormBaseDataView;
+
+/**
+ * 表单类型下的列表类接口
+ * @author zqy
+ *
+ */
+public interface FormDao {
+	/**
+	 * 增加一个Form
+	 * @param Form Form对象
+	 */
+	public void addForm(Form form);
+
+	/**
+	 * 更新一个Form
+	 * @param Form Form对象
+	 */
+	public void modifyForm(Form form);
+
+	/**
+	 * 删除Form
+	 * @param Form Form对象
+	 */
+	public void delForm(Form form);
+	
+	/**
+	 * 获取所有Form
+	 * @return List<Form> Form对象集合
+	 */
+	public List<Form> getForm();
+
+	/**
+	 * 获取一条Form
+	 * @param Form Form对象
+	 * @return Form对象
+	 */
+	public Form getForm(Form form);
+	
+	/**
+	 * 根据BasedataId查询所有的表单列表
+	 * @param BaseDataId Form对象的BaseDataId属性
+	 * @return List<Form> Form对象集合
+	 * @throws Exception
+	 */
+	public List<Form> getFormByBaseDataId(Form form);
+	
+	/**
+	 * 获取所有Form
+	 * @return List<Form> Form对象集合
+	 */
+	public List<FormBaseDataView> getFormList();
+	
+}

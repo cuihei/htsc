@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.catalog.detail.CatalogDetail" table="Catalog_Detail">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="mapNo" type="java.lang.String">
+            <column name="map_no" />
+        </property>
+        <property name="mapName" type="java.lang.String">
+            <column name="map_name" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="starLongitude" type="java.lang.String">
+            <column name="star_longitude" />
+        </property>
+        <property name="endLongitude" type="java.lang.String">
+            <column name="end_longitude" />
+        </property>
+        <property name="starLatitude" type="java.lang.String">
+            <column name="star_latitude" />
+        </property>
+        <property name="endLatitude" type="java.lang.String">
+            <column name="end_latitude" />
+        </property>
+        <property name="nature" type="java.lang.String">
+            <column name="nature" />
+        </property>
+          <property name="measurementPeriod" type="java.lang.String">
+            <column name="measurement_period" />
+        </property>
+        <property name="testIng" type="java.lang.String">
+            <column name="testIng" />
+        </property>
+         <property name="publicationYear" type="java.lang.String">
+            <column name="publication_year" />
+        </property>
+         <property name="datumLatitude" type="java.lang.String">
+            <column name="datum_latitude" />
+        </property>
+         <property name="mapProportion" type="java.lang.String">
+            <column name="map_proportion" />
+        </property>
+        <property name="adjustmentProperty" type="java.lang.String">
+            <column name="adjustment_property" />
+        </property>
+        <property name="publicationDate" type="java.util.Date">
+            <column name="publication_date" />
+        </property>
+        <property name="printNum" type="java.lang.String">
+            <column name="print_num" />
+        </property>
+        <property name="remarks" type="java.lang.String">
+            <column name="remarks" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+         <property name="status" type="java.lang.String">
+            <column name="status" />
+        </property>
+        
+        <many-to-one name="area" column="area_id"  fetch="select" cascade="none" class="com.ht.persistence.model.catalog.area.CatalogArea" lazy="false" 
+        not-found="ignore">
+        </many-to-one> 
+        <many-to-one name="type" column="category_id"  fetch="select" cascade="none" class="com.ht.persistence.model.background.dicdata.basedata.BaseData" lazy="false" 
+        not-found="ignore">
+        </many-to-one>
+    </class>
+    <query name="getDetailListByCatalogTypeId">
+    	<![CDATA[ from CatalogDetail where type.id = :id order by creationDate desc]]>
+    </query>
+    <query name="findCatalogDetailById">
+    	<![CDATA[ from CatalogDetail where id= :id]]> 
+    </query>
+    <query name="findCatalogDetailByMapNo">
+    	<![CDATA[ from CatalogDetail where mapNo= :mapNo and type.id = :id]]> 
+    </query>
+   <!--  <query name="findCatalogDetailByMapNo">
+    	<![CDATA[ from CatalogDetail where mapNo= :mapNo]]> 
+    </query> -->
+    <query name="getDetailByCategoryId">
+    	<![CDATA[ from CatalogDetail where area.id= :areaId and type.id = :categoryId]]> 
+    </query>
+</hibernate-mapping>

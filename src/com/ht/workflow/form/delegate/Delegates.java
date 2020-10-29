@@ -1,0 +1,219 @@
+package com.ht.workflow.form.delegate;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.SpringUtil;
+import com.ht.persistence.model.background.dicdata.defectform.DefectForm;
+import com.ht.persistence.model.complication.formprop.FormFormValue;
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.persistence.model.datum.correctionnoticebook.CorrectionNoticeBook;
+import com.ht.persistence.model.datum.correctionnoticebook.CorrectionNoticeBookView;
+import com.ht.persistence.model.system.issue.YearIssue;
+import com.ht.persistence.model.system.workflow.task.HiTask;
+import com.ht.service.impl.background.dicdata.defectform.DefectFormHelper;
+import com.ht.service.inter.background.dicdata.defectform.DefectFormService;
+import com.ht.service.inter.complication.formprop.FormFormValueService;
+import com.ht.service.inter.complication.formprop.FormValueService;
+import com.ht.service.inter.datum.correctionnoticebook.CorrectionNoticeBookService;
+import com.ht.service.inter.paper.PaperChartService;
+import com.ht.service.inter.system.issue.YearIssueService;
+import com.ht.service.inter.system.workflow.task.TaskService;
+
+
+/**
+ * 委托类方法
+ * @author wangyouwei
+ *
+ */
+public class Delegates
+{
+	public String getZjZlpf(String processInstId,String taskDefIds){
+		// 根据流程实例和流程定义ID查询在当前实例指定任务的任务实例ID
+		TaskService taskService = (TaskService) SpringUtil.getBean("taskService");
+		String[] taskDefIdArray = taskDefIds.split(",");
+		String taskInstId = "";
+		for (int i = taskDefIdArray.length-1; i >=0; i--)
+		{
+			String taskDefId = taskDefIdArray[i];
+			List<HiTask> hiTaskList = taskService.getHiTaskByProcessInstIdAndTaskDefId(processInstId, taskDefId);
+			if (hiTaskList != null)
+			{
+				if (hiTaskList.size()>0)
+				{
+					if (hiTaskList != null)
+					{
+						if (hiTaskList.size()>0)
+						{
+							for (int j = 0; j < hiTaskList.size(); j++) {
+								taskInstId += "," + hiTaskList.get(j).getTaskInstId();
+							}
+						}
+					}
+				}
+			}
+		}
+		if(StringUtils.isNotEmpty(taskInstId)||taskInstId!=null || taskInstId!=""){
+			taskInstId = taskInstId.substring(1);
+		}
+		if (StringUtils.isNotEmpty(taskInstId)||taskInstId!=null)
+		{
+			DefectFormService defectFormService = (DefectFormService) SpringUtil.getBean("defectFormService");
+			List<DefectForm> defectForm  = defectFormService.getDefectFormListByTaskInstIds(processInstId,taskInstId);
+			if (defectForm != null)
+			{
+				if (defectForm.size()>0)
+				{
+					return defectForm.get(0).getGrading();
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	
+	/**
+	 * 获取审定评分
+	 * @param taskDefIds
+	 * @param processInstId
+	 * @return
+	 */
+	public String getSdZlpf(String taskDefIds,String processInstId){
+		return getZjZlpf(taskDefIds, processInstId);
+	}
+	
+	/**
+	 * 获取质量等级
+	 * @param taskDefIds
+	 * @param processInstId
+	 * @return
+	 */
+	public String getZjPfdj(String taskDefIds,String processInstId){
+		String gradeStr = getZjZlpf(taskDefIds, processInstId);
+		return DefectFormHelper.getZldj(gradeStr);
+	}
+	
+	public String getSdPfdj(String taskDefIds,String processInstId){
+		String gradeStr = getSdZlpf(taskDefIds, processInstId);
+		return DefectFormHelper.getZldj(gradeStr);
+	}
+	
+	public String getPfAndDj(String processInstId,String taskDefIds){
+		String gradeStr = getSdZlpf(processInstId,taskDefIds );
+		String dj = DefectFormHelper.getZldj(gradeStr);
+		String result = "";
+		if (StringUtils.isNotEmpty(gradeStr))
+		{
+			result += gradeStr + " ";
+		}
+		if (StringUtils.isNotEmpty(dj))
+		{
+			result += dj;
+		}
+		return StringUtils.isNotEmpty(result) ? result : null;
+	}
+	
+	public String getZjPfAndDj(String taskDefIds,String processInstId){
+		return getPfAndDj(taskDefIds, processInstId);
+	}
+	
+	public List<Map<String, Object>> getnoticelist(String formIds,String processInstId){
+		FormValueService formValueService = (FormValueService) SpringUtil.getBean("formValueService");
+		YearIssueService yearIssueService = (YearIssueService) SpringUtil.getBean("yearIssueService");
+		CorrectionNoticeBookService cService = (CorrectionNoticeBookService) SpringUtil.getBean("correctionNoticeBookService");
+		String[] formIdArry = formIds.split("\\,");
+		List<FormValue> formValueList=new ArrayList<>();
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		List<CorrectionNoticeBookView> list = new ArrayList<CorrectionNoticeBookView>();
+		try {
+			if(formIdArry!=null&&formIdArry.length>0){
+				for (String formId : formIdArry) {
+					formValueList = formValueService.getFormValueByProcessInstId(processInstId, formId);
+					if(formValueList!=null&&formValueList.size()>0){
+						break;
+					}
+				}
+			}
+			String regx = "^[0-9]{4}年第（[0-9]+）期";
+			Pattern pattern = Pattern.compile(regx);
+			String value="";
+			FormValue formValue=null;
+			for (FormValue fV : formValueList) {
+				value=fV.getPropValue()==null?"":fV.getPropValue();
+				Matcher m = pattern.matcher(value);
+				if(m.matches()){
+					 value = value.substring(value.lastIndexOf("（")+1,value.lastIndexOf("）")).trim();
+					 formValue=fV;
+					 break;
+				}
+			}
+			if(formValue!=null){
+				List<YearIssue> yearIssueByIssue = yearIssueService.getYearIssueByIssue(formValue.getPropValue());
+				if(yearIssueByIssue!=null&&yearIssueByIssue.size()>0){
+					list = cService.getCorrectionNoticeBooksByCreateDate(yearIssueByIssue.get(0).getBeginDate(), yearIssueByIssue.get(0).getEndDate());
+				}
+				String propValue = formValue.getPropValue();
+				if(Integer.parseInt(value)!=1){
+					propValue = propValue.replace("（"+value+"）", "（"+(Integer.parseInt(value)-1)+"）");
+					List<YearIssue> yearIssueByIssue2 = yearIssueService.getYearIssueByIssue(propValue);
+					if(yearIssueByIssue2!=null&&yearIssueByIssue2.size()>0){
+						List<CorrectionNoticeBookView> lastList1 = cService.getCorrectionNoticeBooksByCreateDate(yearIssueByIssue2.get(0).getBeginDate(), yearIssueByIssue2.get(0).getEndDate());
+						if(lastList1!=null&&lastList1.size()>0){
+							list.addAll(lastList1);
+						}
+					}
+				}
+			}
+			if(list != null){
+				if(list.size()>0){
+					for (int i = 0; i < list.size(); i++) {
+						Map<String, Object> map = DataConverter.convertBean2Map(list.get(i));
+						result.add(map);
+					}
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public List<Map<String, Object>> getCorrectDatalist(String processInstId){
+		// 根据流程实例和流程定义ID查询在当前实例指定任务的任务实例ID
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		CorrectionNoticeBookService cService = (CorrectionNoticeBookService) SpringUtil.getBean("correctionNoticeBookService");
+		List<CorrectionNoticeBookView> list = new ArrayList<CorrectionNoticeBookView>();
+		try {
+			list = cService.getCorrectionNoticeBooks();
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+		}
+		if(list != null){
+			if(list.size()>0){
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("id", list.get(i).getId());
+					map.put("source", list.get(i).getSource());
+					map.put("titanic", list.get(i).getTitanic());
+					map.put("receiveDate", list.get(i).getReceiveDate());
+					map.put("content", list.get(i).getContent());
+					map.put("remark", list.get(i).getRemark());
+					result.add(map);
+				}
+			}
+		}
+		return result;
+	}
+	
+}

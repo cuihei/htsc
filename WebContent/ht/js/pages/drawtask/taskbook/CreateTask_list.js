@@ -1,0 +1,172 @@
+$(function(){
+	createTask.init();
+	$("#uploadFile").css("width","300px");
+})
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function create(obj) {
+	var tr = $(obj).parent().parent();
+	createTask.toCreatePage(tr);
+}
+
+/** 绑定导入按钮的click事件*/
+function uploadPage(obj) {
+	var tr = $(obj).parent().parent();
+	// 显示模态框
+	$('#myModal').modal('show');
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	// 获取资料ID
+	var id = rowData.id;
+	$("#id").val(id);
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function downPage(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	//获取附件地址
+	var enclosure=rowData.enclosure;
+	if(enclosure == null || enclosure == ""){
+		layer.msg("这个任务书没有上传文件！");
+		return;
+	}else{
+		// 下载
+		window.location.href = "../formValue/form_file?url="+enclosure;
+	}
+}
+
+
+var createTask ={
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("createTask");
+		loading.init();
+		try{
+			createTask.createGrid();
+			createTask.requestData();
+			createTask.bindPageEvent();
+			//初始化时间控件
+			$("#year").datepicker({
+				startView: 2, 
+				maxViewMode: 2,
+				minViewMode:2,
+				 format: 'yyyy',
+				 autoclose: true
+			}).on('changeDate',gotoDate);
+			function gotoDate(){
+				var year = $("#year").val();
+				loading.init();
+				common.init("../createTask/list?year="+year,"POST",createTask.bindGrid);
+				common.do_submit();
+			}
+		}catch(err){
+			loading.close();
+		}
+	},
+
+	createColumns : function(){
+		grid.resetColumn();
+		grid.addColumn("20%","taskbookNo","编号");
+		grid.addColumn("35%","taskbookName","任务书名称");
+		grid.addColumn("25%","creationDate","创建时间","#=creationDate?kendo.toString(new Date(creationDate),'yyyy-MM-dd'):'' #");
+		grid.addColumn("25%","nums","已创建");
+		grid.addColumn("150px","enclosure","附件","<a style='color:blue;cursor:pointer;' onclick='downPage(this)'> #= enclosure?enclosure.substring(enclosure.lastIndexOf('\\\\')+1):''# </a>");
+		if($("#jurisdiction").val()=="true"){
+			grid.addColumn("20%","showTaskBook","查看",kendo.template($("#showTaskBook").html()));
+			return grid.addColumn("20%","handle","操作",kendo.template($("#editTemplate").html()));
+		}else{
+			return grid.addColumn("20%","showTaskBook","查看",kendo.template($("#showTaskBook").html()));
+		}
+	},
+	
+	/**
+	 * 显示任务书
+	 */
+	showTaskBook : function(obj){
+		var tr = $(obj).parent().parent();
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取资料ID
+		var id = rowData.id;
+		var taskBookType = rowData.taskBookType;
+		common.toPage("../taskbook/edit_page?id="+id+"&taskBookType="+taskBookType+"&flag=2");
+	},
+	
+	createGrid : function(){
+		var columns = createTask.createColumns();
+		grid.createGrid(columns);
+	},
+	/**
+	 * 发送数据请求
+	 */
+	requestData : function(){
+		var year = $("#year").val();
+		common.init("../createTask/list?year="+year,"POST",createTask.bindGrid);
+		common.do_submit();
+	},
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindGrid : function(result){
+		grid.bindData(result);
+	},
+	
+	toCreatePage:function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取任务书ID
+		var id = rowData.id;
+		var taskBookName = rowData.taskbookName;
+		// 跳转到用户编辑页面
+		common.toPage("../createTask/create_init?id="+id+"&taskBookName="+taskBookName);
+	},
+	/**
+	 * 海图导入
+	 */
+	uploadFile : function(){
+		/** 绑定确定添加按钮的click事件*/
+			// 判空
+		var data = $('#uploadFile').val();
+		if(data==""){
+			layer.msg('请选择文件！');
+			return;
+		}
+		loading.init();
+		 var id = $('#id').val();
+		 var ajax_option={
+			 type:"post",
+			 url:"../createTask/uploadFile?id="+id,
+			 beforeSubmit: function() { 
+	            	return true;
+	            } ,
+			 success:function(result){
+				 result = eval("("+result+")");
+				 layer.msg(result.value);
+				 loading.close();
+			 } 
+		};
+		$('#importForm').ajaxSubmit(ajax_option);
+		
+		
+	},
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		/** 绑定导出文件模板的click事件*/
+		$("#exportTemplate").on("click",function(){
+			$("#importForm").attr("action", "../createTask/downTemplate");
+			$("#importForm").submit();
+		});
+		
+		/** 绑定上传文件的click事件*/
+		$("#importSubmit").on("click",function(){
+			createTask.uploadFile();
+		});
+	},
+}

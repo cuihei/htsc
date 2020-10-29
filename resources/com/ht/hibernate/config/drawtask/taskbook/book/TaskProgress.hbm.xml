@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class	name="com.ht.persistence.model.drawtask.taskbook.book.TaskProgress"	table="TASK_PROGRESS">
+
+		<id name="ID" type="java.lang.String">
+			<column name="ID"/>
+			<generator class="assigned"/>
+		</id>
+
+<property name="TASKBOOKNO" type="java.lang.String"><column name="TASKBOOKNO"/></property>
+<property name="MAPNO" type="java.lang.String"><column name="MAPNO"/></property>
+<property name="MAPNAME" type="java.lang.String"><column name="MAPNAME"/></property>
+<property name="SCALE" type="java.lang.String"><column name="SCALE"/></property>
+<property name="PROCESSDEFNAME" type="java.lang.String"><column name="PROCESSDEFNAME"/></property>
+<property name="NODE" type="java.lang.String"><column name="NODE"/></property>
+<property name="CURRUSER" type="java.lang.String"><column name="CURRUSER"/></property>
+<property name="TASKBOOKTIME" type="java.lang.String"><column name="TASKBOOKTIME"/></property>
+<property name="PROCESSINSTID" type="java.lang.String"><column name="PROCESSINSTID"/></property>
+<property name="SUPERID" type="java.lang.String"><column name="SUPERID"/></property>
+<property name="TASKDEFKEY" type="java.lang.String"><column name="TASKDEFKEY"/></property>
+<property name="PROCDEFID" type="java.lang.String"><column name="PROCDEFID"/></property>
+<property name="CREATETIME" type="java.lang.String"><column name="CREATETIME"/></property>
+<property name="COMPILATIONGROUP" type="java.lang.String"><column name="COMPILATIONGROUP"/></property>
+<property name="COMPILATIONPERSON" type="java.lang.String"><column name="COMPILATIONPERSON"/></property>
+<property name="COMPILATIONWORKDAYS" type="java.lang.String"><column name="COMPILATIONWORKDAYS"/></property>
+<property name="COMPILATIONSTARTTIME" type="java.lang.String"><column name="COMPILATIONSTARTTIME"/></property>
+<property name="COMPILATIONENDTIME" type="java.lang.String"><column name="COMPILATIONENDTIME"/></property>
+<property name="QUALITYPERSON" type="java.lang.String"><column name="QUALITYPERSON"/></property>
+<property name="CHECKWORKDAYS" type="java.lang.String"><column name="CHECKWORKDAYS"/></property>
+<property name="QUALITYSTARTTIME" type="java.lang.String"><column name="QUALITYSTARTTIME"/></property>
+<property name="QUALITYENDTIME" type="java.lang.String"><column name="QUALITYENDTIME"/></property>
+<property name="QUALITYSCORE" type="java.lang.String"><column name="QUALITYSCORE"/></property>
+<property name="ZTTIME" type="java.lang.String"><column name="ZTTIME"/></property>
+<property name="APPRVOEPERSON" type="java.lang.String"><column name="APPRVOEPERSON"/></property>
+<property name="EXAMINEWORKDAYS" type="java.lang.String"><column name="EXAMINEWORKDAYS"/></property>
+<property name="APPRVOESTARTTIME" type="java.lang.String"><column name="APPRVOESTARTTIME"/></property>
+<property name="APPRVOEENDTIME" type="java.lang.String"><column name="APPRVOEENDTIME"/></property>
+<property name="SCORE" type="java.lang.String"><column name="SCORE"/></property>
+<property name="ZLTIME" type="java.lang.String"><column name="ZLTIME"/></property>
+<property name="STATE" type="java.lang.String"><column name="STATE"/></property>
+<property name="MODIFY_DATE" type="java.lang.String"><column name="MODIFY_DATE"/></property>
+</class>
+	
+
+
+</hibernate-mapping>
+
+

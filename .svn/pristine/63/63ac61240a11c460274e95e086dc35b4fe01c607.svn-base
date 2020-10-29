@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.system.notice.UserNoticeView" table="V_USER_NOTICE">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+         <property name="userId" type="java.lang.String">
+            <column name="user_id" />
+        </property>
+        <property name="userName" type="java.lang.String">
+            <column name="user_name" />
+        </property>
+        <property name="user_no" type="java.lang.String">
+            <column name="user_no" />
+        </property>
+        <property name="publishUser" type="java.lang.String">
+            <column name="publish_user" />
+        </property>
+          <property name="noticeId" type="java.lang.String">
+            <column name="notice_id" />
+        </property>
+        <property name="title" type="java.lang.String">
+            <column name="title" />
+        </property>
+        <property name="description" type="java.lang.String">
+            <column name="description" />
+        </property>
+        <property name="isRead" type="java.lang.String">
+            <column name="is_read" />
+        </property>
+        <property name="releaseTime" type="java.lang.String">
+            <column name="release_time" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+         <property name="noticeType" type="java.lang.String">
+            <column name="notice_type" />
+        </property>
+    </class>
+    <query name="getUserNoticeView">
+    	<![CDATA[ from UserNoticeView]]>
+    </query>
+    <query name="getUserNoticeViewByIdView">
+    	<![CDATA[ from UserNoticeView where user_id= :userId and is_read = :read and notice_Type = :noticeType order by creationDate desc]]> 
+    </query>
+    <query name="getUserNoticeByUserNo">
+    	<![CDATA[ from UserNoticeView where user_no= :user_no and is_read = :read]]>
+    </query>
+</hibernate-mapping>

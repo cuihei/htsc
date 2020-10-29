@@ -1,0 +1,604 @@
+body, html {
+	width: 100%;
+	height: 100%;
+	margin-right: 0;
+	margin-bottom: 0;
+	padding-top: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+	padding-left: 0
+}
+
+.bg-login-container {
+	text-align: center;
+	padding-top: 150px;
+	overflow: hidden
+}
+
+.bg-home-container {
+	overflow: hidden
+}
+
+.bg-panel {
+	padding-top: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px;
+	display: inline-block
+}
+
+.bg-login-container .bg-login-title {
+	text-align: left;
+	padding-bottom: 5px;
+	margin-bottom: 5px
+}
+
+.bg-login-container .bg-login-title img {
+	height: 36px
+}
+
+.bg-login-container .bg-login-content {
+	padding-top: 20px;
+	padding-bottom: 20px
+}
+
+.bg-login-container .bg-forgot-password {
+	text-align: right;
+	padding-right: 70px
+}
+
+.bg-login-container .bg-addtional-infos, .bg-login-container .bg-waiting-login-symbol
+	{
+	margin-top: 50px
+}
+
+.bg-login-container .bg-addtional-infos .bg-addtional-info {
+	margin-bottom: 10px
+}
+
+.bg-item-properties {
+	padding-top: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px
+}
+
+.bg-item-properties .bg-item-property {
+	margin-bottom: 5px
+}
+
+.bg-item-properties .bg-item-property .bg-item-label {
+	width: 25%;
+	text-align: right;
+	vertical-align: middle;
+	display: inline-block
+}
+
+.bg-item-properties .bg-item-property .bg-item-value {
+	width: 70%;
+	text-align: left;
+	vertical-align: middle;
+	display: inline-block
+}
+
+.bg-item-properties .bg-item-property .bg-item-value i {
+	margin-top: 2px
+}
+
+.bg-item-properties .bg-item-property .bg-item-value img {
+	width: 128px;
+	height: 128px
+}
+
+.bg-item-properties .bg-item-property .bg-item-value div {
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-button-bar {
+	text-align: center
+}
+
+.bg-button-bar button {
+	width: 100px
+}
+
+.bg-hidden {
+	visibility: hidden
+}
+
+.bg-collapse {
+	display: none
+}
+
+.bg-page-header {
+	width: 100%;
+	height: 36px;
+	line-height: 36px;
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 999
+}
+
+.bg-page-header .bg-logo {
+	width: 250px;
+	height: 36px;
+	display: inline-block;
+	vertical-align: top
+}
+
+.bg-page-header .bg-logo img {
+	height: 36px
+}
+
+.bg-page-header .bg-widgets-container {
+	height: 36px;
+	margin-top: -2px;
+	display: inline-block;
+	vertical-align: top;
+	float: right
+}
+
+.bg-notifications {
+	width: 28px;
+	height: 28px;
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-notifications .bg-notification-symbol {
+	text-align: center
+}
+
+.bg-notifications .bg-notification-symbol i {
+	margin-top: 7px
+}
+
+.bg-personal-info {
+	display: inline-block;
+	vertical-align: top
+}
+
+.bg-personal-info .bg-portrait {
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-personal-info .bg-portrait img {
+	width: 28px;
+	height: 28px
+}
+
+.bg-personal-info .bg-user-name {
+	padding-right: 10px;
+	padding-left: 10px;
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-personal-info .bg-user-name i {
+	margin-left: 5px
+}
+
+.bg-page-header .bg-navigation {
+	height: 36px;
+	display: inline-block;
+	vertical-align: top
+}
+
+.bg-page-header .bg-navigation .bg-navigation-item {
+	width: 150px;
+	text-align: center;
+	display: inline-block;
+	vertical-align: top;
+	margin-left: -5px
+}
+
+.bg-page-header .bg-widgets-container .bg-notification-amount {
+	width: 20px;
+	height: 20px;
+	position: relative;
+	top: 4px;
+	left: -18px;
+	text-align: center;
+	line-height: 20px;
+	display: inline-block
+}
+
+.bg-content-container {
+	height: 100%
+}
+
+.bg-content-container .bg-navigation-container {
+	width: 250px;
+	height: 100%;
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 998
+}
+
+.bg-content-container .bg-view-container {
+	height: 100%;
+	margin-left: 250px
+}
+
+.bg-toolbar {
+	height: 36px;
+	line-height: 36px;
+	padding-top: 36px;
+	padding-right: 5px;
+	padding-left: 5px
+}
+
+.bg-toolbar .bg-item-no-label {
+	width: 36px;
+	height: 36px;
+	line-height: 36px;
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+	margin-left: -5px
+}
+
+.bg-toolbar .bg-item-no-label i {
+	margin-top: 12px
+}
+
+.bg-toolbar .bg-item-only-label {
+	display: inline-block
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel {
+	padding-top: 36px
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel .bg-navigation-type img
+	{
+	width: 250px
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel .bg-navigation-seperator
+	{
+	height: 4px
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel .bg-task-list-container .bg-task-list
+	{
+	padding-top: 10px;
+	padding-bottom: 10px
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel .bg-task-list-container .bg-task-list .bg-task-title
+	{
+	padding-left: 40px;
+	margin-top: 20px;
+	margin-bottom: 5px
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel .bg-task-list-container .bg-task-list .bg-task-item
+	{
+	padding-top: 5px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	padding-left: 60px
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel .bg-task-list-container .bg-task-list .bg-task-item .bg-item-symbol
+	{
+	width: 24px;
+	text-align: center;
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-content-container .bg-navigation-container .bg-navigation-panel .bg-task-list-container .bg-task-list .bg-task-item .bg-item-label
+	{
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-view-panel {
+	padding-top: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px
+}
+
+.bg-grid-container {
+	user-select: none !important;
+	-moz-user-select: none !important;
+	-ms-user-select: none !important;
+	-webkit-user-select: none !important;
+	 margin-top: 10px;
+}
+
+.bg-grid-container table th {
+	text-align: left !important
+}
+
+.bg-grid-container table th a {
+	font-size: 10;
+	font-weight: 800;
+}
+
+.bg-grid-container table tbody {
+	text-align: left !important;
+	font-size: 10;
+	font-weight: 400;
+}
+
+.bg-grid-container table tbody tr td{
+	border-bottom: 1px solid #dedee0;
+}
+
+.bg-grid-container .bg-locked-cell i {
+	margin-top: 5px
+}
+
+.bg-grid-container .bg-actions-cell {
+	text-align: center
+}
+
+.bg-align-left {
+	text-align: left
+}
+
+.bg-align-center {
+	text-align: center
+}
+
+.bg-align-right {
+	text-align: right
+}
+
+.bg-grid-toolbar {
+	height: 27px;
+	line-height: 27px;
+	padding-right: 5px;
+	padding-left: 5px;
+	margin-bottom: 5px
+}
+
+.bg-grid-toolbar .bg-grid-toolbar-item {
+	width: 80px;
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+	margin-left: 5px;
+	background-color: #2d6dcc;
+	color:#fff;
+	-moz-border-radius: 1px;      /* Gecko browsers */
+    -webkit-border-radius: 1px;   /* Webkit browsers */
+    border-radius:10px;            /* W3C syntax */
+}
+
+.bg-grid-toolbar .bg-grid-toolbar-item span {
+	margin-left: 5px
+}
+
+.bg-grid-container .bg-picture-cell .bg-picture {
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-grid-container .bg-picture-cell .bg-picture img {
+	width: 24px;
+	height: 24px
+}
+
+.bg-grid-container .bg-picture-cell .bg-label {
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-grid-container .bg-picture-cell .bg-label span {
+	margin-left: 5px
+}
+
+.bg-dialog-container .bg-dialog-panel .bg-dialog-content {
+	height: 520px;
+	margin-bottom: 10px
+}
+
+.bg-dialog-container .bg-dialog-panel .bg-dialog-button-bar {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	text-align: right
+}
+
+.bg-dialog-container .bg-dialog-panel .bg-dialog-button-bar button {
+	width: 100px
+}
+
+.bg-common-container .bg-dialog-panel .bg-dialog-content {
+	height: 520px;
+	margin-bottom: 10px
+}
+
+.bg-common-container .bg-dialog-panel .bg-dialog-button-bar {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	text-align: right
+}
+
+.bg-common-container .bg-dialog-panel .bg-dialog-button-bar button {
+	width: 100px
+}
+
+.bg-message-content {
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	padding-left: 10px
+}
+
+.bg-message-content .bg-message-symbol {
+	width: 8%;
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+	margin-right: 10px
+}
+
+.bg-message-content .bg-message-symbol i {
+	margin-top: 10px
+}
+
+.bg-message-content .bg-message-content {
+	width: 87%;
+	display: inline-block;
+	vertical-align: top
+}
+
+.bg-content-container .bg-summary-container {
+	width: 550px;
+	z-index: 998;
+	position: fixed;
+	top: 0
+}
+
+.bg-content-container .bg-summary-container .bg-actions {
+	padding-top: 46px;
+	padding-right: 10px;
+	padding-left: 10px;
+	margin-bottom: 10px;
+	text-align: right
+}
+
+.bg-content-container .bg-summary-container .bg-summary-panel .bg-summary-content
+	{
+	padding-top: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px
+}
+
+.bg-content-container .bg-summary-container .bg-summary-panel .bg-summary-content .bg-summary-title
+	{
+	padding-top: 10px;
+	padding-bottom: 20px;
+	padding-left: 30px;
+	margin-bottom: 10px
+}
+
+.bg-content-container .bg-summary-container .bg-summary-panel .bg-summary-content .bg-summary-title .bg-summary-picture
+	{
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 30px
+}
+
+.bg-content-container .bg-summary-container .bg-summary-panel .bg-summary-content .bg-summary-title .bg-summary-picture img
+	{
+	width: 64px;
+	height: 64px
+}
+
+.bg-content-container .bg-summary-container .bg-summary-panel .bg-summary-content .bg-summary-title .bg-summary-name
+	{
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-content-container .bg-summary-container .bg-summary-panel .bg-summary-content .bg-summary-grid-container
+	{
+	paddig-top: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px
+}
+
+.bg-content-container .bg-summary-container .bg-summary-panel .bg-summary-content .bg-summary-grid-container .bg-grid-title
+	{
+	paddig-top: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px;
+	margin-top: 10px
+}
+
+.bg-select-toolbar {
+	padding-top: 5px;
+	padding-bottom: 5px
+}
+
+.bg-select-toolbar .bg-select-type {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 30px
+}
+
+.bg-select-toolbar .bg-select-widgtes {
+	width: 550px;
+	display: inline-block;
+	vertical-align: middle;
+	text-align: right
+}
+
+.bg-select-toolbar .bg-select-widgtes>* {
+	vertical-align: middle;
+	margin-left: 5px
+}
+
+.bg-select-toolbar .bg-select-type .bg-select-mark {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 5px
+}
+
+.bg-select-toolbar .bg-select-type .bg-select-label, .bg-select-toolbar .bg-select-type .bg-select-label .bg-select-name,
+	.bg-select-toolbar .bg-select-type .bg-select-label .bg-select-symbol {
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-select-container {
+	height: 350px
+}
+
+.bg-select-container .bg-unselect {
+	width: 450px;
+	height: 100%;
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-select-container .bg-buttons {
+	width: 80px;
+	height: 100%;
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 350px;
+	text-align: center
+}
+
+.bg-select-container .bg-selected {
+	width: 245px;
+	height: 100%;
+	display: inline-block;
+	vertical-align: middle
+}
+
+.bg-select-container .bg-buttons button {
+	width: 100%;
+	height: 30px;
+	margin-bottom: 5px
+}
+
+.bg-select-container .bg-buttons .bg-add-button {
+	margin-top: 140px
+}
+
+.k-pager-wrap {
+	background-color:#fff
+}
+
+.k-header{
+	background-color:fff;
+	min-height: 18px;
+    line-height: 18px;
+    font-size: 10;
+    color: #4d4d4d;
+}

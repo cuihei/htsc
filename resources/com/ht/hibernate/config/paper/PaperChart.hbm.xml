@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.paper.PaperChart" table="PAPER_CHART">
+        <id name="id" type="java.lang.String">
+            <column name="chartver_chartver_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="chtcom" type="java.lang.String">
+            <column name="chtcom" />
+        </property>
+        <property name="chtnum" type="java.lang.String">
+            <column name="chtnum" />
+        </property>
+        <property name="chtype" type="java.lang.String">
+            <column name="chtype" />
+        </property>
+        <property name="ctdate" type="java.lang.String">
+            <column name="ctdate" />
+        </property>
+        <property name="ctitl1" type="java.lang.String">
+            <column name="ctitl1" />
+        </property>
+        <property name="ctitl2" type="java.lang.String">
+            <column name="ctitl2" />
+        </property>
+        <property name="eddate" type="java.lang.String">
+            <column name="eddate" />
+        </property>
+        <property name="ednumb" type="java.lang.String">
+            <column name="ednumb" />
+        </property>
+       	<property name="intnum" type="java.lang.String">
+            <column name="intnum" />
+        </property>
+        <property name="ltstnm" type="java.lang.String">
+            <column name="ltstnm" />
+        </property>
+        <property name="nregn1" type="java.lang.String">
+            <column name="nregn1" />
+        </property>
+        <property name="nregn2" type="java.lang.String">
+            <column name="nregn2" />
+        </property>
+        <property name="parcon" type="java.lang.String">
+            <column name="parcon" />
+        </property>
+        <property name="pubcon" type="java.lang.String">
+            <column name="pubcon" />
+        </property>
+        <property name="pubdat" type="java.lang.String">
+            <column name="pubdat" />
+        </property>
+        <property name="sarea1" type="java.lang.String">
+            <column name="sarea1" />
+        </property>
+        <property name="sarea2" type="java.lang.String">
+            <column name="sarea2" />
+        </property>
+        <property name="seanum" type="java.lang.String">
+            <column name="seanum" />
+        </property>
+        <property name="usrnam" type="java.lang.String">
+            <column name="usrnam" />
+        </property>
+        <property name="retired" type="java.lang.String">
+            <column name="retired" />
+        </property>
+        <property name="rejected" type="java.lang.String">
+            <column name="rejected" />
+        </property>
+        <property name="product_status" type="java.lang.String">
+            <column name="product_status" />
+        </property>
+        <property name="processing_status" type="java.lang.String">
+            <column name="processing_status" />
+        </property>
+        <property name="majorver" type="java.lang.String">
+            <column name="majorver" />
+        </property>
+        <property name="minorver" type="java.lang.String">
+            <column name="minorver" />
+        </property>
+        <property name="version" type="java.lang.String">
+            <column name="version" />
+        </property>
+        <property name="CHTLNK" type="java.lang.String">
+            <column name="CHTLNK" />
+        </property>
+        <property name="productgroup" type="java.lang.String">
+            <column name="productgroup" />
+        </property>
+    </class>
+    <query name="getPaperChart">
+    	<![CDATA[ from PaperChart where id = :id]]>
+    </query>
+</hibernate-mapping>

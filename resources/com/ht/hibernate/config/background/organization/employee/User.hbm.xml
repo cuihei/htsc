@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.organization.employee.User" table="USERS">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="userName" type="java.lang.String">
+            <column name="user_name" />
+        </property>
+        <property name="userNo" type="java.lang.String">
+            <column name="user_no" />
+        </property>
+        <property name="mail" type="java.lang.String">
+            <column name="mail" />
+        </property>
+        <property name="phone" type="java.lang.String">
+            <column name="phone" />
+        </property>
+        <property name="password" type="java.lang.String">
+            <column name="password" />
+        </property>
+        <property name="userImg" type="java.lang.String">
+            <column name="user_img" />
+        </property>
+        <property name="errorCount" type="java.lang.Integer">
+            <column name="error_count" />
+        </property>
+        <property name="lastErrorTime" type="java.lang.Long">
+            <column name="last_error_time" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getUser">
+    	<![CDATA[ from User]]>
+    </query>
+    <query name="getUserById">
+    	<![CDATA[ from User where id= :id]]> 
+    </query>
+    <query name="getUserByNo">
+    	<![CDATA[ from User where userNo= :userNo]]> 
+    </query>
+    <query name="getUserByUserIds">
+    	<![CDATA[ from User where id in (:ids)]]> 
+    </query>
+</hibernate-mapping>

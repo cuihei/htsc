@@ -1,0 +1,134 @@
+package com.ht.service.impl.complication.formprop;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.complication.formprop.ProcessPlanDao;
+import com.ht.persistence.model.background.authority.role.Role;
+import com.ht.persistence.model.background.authority.role.RoleUsers;
+import com.ht.persistence.model.complication.formprop.ProcessPlan;
+import com.ht.service.inter.complication.formprop.ProcessPlanService;
+
+/**
+ * ProcessPlanService的实现类
+ * @author 侯晨
+ */
+public class ProcessPlanServiceImpl implements ProcessPlanService {
+	/**
+	 * 注入formValueDao
+	 * */
+	@Resource(name = "processPlanDao") 
+	private ProcessPlanDao processPlanDao;
+	
+	/**
+	 * 新增
+	 * @param processPlanParam 
+	 * @throws Exception
+	 */
+	@Override
+	public void addProcessPlan(String processPlanParam) throws Exception {
+		try {
+			//将用户String类型转成ProcessPlan类型
+			ProcessPlan processPlan = (ProcessPlan) DataConverter.convertJson2Object(processPlanParam, ProcessPlan.class);
+			//执行保存操作
+			
+			if(StringUtils.isBlank(processPlan.getId())){
+				processPlan.setId(GenerateSequenceUtil.generateSequenceNo());
+				processPlanDao.addProcessPlan(processPlan);
+			}else{
+				processPlanDao.modifyProcessPlan(processPlan);
+			}
+			
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+		
+	}
+	/**
+	 * 更新
+	 * @param processPlanParam 
+	 * @throws Exception
+	 */
+	@Override
+	public void modifyProcessPlan(String processPlanParam) throws Exception {
+		try {
+			//将用户String类型转成ProcessPlan类型
+			ProcessPlan processPlan = (ProcessPlan) DataConverter.convertJson2Object(processPlanParam, ProcessPlan.class);
+			processPlanDao.modifyProcessPlan(processPlan);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 删除
+	 * @param id 
+	 * @throws Exception
+	 */
+	@Override
+	public void delProcessPlan(String processPlanParam) throws Exception {
+		try {
+			// 将日志String类型转成processPlan对象
+			@SuppressWarnings("unchecked")
+			List<ProcessPlan> list = (List<ProcessPlan>) DataConverter.convertJson2List(processPlanParam,ProcessPlan.class);
+			for (int i = 0; i < list.size(); i++) {
+				processPlanDao.delProcessPlan(list.get(i));
+			}
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	
+	/**
+	 * 根据id获取processPlan
+	 * @param id 
+	 * @throws Exception
+	 */
+	@Override
+	public ProcessPlan getProcessPlan(String id) throws Exception {
+		try {
+			//创建processPlan对象
+			ProcessPlan processPlan = new ProcessPlan();
+			processPlan.setId(id);
+			return processPlanDao.getProcessPlan(processPlan);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	@Override
+	public List<ProcessPlan> getByProcess(String processPlanParam) {
+		try {
+			//创建FormValue对象
+			ProcessPlan processPlan = (ProcessPlan) DataConverter.convertJson2Object(processPlanParam,ProcessPlan.class);
+			
+			return processPlanDao.getByProcess(processPlan);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	
+}

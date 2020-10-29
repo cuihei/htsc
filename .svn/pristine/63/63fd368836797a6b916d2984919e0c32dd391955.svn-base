@@ -1,0 +1,343 @@
+$(function() {
+	// 初始化數據发送
+	common.init("process_forms_list","POST",function(result){
+		if (result.code == 0) {
+			layer.msg(result.value);
+			return;
+		}
+		// 允许编辑的表单集合
+		var editableFormIds = result.value.editableFormIds;
+		// 数据
+		var formValueDatas = result.value.datas;
+		// 如果没有数据 
+		if (formValueDatas == null) {
+			// 提示无表单数据
+			return;
+		}
+		var body = $("body").eq(0);
+		body.css("overflow-x","hidden");
+		body.append('<div class="container-fluid"></div>');
+		// 增加返回按钮
+		var container = $(".container-fluid");
+		// 创建表头
+		container.append('<div class="page-header"><div class="pull-left">表单明细</div></div>');
+		container.append('<div class="top"></div>');
+		// 创建分组栏
+		container.append('<div class="panel-group" id="accordion">');
+		// 循环创建各表单
+		for (var id in formValueDatas) {
+			// 获取当前表单数据
+			var formValueData = formValueDatas[id];
+			id=id.replace("formId","");
+			// 是否可编辑
+			var editable = false;
+			if (editableFormIds != null) {
+				var index = $.inArray(id,editableFormIds);
+				if (index != null) {
+					if (index > -1) {
+						editable = true;
+					}
+				}
+			}
+			// 创建表单Grid
+			createFormGrid(formValueData.formId,formValueData,editable);
+		}
+		container.append("<div class='row'><div class='col-xs-1 col-md-2 col-sm-3 col-off-set-1'><button class='btn btn-default' id='back' onclick='history.back();' style='margin-top:20px;'>返回</button></div></div>");
+		loading.close();
+	});
+	// 参数 流程实例ID
+	var processInstId = $("#processInstId").val();
+	var processDefId = $("#processDefId").val();
+	common.add_param("processDefId",processDefId);
+	var data = common.add_param("processInstId",processInstId);
+	// 显示加载
+	loading.init();
+	// 发送请求
+	common.do_submit(data);
+	
+	/**
+	 * 创建表单Grid
+	 * @param formId 表单ID
+	 * @param formValueData 表单数据
+	 */
+	var createFormGrid = function(formId,formValueData,editable){
+		// 创建表单承载DIV
+		var container = $(".container-fluid");
+		if (formValueData.data != null) {
+			if (formValueData.data.length>0) {
+				var panelGroup = $(".panel-group");
+				panelGroup.append('<div class="top35"></div>');
+				var formName = formValueData.formName;
+				// 流程的一些参数
+				var taskInstId = formValueData.taskInstId;
+				var taskDefId = formValueData.taskDefId;
+				var parentProcessInstId = formValueData.parentProcessInstId;
+				if (editable == true) {
+					 var style= 'style="padding:0px 5px;border-left: 1px solid #d4d4d4;border-right: 1px solid #d4d4d4;cursor:pointer;" title="点击编辑"';
+					 formName =formName + "<lable style='color:red'>（点击编辑）</lable>";
+				}
+				else{
+					 var style='style="padding:0px 5px;border-left: 1px solid #d4d4d4;border-right: 1px solid #d4d4d4;"';
+				}
+				panelGroup.append('<div class="panel panel-default"><div class="panel-heading" '+style+'><div class="panel-title" style="font-size:15px;font-weight:800" onclick="toEditForm('+editable+','+taskInstId+',&quot;'+taskDefId+'&quot;,'+parentProcessInstId+')">'+formName+'</div></div><div class="panel-body no-padding" style="background-color:#F8F8FF"><div id='+formId+' class="bg-grid-container" style="margin-top:0"></div></div></div>');
+				// 获取表格列
+				var columns = createFormColumns(formId,formValueData.prop);
+				// 去掉选择框列
+				if (columns.length>0) {
+					if (columns[0].field == "selected") {
+						columns.shift(0);
+					}
+				}
+				// 创建表格
+				common.init_grid($("#"+formId),columns,true,false);
+				// 绑定表格数据
+				bindFormGrid(formId,formValueData.data);
+			}
+		}
+	}
+	
+	/**
+	 * 构建表单列表列集合
+	 */
+	var createFormColumns = function(formId,formValueDataProp){
+		// 遍历JSON对象取得表头
+		grid.resetColumn();
+		for (var int = 0; int < formValueDataProp.length; int++) {
+			var prop = formValueDataProp[int];
+			var key = prop.propKey;
+			var name = prop.propName;
+			var type = prop.propType;
+			if (type == "img") {
+				colmuns = grid.addColumn("150px",key,name,getImgTemplate(formId,key));
+			}
+			else if(type == "file"){
+				colmuns = grid.addColumn("150px",key,name,getFileTemplate(formId,key));
+			}
+			else{
+				colmuns = grid.addColumn("150px",key,name);
+			}
+		}
+		return colmuns;
+	}
+	
+	/**
+	 * 获取图片模版
+	 */
+	var getImgTemplate = function(formId,key){
+		var template = "<button class='btn btn-info'  onclick=showImg('"+formId+"',this,'"+key+"') title='查看图片'><i class='fa fa-eye' ></i></button>";
+		return template;
+	}
+	
+	/**
+	 * 获取图片模版
+	 */
+	var getFileTemplate = function(formId,key){
+		var template = "<button class='btn btn-info'  onclick=downLoadFile('"+formId+"',this,'"+key+"') title='下载文件'><i class='fa fa-cloud-download' ></i></button>";
+		return template;
+	}
+	
+	function grid_dataBound(formId) {
+		$('#'+formId+'>.k-grid-content>table').each(function (index, item) {
+            var dimension_col = 1;
+            var dimension_col2 = 1;
+            var dimension_col3 = 1;
+            var dimension_col4 = 1;
+            $('#'+formId+'>.k-grid-header>.k-grid-header-wrap>table').find('th').each(function () {
+                if ($(this).text() == "累计扣分") {
+                    var first_instance = null;
+                    var rowspan = 0;
+                    $(item).find('tr').each(function () {
+                        var dimension_td = $(this).find('td:nth-child(' + dimension_col + ')');
+                        if (first_instance == null) {
+                            first_instance = dimension_td;
+                            rowspan = 0;
+                        } else if (dimension_td.text() == first_instance.text()) {
+                            $(item).find('tr').each(function () {
+                                if ($(this).find('td:nth-child(' + dimension_col + ')').text() == first_instance.text()) {
+                                    rowspan++;
+                                }
+                            });
+                            dimension_td.hide();
+                            first_instance.attr('rowspan', rowspan);
+                            rowspan = 0;
+                        } else {
+                            rowspan = 0;
+                            first_instance = dimension_td;
+                        }
+                    });
+                    return;
+                }
+                dimension_col++;
+                if ($(this).text() == "实际总扣分") {
+                    var first_instance = null;
+                    var rowspan = 0;
+                    $(item).find('tr').each(function () {
+                        var dimension_td = $(this).find('td:nth-child(' + dimension_col + ')');
+                        if (first_instance == null) {
+                            first_instance = dimension_td;
+                            rowspan = 0;
+                        } else if (dimension_td.text() == first_instance.text()) {
+                            $(item).find('tr').each(function () {
+                                if ($(this).find('td:nth-child(' + dimension_col + ')').text() == first_instance.text()) {
+                                    rowspan++;
+                                }
+                            });
+                            dimension_td.hide();
+                            first_instance.attr('rowspan', rowspan);
+                            rowspan = 0;
+                        } else {
+                            rowspan = 0;
+                            first_instance = dimension_td;
+                        }
+                    });
+                    return;
+                }
+                dimension_col2++;
+                if ($(this).text() == "质量评分") {
+                    var first_instance = null;
+                    var rowspan = 0;
+                    $(item).find('tr').each(function () {
+                        var dimension_td = $(this).find('td:nth-child(' + dimension_col + ')');
+                        if (first_instance == null) {
+                            first_instance = dimension_td;
+                            rowspan = 0;
+                        } else if (dimension_td.text() == first_instance.text()) {
+                            $(item).find('tr').each(function () {
+                                if ($(this).find('td:nth-child(' + dimension_col + ')').text() == first_instance.text()) {
+                                    rowspan++;
+                                }
+                            });
+                            dimension_td.hide();
+                            first_instance.attr('rowspan', rowspan);
+                            rowspan = 0;
+                        } else {
+                            rowspan = 0;
+                            first_instance = dimension_td;
+                        }
+                    });
+                    return;
+                }
+                dimension_col3++;
+                if ($(this).text() == "难度系数") {
+                    var first_instance = null;
+                    var rowspan = 0;
+                    $(item).find('tr').each(function () {
+                        var dimension_td = $(this).find('td:nth-child(' + dimension_col + ')');
+                        if (first_instance == null) {
+                            first_instance = dimension_td;
+                            rowspan = 0;
+                        } else if (dimension_td.text() == first_instance.text()) {
+                            $(item).find('tr').each(function () {
+                                if ($(this).find('td:nth-child(' + dimension_col + ')').text() == first_instance.text()) {
+                                    rowspan++;
+                                }
+                            });
+                            dimension_td.hide();
+                            first_instance.attr('rowspan', rowspan);
+                            rowspan = 0;
+                        } else {
+                            rowspan = 0;
+                            first_instance = dimension_td;
+                        }
+                    });
+                    return;
+                }
+                dimension_col4++;
+            });
+        })
+	
+	}
+	
+	/**
+	 * 绑定表格数据
+	 */
+	var bindFormGrid = function(formId,formValueData){
+		var datas = [];
+		// 行标志
+		var rowFlags = [];
+		// 获取行标志集合
+		for (var int = 0; int < formValueData.length; int++) {
+			var prop = formValueData[int];
+			var flag = prop.rowFlag;
+			if ($.inArray(flag,rowFlags) == -1) {
+				rowFlags.push(flag);
+			}
+		}
+		// 组织数据
+		for (var int = 0; int < rowFlags.length; int++) {
+			var data = {};
+			for (var int2 = 0; int2 < formValueData.length; int2++) {
+				var prop = formValueData[int2];
+				var flag = prop.rowFlag;
+				// 同行
+				if (flag == rowFlags[int]) {
+					var key = prop.propKey;
+					var value = prop.propValue;
+					data[key] = value;
+				}
+			}
+			datas.push(data);
+		}
+		var gridInst = $("#"+formId).data("kendoGrid");
+		gridInst.setOptions({
+			dataSource: datas,
+			filterable:false,
+			pageable : {
+				pageSizes : true,
+				buttonCount : 5,
+				pageSize : 200
+			},
+		});
+		var pager = $("#"+formId).find("div[data-role='pager']");
+		grid_dataBound(formId);
+		$(pager).hide();
+		loading.close();
+	};
+});
+
+var showFile = function(obj){
+	
+}
+
+var showImg = function(formId,obj,key){
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = $("#"+formId).data("kendoGrid").dataItem(tr[0]);
+	// 获取url的值
+	var url = rowData[key];
+	if(url == null || url == ""){
+		layer.msg("该表单没有上传图片！");
+		return;
+	}else{
+		// 跳转到表单查看页面
+		common.toPage("../formValue/form_img?url="+url);
+	}
+}
+
+
+var downLoadFile = function(formId,obj,key){
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = $("#"+formId).data("kendoGrid").dataItem(tr[0]);
+	// 获取url的值
+	var url = rowData[key];
+	if(url == null || url == ""){
+		layer.msg("该表单没有上传文件！");
+		return;
+	}else{
+		// 跳转到下载页面
+		window.location.href = "../formValue/form_file?url="+url;
+	}
+}
+
+/**
+ * 去编辑页面
+ */
+var toEditForm = function(editable,taskInstId,taskDefId,parentProcessInstId){
+	if (editable == true) {
+		var processInstId = $("#processInstId").val();
+		var processDefId = $("#processDefId").val();
+		var processDefKey = processDefId.split(":")[0];
+		common.toPage("../taskform/process?taskDefId="+taskDefId+"&processDefId="+processDefId+"&taskInstId="+taskInstId+"&processInstId="+processInstId+"&from=1&processDefKey="+processDefKey+"&parentProcessInstId="+parentProcessInstId);
+	}
+};

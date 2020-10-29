@@ -1,0 +1,96 @@
+package com.ht.persistence.dao.impl.statisticalanalysis;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.statisticalanalysis.DynamicTableDao;
+import com.ht.persistence.model.statisticalanalysis.CompilationDynamicSummary;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationYearPlanView;
+import com.ht.persistence.model.statisticalanalysis.view.DynamicTableView;
+
+/**
+ * 数据映射操作类
+ * @author zyd
+ *
+ */
+public class DynamicTableDaoImpl extends BaseDaoImpl implements DynamicTableDao {
+	
+	
+	/**
+	 * 获取港口航道图月度在编动态
+	 */
+	@Override
+	public List<DynamicTableView> getDynamicTableView(Date date1,Date date2) {
+		if(date1 != null && date2 != null){
+			List<DynamicTableView> list = null;
+			try {
+				String hql = "from DynamicTableView where planExchangeTime>= :beginDate  and planExchangeTime<= :endDate";
+				Query query = this.getSession().createQuery(hql);
+				query.setDate("beginDate",date1);     
+				query.setDate("endDate",date2);  
+				list = query.list();
+			} catch (Exception e) {
+				LogHelper.ERROR.log(e.getMessage());
+			}
+			return list;
+		}else{
+			List<DynamicTableView> list = null;
+			try {
+				String hql = "from DynamicTableView ";
+				Query query = this.getSession().createQuery(hql);
+				list = query.list();
+			} catch (Exception e) {
+				LogHelper.ERROR.log(e.getMessage());
+			}
+			return list;
+		}
+		
+	}
+	
+	/**
+	 * 获取一条月度在编动态
+	 */
+	@Override
+	public DynamicTableView getDynamicTableById(DynamicTableView dynamicTable) {
+		SQLQuery query = this.getSession().createSQLQuery("select * from V_COMPILATION_DYNAMIC_SUMMARY where id =  '" +dynamicTable.getId()+"'");
+		query.addEntity(DynamicTableView.class);
+		@SuppressWarnings("unchecked")
+		List<DynamicTableView> result =  query.list();
+		if(result.size()>0){
+			return result.get(0);
+		}
+		return null;
+	}
+	
+	/**
+	 * 新增一条
+	 * @param c
+	 * @throws Exception
+	 */
+	@Override
+	public void addDynamicTable(CompilationDynamicSummary d) {
+		this.save(d);
+	}
+	
+	/**
+	 * 修改
+	 */
+	@Override
+	public void modifyCompilationDynamicSummary(CompilationDynamicSummary cds) {
+		this.update(cds);
+	}
+	
+	@Override
+	public List<DynamicTableView> getDynamicTableByYear(DynamicTableView dynamicTable) {
+		@SuppressWarnings("unchecked")
+		List<DynamicTableView> result = this.findByNamedQueryAndNamedParam("getDynamicTableByYear", "year", dynamicTable.getYear());
+		return result;
+	}
+}

@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.drawtask.taskbook.book.TaskBook" table="COMPILATION_TASK_BOOK">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="taskbookName" type="java.lang.String">
+            <column name="taskbook_name" />
+        </property>
+        <property name="taskbookNo" type="java.lang.String">
+            <column name="taskbook_no" />
+        </property>
+        <property name="taskName" type="java.lang.String">
+            <column name="task_name" />
+        </property>
+        <property name="taskFrom" type="java.lang.String">
+            <column name="task_from" />
+        </property>
+        <property name="executeDeptId" type="java.lang.String">
+            <column name="execute_dept_id" />
+        </property>
+        <property name="executeTime" type="timestamp">
+            <column name="execute_time" />
+        </property>
+        <property name="technologyStandard" type="java.lang.String">
+            <column name="technology_standard" />
+        </property>
+        <property name="technologyDemand" type="java.lang.String">
+            <column name="technology_demand" />
+        </property>
+        <property name="otherDemand" type="java.lang.String">
+            <column name="other_demand" />
+        </property>
+        <property name="revision" type="java.lang.String">
+            <column name="revision" />
+        </property>
+        <property name="authenticity" type="java.lang.String">
+            <column name="authenticity" />
+        </property>
+        <property name="enclosure" type="java.lang.String">
+            <column name="enclosure" />
+        </property>
+         <property name="projectName" type="java.lang.String">
+            <column name="project_name" />
+        </property>
+         <property name="noticeNo" type="java.lang.String">
+            <column name="notice_no" />
+        </property>
+         <property name="correctNo" type="java.lang.String">
+            <column name="correct_no" />
+        </property>
+         <property name="correctNoticeNo" type="java.lang.String">
+            <column name="correct_notice_no" />
+        </property>
+         <property name="itemName" type="java.lang.String">
+            <column name="item_name" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        <property name="taskBookType" type="java.lang.String">
+            <column name="taskbook_type" />
+        </property>
+         <property name="correctItemNo" type="java.lang.String">
+            <column name="correct_item_no" />
+        </property>
+        <property name="endTime" type="timestamp">
+            <column name="end_time" />
+        </property>
+         <property name="state" type="java.lang.String">
+            <column name="state" />
+        </property>
+         <property name="issueTime" type="timestamp">
+            <column name="issue_time" />
+        </property>
+      
+       <property name="ehRevision" type="java.lang.String">
+            <column name="eh_revision" />
+        </property>
+        <property name="ehCreationDate" type="timestamp">
+            <column name="eh_creation_date" />
+        </property>
+
+    </class>
+    <query name="findTaskBookList">
+    	<![CDATA[ from TaskBook where substr(TASKBOOK_NO,1,4)='2017' ]]>
+   	<!-- 2018.6.6查询2018年任务书时发现查询结果包含部分2017年任务书，查原因；同时任务书归哪一年应该根据任务书编号来归。  -->    </query>
+    <query name="findTaskBookById">
+    	<![CDATA[ from TaskBook where id= :id]]> 
+    </query> 
+    <query name="findTaskBookByType">
+    	<![CDATA[ from TaskBook where taskBookType= :taskBookType order by taskbookNo ]]> 
+    </query>
+    <query name="findTaskBookByNo">
+    	<![CDATA[ from TaskBook where taskbookNo = :taskbookNo]]> 
+    </query>
+</hibernate-mapping>

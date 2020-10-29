@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.complication.formprop.FormProp" table="FORM_PROP">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="formId" type="java.lang.String">
+            <column name="form_id" />
+        </property>
+        <property name="propKey" type="java.lang.String">
+            <column name="prop_key" />
+        </property>
+        <property name="propName" type="java.lang.String">
+            <column name="prop_name" />
+        </property>
+        <property name="propType" type="java.lang.String">
+            <column name="prop_type" />
+        </property>
+        <property name="propDefaultValue" type="java.lang.String">
+            <column name="prop_default_value" />
+        </property>
+         <property name="required" type="java.lang.String">
+            <column name="required" />
+        </property>
+         <property name="selectData" type="java.lang.String">
+            <column name="select_data" />
+        </property>
+        <property name="num" type="java.lang.String">
+            <column name="num" />
+        </property>
+        <property name="selectDic" type="java.lang.String">
+            <column name="select_dic" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getFormProp">
+    	<![CDATA[ from FormProp]]>
+    </query>
+    <query name="getFormPropById">
+    	<![CDATA[ from FormProp where id= :id]]> 
+    </query>
+    <query name="getFormPropByFormId">
+    	<![CDATA[ from FormProp where formId= :formId order by cast(num as int) ]]> 
+    </query>
+</hibernate-mapping>

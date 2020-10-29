@@ -1,0 +1,262 @@
+package com.ht.front.pages.background.authority.role;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ht.exception.DBException;
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+import com.ht.front.model.Base;
+import com.ht.front.model.Button;
+import com.ht.front.model.Div;
+import com.ht.front.model.H6;
+import com.ht.front.model.I;
+import com.ht.front.model.InputGroup;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.Script;
+import com.ht.front.model.Span;
+import com.ht.front.template.EditPage;
+import com.ht.front.template.ListPage;
+import com.ht.front.util.FrontUtil;
+import com.ht.persistence.model.background.authority.role.Role;
+import com.ht.service.inter.background.authority.role.RoleService;
+
+/**
+ * 角色前台页面初始化类
+ * @author liukai
+ * */
+public class RolePage {
+	
+	/**
+	 * 页面实例
+	 */
+	private static RolePage page = null;
+	
+	/**
+	 * 获取页面实例
+	 * @return
+	 */
+	public static RolePage getInstance(){
+		if (page == null) {
+			page = new RolePage();
+		}
+		return page;
+	}
+	
+	/**
+	 * 初始化角色列表数据页面
+	 * @return 节点字符串
+	 * */
+	public String getListPage() throws Exception{
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "角色管理");
+		util.createRowSpace(root);
+		/** 创建按钮组行  开始*/
+		// 创建行
+		Base rowBg = util.createRow(root);
+		// 创建按钮组
+		Base column = util.createColumn(rowBg, "12", "12", "12", null);
+		// 构建创建div
+		CssClass css = new CssClass("fa fa-plus");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-success btn-setting search");
+		Button button = Button.getButtonWithIcon("add", css, "创建", i);
+		column.addChildNode(button);
+		// 构建删除div
+		css = new CssClass("fa fa-times");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-danger bk-margin-5 search");
+		button = Button.getButtonWithIcon("remove", css, "删除", i);
+		column.addChildNode(button);
+		// 构建分配人员按钮
+		css = new CssClass("fa fa-hand-o-up");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info bk-margin-5 search");
+		button = Button.getButtonWithIcon("alloc_user", css, "分配人员", i);
+		column.addChildNode(button);
+		// 构建分配人员按钮
+		css = new CssClass("fa fa-hand-o-up");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info bk-margin-5 search");
+		button = Button.getButtonWithIcon("alloc_app", css, "分配资源", i);
+		column.addChildNode(button);
+		// 构建刷新按钮
+		css = new CssClass("fa fa-refresh");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-warning bk-margin-5 search");
+		button = Button.getButtonWithIcon("refresh", css, "刷新", i);
+		column.addChildNode(button);
+		/** 创建按钮组行  结束*/
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行  开始*/
+		// 创建Grid
+		Base rowGrid = util.createGrid(root,"role");
+		/** 创建Grid行  结束*/
+		// 添加编辑按钮
+		CssClass editCss = new CssClass("fa fa-edit");
+		I editI = I.getInstance(editCss);
+		editCss = new CssClass("btn btn-success bk-margin-4 btn-settings");
+		Button tempelate = Button.getButtonWithIcon(null, editCss, null, editI);
+		Prop prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("editRole");
+		// 绑定属性
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("编辑");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("editPage(this)");
+		tempelate.addProp(prop);
+		Script script = Script.getInstance("editTemplate");
+		script.addChildNode(tempelate);
+		return root.getNode()+script.getNode();
+	}
+	
+	/**
+	 * 初始化新增/编辑角色信息页面
+	 * @return 节点字符串
+	 * @throws Exception 
+	 * */
+	public String getEditPage(RoleService roleService,String id) throws Exception {
+		EditPage edit = new EditPage();
+		Base editPage = null;
+		// 获取角色数据
+		try {
+			if(id!=null){
+				Role role = roleService.getRole(id);
+				List<Base> param = new ArrayList<Base>();
+				InputGroup tb1 = InputGroup.getInGroup(true,"角色编号", "roleNo", role.getRoleNo(), "请输入角色编号");
+				param.add(tb1);
+				InputGroup tb = InputGroup.getInGroup("角色名称", "roleName", role.getRoleName(), "请输入角色名称");
+				param.add(tb);
+				editPage = edit.createEditPage(param);
+				FrontUtil util = FrontUtil.getInstance();
+				util.createHeaderBar(editPage, "角色编辑");
+				InputHidden hidden = InputHidden.getInstance("roleId", id);
+				editPage.addChildNode(hidden);
+			}else{
+				List<Base> param = new ArrayList<Base>();
+				InputGroup tb1 = InputGroup.getInGroup(true,"角色编号", "roleNo", null, "请输入角色编号");
+				param.add(tb1);
+				InputGroup tb = InputGroup.getInGroup("角色名称", "roleName", null, "请输入角色名称");
+				param.add(tb);
+				editPage = edit.createEditPage(param);
+				FrontUtil util = FrontUtil.getInstance();
+				util.createHeaderBar(editPage, "角色创建");
+			}
+			//返回节点字符串
+			return editPage.getNode();
+		} catch (DBException e) {
+			return e.getMessageCode();
+		}
+	}
+	
+	/**
+	 * 初始化分配角色人员页面
+	 * @return 节点字符串
+	 * */
+	public String getAllocUserPage(String id,String roleName) {
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "角色人员管理");
+		util.createRowSpace(root);
+		// 创建行
+		Base rowBg = util.createRow(root);
+		// 创建列
+		Base column = util.createColumn(rowBg, "12", "12", "12", null);
+		/*// 创建标题panel
+		CssClass css = new CssClass("panel panel-default");
+		Base panel = Div.getInstance(null, css, null);
+		column.addChildNode(panel);*/
+		// 创建标题panelHeader
+		//CssClass css = new CssClass("panel-heading panel-heading-style");
+		Base header = Div.getInstance(null, null, null);
+		root.addChildNode(header);
+		// 创建标题H6
+		Base h6 = H6.getInstance(null);
+		CssClass css = new CssClass("h6-span");
+		Base span = Span.getInstance(css, roleName);
+		h6.addChildNode(span);
+		header.addChildNode(h6);
+		
+		// 构建创建div
+		css = new CssClass("fa fa-check-square");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-success btn-setting");
+		Button button = Button.getButtonWithIcon("submit", css, "提交", i);
+		column.addChildNode(button);
+		css = new CssClass("btn btn-default bk-margin-5");
+		button = Button.getButtonWithIcon("back", css, "返回",i);
+		column.addChildNode(button);
+		/** 创建按钮组行 结束 */
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行  开始*/
+		// 创建Grid
+		Base rowGrid = util.createGrid(root,"roleUser");
+		InputHidden hidden = InputHidden.getInstance("roleId", id);
+		root.addChildNode(hidden);
+		//返回节点字符串
+		return root.getNode();
+	}
+	
+	/**
+	 * 初始化分配角色资源页面
+	 * @return 节点字符串
+	 * */
+	public String getAllocAppPage(String id,String roleName) {
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "角色资源管理");
+		util.createRowSpace(root);
+		// 创建行
+		Base rowBg = util.createRow(root);
+		// 创建列
+		Base column = util.createColumn(rowBg, "12", "12", "12", null);
+		// 创建标题panel
+		/*CssClass css = new CssClass("panel panel-default");
+		Base panel = Div.getInstance(null, css, null);
+		column.addChildNode(panel);*/
+		// 创建标题panelHeader
+		//CssClass css = new CssClass("panel-heading panel-heading-style");
+		Base header = Div.getInstance(null, null, null);
+		root.addChildNode(header);
+		// 创建标题H6
+		Base h6 = H6.getInstance(null);
+		CssClass css = new CssClass("h6-span");
+		Base span = Span.getInstance(css, roleName);
+		h6.addChildNode(span);
+		header.addChildNode(h6);
+		
+		// 构建创建div
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-success btn-setting");
+		Button button = Button.getButtonWithIcon("submit", css, "提交", i);
+		column.addChildNode(button);
+		css = new CssClass("btn btn-default bk-margin-5");
+		button = Button.getButtonWithIcon("back", css, "返回",i);
+		column.addChildNode(button);
+		/** 创建按钮组行 结束 */
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行  开始*/
+		// 创建Grid
+		Base rowGrid = util.createGrid(root,"roleApp");
+		
+		InputHidden hidden = InputHidden.getInstance("roleId", id);
+		root.addChildNode(hidden);
+		//返回节点字符串
+		return root.getNode();
+	}
+}

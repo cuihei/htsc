@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.organization.employee.UserOrgView" table="V_USER_ORG">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="userName" type="java.lang.String">
+            <column name="user_name" />
+        </property>
+        <property name="userNo" type="java.lang.String">
+            <column name="user_no" />
+        </property>
+        <property name="orgId" type="java.lang.String">
+            <column name="org_id" />
+        </property>
+        <property name="orgName" type="java.lang.String">
+            <column name="org_name" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+          <property name="userImg" type="java.lang.String">
+            <column name="user_img" />
+        </property>
+    </class>
+    <query name="getUserOrgView">
+    	<![CDATA[ from UserOrgView]]>
+    </query>
+    <query name="getUserOrgViewByOrgId">
+    	<![CDATA[ from UserOrgView where orgId= :orgId]]> 
+    </query>
+</hibernate-mapping>

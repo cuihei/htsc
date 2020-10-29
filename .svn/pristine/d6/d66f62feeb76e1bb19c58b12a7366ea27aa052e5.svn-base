@@ -1,0 +1,53 @@
+package com.ht.service.constant.experiencebook.sourcedata;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+
+
+
+
+import com.ht.common.util.SpringUtil;
+import com.ht.persistence.dao.inter.complication.formprop.FormPropDao;
+import com.ht.persistence.model.complication.formprop.FormPropFormView;
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.service.constant.experiencebook.BaseExperience;
+
+/**
+ * 源数据编绘经历簿导出图幅索引图常量类
+ * @author penghao
+ * 2016/12/7
+ */
+public class MapIndexes extends BaseExperience
+{
+	Map<String,Object> map = new HashMap<String, Object>();
+	/**
+	 * 图幅索引图表单id
+	 */
+	public final String MAP_INDEXES_ID = "11031817253780011";
+	
+	/**
+	 * 书签
+	 */
+	public final String MARKER = "table_tfsyt";
+	
+	/**
+	 * 标题
+	 */
+	final String TITLE = "text_tfsyt_title";
+	
+	public void setDataProps(List<FormValue> valueList){
+		this.setProps(this.map, MAP_INDEXES_ID, valueList, "tfsyt");
+	}
+
+	public void setTITLE(String title)
+	{
+		this.map.put(this.TITLE, title);
+	}
+
+	public Map<String,Object> getMapIndexesMap(){
+		return this.map;
+	}
+}

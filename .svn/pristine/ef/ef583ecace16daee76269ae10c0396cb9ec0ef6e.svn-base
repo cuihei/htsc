@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.system.workflow.process.ProcessTypeCount" table="ProcessTypeCount">
+
+ 		<id name="processDefId" type="java.lang.String">
+            <column name="PROCESS_DEF_ID" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="processDefName" type="java.lang.String">
+            <column name="PROCESS_DEF_NAME" />
+        </property>
+        
+        <property name="processDefKey" type="java.lang.String">
+            <column name="PROCESS_DEF_KEY" />
+        </property>
+        
+        <property name="cnt" type="java.lang.Integer">
+            <column name="cnt" />
+        </property>
+    </class>
+</hibernate-mapping>

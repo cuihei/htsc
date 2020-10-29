@@ -1,0 +1,346 @@
+package com.ht.workflow.service;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.PersistenceException;
+
+import org.activiti.bpmn.model.CallActivity;
+import org.activiti.bpmn.model.Gateway;
+import org.activiti.bpmn.model.SequenceFlow;
+import org.activiti.bpmn.model.UserTask;
+import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
+import org.activiti.engine.repository.ProcessDefinition;
+
+import com.ht.workflow.common.ProcessDefinitionInfo;
+import com.ht.workflow.util.ArgumentList;
+
+/**
+ * BizGo系统工作流Web服务接口
+ * @author wyw
+ * @version 1.0 2015/07/05
+ */
+public interface IWorkflowService
+{
+
+	/**
+	 * 启动工作流处理
+	 * @param processId 工作流ID
+	 * @param launcher 工作流发起人
+	 * @param jsonData 流程JSON数据
+	 * @return 执行结果
+	 */
+	public String start(String processId, String launcher, String jsonData);
+
+	/**
+	 * 取得工作流任务列表
+	 * @param performer 执行者
+	 * @return 工作流任务列表
+	 */
+	public String getTaskList(String performer);
+
+	/**
+	 * 根据候选用户组取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @return 工作流任务列表
+	 */
+	public String getTaskListByCandidateGroup(String groupName);
+
+	/**
+	 * 根据候选用户取得工作流任务列表
+	 * @param userName 用户名称
+	 * @return 工作流任务列表
+	 */
+	public String getTaskListByCandidateUser(String userName);
+
+	/**
+	 * 根据候选指定名称取得工作流任务列表
+	 * @param name 名称
+	 * @return 工作流任务列表
+	 */
+	public String getTaskListByCandidateOrAssignee(String name);
+
+	/**
+	 * 领取工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param performer 执行者
+	 * @return 处理结果（1：工作流任务领取成功；2：工作流任务无法找到；3：工作流任务已经被领取）
+	 */
+	public int claim(String taskId, String performer);
+
+	/**
+	 * 执行工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param argumentList 流程参数列表
+	 */
+	public void perform(String taskId, String jsonData);
+
+	/**
+	 * 委派工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param performer 执行者
+	 */
+	public void delegate(String taskId, String performer);
+
+	/**
+	 * 部署所有流程模板
+	 */
+	public void deploy();
+
+	/**
+	 * 关闭工作流引擎
+	 */
+	public void close();
+
+	/**
+	 * 创建用户
+	 * @param userName 用户名称
+	 */
+	public void createUser(String userId, String userName);
+
+	/**
+	 * 删除用户
+	 * @param userName 用户名称
+	 */
+	public void deleteUser(String userName);
+
+	/**
+	 * 得到所有用户
+	 * @param userName 用户名称
+	 */
+	public List<User> findAllUser();
+
+	/**
+	 * 创建用户组
+	 * @param groupName 用户组名称
+	 */
+	public void createGroup(String groupName);
+
+	/**
+	 * 删除用户组
+	 * @param groupName 用户组名称
+	 */
+	public List<Map<String, String>> deleteGroup(String groupName);
+
+	/**
+	 * 将用户添加到用户组中
+	 * @param groupName 用户组名称
+	 * @param userName 用户名称
+	 */
+	public void addUserToGroup(String groupName, String userName);
+
+	/**
+	 * 批量将用户添加到用户组中
+	 * @param groupName 用户组名称
+	 * @param userNames 用户名称列表
+	 */
+	public void addUsersToGroup(String groupName, List<String> userNames);
+
+	/**
+	 * 将用户从用户组中删除
+	 * @param groupName 用户组名称
+	 * @param userName 用户名称
+	 */
+	public void deleteUserFromGroup(String groupName, String userName);
+
+	/**
+	 * 批量将用户从用户组中删除
+	 * @param groupName 用户组名称
+	 * @param userNames 用户名称列表
+	 */
+	public void deleteUsersFromGroup(String groupName, List<String> userNames);
+
+	/**
+	 * 取得工作流结束时间
+	 * @param processId 工作流ID
+	 * @return 工作流结束时间
+	 */
+	public String getProcessEndTime(String processId);
+
+	/**
+	 * 获取所有组
+	 * @return
+	 */
+	public List<Group> findGroups();
+
+	/**
+	 * 获取组内用户
+	 * @param groupName 组名称
+	 * @return 组内用户
+	 */
+	public List<User> findUsersByGroupId(String groupName);
+
+	/**
+	 * 获取流程定义列表
+	 */
+	public List<ProcessDefinitionInfo> getProcessDefinition();
+
+	/**
+	 * 根据ID获取流程
+	 * @param flowId
+	 * @return
+	 */
+	public ProcessDefinition getProcessDefinitionId(String flowId);
+
+	/**
+	 * 创建一个人工任务
+	 * @param id 任务ID
+	 * @param name 任务名称
+	 * @param assignee 受理人
+	 * @return 人工任务节点
+	 */
+	public UserTask createUserTask(String id, String name, List<String> groups, String assignee);
+
+	/**
+	 * 创建一个链接
+	 * @param from 链接起点
+	 * @param to 链接终点
+	 * @return 链接
+	 */
+	public SequenceFlow createSequenceFlow(String from, String to, String conditionExpress);
+
+	/**
+	 * 创建网关
+	 * @param id
+	 * @param incomingFlows
+	 * @param outgoingFlows
+	 * @return
+	 */
+	public Gateway createGateway(String id, Gateway gateway, List<SequenceFlow> incomingFlows, List<SequenceFlow> outgoingFlows);
+
+	/**
+	 * 创建流程
+	 */
+	public String createProcess(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList);
+
+	/**
+	 * 创建流程
+	 */
+	public String createProcess(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList, List<CallActivity> caList, String layoutXml);
+
+	/**
+	 * 获取流程图片
+	 * @param deploymentId
+	 * @param path
+	 */
+	public void getDiagramPng(String deploymentId) throws IOException;
+
+	/**
+	 * 获取用户所属组列表
+	 * @param userName 用户
+	 * @return 组列表
+	 */
+	public List<Group> getGroupsByUser(String userName);
+
+	/**
+	 * 解锁
+	 * @throws PersistenceException
+	 */
+	public void unlock() throws PersistenceException;
+
+	/**
+	 * 提交
+	 * @throws SQLException
+	 * @throws PersistenceException
+	 */
+	public void commit() throws SQLException, PersistenceException;
+
+	/**
+	 * 回滚
+	 * @throws SQLException
+	 * @throws PersistenceException
+	 */
+	public void rollback() throws SQLException, PersistenceException;
+
+	/**
+	 * 获取流程定义任务列表
+	 * @param processDefId 流程定义ID
+	 * @return 用户任务列表
+	 */
+	public List<UserTask> getUserTasks(String processDefId);
+
+	/**
+	 * 根据id得到Group
+	 * @param ID
+	 * @return List<Group>
+	 */
+	public List<Group> getGroupById(String Id);
+
+	/**
+	 * 根据用户ID 获取 用户
+	 * @param Id
+	 * @return
+	 */
+	public User getUserById(String Id);
+
+	/**
+	 * 创建子流程调用
+	 * @param id 键值
+	 * @param calledProcessKey 被调用的流程key
+	 * @param inFlowIds 来源对象ID集合
+	 * @param outFlowIds 去向对象ID集合
+	 * @param inParams 来自主流程的参数集合
+	 * @param outParams 流向主流程的参数集合
+	 * @return 子流程调用对象
+	 */
+	public CallActivity createChildProcess(String id, String calledProcessId, List<SequenceFlow> incomingFlows, List<SequenceFlow> outgoingFlows,
+			ArgumentList inParams, ArgumentList outParams);
+
+	/**
+	 * 彻底删除流程定义 包含所有数据 慎用
+	 * @param deploymentId
+	 */
+	public void removeProcess(String deploymentId);
+
+	public String getLayoutXml(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList);
+
+	/**
+	 * 根据候选用户组和流程定义Key取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @param processDefKey 流程定义Key
+	 * @return 工作流任务列表
+	 */
+	public String getTaskListByCandidateGroupAndProcessKey(String groupName, String processDefKey);
+
+	public List<Group> getGroups();
+
+	public List<User> getUsersByGroup(String groupId);
+
+	public UserTask createUserTask(String id, String name, String assignee);
+
+	public String getTaskListByPeformerAndProcessKey(String groupName, String processDefKey);
+
+	public ProcessDefinition getProcessDefinitionIdByKey(String processDefKey);
+
+	public Object getProcessArgs(String processInstId, String key);
+
+	public String getTaskListByProcessInstId(String processInstId);
+
+	public void suspendProcessInstanceById(String processInstId);
+
+	public void activateProcessInstanceById(String processInstId);
+
+	public void claimTaskByUserInGroup(String processInstId);
+
+	public String getAllTaskList(String processDefKey);
+
+	public void deleteProcessInst(String taskId);
+	
+	public void deleteHiProcessInst(String taskId);
+
+	public void getDiagramActPng(String deploymentId, String excutionId) throws IOException;
+
+	Object getHistProcessArgs(String processInstId, String key);
+
+	SequenceFlow getSequenceFlow(String processDefId, String id);
+
+	Gateway getGateway(String processDefId, String id);
+
+	void setProcessArg(String processInstId, String key, String value);
+}

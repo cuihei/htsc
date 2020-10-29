@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	     xmlns:aop="http://www.springframework.org/schema/aop"
+	     xmlns:tx="http://www.springframework.org/schema/tx"
+	     xmlns:task="http://www.springframework.org/schema/task"
+	     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd">
+           
+	
+	<import resource="beans-common-application-context.xml"/>
+	<import resource="beans-dao-application-context.xml"/>
+	<import resource="beans-service-application-context.xml"/>
+	<import resource="beans-action-application-context.xml"/>
+	<import resource="beans-workflow-application-context.xml"/>
+	
+<!-- 
+      <bean name="task" class="com.ht.action.statisticalanalysis.ChartCompletionAction" lazy-init="false"></bean>
+      <task:scheduled-tasks> 
+  	  <task:scheduled ref="task" method="taskrun"    cron="0 30 8,10,12,14,16,18 * * ? " />    
+      </task:scheduled-tasks> 
+
+      <bean name="plan" class="com.ht.action.statisticalanalysis.ChartCompletionAction" lazy-init="false"></bean>
+      <task:scheduled-tasks> 
+  	  <task:scheduled ref="plan" method="planrun"    cron="0 0 8,10,12,14,16,18 * * ? " />    
+      </task:scheduled-tasks> 
+
+	     -->
+	<!-- 拦截器按情况而定 -->
+	<bean id="myInterceptor" class="com.ht.interceptor.MyInterceptor"></bean>
+	 <!-- Filter按情况而定 -->
+	<bean id="myCustomFilter" class="com.ht.filter.MyFilter"></bean>
+	
+	<!-- spring 辅助类 -->
+	<bean id="spring" class="com.ht.common.util.SpringUtil" />
+
+</beans>

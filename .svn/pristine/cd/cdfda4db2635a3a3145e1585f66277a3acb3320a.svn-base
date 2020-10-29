@@ -1,0 +1,336 @@
+package com.ht.persistence.model.drawtask.taskbook.book;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import com.ht.persistence.model.base.BaseModel;
+
+/**
+ * 编绘任务书model
+ * @author Weihua
+ */
+@Entity
+@Table(name = "COMPILATION_TASK_ANALYSIS")
+public class TaskAnalysis extends BaseModel
+{
+	private String id;
+	private String apprvoeEndTime;
+	private String apprvoeExpectedTime;
+	private String apprvoePerson;
+	private String apprvoeStartTime;
+	private String checkWorkdays;
+	private String compilationEndTime;
+	private String compilationExpectedTime;
+	private String compilationGroup;
+	private String compilationPerson;
+	private String compilationStartTime;
+	private String compilationWorkdays;
+	private String taskBookTime;
+	private String currUser;
+	private String endTime;
+	private String examineWorkdays;
+	private String excutionId;
+	private String group;
+	private String lastUpdateUser;
+	private String mapName;
+	private String mapNo;
+	private String parentProcessInstId;
+	private String performer;
+	private String processDefId;
+	private String processDefName;
+	private String processInstId;
+	private String qualityEndTime;
+	private String qualityExpectedTime;
+	private String qualityPerson;
+	private String qualityScore;
+	private String qualityStartTime;
+	private String recordId;
+	private String remark;
+	private String scale;
+	private String score;
+	private String status;
+	private String suspendState;
+	private String task_bookTime;
+	private String taskDefId;
+	private String taskInstId;
+	private String taskName;
+	private String taskbookNo;
+	private String zlTime;
+	private String ztTime;
+	private String processEndTime;
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getApprvoeEndTime() {
+		return apprvoeEndTime;
+	}
+	public void setApprvoeEndTime(String apprvoeEndTime) {
+		this.apprvoeEndTime = apprvoeEndTime;
+	}
+	public String getApprvoeExpectedTime() {
+		return apprvoeExpectedTime;
+	}
+	public void setApprvoeExpectedTime(String apprvoeExpectedTime) {
+		this.apprvoeExpectedTime = apprvoeExpectedTime;
+	}
+	public String getApprvoePerson() {
+		return apprvoePerson;
+	}
+	public void setApprvoePerson(String apprvoePerson) {
+		this.apprvoePerson = apprvoePerson;
+	}
+	public String getApprvoeStartTime() {
+		return apprvoeStartTime;
+	}
+	public void setApprvoeStartTime(String apprvoeStartTime) {
+		this.apprvoeStartTime = apprvoeStartTime;
+	}
+	public String getCheckWorkdays() {
+		return checkWorkdays;
+	}
+	public void setCheckWorkdays(String checkWorkdays) {
+		this.checkWorkdays = checkWorkdays;
+	}
+	public String getCompilationEndTime() {
+		return compilationEndTime;
+	}
+	public void setCompilationEndTime(String compilationEndTime) {
+		this.compilationEndTime = compilationEndTime;
+	}
+	public String getCompilationExpectedTime() {
+		return compilationExpectedTime;
+	}
+	public void setCompilationExpectedTime(String compilationExpectedTime) {
+		this.compilationExpectedTime = compilationExpectedTime;
+	}
+	public String getCompilationGroup() {
+		return compilationGroup;
+	}
+	public void setCompilationGroup(String compilationGroup) {
+		this.compilationGroup = compilationGroup;
+	}
+	public String getCompilationPerson() {
+		return compilationPerson;
+	}
+	public void setCompilationPerson(String compilationPerson) {
+		this.compilationPerson = compilationPerson;
+	}
+	public String getCompilationStartTime() {
+		return compilationStartTime;
+	}
+	public void setCompilationStartTime(String compilationStartTime) {
+		this.compilationStartTime = compilationStartTime;
+	}
+	public String getCompilationWorkdays() {
+		return compilationWorkdays;
+	}
+	public void setCompilationWorkdays(String compilationWorkdays) {
+		this.compilationWorkdays = compilationWorkdays;
+	}
+
+	public String getTaskBookTime() {
+		return taskBookTime;
+	}
+	public void setTaskBookTime(String taskBookTime) {
+		this.taskBookTime = taskBookTime;
+	}
+	public String getCurrUser() {
+		return currUser;
+	}
+	public void setCurrUser(String currUser) {
+		this.currUser = currUser;
+	}
+	public String getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+	public String getExamineWorkdays() {
+		return examineWorkdays;
+	}
+	public void setExamineWorkdays(String examineWorkdays) {
+		this.examineWorkdays = examineWorkdays;
+	}
+	public String getExcutionId() {
+		return excutionId;
+	}
+	public void setExcutionId(String excutionId) {
+		this.excutionId = excutionId;
+	}
+	public String getGroup() {
+		return group;
+	}
+	public void setGroup(String group) {
+		this.group = group;
+	}
+	public String getLastUpdateUser() {
+		return lastUpdateUser;
+	}
+	public void setLastUpdateUser(String lastUpdateUser) {
+		this.lastUpdateUser = lastUpdateUser;
+	}
+	public String getMapName() {
+		return mapName;
+	}
+	public void setMapName(String mapName) {
+		this.mapName = mapName;
+	}
+	public String getMapNo() {
+		return mapNo;
+	}
+	public void setMapNo(String mapNo) {
+		this.mapNo = mapNo;
+	}
+	public String getParentProcessInstId() {
+		return parentProcessInstId;
+	}
+	public void setParentProcessInstId(String parentProcessInstId) {
+		this.parentProcessInstId = parentProcessInstId;
+	}
+	public String getPerformer() {
+		return performer;
+	}
+	public void setPerformer(String performer) {
+		this.performer = performer;
+	}
+	public String getProcessDefId() {
+		return processDefId;
+	}
+	public void setProcessDefId(String processDefId) {
+		this.processDefId = processDefId;
+	}
+	public String getProcessDefName() {
+		return processDefName;
+	}
+	public void setProcessDefName(String processDefName) {
+		this.processDefName = processDefName;
+	}
+	public String getProcessInstId() {
+		return processInstId;
+	}
+	public void setProcessInstId(String processInstId) {
+		this.processInstId = processInstId;
+	}
+	public String getQualityEndTime() {
+		return qualityEndTime;
+	}
+	public void setQualityEndTime(String qualityEndTime) {
+		this.qualityEndTime = qualityEndTime;
+	}
+	public String getQualityExpectedTime() {
+		return qualityExpectedTime;
+	}
+	public void setQualityExpectedTime(String qualityExpectedTime) {
+		this.qualityExpectedTime = qualityExpectedTime;
+	}
+	public String getQualityPerson() {
+		return qualityPerson;
+	}
+	public void setQualityPerson(String qualityPerson) {
+		this.qualityPerson = qualityPerson;
+	}
+	public String getQualityScore() {
+		return qualityScore;
+	}
+	public void setQualityScore(String qualityScore) {
+		this.qualityScore = qualityScore;
+	}
+	public String getQualityStartTime() {
+		return qualityStartTime;
+	}
+	public void setQualityStartTime(String qualityStartTime) {
+		this.qualityStartTime = qualityStartTime;
+	}
+	public String getRecordId() {
+		return recordId;
+	}
+	public void setRecordId(String recordId) {
+		this.recordId = recordId;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getScale() {
+		return scale;
+	}
+	public void setScale(String scale) {
+		this.scale = scale;
+	}
+	public String getScore() {
+		return score;
+	}
+	public void setScore(String score) {
+		this.score = score;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getSuspendState() {
+		return suspendState;
+	}
+	public void setSuspendState(String suspendState) {
+		this.suspendState = suspendState;
+	}
+	public String getTask_bookTime() {
+		return task_bookTime;
+	}
+	public void setTask_bookTime(String task_bookTime) {
+		this.task_bookTime = task_bookTime;
+	}
+	public String getTaskDefId() {
+		return taskDefId;
+	}
+	public void setTaskDefId(String taskDefId) {
+		this.taskDefId = taskDefId;
+	}
+	public String getTaskInstId() {
+		return taskInstId;
+	}
+	public void setTaskInstId(String taskInstId) {
+		this.taskInstId = taskInstId;
+	}
+	public String getTaskName() {
+		return taskName;
+	}
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+	public String getTaskbookNo() {
+		return taskbookNo;
+	}
+	public void setTaskbookNo(String taskbookNo) {
+		this.taskbookNo = taskbookNo;
+	}
+	public String getZlTime() {
+		return zlTime;
+	}
+	public void setZlTime(String zlTime) {
+		this.zlTime = zlTime;
+	}
+	public String getZtTime() {
+		return ztTime;
+	}
+	public void setZtTime(String ztTime) {
+		this.ztTime = ztTime;
+	}
+	public String getProcessEndTime() {
+		return processEndTime;
+	}
+	public void setProcessEndTime(String processEndTime) {
+		this.processEndTime = processEndTime;
+	}
+
+	
+	
+	
+}

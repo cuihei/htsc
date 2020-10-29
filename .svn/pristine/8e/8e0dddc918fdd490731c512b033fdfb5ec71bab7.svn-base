@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.system.workflow.process.ProcessFlow" table="PROCESS_FLOW">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+       
+        <property name="processInstId" type="java.lang.String">
+            <column name="PROCESS_INST_ID" />
+        </property>
+        
+        <property name="userNo" type="java.lang.String">
+            <column name="USER_NO" />
+        </property>
+        
+        <property name="type" type="java.lang.String">
+            <column name="TYPE" />
+        </property>
+        
+        <property name="taskId" type="java.lang.String">
+            <column name="TASK_ID" />
+        </property>
+	
+		<property name="taskResult" type="java.lang.String">
+            <column name="TASK_RESULT" />
+        </property>
+	
+		  <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+	
+		<property name="parentTaskId" type="java.lang.String">
+            <column name="PARENT_TASK_ID" />
+        </property>
+	
+		<property name="advice" type="java.lang.String">
+            <column name="ADVICE" />
+        </property>
+        <property name="advice1" type="java.lang.String">
+            <column name="ADVICE1" />
+        </property>
+        <property name="remark" type="java.lang.String">
+            <column name="REMARK" />
+        </property>
+    </class>
+    <query name="findProcessFlowList">
+    	<![CDATA[ from ProcessFlow]]>
+    </query>
+    <query name="findProcessFlowById">
+    	<![CDATA[ from ProcessFlow where id= :id]]> 
+    </query>
+    <query name="getProcessFlowByProcessInstId">
+    	<![CDATA[ from ProcessFlow where processInstId= :processInstId order by creationDate desc]]> 
+    </query>
+</hibernate-mapping>

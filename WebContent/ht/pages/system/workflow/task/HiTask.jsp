@@ -1,0 +1,10 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8" %>
+<%@ include file="../../../TagLibs.jsp"%>
+<jsp:include page="../../../Main.jsp"></jsp:include>
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/system/workflow/task/hi_task.js"></script>
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/system/workflow/task/ru_task.js"></script>
+<input type="hidden" id="processDefKey" value="${processDefKey}">
+<input type="hidden" id="categoryId" value="${categoryId}">
+<input type="hidden" id="type" value="${type}">
+<input type="hidden" id="columns" value='${columns}'>
+<input type="hidden" id="from" value="${from}">

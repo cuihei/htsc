@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.system.workflow.process.ProcessUser" table="PROCESS_USER">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="processDefId" type="java.lang.String">
+            <column name="PROCESS_DEF_ID" />
+        </property>
+        
+        <property name="processDefVersion" type="java.lang.Float">
+            <column name="PROCESS_DEF_VERSION" />
+        </property>
+        
+		<property name="userNo" type="java.lang.String">
+            <column name="USER_NO" />
+        </property>
+        <property name="processDefName" type="java.lang.String">
+            <column name="PROCESS_DEF_NAME" />
+        </property>
+        
+        <property name="processDefKey" type="java.lang.String">
+            <column name="PROCESS_DEF_KEY" />
+        </property>
+        
+        <property name="userName" type="java.lang.String">
+            <column name="USER_NAME" />
+        </property>
+        
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="findProcessUserList">
+    	<![CDATA[ from ProcessUser]]>
+    </query>
+    <query name="findProcessUserById">
+    	<![CDATA[ from ProcessUser where id= :id]]> 
+    </query>
+    <query name="findProcessUserByProcessId">
+    	<![CDATA[ from ProcessUser where PROCESS_DEF_ID= :processDefId]]> 
+    </query>
+</hibernate-mapping>

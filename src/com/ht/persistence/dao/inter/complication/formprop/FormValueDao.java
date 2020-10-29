@@ -1,0 +1,91 @@
+package com.ht.persistence.dao.inter.complication.formprop;
+
+import java.util.List;
+
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.formprop.FormValue;
+
+/**
+ * FormValueDao接口
+ * @author houchen
+ */
+public interface FormValueDao {
+	/**
+	 * 增加一个FormValue
+	 * @param FormValue FormValue实体
+	 */
+	public void addFormValue(FormValue formValue);
+
+	/**
+	 * 更新一个FormValue
+	 * @param FormValue FormValue实体
+	 */
+	public void modifyFormValue(FormValue formValue);
+
+	/**
+	 * 删除FormValue 相关
+	 * @param FormValue FormValue对象
+	 */
+	public void delFormValue(FormValue formValue);
+	
+	/**
+	 * 获取所有FormValue对象集合
+	 * @return List<FormValue>列表
+	 */
+	public List<FormValue> getFormValue();
+
+	/**
+	 * 获取一条FormValue
+	 * @param FormValue FormValue对象
+	 * @return FormValue实体
+	 */
+	public FormValue getFormValue(FormValue formValue);
+
+	/**
+	 * 获取FormId
+	 * @param FormValue FormValue对象
+	 * @return FormValue实体
+	 */
+	public List<FormValue> getFormIdByTTIdAndPIId(FormValue formValue);
+	
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	public List<FormValue> getFormValueByPt(FormValue formValue);
+	
+	/**
+	 * 根据formId获取一条FormValue
+	 * @param FormValue FormValue对象
+	 * @return FormValue实体
+	 */
+	public List<FormValue> getFormValueByFromId(FormValue formValue);
+	
+	/**
+	 * 根据key和rowFlag获取一条FormValue
+	 * @param FormValue FormValue对象
+	 * @return FormValue实体
+	 */
+	public List<FormValue> getFormValueByRowFlag(FormValue formValue);
+
+	public List<FormValue> getFormValueByProcessInstId(FormValue formValue);
+
+	public List<FormValue> getFormValueByPf(FormValue fv);
+
+	public String getTaskIdBypft(FormValue fv);
+
+	public List<FormValue> getFormValueByPidAndFidAndPropKey(FormValue formValue);
+	/**
+	 * 根据formid和propValue 查询
+	 * @param fromId
+	 * @param propValue
+	 * @return
+	 * @throws Exception
+	 */
+	public List<FormValue> getFormValueByFromIdAndPropValue(FormValue formValue);
+	///   向FLORLVALUE添加 提交时的TASKID 2018.9.14
+
+
+	void addFormValueByTaskId(String processInstId, String loginUser, String taskinstid,String taskDefId);
+}

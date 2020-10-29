@@ -1,0 +1,407 @@
+package com.ht.persistence.model.datum.books;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.ht.common.export.ExcelAttribute;
+import com.ht.persistence.model.base.BaseModel;
+
+/**
+ * 海图实体类
+ * @author houchen
+ *
+ */
+@Entity
+@Table(name = "BOOKS")
+public class Books extends BaseModel {
+	@Id
+	@Column(name = "id", length = 64)
+	private String id;	// id标识
+	
+	@Column(name = "code", length = 64)
+	@ExcelAttribute(name = "编码",isMark=true) 
+	private String code;			// 编码
+	
+	@Column(name = "chart_no", length = 64)
+	@ExcelAttribute(name = "图号",isMark=true) 
+	private String chartNo;	// 图号
+	
+	@Column(name = "chart_name", length = 64)
+	@ExcelAttribute(name = "图名",isMark=true) 
+	private String chartName;	// 图名
+	
+	@Column(name = "one_sub_class", length = 64 )
+	@ExcelAttribute(name = "一级子类",isMark=true) 
+	private String oneSubClass;	// 一级子类
+	
+	@Column(name = "two_sub_class", length = 64 )
+	@ExcelAttribute(name = "二级子类",isMark=true) 
+	private String twoSubClass;	// 二级子类
+
+	@Column(name = "port", length = 64 )
+	@ExcelAttribute(name = "港口地区") 
+	private String port;	// 港口地区
+
+	@Column(name = "scale", length = 64)
+	@ExcelAttribute(name = "比例尺：") 
+	private String scale;	// 比例尺
+
+	@Column(name = "publication_date")
+	@ExcelAttribute(name = "出版年月") 
+	private Date publicationDate;	// 出版年月
+	
+	@Column(name = "version", length = 64 )
+	@ExcelAttribute(name = "版本号") 
+	private String version;	// 版本号
+
+	@Column(name = "save_place", length = 100 )
+	@ExcelAttribute(name = "存储位置") 
+	private String savePlace;	// 存储位置
+
+	@Column(name = "stock_no", length = 64 )
+	@ExcelAttribute(name = "库存数量",isMark=true) 
+	private String stockNo;	// 库存数量
+
+	@Column(name = "state", length = 32 )
+	private String state;			// 状态(在库，借出)
+	
+	@Column(name = "firstVersionDate", length = 32 )
+	@ExcelAttribute(name = "首版年月") 
+	private Date firstVersionDate;	// 首版年月
+	
+	@Column(name = "correctNo", length = 32 )
+	@ExcelAttribute(name = "改正项号") 
+	private String correctNo;		// 改正项号
+	
+	@Column(name = "printDate", length = 32 )
+	@ExcelAttribute(name = "印刷年月") 
+	private Date printDate;			// 印刷年月
+	
+	@Column(name = "publicationCompany", length = 32 )
+	@ExcelAttribute(name = "出版单位") 
+	private String publicationCompany;	// 出版单位
+	
+	@Column(name = "longitudeFrom", length = 32 )
+	@ExcelAttribute(name = "起始经度") 
+	private String longitudeFrom;	// 经度范围开始
+	
+	@Column(name = "longitudeTo", length = 32 )
+	@ExcelAttribute(name = "终止经度") 
+	private String longitudeTo;	// 经度范围止
+	
+	@Column(name = "latitudeFrom", length = 32 )
+	@ExcelAttribute(name = "起始纬度") 
+	private String latitudeFrom;	// 纬度开始
+	
+	@Column(name = "latitudeTo", length = 32 )
+	@ExcelAttribute(name = "终止纬度") 
+	private String latitudeTo;		// 纬度止
+	
+	@Column(name = "reviewers", length = 32 )
+	private String reviewers;	// 审核者
+	
+	@Column(name = "downPermission", length = 32 )
+	@ExcelAttribute(name = "电子数据下载权限") 
+	private String downPermission;	// 电子数据下载权限
+	
+	@Column(name = "seaMapStatus", length = 32 )
+	@ExcelAttribute(name = "海图状态") 
+	private String seaMapStatus;	// 海图状态（最新）
+	
+	@Column(name = "remarks", length = 32 )
+	@ExcelAttribute(name = "备注") 
+	private String remarks;			// 备注
+	
+	@Column(name = "flowSuggestion", length = 32 )
+	@ExcelAttribute(name = "流转意见") 
+	private String flowSuggestion;	// 流转意见
+	
+	@Column(name = "entry", length = 32 )
+	private String entry;			// 录入者
+	
+	@ExcelAttribute(name = "资料总数")
+	private String total;		    // 资料总数
+	
+	@ExcelAttribute(name = "可借数量")
+	private String canBorrowing;	// 可借数量
+	@Column(name = "status", length = 32 )
+	private String status;	// 审核状态
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getChartNo() {
+		return chartNo;
+	}
+
+	public void setChartNo(String chartNo) {
+		this.chartNo = chartNo;
+	}
+
+	public String getChartName() {
+		return chartName;
+	}
+
+	public void setChartName(String chartName) {
+		this.chartName = chartName;
+	}
+
+	public String getOneSubClass() {
+		return oneSubClass;
+	}
+
+	public void setOneSubClass(String oneSubClass) {
+		this.oneSubClass = oneSubClass;
+	}
+
+	public String getTwoSubClass() {
+		return twoSubClass;
+	}
+
+	public void setTwoSubClass(String twoSubClass) {
+		this.twoSubClass = twoSubClass;
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+	public String getScale() {
+		return scale;
+	}
+
+	public void setScale(String scale) {
+		this.scale = scale;
+	}
+
+	public String getTotal()
+	{
+		return total;
+	}
+
+	public String getCanBorrowing()
+	{
+		return canBorrowing;
+	}
+
+	public void setTotal(String total)
+	{
+		this.total = total;
+	}
+
+	public void setCanBorrowing(String canBorrowing)
+	{
+		this.canBorrowing = canBorrowing;
+	}
+
+	public Date getPublicationDate() {
+		return publicationDate;
+	}
+
+	public void setPublicationDate(Date publicationDate) {
+		if(publicationDate !=null){
+			try {
+				String date = new SimpleDateFormat("yyyy-MM-dd").format(publicationDate);
+				publicationDate = new SimpleDateFormat("yyyy-MM").parse(date);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		this.publicationDate =  publicationDate;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getSavePlace() {
+		return savePlace;
+	}
+
+	public void setSavePlace(String savePlace) {
+		this.savePlace = savePlace;
+	}
+
+	public String getStockNo() {
+		return stockNo;
+	}
+
+	public void setStockNo(String stockNo) {
+		this.stockNo = stockNo;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public Date getFirstVersionDate() {
+		return firstVersionDate;
+	}
+
+	public void setFirstVersionDate(Date firstVersionDate) {
+		if(firstVersionDate !=null){
+			try {
+				String date = new SimpleDateFormat("yyyy-MM-dd").format(firstVersionDate);
+				firstVersionDate = new SimpleDateFormat("yyyy-MM").parse(date);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		this.firstVersionDate = firstVersionDate;
+	}
+
+	public String getCorrectNo() {
+		return correctNo;
+	}
+
+	public void setCorrectNo(String correctNo) {
+		this.correctNo = correctNo;
+	}
+	
+	public Date getPrintDate() {
+		return printDate;
+	}
+
+	public void setPrintDate(Date printDate) {
+		if(printDate !=null){
+			try {
+				String date = new SimpleDateFormat("yyyy-MM-dd").format(printDate);
+				printDate = new SimpleDateFormat("yyyy-MM").parse(date);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		this.printDate = printDate;
+	}
+
+	public String getPublicationCompany() {
+		return publicationCompany;
+	}
+
+	public void setPublicationCompany(String publicationCompany) {
+		this.publicationCompany = publicationCompany;
+	}
+
+	public String getLongitudeFrom() {
+		return longitudeFrom;
+	}
+
+	public void setLongitudeFrom(String longitudeFrom) {
+		this.longitudeFrom = longitudeFrom;
+	}
+
+	public String getLatitudeFrom() {
+		return latitudeFrom;
+	}
+
+	public void setLatitudeFrom(String latitudeFrom) {
+		this.latitudeFrom = latitudeFrom;
+	}
+
+	public String getLongitudeTo() {
+		return longitudeTo;
+	}
+
+	public void setLongitudeTo(String longitudeTo) {
+		this.longitudeTo = longitudeTo;
+	}
+
+	public String getLatitudeTo() {
+		return latitudeTo;
+	}
+
+	public void setLatitudeTo(String latitudeTo) {
+		this.latitudeTo = latitudeTo;
+	}
+
+	public String getReviewers()
+	{
+		return reviewers;
+	}
+
+	public void setReviewers(String reviewers)
+	{
+		this.reviewers = reviewers;
+	}
+
+	public String getDownPermission() {
+		return downPermission;
+	}
+
+	public void setDownPermission(String downPermission) {
+		this.downPermission = downPermission;
+	}
+
+	public String getSeaMapStatus() {
+		return seaMapStatus;
+	}
+
+	public void setSeaMapStatus(String seaMapStatus) {
+		this.seaMapStatus = seaMapStatus;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+	public String getFlowSuggestion() {
+		return flowSuggestion;
+	}
+
+	public void setFlowSuggestion(String flowSuggestion) {
+		this.flowSuggestion = flowSuggestion;
+	}
+
+	public String getEntry() {
+		return entry;
+	}
+
+	public void setEntry(String entry) {
+		this.entry = entry;
+	}
+
+	public String getStatus()
+	{
+		return status;
+	}
+
+	public void setStatus(String status)
+	{
+		this.status = status;
+	}
+	
+}

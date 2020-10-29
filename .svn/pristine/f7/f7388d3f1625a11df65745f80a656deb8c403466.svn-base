@@ -1,0 +1,121 @@
+package com.ht.persistence.dao.impl.system.workflow.process;
+
+import java.util.List;
+
+import org.hibernate.SQLQuery;
+import org.springframework.util.CollectionUtils;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessFlowDao;
+import com.ht.persistence.model.system.workflow.process.ProcessFlow;
+
+public class ProcessFlowDaoImpl extends BaseDaoImpl implements ProcessFlowDao
+{
+
+	@Override
+	public ProcessFlow getProcessFlow(ProcessFlow processFlow) throws Exception
+	{
+		List<ProcessFlow> result = null;
+		try
+		{
+			// 获取
+			result = this.findByNamedQueryAndNamedParam("findProcessFlowById", "id", processFlow.getId());
+			if (CollectionUtils.isEmpty(result)) { return null; }
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+		return result.get(0);
+	}
+
+	@Override
+	public List<ProcessFlow> getProcessFlowList() throws Exception
+	{
+		List<ProcessFlow> list = null;
+		try
+		{
+			// 获取目录明细列表
+			list = this.findByNamedQuery("findProcessFlowList");
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		return list;
+	}
+
+	@Override
+	public List<ProcessFlow> getProcessFlowByProcessInstId(String processInstId) throws Exception
+	{
+		List<ProcessFlow> list = null;
+		try
+		{
+			// 获取目录明细列表
+			list = this.findByNamedQueryAndNamedParam("getProcessFlowByProcessInstId", "processInstId", processInstId);
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+		return list;
+	}
+
+	@Override
+	public void addProcessFlow(ProcessFlow processFlow) throws Exception
+	{
+		this.save(processFlow);
+	}
+
+	@Override
+	public void modifyProcessFlow(ProcessFlow processFlow) throws Exception
+	{
+		this.update(processFlow);
+	}
+
+	@Override
+	public void delProcessFlow(ProcessFlow processFlow) throws Exception
+	{
+		this.delete(processFlow);
+	}
+	
+	@Override
+	public ProcessFlow getProcessFlowByAdvice(String advice,String processInstId) {
+		
+		SQLQuery query = this.getSession().createSQLQuery("select * from process_flow t where t.advice like ? and t.process_inst_id = ? order by CREATION_DATE desc");
+		query.setString(0,"%"+advice+"%");
+		query.setString(1,processInstId);
+		query.addEntity(ProcessFlow.class);
+		
+		@SuppressWarnings("unchecked")
+		List<ProcessFlow> appList =  query.list();
+		if(appList != null){
+			if(appList.size()>0){
+				return appList.get(0);
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public ProcessFlow getProcessFlowByAdvice1(String advice,String processInstId) {
+		
+		SQLQuery query = this.getSession().createSQLQuery("select * from process_flow t where t.advice1 like ? and t.process_inst_id = ? order by CREATION_DATE desc");
+		query.setString(0,"%"+advice+"%");
+		query.setString(1,processInstId);
+		query.addEntity(ProcessFlow.class);
+		
+		@SuppressWarnings("unchecked")
+		List<ProcessFlow> appList =  query.list();
+		if(appList != null){
+			if(appList.size()>0){
+				return appList.get(0);
+			}
+		}
+		return null;
+	}
+
+	
+}

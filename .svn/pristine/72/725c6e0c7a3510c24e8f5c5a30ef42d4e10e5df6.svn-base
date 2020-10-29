@@ -1,0 +1,1536 @@
+package com.ht.service.impl.experiencebook;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.ht.common.exception.CommonException;
+import com.ht.persistence.dao.inter.background.dicdata.defectform.DefectFormDao;
+import com.ht.persistence.dao.inter.background.dicdata.scalecontrol.ScaleControlDao;
+import com.ht.persistence.dao.inter.drawtask.taskbook.book.TaskBookDao;
+import com.ht.persistence.dao.inter.drawtask.taskbook.create.CreateTaskDao;
+import com.ht.persistence.dao.inter.system.workflow.task.FlowsDao;
+import com.ht.persistence.model.background.dicdata.defectform.DefectForm;
+import com.ht.persistence.model.background.dicdata.scalecontrol.ScaleControl;
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBook;
+import com.ht.persistence.model.drawtask.taskbook.create.CreateTask;
+import com.ht.persistence.model.system.workflow.publish.VProcessDetail;
+import com.ht.persistence.model.system.workflow.task.Flows;
+import com.ht.persistence.model.system.workflow.task.HiTask;
+import com.ht.service.constant.experiencebook.ChartStatusConstants;
+import com.ht.service.constant.experiencebook.electron.EleQualityInspectionConclusionRecord;
+import com.ht.service.constant.experiencebook.electron.EleValidationConclusionRecord;
+import com.ht.service.constant.experiencebook.electron.EleWorkPlan;
+import com.ht.service.constant.experiencebook.electron.ElectronPersonAndDate;
+import com.ht.service.constant.experiencebook.electron.MathBase;
+import com.ht.service.constant.experiencebook.paper.DrawingInfo;
+import com.ht.service.constant.experiencebook.paper.PaperPersonAndDate;
+import com.ht.service.constant.experiencebook.paper.PaperQualityInspectionConclusionRecord;
+import com.ht.service.constant.experiencebook.paper.PaperValidationConclusionRecord;
+import com.ht.service.constant.experiencebook.paperchartsmallcorrection.CompilationRecord;
+import com.ht.service.constant.experiencebook.paperchartsmallcorrection.Head;
+import com.ht.service.constant.experiencebook.paperchartsmallcorrection.PaperItemNoIssue;
+import com.ht.service.constant.experiencebook.paperchartsmallcorrection.PaperSmallPersonAndDate;
+import com.ht.service.constant.experiencebook.paperchartsmallcorrection.QualityAcceptanceRecord;
+import com.ht.service.constant.experiencebook.paperchartsmallcorrection.QualityTestingRecord;
+import com.ht.service.constant.experiencebook.paperchartsmallcorrection.ValidationRecord;
+import com.ht.service.constant.experiencebook.paperprocessflow.PaperProcessFlow;
+import com.ht.service.constant.experiencebook.paperqualityevaluate.PaperQualityEvaluate;
+import com.ht.service.constant.experiencebook.paperqualitytestreport.PaperQualityTestReport;
+import com.ht.service.constant.experiencebook.sourcedata.SourceDataPersonAndDate;
+import com.ht.service.constant.experiencebook.sourcedata.ValidationConclusionRecord;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.ContentRecord;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.Cover;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.DataRegister;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.EngineeringRecord;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.HomePage;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.ProblemRecord;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.SDCQualityRecord;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.SDCValidationRecord;
+import com.ht.service.constant.experiencebook.sourcedatacorrection.SourceDataSamllPersonAndDate;
+import com.ht.service.inter.experiencebook.PaperMapOtherService;
+/**
+ * 纸海图，电子海图，源数据
+ * 工序流程表，
+ * 质量检查验收报告，
+ * 质量评定表
+ * 质量自评表
+ * @author huodesheng
+ *
+ */
+public class PaperMapOtherServiceImpl implements PaperMapOtherService {
+	
+	@Resource
+	CreateTaskDao createTaskDao;
+	
+	@Resource
+	TaskBookDao taskBookDao;
+	
+	@Resource
+	FlowsDao flowsDao;
+	
+	@Resource
+	DefectFormDao defectFormDao;
+	@Resource
+	ScaleControlDao scaleControlDao;
+	
+	/**
+	 * 纸海图制作工序流程表
+	 */
+	@Override
+	public Map<String, Object> PaperProcessflow(String processInstId,String type) throws Exception {
+		try {
+			Base base = new Base();
+			// 定义导出数据Map
+			Map<String, Object> data = new HashMap<String, Object>();
+			/**
+			 * 开始纸海图计划数据准备
+			 */
+			String[] processDefKeys =
+			{ "SEA_MAP_COMPILATION_PAPER", "SEA_MAP_COMPILATION_PAPER_PLAN" };
+			
+			if(type=="ELECTRONIC"){
+				String[] electronic ={ "SEA_MAP_COMPILATION_ELECTRONIC", "SEA_MAP_COMPILATION_ELECTRONIC_PLAN" };
+				processDefKeys =electronic;
+			}
+			// 获取当前流程实例操作的表数据
+			HiTask task = base.getFirstHiTask(processInstId, processDefKeys[1]);
+			// 编绘计划流程实例ID
+			String planProcessInstId = task.getProcessInstId();
+			task = base.getFirstHiTask(processInstId, processDefKeys[0]);
+			// 编绘作业流程ID
+			String workProcessInstId = task.getProcessInstId();
+			// 拆分主键记录
+			VProcessDetail detail = base.getDetailRecordId(processInstId, planProcessInstId);
+			CreateTask complicationTask = createTaskDao.getTaskById(detail.getDetailRecordId());
+			String taskBookId = complicationTask.getParentTaskbookId();
+			TaskBook taskBook = taskBookDao.findById(taskBookId);
+			PaperProcessFlow paperProcessFlow=new PaperProcessFlow();
+			//项目名称
+			paperProcessFlow.setXMMC(complicationTask.getTaskName());
+			//任务书编号
+			paperProcessFlow.setTASK_NO(taskBook.getTaskbookNo());
+			//图名
+			paperProcessFlow.setMAP_NAME(complicationTask.getTaskName());
+			//图号
+			paperProcessFlow.setMAP_NO(complicationTask.getMapNo());
+			//比例尺
+			paperProcessFlow.setSCALE(complicationTask.getScale());
+			//版次，小改正编号
+			paperProcessFlow.setREVISION("1".equals(complicationTask.getRevision())?"首版":"再版");
+			//获取整个流程
+			Flows flowss = new Flows();
+			flowss.setProcessInstId(planProcessInstId);
+			List<Flows> flowListAll = new ArrayList<Flows>();
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			flowss = new Flows();
+			flowss.setProcessInstId(workProcessInstId);
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			
+			List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+			if(type=="PAPER"){
+				paperProcessFlow.setTYPE("纸海图");
+				PaperPersonAndDate 	pd=new PaperPersonAndDate(flowListAll);
+				List<Map<String,Object>> listMap2 = pd.getListMap();
+				for (Map<String, Object> map : listMap2) {
+					if(map.get("text_gx_order").equals("编   绘")){
+						listMap.add(map);
+					}
+					if(map.get("text_gx_order").equals("部门质检")){
+						listMap.add(map);
+					}
+					if(map.get("text_gx_order").equals("中心审定")){
+						listMap.add(map);
+					}
+				}
+				/**
+				 * 制图基本信息表
+				 */
+				DrawingInfo drawingInfo = new DrawingInfo();
+				List<List<FormValue>> drawingInfoList = base.getFormValueByRowFlag(drawingInfo.DRAWING_INFO_FORM_ID, planProcessInstId);
+				if (drawingInfoList != null)
+				{
+					if(drawingInfoList.size()>0){
+						for (int i = 0; i < drawingInfoList.size(); i++)
+						{
+							drawingInfo.setDataProps(drawingInfoList.get(i));
+						}
+					}
+					
+				}
+				Map<String, Object> drawingInfoMap = drawingInfo.getDrawingInfoMap();
+				String productId=(String)drawingInfoMap.get("text_zhtztjbxib_cpid");
+				String engineering=(String)drawingInfoMap.get("text_zhtztjbxib_gcid");
+				if(StringUtils.isNotEmpty(productId)){
+					//产品编号
+					paperProcessFlow.setPRODUCT_NO(productId);
+					//工程编号
+					paperProcessFlow.setPROJECT_NO(engineering);
+				}else{
+					//产品编号
+					paperProcessFlow.setPRODUCT_NO("");
+					//工程编号
+					paperProcessFlow.setPROJECT_NO("");
+				}
+			}else if(type=="ELECTRONIC"){
+				paperProcessFlow.setTYPE("电子海图");
+				ElectronPersonAndDate pd=new ElectronPersonAndDate(flowListAll);
+				listMap=pd.getListMap();
+				/**
+				 * 数学基础及元物标
+				 */
+				MathBase mathBase = new MathBase();
+				List<List<FormValue>> mathBaseList = base.getFormValueByRowFlag(mathBase.MATH_BASE_FORM_ID, planProcessInstId);
+				if (mathBaseList != null)
+				{
+					for (int i = 0; i < mathBaseList.size(); i++)
+					{
+						mathBase.setDataProps(mathBaseList.get(i));
+					}
+				}
+				data.put(mathBase.MARKER, mathBase.getMapIndexesMap());
+				Map<String, Object> mapIndexesMap = mathBase.getMapIndexesMap();
+				String productId=(String)mapIndexesMap.get("text_sxjcjywb_cpid");
+				String engineering=(String)mapIndexesMap.get("text_sxjcjywb_gcid");
+				if(StringUtils.isNotEmpty(productId)){
+					//产品编号
+					paperProcessFlow.setPRODUCT_NO(productId);
+					//工程编号
+					paperProcessFlow.setPROJECT_NO(engineering);
+				}else{
+					//产品编号
+					paperProcessFlow.setPRODUCT_NO("");
+					//工程编号
+					paperProcessFlow.setPROJECT_NO("");
+				}
+			}
+			
+			
+			//文件路径1
+			paperProcessFlow.setROUTE_1("192.168.25.107\\审定合格文件");
+			//文件路径2
+			paperProcessFlow.setROUTE_2("192.168.25.107\\制图中心提交小改正文件");
+			//纸海图
+			paperProcessFlow.setPAPER("");
+			//纸海图小改正1
+			paperProcessFlow.setPAPER_MIN_1("");
+			//纸海图小改正2
+			paperProcessFlow.setPAPER_MIN_2("");
+			//图幅变更信息
+			paperProcessFlow.setCHANGE_INFORMATION("");
+			Map<String, Object> map = paperProcessFlow.getMap();
+			/**
+			 * 纸海图编绘工序流程表
+			 */
+			
+			map.put(paperProcessFlow.MARKER, listMap);
+			data.put(paperProcessFlow.MARKER, map);
+			
+			return data;
+		} catch (Exception e) {
+			throw new CommonException();
+		}
+	}
+
+	@Override
+	public Map<String, Object> PaperQualityInspectMap(String processInstId,String type)
+			throws Exception {
+		try {
+			Base base = new Base();
+			// 定义导出数据Map
+			Map<String, Object> data = new HashMap<String, Object>();
+			/**
+			 * 开始纸海图计划数据准备
+			 */
+			String[] processDefKeys =
+			{ "SEA_MAP_COMPILATION_PAPER", "SEA_MAP_COMPILATION_PAPER_PLAN" };
+			
+			 if(type=="ELECTRONIC"){
+				String[] electronic ={ "SEA_MAP_COMPILATION_ELECTRONIC", "SEA_MAP_COMPILATION_ELECTRONIC_PLAN" };
+				processDefKeys =electronic;
+			}
+			// 获取当前流程实例操作的表数据
+			HiTask task = base.getFirstHiTask(processInstId, processDefKeys[1]);
+			// 编绘计划流程实例ID
+			String planProcessInstId = task.getProcessInstId();
+			task = base.getFirstHiTask(processInstId, processDefKeys[0]);
+			// 编绘作业流程ID
+			String workProcessInstId = task.getProcessInstId();
+			// 拆分主键记录
+			VProcessDetail detail = base.getDetailRecordId(processInstId, planProcessInstId);
+			CreateTask complicationTask = createTaskDao.getTaskById(detail.getDetailRecordId());
+			String taskBookId = complicationTask.getParentTaskbookId();
+			TaskBook taskBook = taskBookDao.findById(taskBookId);
+			//获取整个流程
+			Flows flowss = new Flows();
+			flowss.setProcessInstId(planProcessInstId);
+			List<Flows> flowListAll = new ArrayList<Flows>();
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			flowss = new Flows();
+			flowss.setProcessInstId(workProcessInstId);
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			 //纸海图制作工序流程表
+			PaperQualityTestReport qualityTestReport=new PaperQualityTestReport();
+			qualityTestReport.setMAP_NAME(complicationTask.getTaskName());
+			qualityTestReport.setMAP_NO(complicationTask.getMapNo());
+			
+			if(type=="PAPER"){
+				qualityTestReport.setTYPE("纸海图");
+				PaperPersonAndDate 	pd=new PaperPersonAndDate(flowListAll);
+				//纸海图质检结论记录表
+				PaperQualityInspectionConclusionRecord qi = new PaperQualityInspectionConclusionRecord();
+				List<List<FormValue>> qiList = base.getFormValueByRowFlag(qi.QUALITY_INSPECTION_FORM_ID, workProcessInstId);
+				ArrayList<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+				// 质检结论
+				String zjjl = null;
+				// 质量评分
+				String zlpf="";
+				//等级
+				String zldj="";
+				if(qiList!=null){
+					if(qiList.size()>0){
+						for (int i = 0; i < qiList.size(); i++)
+						{
+							qi = new PaperQualityInspectionConclusionRecord();
+							List<FormValue> qiListI = qiList.get(i);
+							qi.setDataProps(qiListI);
+							Map<String, Object> mapI = qi.getPaperQualityInspectionConclusionRecordMap();
+							zjjl = mapI.get("text_zhtzjjlb_jl") == null ? "" : mapI.get("text_zhtzjjlb_jl").toString();
+							zlpf="";
+							zldj="";
+							zlpf = mapI.get("text_zhtzjjlb_zlpf") == null ? "" : mapI.get("text_zhtzjjlb_zlpf").toString();
+							zldj = mapI.get("text_zhtzjjlb_zldj") == null ? "" : mapI.get("text_zhtzjjlb_zldj").toString();
+						}
+						//质量等级1
+						qualityTestReport.setGRADE_1(zldj);
+						//过程检查评分
+						qualityTestReport.setPROCESS_SCORE(zlpf);
+						
+					}
+				}
+				//检查人1
+				qualityTestReport.setEXAMINER_1(pd.getTestConclusionQualityPerson());
+				/**
+				 * 审定记录结论表
+				 */
+				PaperValidationConclusionRecord vc = new PaperValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				listMap = new ArrayList<Map<String, Object>>();
+				// 审定结论
+				String sdjl = null;
+				// 质量评分及等级
+				zlpf="";
+				zldj="";
+				String pfdj="";
+				if(vcList!=null){
+					if(vcList.size()>0){
+						for (int i = 0; i < vcList.size(); i++)
+						{
+							List<FormValue> qiPf = vcList.get(i);
+							if (qiPf != null)
+							{
+								for (int j = 0; j < qiPf.size(); j++)
+								{
+									FormValue pfFalue = qiPf.get(j);
+									if (pfFalue != null)
+									{
+										if (pfFalue.getPropKey().equals("zldj"))
+										{
+											 zldj = pfFalue.getPropValue();
+										}
+										if (pfFalue.getPropKey().equals("zlpf"))
+										{
+											zlpf = pfFalue.getPropValue();
+										}
+										if (pfFalue.getPropKey().equals("sdjl"))
+										{
+											sdjl = pfFalue.getPropValue();
+										}
+									}
+								}
+								if (StringUtils.isNotEmpty(zldj))
+								{
+									pfdj = zldj;
+								}
+								if (StringUtils.isNotEmpty(pfdj))
+								{
+									if (StringUtils.isNotEmpty(pfdj))
+									{
+										pfdj = pfdj + zlpf;
+									}
+								}
+								else{
+									if (StringUtils.isNotEmpty(pfdj))
+									{
+										pfdj = zlpf;
+									}
+								}
+							}
+						}
+						//质量等级2
+						qualityTestReport.setGRADE_2(zldj);
+						//最终检查评分
+						qualityTestReport.setFINAL_SCORE(zlpf);
+					
+					}
+				}
+				//检查人2
+				qualityTestReport.setEXAMINER_2(pd.getValaditionPerson());
+				//过程检查意见
+				qualityTestReport.setPROCESS_OPINION(pd.getTestConclusionApproveAdvice());
+				//过程检查意见,作业部门负责人
+				qualityTestReport.setOPERATION_PEOPLE(pd.getTestConclusionQualityPerson());
+				//过程检查意见,作业部门负责人时间
+				qualityTestReport.setOPERATION_DATE(pd.getTestConclusionQualityDate());
+				//最终检查意见
+				qualityTestReport.setFINAL_OPINION(pd.getValaditonDepartmentApproveAdvice());
+				//最终检查意见,作业部门负责人
+				qualityTestReport.setFINAL_PEOPLE(pd.getValaditionConclusionPerson());
+				//最终检查意见,作业部门负责人时间
+				qualityTestReport.setFINAL_DATE(pd.getValaditionConclusionDate());
+				//验收结论
+				qualityTestReport.setCONCLUSION_OPINION(pd.getEnginnerAdvice());
+				//验收结论 作业部门负责人
+				qualityTestReport.setCONCLUSION_PEOPLE(pd.getEnginnerPerson());
+				//验收结论 作业部门负责人时间
+				qualityTestReport.setCONCLUSION_DATE(pd.getEnginnerDate());
+			}else if(type=="ELECTRONIC"){
+				ElectronPersonAndDate pd=new ElectronPersonAndDate(flowListAll);
+				qualityTestReport.setTYPE("电子海图");
+				//质检记录结论表
+				EleQualityInspectionConclusionRecord qi = new EleQualityInspectionConclusionRecord();
+				List<List<FormValue>> qiList = base.getFormValueByRowFlag(qi.QUALITY_INSPECTION_FORM_ID, workProcessInstId);
+				ArrayList<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+				//质量等级
+				String zldj ="";
+				//质量评分
+				String zlpf ="";
+				if(qiList!=null){
+					if(qiList.size()>0){
+						for (int i = 0; i < qiList.size(); i++)
+						{
+							qi = new EleQualityInspectionConclusionRecord();
+							List<FormValue> qiListI = qiList.get(i);
+							qi.setDataProps(qiListI);
+							Map<String, Object> mapI = qi.getQualityInspectionConclusionRecordMap();
+							zldj = mapI.get("text_dzhtzjjlb_zldj") == null ? "" : mapI.get("text_dzhtzjjlb_zldj").toString();
+							zlpf = mapI.get("text_dzhtzjjlb_zlpf") == null ? "" : mapI.get("text_dzhtzjjlb_zlpf").toString();
+						}
+						//质量等级1
+						qualityTestReport.setGRADE_1(zldj);
+						//过程检查评分
+						qualityTestReport.setPROCESS_SCORE(zlpf);
+					}
+				}
+				//检查人1
+				qualityTestReport.setEXAMINER_1(pd.getTestConclusionQualityPerson());
+				
+				/**
+				 * 电子海图审定结论记录表
+				 */
+				EleValidationConclusionRecord vc = new EleValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				listMap = new ArrayList<Map<String, Object>>();
+				// 审定结论
+				String sdjl = "";
+				// 质量评分及等级
+				if(vcList!=null){
+					if(vcList.size()>0){
+						for (int i = 0; i < vcList.size(); i++)
+						{
+							List<FormValue> qiPf = vcList.get(i);
+							if (qiPf != null)
+							{
+								for (int j = 0; j < qiPf.size(); j++)
+								{
+									FormValue pfFalue = qiPf.get(j);
+									if (pfFalue != null)
+									{
+										if (pfFalue.getPropKey().equals("zldj"))
+										{
+											 zldj = pfFalue.getPropValue();
+										}
+										if (pfFalue.getPropKey().equals("zlpf"))
+										{
+											zlpf = pfFalue.getPropValue();
+										}
+										if (pfFalue.getPropKey().equals("sdjl"))
+										{
+											sdjl = pfFalue.getPropValue();
+										}
+									}
+								}
+							}
+						} 
+						//质量等级2
+						qualityTestReport.setGRADE_2(zldj);
+						//最终检查评分
+						qualityTestReport.setFINAL_SCORE(zlpf);
+					}
+				}
+				//检查人2
+				qualityTestReport.setEXAMINER_2(pd.getValaditionPerson());
+				//过程检查意见
+				qualityTestReport.setPROCESS_OPINION(pd.getTestConclusionApproveAdvice());
+				//过程检查意见,作业部门负责人
+				qualityTestReport.setOPERATION_PEOPLE(pd.getTestConclusionQualityPerson());
+				//过程检查意见,作业部门负责人时间
+				qualityTestReport.setOPERATION_DATE(pd.getTestConclusionQualityDate());
+				//最终检查意见
+				qualityTestReport.setFINAL_OPINION(pd.getValaditonDepartmentApproveAdvice());
+				//最终检查意见,作业部门负责人
+				qualityTestReport.setFINAL_PEOPLE(pd.getValaditionConclusionPerson());
+				//最终检查意见,作业部门负责人时间
+				qualityTestReport.setFINAL_DATE(pd.getValaditionConclusionDate());
+				//验收结论
+				qualityTestReport.setCONCLUSION_OPINION(pd.getEnginnerAdvice());
+				//验收结论 作业部门负责人
+				qualityTestReport.setCONCLUSION_PEOPLE(pd.getEnginnerPerson());
+				//验收结论 作业部门负责人时间
+				qualityTestReport.setCONCLUSION_DATE(pd.getEnginnerDate());
+			}
+			
+			data.put(qualityTestReport.MARKER,qualityTestReport.getMap());
+			
+			return data;
+		} catch (Exception e) {
+			throw new CommonException();
+		}
+	}
+
+	@Override
+	public Map<String, Object> PaperQualityEvaluateMap(String processInstId,String type)
+			throws Exception {
+		try {
+			Base base = new Base();
+			// 定义导出数据Map
+			Map<String, Object> data = new HashMap<String, Object>();
+			/**
+			 * 开始纸海图计划数据准备
+			 */
+			String[] processDefKeys =
+			{ "SEA_MAP_COMPILATION_PAPER", "SEA_MAP_COMPILATION_PAPER_PLAN" };
+			if(type=="SOURCE"){
+				String[] source ={ "SEA_MAP_COMPILATION_SOURCE_DATA", "SEA_MAP_COMPILATION_SOURCE_DATA_PLAN" };
+				  processDefKeys =source;
+			}else if(type=="ELECTRONIC"){
+				String[] electronic ={ "SEA_MAP_COMPILATION_ELECTRONIC", "SEA_MAP_COMPILATION_ELECTRONIC_PLAN" };
+				processDefKeys =electronic;
+			}
+			// 获取当前流程实例操作的表数据
+			HiTask task = base.getFirstHiTask(processInstId, processDefKeys[1]);
+			// 编绘计划流程实例ID
+			String planProcessInstId = task.getProcessInstId();
+			task = base.getFirstHiTask(processInstId, processDefKeys[0]);
+			// 编绘作业流程ID
+			String workProcessInstId = task.getProcessInstId();
+			// 拆分主键记录
+			VProcessDetail detail = base.getDetailRecordId(processInstId, planProcessInstId);
+			CreateTask complicationTask = createTaskDao.getTaskById(detail.getDetailRecordId());
+			String taskBookId = complicationTask.getParentTaskbookId();
+			TaskBook taskBook = taskBookDao.findById(taskBookId);
+			//获取整个流程
+			Flows flowss = new Flows();
+			flowss.setProcessInstId(planProcessInstId);
+			List<Flows> flowListAll = new ArrayList<Flows>();
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			flowss = new Flows();
+			flowss.setProcessInstId(workProcessInstId);
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			//map
+			PaperQualityEvaluate qualityEvaluate = new PaperQualityEvaluate();
+			//maplist
+			PaperQualityEvaluate qualityEvaluates = new PaperQualityEvaluate();
+			
+			
+			ArrayList<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+			Map<String, Object> map =new HashMap<String,Object>();
+			
+			if(type=="PAPER"){
+				qualityEvaluate.setTYPE("纸海图");
+				PaperPersonAndDate pd = new PaperPersonAndDate(flowListAll);
+				qualityEvaluate.setDATE(pd.getValaditionConclusionDate() == null ? "" : pd.getValaditionConclusionDate());
+				/**
+				 * 纸海图审定记录表
+				 */
+				map= base.getPaperValidationDefective(workProcessInstId, pd.getValaditionPerson(), pd.getValaditionDate(), pd.getValaditonApprovePerson(),pd.getValaditonApproveDate(), null);
+				List<DefectForm> defectFormList = defectFormDao.getDefectFormListByProcessInstId(workProcessInstId, ChartStatusConstants.APPROVE_LIKE);
+				String total = null;
+				String coefficient = null;
+				String actual = null;
+				String grading = null;
+				if (defectFormList != null)
+				{
+					if (defectFormList.size() > 0)
+					{
+						for (int i = 0; i < defectFormList.size(); i++)
+						{
+							DefectForm defectForm = defectFormList.get(i);
+							total = defectForm.getTotal();
+							coefficient = defectForm.getCoefficient();
+							actual = defectForm.getActual();
+							grading = defectForm.getGrading();
+							qualityEvaluates = new PaperQualityEvaluate();
+							// 设置处理意见
+							qualityEvaluates.setCONTENT(defectForm.getOpinion());
+							// 设置质量扣分
+							qualityEvaluates.setZLKF(defectForm.getScore());
+							//序号
+							qualityEvaluates.setNO((i+1)+"");
+							//处理结果
+							qualityEvaluates.setCLJG("已修改");
+							Map<String,Object> maps=new HashMap<String,Object>();
+							maps.putAll(qualityEvaluates.getMap());
+							listMap.add(maps);
+						}
+						// 设置质量累计扣分
+						qualityEvaluate.setLJKF(total);
+						// 设置调整系数
+						qualityEvaluate.setNDXS(coefficient);
+					}
+				}
+				//图号
+				qualityEvaluate.setMAP_NAME(complicationTask.getTaskName());
+				/**
+				 * 审定记录结论表
+				 */
+				PaperValidationConclusionRecord vc = new PaperValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				// 审定结论
+				String sdjl = null;
+				// 质量评分及等级
+				String zlpf="";
+				String zldj="";
+				String pfdj="";
+				if(vcList!=null){
+					if(vcList.size()>0){
+						for (int i = 0; i < vcList.size(); i++)
+						{
+							vc = new PaperValidationConclusionRecord();
+							List<FormValue> vcListI = vcList.get(i);
+							vc.setDataProps(vcListI);
+							Map<String, Object> mapI = vc.getPaperValidationConclusionRecordMap();
+							sdjl = mapI.get("text_sdjljlb_sdjl") == null ? null : mapI.get("text_sdjljlb_sdjl").toString();
+							zlpf = mapI.get("text_sdjljlb_zlpf") == null ? null : mapI.get("text_sdjljlb_zlpf").toString();
+							zldj = mapI.get("text_sdjljlb_zldj") == null ? "" : mapI.get("text_sdjljlb_zldj").toString();
+						}
+						//最终得分
+						qualityEvaluate.setZZDF(zlpf);
+						//质量等级
+						qualityEvaluate.setZLDJ(zldj);
+					
+						
+					}
+				}
+				//作业部门质检员
+				qualityEvaluate.setZYZJ(pd.getTestConclusionQualityPerson());
+				//质量部门质检员
+				qualityEvaluate.setZLZJ(pd.getValaditionPerson());
+			}else if(type=="SOURCE"){
+				SourceDataPersonAndDate pd = new SourceDataPersonAndDate(flowListAll);
+				qualityEvaluate.setTYPE("源数据");
+				qualityEvaluate.setDATE(pd.getValaditionConclusionDate() == null ? "" : pd.getValaditionConclusionDate());
+				/**
+				 * 纸海图审定记录表
+				 */
+				map= base.getPaperValidationDefective(workProcessInstId, pd.getValaditionPerson(), pd.getValaditionDate(), pd.getValaditonApprovePerson(),pd.getValaditonApproveDate(), null);
+				List<DefectForm> defectFormList = defectFormDao.getDefectFormListByProcessInstId(workProcessInstId, ChartStatusConstants.APPROVE_LIKE);
+				String total = null;
+				String coefficient = null;
+				String actual = null;
+				String grading = null;
+				if (defectFormList != null)
+				{
+					if (defectFormList.size() > 0)
+					{
+						for (int i = 0; i < defectFormList.size(); i++)
+						{
+							DefectForm defectForm = defectFormList.get(i);
+							total = defectForm.getTotal();
+							coefficient = defectForm.getCoefficient();
+							actual = defectForm.getActual();
+							grading = defectForm.getGrading();
+							qualityEvaluates = new PaperQualityEvaluate();
+							// 设置处理意见
+							qualityEvaluates.setCONTENT(defectForm.getOpinion());
+							// 设置质量扣分
+							qualityEvaluates.setZLKF(defectForm.getScore());
+							//设置缺陷个数
+							qualityEvaluates.setQXGS(defectForm.getNumber());
+							//设置缺陷类别
+							qualityEvaluates.setQXLB(defectForm.getDeep());
+							//序号
+							qualityEvaluates.setNO((i+1)+"");
+							//处理结果
+							qualityEvaluates.setCLJG("已修改");
+							Map<String,Object> maps=new HashMap<String,Object>();
+							maps.putAll(qualityEvaluates.getMap());
+							listMap.add(maps);
+						}
+						// 设置质量累计扣分
+						qualityEvaluate.setLJKF(total);
+						// 设置调整系数
+						qualityEvaluate.setNDXS(coefficient);
+					}
+				}
+				//图号
+				qualityEvaluate.setMAP_NAME(complicationTask.getTaskName());
+				/**
+				 * 审定记录结论表
+				 */
+				ValidationConclusionRecord vc = new ValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				for (int i = 0; i < vcList.size(); i++)
+				{
+					vc = new ValidationConclusionRecord();
+					List<FormValue> vcListI = vcList.get(i);
+					vc.setDataProps(vcListI);
+				}
+				
+				List<List<FormValue>> vcPfList = base.getFormValueByRowFlag(vc.VALIDATION_PF_CONCLUSION_FROM_ID, workProcessInstId);
+				// 审定结论
+				String sdjl = null;
+				// 质量评分及等级
+				String pfdj = null;
+				String zldj = null;
+				String zlpf = null;
+				if (vcPfList != null && vcPfList.size()>0)
+				{
+					for (int i = 0; i < vcPfList.size(); i++)
+					{
+						List<FormValue> qiPf = vcPfList.get(i);
+						if (qiPf != null)
+						{
+							zldj = null;
+							zlpf = null;
+							for (int j = 0; j < qiPf.size(); j++)
+							{
+								FormValue pfFalue = qiPf.get(j);
+								if (pfFalue != null)
+								{
+									if (pfFalue.getPropKey().equals("zldj"))
+									{
+										 zldj = pfFalue.getPropValue();
+									}
+									if (pfFalue.getPropKey().equals("zlpf"))
+									{
+										zlpf = pfFalue.getPropValue();
+									}
+									if (pfFalue.getPropKey().equals("sdjl"))
+									{
+										sdjl = pfFalue.getPropValue();
+									}
+								}
+							}
+							if (StringUtils.isNotEmpty(zldj))
+							{
+								pfdj = zldj;
+							}
+							if (StringUtils.isNotEmpty(pfdj))
+							{
+								if (StringUtils.isNotEmpty(pfdj))
+								{
+									pfdj = pfdj + zlpf;
+								}
+							}
+							else{
+								if (StringUtils.isNotEmpty(pfdj))
+								{
+									pfdj = zlpf;
+								}
+							}
+						}
+					}
+					//最终得分
+					qualityEvaluate.setZZDF(zlpf);
+					//质量等级
+					qualityEvaluate.setZLDJ(zldj);
+				}
+				//作业部门质检员
+				qualityEvaluate.setZYZJ(pd.getTestConclusionQualityPerson());
+				//质量部门质检员
+				qualityEvaluate.setZLZJ(pd.getValaditionPerson());
+				
+			}else if(type=="ELECTRONIC"){
+				qualityEvaluate.setTYPE("电子海图");
+				ElectronPersonAndDate pd=new ElectronPersonAndDate(flowListAll);
+				qualityEvaluate.setDATE(pd.getValaditionConclusionDate() == null ? "" : pd.getValaditionConclusionDate());
+				/**
+				 * 纸海图审定记录表
+				 */
+				map= base.getPaperValidationDefective(workProcessInstId, pd.getValaditionPerson(), pd.getValaditionDate(), pd.getValaditonApprovePerson(),pd.getValaditonApproveDate(), null);
+				List<DefectForm> defectFormList = defectFormDao.getDefectFormListByProcessInstId(workProcessInstId, ChartStatusConstants.APPROVE_LIKE);
+				String total = null;
+				String coefficient = null;
+				String actual = null;
+				String grading = null;
+				if (defectFormList != null)
+				{
+					if (defectFormList.size() > 0)
+					{
+						for (int i = 0; i < defectFormList.size(); i++)
+						{
+							DefectForm defectForm = defectFormList.get(i);
+							total = defectForm.getTotal();
+							coefficient = defectForm.getCoefficient();
+							actual = defectForm.getActual();
+							grading = defectForm.getGrading();
+							qualityEvaluates = new PaperQualityEvaluate();
+							// 设置处理意见
+							qualityEvaluates.setCONTENT(defectForm.getOpinion());
+							// 设置质量扣分
+							qualityEvaluates.setZLKF(defectForm.getScore());
+							//序号
+							qualityEvaluates.setNO((i+1)+"");
+							//处理结果
+							qualityEvaluates.setCLJG("已修改");
+							Map<String,Object> maps=new HashMap<String,Object>();
+							maps.putAll(qualityEvaluates.getMap());
+							listMap.add(maps);
+						}
+						// 设置质量累计扣分
+						qualityEvaluate.setLJKF(total);
+						// 设置调整系数
+						qualityEvaluate.setNDXS(coefficient);
+					}
+				}
+				//图号
+				qualityEvaluate.setMAP_NAME(complicationTask.getTaskName());
+				/**
+				 * 电子海图审定结论记录表
+				 */
+				EleValidationConclusionRecord vc = new EleValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				// 审定结论
+				String sdjl = "";
+				// 质量评分及等级
+				String pfdj = "";
+				String zldj ="";
+				String zlpf ="";
+				if(vcList!=null){
+					if(vcList.size()>0){
+						for (int i = 0; i < vcList.size(); i++)
+						{
+							vc = new EleValidationConclusionRecord();
+							List<FormValue> vcListI = vcList.get(i);
+							vc.setDataProps(vcListI);
+							Map<String, Object> mapI = vc.getValidationConclusionRecordMap();
+							sdjl = mapI.get("text_sdjljlb_sdjl") == null ? "" : mapI.get("text_sdjljlb_sdjl").toString();
+							zldj = mapI.get("text_sdjljlb_zldj") == null ? "" : mapI.get("text_sdjljlb_zldj").toString();
+							zlpf = mapI.get("text_sdjljlb_zlpf") == null ? "" : mapI.get("text_sdjljlb_zlpf").toString();
+							
+						}
+						//最终得分
+						qualityEvaluate.setZZDF(zlpf);
+						//质量等级
+						qualityEvaluate.setZLDJ(zldj);
+					}
+				}
+				//作业部门质检员
+				qualityEvaluate.setZYZJ(pd.getTestConclusionQualityPerson());
+				//质量部门质检员
+				qualityEvaluate.setZLZJ(pd.getValaditionPerson());
+			}
+			map = qualityEvaluate.getMap();
+			map.put(qualityEvaluates.MARKER, listMap);
+			data.put(qualityEvaluate.MARKER, map);
+			return data;
+		} catch (Exception e) {
+			throw new CommonException();
+		}
+	}
+
+	/* 
+	 * @author huodesheng
+	 * @date 2017-9-28
+	 * @company DaoEasy
+	 * (non-Javadoc)
+	 * @see com.ht.service.inter.experiencebook.PaperMapOtherService#ElectronicProcessflow(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public Map<String, Object> ElectronicProcessflow(String processInstId,
+			String type) throws Exception {
+		try {
+			Base base = new Base();
+			// 定义导出数据Map
+			Map<String, Object> data = new HashMap<String, Object>();
+			/**
+			 * 开始纸海图计划数据准备
+			 */
+			String[] processDefKeys =
+			{ "SEA_MAP_COMPILATION_PAPER", "SEA_MAP_COMPILATION_PAPER_PLAN" };
+			
+			if(type=="ELECTRONIC"){
+				String[] electronic ={ "SEA_MAP_COMPILATION_ELECTRONIC", "SEA_MAP_COMPILATION_ELECTRONIC_PLAN" };
+				processDefKeys =electronic;
+			}
+			// 获取当前流程实例操作的表数据
+			HiTask task = base.getFirstHiTask(processInstId, processDefKeys[1]);
+			// 编绘计划流程实例ID
+			String planProcessInstId = task.getProcessInstId();
+			task = base.getFirstHiTask(processInstId, processDefKeys[0]);
+			// 编绘作业流程ID
+			String workProcessInstId = task.getProcessInstId();
+			// 拆分主键记录
+			VProcessDetail detail = base.getDetailRecordId(processInstId, planProcessInstId);
+			CreateTask complicationTask = createTaskDao.getTaskById(detail.getDetailRecordId());
+			String taskBookId = complicationTask.getParentTaskbookId();
+			TaskBook taskBook = taskBookDao.findById(taskBookId);
+			PaperProcessFlow paperProcessFlow=new PaperProcessFlow();
+			//项目名称
+			paperProcessFlow.setXMMC(complicationTask.getTaskName());
+			//任务书编号
+			paperProcessFlow.setTASK_NO(taskBook.getTaskbookNo());
+			//图名
+			paperProcessFlow.setMAP_NAME(complicationTask.getTaskName());
+			//图号
+			paperProcessFlow.setMAP_NO(complicationTask.getMapNo());
+			
+			//比例尺
+			paperProcessFlow.setSCALE(complicationTask.getScale());
+			
+			//版次，小改正编号
+			paperProcessFlow.setREVISION("1".equals(complicationTask.getRevision())?"首版":"再版");
+			//获取整个流程
+			Flows flowss = new Flows();
+			flowss.setProcessInstId(planProcessInstId);
+			List<Flows> flowListAll = new ArrayList<Flows>();
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			flowss = new Flows();
+			flowss.setProcessInstId(workProcessInstId);
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			
+			List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+			paperProcessFlow.setTYPE("电子海图");
+			ElectronPersonAndDate pd=new ElectronPersonAndDate(flowListAll);
+			/*listMap=pd.getListMap();*/
+			List<Map<String,Object>> listMap2 = pd.getListMap();
+			for (Map<String, Object> map : listMap2) {
+				if(map.get("text_gx_order").equals("编   绘")){
+					listMap.add(map);
+				}
+				if(map.get("text_gx_order").equals("部门质检")){
+					listMap.add(map);
+				}
+				if(map.get("text_gx_order").equals("中心审定")){
+					listMap.add(map);
+				}
+			}
+			/**
+			 * 电子海图据编绘作业计划
+			 */
+			EleWorkPlan workPlan = new EleWorkPlan();
+			List<List<FormValue>> workPlans = base.getFormValueByRowFlag(workPlan.WORK_PLAN_FORM_ID, planProcessInstId);
+			if (workPlans != null)
+			{
+				if (workPlans.size() > 0)
+				{
+					workPlan = new EleWorkPlan();
+					for (List<FormValue> list : workPlans) {
+						workPlan.setDataProps(list);
+					}
+					data.put(workPlan.MARKER, workPlan.getWorkPlanMap());
+				}
+			}
+			/**
+			 * 数学基础及元物标
+			 */
+			MathBase mathBase = new MathBase();
+			List<List<FormValue>> mathBaseList = base.getFormValueByRowFlag(mathBase.MATH_BASE_FORM_ID, planProcessInstId);
+			if (mathBaseList != null)
+			{
+				for (int i = 0; i < mathBaseList.size(); i++)
+				{
+					mathBase.setDataProps(mathBaseList.get(i));
+				}
+			}
+			data.put(mathBase.MARKER, mathBase.getMapIndexesMap());
+			Map<String, Object> mapIndexesMap = mathBase.getMapIndexesMap();
+			String productId=(String)mapIndexesMap.get("text_sxjcjywb_ecpid");
+			String engineering=(String)mapIndexesMap.get("text_sxjcjywb_gcid");
+			if(StringUtils.isNotEmpty(productId)){
+				//产品编号
+				paperProcessFlow.setPRODUCT_NO(productId);
+				//工程编号
+				paperProcessFlow.setPROJECT_NO(engineering);
+			}else{
+				//产品编号
+				paperProcessFlow.setPRODUCT_NO("");
+				//工程编号
+				paperProcessFlow.setPROJECT_NO("");
+			}
+			//文件路径1
+			paperProcessFlow.setROUTE_1("192.168.25.107\\审定合格文件");
+			//文件路径2
+			paperProcessFlow.setROUTE_2("192.168.25.107\\制图中心提交小改正文件");
+			//纸海图
+			paperProcessFlow.setPAPER("");
+			//纸海图小改正1
+			paperProcessFlow.setPAPER_MIN_1("");
+			//纸海图小改正2
+			paperProcessFlow.setPAPER_MIN_2("");
+			//图幅变更信息
+			paperProcessFlow.setCHANGE_INFORMATION("");
+			Map<String, Object> map = paperProcessFlow.getMap();
+			/**
+			 * 电子海图编绘工序流程表
+			 */
+			String scale = complicationTask.getScale();
+			ScaleControl scaleControl = new ScaleControl();
+			scaleControl.setOldScale(scale);
+			scaleControl = scaleControlDao.getStandardByOld(scaleControl);
+			if (scaleControl!=null) {
+				map.put("text_flow_standard",scaleControl.getStandardScale());
+			}else {
+				map.put("text_flow_standard","");
+			} 
+			map.put(paperProcessFlow.MARKER, listMap);
+			data.put(paperProcessFlow.MARKER, map);
+			
+			return data;
+		} catch (Exception e) {
+			throw new CommonException();
+		}
+	}
+
+	/* 
+	 * @author huodesheng
+	 * @date 2017-9-28
+	 * @company DaoEasy
+	 * (non-Javadoc)
+	 * @see com.ht.service.inter.experiencebook.PaperMapOtherService#PaperCorrectionProcessflow()
+	 */
+	@Override
+	public Map<String, Object> PaperCorrectionProcessflow(String processInstId) throws Exception {
+		try
+		{
+			Base base = new Base();
+			// 定义导出数据Map
+			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> map = new HashMap<String,Object>();
+			/**
+			 * 开始纸海图小改正数据准备
+			 */
+			String[] processDefKeys =
+				{ "SMALL_CORRECTION_PAPER"};
+			// 获取当前流程实例操作的表数据
+			// 编绘计划流程实例ID
+			String planProcessInstId = processInstId;
+			// 拆分主键记录
+			VProcessDetail detail = base.getDetailRecordId(null, processInstId);
+			CreateTask complicationTask = createTaskDao.getTaskById(detail.getDetailRecordId());
+			String taskBookId = complicationTask.getParentTaskbookId();
+			TaskBook taskBook = taskBookDao.findById(taskBookId);
+			
+			/**
+			 * 纸海图小改正经历簿
+			 */
+			Head head = new Head();
+			//设置图名
+			head.setMAP_NAME(complicationTask.getTaskName());
+			//设置图号
+			head.setMAP_NO(complicationTask.getMapNo());
+			//设置版次
+			head.setREVISION(complicationTask.getRevision());
+			//设置比例尺
+			head.setSCALE(complicationTask.getScale());
+			//获得纸海图小改正经历簿
+			map = head.getHeadMap();
+			data.put(head.MARKER, map);
+			/**
+			 * 设置改正期号,改正项号 
+			 */
+			PaperItemNoIssue paperitemnoissue=new PaperItemNoIssue();
+			List<List<FormValue>> paperitemnoissues = base.getFormValueByRowFlag(paperitemnoissue.PaperItemNoIssue_FORM_ID, planProcessInstId);
+			if(paperitemnoissues!=null){
+				if(paperitemnoissues.size()>0){
+					for (List<FormValue> list : paperitemnoissues) {
+						paperitemnoissue.setDataProps(list);
+					}
+					data.put(paperitemnoissue.MARKER, paperitemnoissue.getMap());
+				}
+			}
+			
+			// 返回结果数据
+			return data;
+		}
+		catch (Exception e)
+		{
+			throw new CommonException();
+		}
+	}
+
+	/* 
+	 * 源数据小改正工序流程表
+	 * @author huodesheng
+	 * @date 2017-9-28
+	 * @company DaoEasy
+	 * (non-Javadoc)
+	 * @see com.ht.service.inter.experiencebook.PaperMapOtherService#SourceProcessflow(java.lang.String)
+	 */
+	@Override
+	public Map<String, Object> SourceProcessflow(String processInstId)
+			throws Exception {
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Base base = new Base();
+			// 定义导出数据Map
+			Map<String, Object> data = new HashMap<String, Object>();
+			/**
+			 * 开始源数据小改正数据准备
+			 */
+			String[] processDefKeys =
+			{ "CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION"};
+			// 获取当前流程实例操作的表数据
+			// 编绘作业流程ID
+			String workProcessInstId = processInstId;
+			// 编绘计划流程实例ID
+			String planProcessInstId = processInstId;
+			// 拆分主键记录
+			VProcessDetail detail = base.getDetailRecordId(null, processInstId);
+			CreateTask complicationTask = createTaskDao.getTaskById(detail.getDetailRecordId());
+			String taskBookId = complicationTask.getParentTaskbookId();
+			TaskBook taskBook = taskBookDao.findById(taskBookId);
+			
+			/**
+			 * 封皮
+			 */
+			Cover cover = new Cover();
+			// 设置实施日期
+			cover.setTEXT_COVER_DATE(taskBook.getExecuteTime() == null ? null : sdf.format(taskBook.getExecuteTime()));
+			// 设置部门
+			cover.setTEXT_COVER_DEPARTMENT("制图事业部");
+			// 设置封皮logo图片（路径）
+			cover.setIMG_COVER_LOGO("");
+			// 获得封皮
+			Map<String, Object> map = cover.getCoverMap();
+			data.put(cover.MARKER, map);
+			
+			
+			/**
+			 * 源数据小改正工序流程表
+			 */
+			List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+			//获取整个流程
+			Flows flowss = new Flows();
+			flowss.setProcessInstId(planProcessInstId);
+			List<Flows> flowListAll = new ArrayList<Flows>();
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			flowss = new Flows();
+			flowss.setProcessInstId(workProcessInstId);
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			// 获取流程作业各操作人和状态
+			SourceDataSamllPersonAndDate pd=new SourceDataSamllPersonAndDate(flowListAll);
+			List<Map<String,Object>> listMap2 = pd.getListMap();
+			for (Map<String, Object> maps : listMap2) {
+				if(maps.get("text_gx_order").equals("工程创建")){
+					maps.put("text_gx_order","通告接收");
+					listMap.add(maps);
+				}
+				if(maps.get("text_gx_order").equals("源数据改正")){
+					maps.put("text_gx_order","开始更新");
+					listMap.add(maps);
+				}
+			}
+			data.put(new com.ht.service.constant.experiencebook.sourcedatacorrection.Flows().MARKER,listMap2);
+			/**
+			 * 改正期号&工程名称
+			 */
+			EngineeringRecord engineeringrecord =new EngineeringRecord();
+			List<List<FormValue>> engineeringrecords = base.getFormValueByRowFlag(engineeringrecord.EngineeringRecord_FORM_ID, planProcessInstId);
+			if (engineeringrecords != null)
+			{
+				if (engineeringrecords.size() > 0)
+				{
+					engineeringrecord =new EngineeringRecord();
+					for (List<FormValue> list : engineeringrecords) {
+						engineeringrecord.setDataProps(list);
+					}
+					data.put(engineeringrecord.MARKER, engineeringrecord.getMap());
+				}
+			}
+			
+			return data;
+		} catch (Exception e) {
+			 e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	/* 
+	 * @author huodesheng
+	 * @date 2017-9-30
+	 * @company DaoEasy
+	 * (non-Javadoc)
+	 * @see com.ht.service.inter.experiencebook.PaperMapOtherService#PaperSelfQualityEvaluateMap(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public Map<String, Object> PaperSelfQualityEvaluateMap(
+			String processInstId, String type) throws Exception {
+		try {
+			Base base = new Base();
+			// 定义导出数据Map
+			Map<String, Object> data = new HashMap<String, Object>();
+			/**
+			 * 开始纸海图计划数据准备
+			 */
+			String[] processDefKeys =
+			{ "SEA_MAP_COMPILATION_PAPER", "SEA_MAP_COMPILATION_PAPER_PLAN" };
+			if(type=="SOURCE"){
+				String[] source ={ "SEA_MAP_COMPILATION_SOURCE_DATA", "SEA_MAP_COMPILATION_SOURCE_DATA_PLAN" };
+				  processDefKeys =source;
+			}else if(type=="ELECTRONIC"){
+				String[] electronic ={ "SEA_MAP_COMPILATION_ELECTRONIC", "SEA_MAP_COMPILATION_ELECTRONIC_PLAN" };
+				processDefKeys =electronic;
+			}
+			// 获取当前流程实例操作的表数据
+			HiTask task = base.getFirstHiTask(processInstId, processDefKeys[1]);
+			// 编绘计划流程实例ID
+			String planProcessInstId = task.getProcessInstId();
+			task = base.getFirstHiTask(processInstId, processDefKeys[0]);
+			// 编绘作业流程ID
+			String workProcessInstId = task.getProcessInstId();
+			// 拆分主键记录
+			VProcessDetail detail = base.getDetailRecordId(processInstId, planProcessInstId);
+			CreateTask complicationTask = createTaskDao.getTaskById(detail.getDetailRecordId());
+			String taskBookId = complicationTask.getParentTaskbookId();
+			TaskBook taskBook = taskBookDao.findById(taskBookId);
+			//获取整个流程
+			Flows flowss = new Flows();
+			flowss.setProcessInstId(planProcessInstId);
+			List<Flows> flowListAll = new ArrayList<Flows>();
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			flowss = new Flows();
+			flowss.setProcessInstId(workProcessInstId);
+			flowListAll.addAll(flowsDao.getProcessFlows(flowss));
+			//map
+			PaperQualityEvaluate qualityEvaluate = new PaperQualityEvaluate();
+			//maplist
+			PaperQualityEvaluate qualityEvaluates = new PaperQualityEvaluate();
+			
+			
+			ArrayList<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+			Map<String, Object> map =new HashMap<String,Object>();
+			
+			if(type=="PAPER"){
+				qualityEvaluate.setTYPE("纸海图");
+				PaperPersonAndDate pd = new PaperPersonAndDate(flowListAll);
+				qualityEvaluate.setDATE(pd.getValaditionConclusionDate() == null ? "" : pd.getValaditionConclusionDate());
+				/**
+				 * 纸海图审定记录表
+				 */
+				map= base.getPaperValidationDefective(workProcessInstId, pd.getValaditionPerson(), pd.getValaditionDate(), pd.getValaditonApprovePerson(),pd.getValaditonApproveDate(), null);
+				List<DefectForm> defectFormList = defectFormDao.getDefectFormListByProcessInstId(workProcessInstId, ChartStatusConstants.APPROVE_LIKE);
+				String total = null;
+				String coefficient = null;
+				String actual = null;
+				String grading = null;
+				if (defectFormList != null)
+				{
+					if (defectFormList.size() > 0)
+					{
+						for (int i = 0; i < defectFormList.size(); i++)
+						{
+							DefectForm defectForm = defectFormList.get(i);
+							total = defectForm.getTotal();
+							coefficient = defectForm.getCoefficient();
+							actual = defectForm.getActual();
+							grading = defectForm.getGrading();
+							qualityEvaluates = new PaperQualityEvaluate();
+							// 设置处理意见
+							qualityEvaluates.setCONTENT(defectForm.getOpinion());
+							// 设置质量扣分
+							qualityEvaluates.setZLKF(defectForm.getScore());
+							//设置缺陷个数
+							qualityEvaluates.setQXGS(defectForm.getNumber());
+							//设置缺陷类别
+							qualityEvaluates.setQXLB(defectForm.getDeep());
+							//序号
+							qualityEvaluates.setNO((i+1)+"");
+							//处理结果
+							qualityEvaluates.setCLJG("已修改");
+							Map<String,Object> maps=new HashMap<String,Object>();
+							maps.putAll(qualityEvaluates.getMap());
+							listMap.add(maps);
+						}
+						// 设置质量累计扣分
+						qualityEvaluate.setLJKF(total);
+						// 设置调整系数
+						qualityEvaluate.setNDXS(coefficient);
+					}
+				}
+				//图号
+				qualityEvaluate.setMAP_NAME(complicationTask.getTaskName());
+				/**
+				 * 审定记录结论表
+				 */
+				PaperValidationConclusionRecord vc = new PaperValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				// 审定结论
+				String sdjl = null;
+				// 质量评分及等级
+				String zlpf="";
+				String zldj="";
+				String pfdj="";
+				if(vcList!=null){
+					if(vcList.size()>0){
+						for (int i = 0; i < vcList.size(); i++)
+						{
+							vc = new PaperValidationConclusionRecord();
+							List<FormValue> vcListI = vcList.get(i);
+							vc.setDataProps(vcListI);
+							Map<String, Object> mapI = vc.getPaperValidationConclusionRecordMap();
+							sdjl = mapI.get("text_sdjljlb_sdjl") == null ? null : mapI.get("text_sdjljlb_sdjl").toString();
+							zlpf = mapI.get("text_sdjljlb_zlpf") == null ? null : mapI.get("text_sdjljlb_zlpf").toString();
+							zldj = mapI.get("text_sdjljlb_zldj") == null ? "" : mapI.get("text_sdjljlb_zldj").toString();
+						}
+						//最终得分
+						qualityEvaluate.setZZDF(zlpf);
+						//质量等级
+						qualityEvaluate.setZLDJ(zldj);
+					
+						
+					}
+				}
+				//作业部门质检员
+				qualityEvaluate.setZYZJ(pd.getTestConclusionQualityPerson());
+				//质量部门质检员
+				qualityEvaluate.setZLZJ(pd.getValaditionPerson());
+				//编绘
+				qualityEvaluate.setZLBH(pd.getPlanCompilationPerson());
+				//主任
+				qualityEvaluate.setZLKZ(pd.getTestConclusionApprovePerson());
+			}else if(type=="SOURCE"){
+				SourceDataPersonAndDate pd = new SourceDataPersonAndDate(flowListAll);
+				qualityEvaluate.setTYPE("源数据");
+				qualityEvaluate.setDATE(pd.getValaditionConclusionDate() == null ? "" : pd.getValaditionConclusionDate());
+				/**
+				 * 纸海图审定记录表
+				 */
+				map= base.getPaperValidationDefective(workProcessInstId, pd.getValaditionPerson(), pd.getValaditionDate(), pd.getValaditonApprovePerson(),pd.getValaditonApproveDate(), null);
+				List<DefectForm> defectFormList = defectFormDao.getDefectFormListByProcessInstId(workProcessInstId, ChartStatusConstants.APPROVE_LIKE);
+				String total = null;
+				String coefficient = null;
+				String actual = null;
+				String grading = null;
+				if (defectFormList != null)
+				{
+					if (defectFormList.size() > 0)
+					{
+						for (int i = 0; i < defectFormList.size(); i++)
+						{
+							DefectForm defectForm = defectFormList.get(i);
+							total = defectForm.getTotal();
+							coefficient = defectForm.getCoefficient();
+							actual = defectForm.getActual();
+							grading = defectForm.getGrading();
+							qualityEvaluates = new PaperQualityEvaluate();
+							// 设置处理意见
+							qualityEvaluates.setCONTENT(defectForm.getOpinion());
+							// 设置质量扣分
+							qualityEvaluates.setZLKF(defectForm.getScore());
+							//设置缺陷个数
+							qualityEvaluates.setQXGS(defectForm.getNumber());
+							//设置缺陷类别
+							qualityEvaluates.setQXLB(defectForm.getDeep());
+							//序号
+							qualityEvaluates.setNO((i+1)+"");
+							//处理结果
+							qualityEvaluates.setCLJG("已修改");
+							Map<String,Object> maps=new HashMap<String,Object>();
+							maps.putAll(qualityEvaluates.getMap());
+							listMap.add(maps);
+						}
+						// 设置质量累计扣分
+						qualityEvaluate.setLJKF(total);
+						// 设置调整系数
+						qualityEvaluate.setNDXS(coefficient);
+					}
+				}
+				//图号
+				qualityEvaluate.setMAP_NAME(complicationTask.getTaskName());
+				/**
+				 * 审定记录结论表
+				 */
+				ValidationConclusionRecord vc = new ValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				for (int i = 0; i < vcList.size(); i++)
+				{
+					vc = new ValidationConclusionRecord();
+					List<FormValue> vcListI = vcList.get(i);
+					vc.setDataProps(vcListI);
+				}
+				
+				List<List<FormValue>> vcPfList = base.getFormValueByRowFlag(vc.VALIDATION_PF_CONCLUSION_FROM_ID, workProcessInstId);
+				// 审定结论
+				String sdjl = null;
+				// 质量评分及等级
+				String pfdj = null;
+				String zldj = null;
+				String zlpf = null;
+				if (vcPfList != null && vcPfList.size()>0)
+				{
+					for (int i = 0; i < vcPfList.size(); i++)
+					{
+						List<FormValue> qiPf = vcPfList.get(i);
+						if (qiPf != null)
+						{
+							zldj = null;
+							zlpf = null;
+							for (int j = 0; j < qiPf.size(); j++)
+							{
+								FormValue pfFalue = qiPf.get(j);
+								if (pfFalue != null)
+								{
+									if (pfFalue.getPropKey().equals("zldj"))
+									{
+										 zldj = pfFalue.getPropValue();
+									}
+									if (pfFalue.getPropKey().equals("zlpf"))
+									{
+										zlpf = pfFalue.getPropValue();
+									}
+									if (pfFalue.getPropKey().equals("sdjl"))
+									{
+										sdjl = pfFalue.getPropValue();
+									}
+								}
+							}
+							if (StringUtils.isNotEmpty(zldj))
+							{
+								pfdj = zldj;
+							}
+							if (StringUtils.isNotEmpty(pfdj))
+							{
+								if (StringUtils.isNotEmpty(pfdj))
+								{
+									pfdj = pfdj + zlpf;
+								}
+							}
+							else{
+								if (StringUtils.isNotEmpty(pfdj))
+								{
+									pfdj = zlpf;
+								}
+							}
+						}
+					}
+					//最终得分
+					qualityEvaluate.setZZDF(zlpf);
+					//质量等级
+					qualityEvaluate.setZLDJ(zldj);
+				}
+				//作业部门质检员
+				qualityEvaluate.setZYZJ(pd.getTestConclusionQualityPerson());
+				//质量部门质检员
+				qualityEvaluate.setZLZJ(pd.getValaditionPerson());
+				//编绘
+				qualityEvaluate.setZLBH(pd.getPlanCompilationPerson());
+				//主任
+				qualityEvaluate.setZLKZ(pd.getTestConclusionApprovePerson());
+			}else if(type=="ELECTRONIC"){
+				qualityEvaluate.setTYPE("电子海图");
+				ElectronPersonAndDate pd=new ElectronPersonAndDate(flowListAll);
+				qualityEvaluate.setDATE(pd.getValaditionConclusionDate() == null ? "" : pd.getValaditionConclusionDate());
+				/**
+				 * 纸海图审定记录表
+				 */
+				map= base.getPaperValidationDefective(workProcessInstId, pd.getValaditionPerson(), pd.getValaditionDate(), pd.getValaditonApprovePerson(),pd.getValaditonApproveDate(), null);
+				List<DefectForm> defectFormList = defectFormDao.getDefectFormListByProcessInstId(workProcessInstId, ChartStatusConstants.APPROVE_LIKE);
+				String total = null;
+				String coefficient = null;
+				String actual = null;
+				String grading = null;
+				if (defectFormList != null)
+				{
+					if (defectFormList.size() > 0)
+					{
+						for (int i = 0; i < defectFormList.size(); i++)
+						{
+							DefectForm defectForm = defectFormList.get(i);
+							total = defectForm.getTotal();
+							coefficient = defectForm.getCoefficient();
+							actual = defectForm.getActual();
+							grading = defectForm.getGrading();
+							qualityEvaluates = new PaperQualityEvaluate();
+							// 设置处理意见
+							qualityEvaluates.setCONTENT(defectForm.getOpinion());
+							// 设置质量扣分
+							qualityEvaluates.setZLKF(defectForm.getScore());
+							// 设置缺陷个数
+							qualityEvaluates.setQXGS(defectForm.getNumber());
+							// 设置缺陷类别
+							qualityEvaluates.setQXLB(defectForm.getDeep());
+							//序号
+							qualityEvaluates.setNO((i+1)+"");
+							//处理结果
+							qualityEvaluates.setCLJG("已修改");
+							Map<String,Object> maps=new HashMap<String,Object>();
+							maps.putAll(qualityEvaluates.getMap());
+							listMap.add(maps);
+						}
+						// 设置质量累计扣分
+						qualityEvaluate.setLJKF(total);
+						// 设置调整系数
+						qualityEvaluate.setNDXS(coefficient);
+					}
+				}
+				//图号
+				qualityEvaluate.setMAP_NAME(complicationTask.getTaskName());
+				/**
+				 * 电子海图审定结论记录表
+				 */
+				EleValidationConclusionRecord vc = new EleValidationConclusionRecord();
+				List<List<FormValue>> vcList = base.getFormValueByRowFlag(vc.VALIDATION_CONCLUSION_FROM_ID, workProcessInstId);
+				// 审定结论
+				String sdjl = "";
+				// 质量评分及等级
+				String pfdj = "";
+				String zldj ="";
+				String zlpf ="";
+				if(vcList!=null){
+					if(vcList.size()>0){
+						for (int i = 0; i < vcList.size(); i++)
+						{
+							vc = new EleValidationConclusionRecord();
+							List<FormValue> vcListI = vcList.get(i);
+							vc.setDataProps(vcListI);
+							Map<String, Object> mapI = vc.getValidationConclusionRecordMap();
+							sdjl = mapI.get("text_sdjljlb_sdjl") == null ? "" : mapI.get("text_sdjljlb_sdjl").toString();
+							zldj = mapI.get("text_sdjljlb_zldj") == null ? "" : mapI.get("text_sdjljlb_zldj").toString();
+							zlpf = mapI.get("text_sdjljlb_zlpf") == null ? "" : mapI.get("text_sdjljlb_zlpf").toString();
+							
+						}
+						//最终得分
+						qualityEvaluate.setZZDF(zlpf);
+						//质量等级
+						qualityEvaluate.setZLDJ(zldj);
+					}
+				}
+				//作业部门质检员
+				qualityEvaluate.setZYZJ(pd.getTestConclusionQualityPerson());
+				//质量部门质检员
+				qualityEvaluate.setZLZJ(pd.getValaditionPerson());
+				//编绘
+				qualityEvaluate.setZLBH(pd.getPlanCompilationPerson());
+				//主任
+				qualityEvaluate.setZLKZ(pd.getTestConclusionApprovePerson());
+			}
+			map = qualityEvaluate.getMap();
+			map.put(qualityEvaluates.MARKER, listMap);
+			data.put(qualityEvaluate.MARKER, map);
+			return data;
+		} catch (Exception e) {
+			throw new CommonException();
+		}
+	}
+
+}

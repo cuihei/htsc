@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.system.notice.NoticeBaseDataView" table="V_NOTICE_BASE_DATA">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="title" type="java.lang.String">
+            <column name="title" />
+        </property>
+        <property name="description" type="java.lang.String">
+            <column name="description" />
+        </property>
+        <property name="notice_Type" type="java.lang.String">
+            <column name="notice_Type" />
+        </property>
+        <property name="user_id" type="java.lang.String">
+            <column name="user_id" />
+        </property>
+        <property name="user_name" type="java.lang.String">
+            <column name="user_name" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getNoticeView">
+    	<![CDATA[ from NoticeBaseDataView order by creationDate desc]]>
+    </query>
+    <query name="getNoticeViewByUser">
+    	<![CDATA[ from NoticeBaseDataView where creator = :creator and notice_Type = :notice_Type order by creationDate desc]]>
+    </query>
+</hibernate-mapping>

@@ -1,0 +1,266 @@
+package com.ht.persistence.dao.impl.complication.formprop;
+
+import java.util.List;
+
+import org.hibernate.SQLQuery;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.complication.formprop.FormValueDao;
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.formprop.FormValue;
+
+/**
+ * FormValue 接口的实现类
+ * @author 侯晨
+ */
+public class FormValueDaoImpl extends BaseDaoImpl implements FormValueDao
+{
+
+	/**
+	 * 增加一个FormValue
+	 * @param FormValue FormValue实体
+	 */
+	@Override
+	public void addFormValue(FormValue formValue)
+	{
+		this.save(formValue);
+	}
+
+	/**
+	 * 更新一个FormValue
+	 * @param FormValue FormValue实体
+	 */
+	@Override
+	public void modifyFormValue(FormValue formValue)
+	{
+		formValue = (FormValue) this.merge(formValue);
+		this.update(formValue);
+	}
+
+	/**
+	 * 删除FormValue 相关
+	 * @param FormValue FormValue对象
+	 */
+	@Override
+	public void delFormValue(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery("delete FORM_VALUE where ROW_FLAG= ? ");
+		query.setString(0, formValue.getRowFlag());
+		query.addEntity(FormValue.class);
+		int cnt = query.executeUpdate();
+		System.out.println(cnt);
+	}
+
+	/**
+	 * 获取所有FormValue
+	 * @return FormValue列表
+	 */
+	@Override
+	public List<FormValue> getFormValue()
+	{
+		try
+		{
+			@SuppressWarnings("unchecked")
+			List<FormValue> result = this.findByNamedQuery("getFormValue");
+			return result;
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * 获取一条FormValue
+	 * @param FormValue FormValue对象getFormIdByTTIdAndPIId
+	 * @return FormValue实体
+	 */
+	@Override
+	public FormValue getFormValue(FormValue formValue)
+	{
+		@SuppressWarnings("unchecked")
+		List<FormValue> result = this.findByNamedQueryAndNamedParam("getFormValueById", "id", formValue.getId());
+		if (result.size() > 0) { return result.get(0); }
+		return null;
+	}
+
+	/**
+	 * 获取formId集合
+	 * @param FormValue FormValue对象
+	 * @return FormValue实体
+	 */
+
+	@Override
+	public List<FormValue> getFormIdByTTIdAndPIId(FormValue formValue)
+	{
+		try
+		{
+			String[] names =
+			{ "taskInstId", "processInstId" };
+			String[] params =
+			{ formValue.getTaskInstId(), formValue.getProcessInstId() };
+			/* List<FormValue> result = this.findByNamedQueryAndNamedParam("getFormIdByTTIdAndPIId", names, params); */
+			SQLQuery query = this
+					.getSession()
+					.createSQLQuery(
+							"SELECT distinct b.id,b.name From form_value a LEFT JOIN form b ON a.form_id=b.id WHERE a.task_inst_id=? and a.process_inst_id =?");
+			query.setString(0, formValue.getTaskInstId());
+			query.setString(1, formValue.getProcessInstId());
+			query.addEntity(Form.class);
+			@SuppressWarnings("unchecked")
+			List<Form> result = query.list();
+			if (result.size() > 0) { return null; }
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByPt(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =? and t.TASK_INST_ID =?  and t.form_id = ? order by t.modify_date");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getTaskInstId());
+		query.setString(2, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+	
+
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByPF(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =?   and t.form_id = ? order by t.modify_date");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+	
+	/**
+	 * 通过流程ID，获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByPf(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =?  and t.form_id = ? order by t.row_flag,t.creation_date desc");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<FormValue> getFormValueByProcessInstId(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =?  and t.form_id = ? order by t.modify_date,t.row_flag");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+	
+	/**
+	 * 通过流程ID，流程任务ID获取所有FormValue对象
+	 * @param FormValue FormValue对象
+	 * @return List<FormValue> FormValue实体集合
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<FormValue> getFormValueByPidAndFidAndPropKey(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROCESS_INST_ID =?  and t.form_id = ? and t.PROP_KEY = ?");
+		query.setString(0, formValue.getProcessInstId());
+		query.setString(1, formValue.getFormId());
+		query.setString(2, formValue.getPropKey());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+
+	@Override
+	public List<FormValue> getFormValueByFromId(FormValue formValue)
+	{
+		@SuppressWarnings("unchecked")
+		List<FormValue> result = this.findByNamedQueryAndNamedParam("getFormValueByFromId", "formId", formValue.getFormId());
+		return result;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<FormValue> getFormValueByRowFlag(FormValue formValue)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select * from form_value t where t.PROP_KEY =? and t.ROW_FLAG =? order by t.modify_date,t.prop_key");
+		query.setString(0, formValue.getPropKey());
+		query.setString(1, formValue.getRowFlag());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		return list;
+	}
+
+	/**
+	 * 根据表单id和流程id，查出当前流程的最新一条任务ID(排除当前任务ID)
+	 * */
+	@Override
+	public String getTaskIdBypft(FormValue fv)
+	{
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select *  from form_value where form_id = ? and process_inst_id = ? and task_inst_id <> ? order by modify_date desc");
+		query.setString(0, fv.getFormId());
+		query.setString(1, fv.getProcessInstId());
+		query.setString(2, fv.getTaskInstId());
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		if(list.size()>0){
+			return list.get(0).getTaskInstId();
+		}
+		return null;
+	}
+
+	@Override
+	public List<FormValue> getFormValueByFromIdAndPropValue(FormValue formValue) {
+		SQLQuery query = this.getSession().createSQLQuery(
+				"select *  from form_value where form_id = ? and prop_value like ?");
+		query.setString(0, formValue.getFormId());
+		query.setString(1, "%"+formValue.getPropValue()+"%");
+		query.addEntity(FormValue.class);
+		List<FormValue> list = query.list();
+		if(list.size()>0){
+			return list;
+		}
+		return null;
+	}
+}

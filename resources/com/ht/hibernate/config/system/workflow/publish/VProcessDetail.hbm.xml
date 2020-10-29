@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.ht.persistence.model.system.workflow.publish.VProcessDetail" table="V_Process_Detail">
+        <id name="processInstId" type="java.lang.String">
+            <column name="PROCESS_INST_ID" />
+        </id>
+        <property name="detailRecordId" type="java.lang.String">
+            <column name="DETAIL_RECORD_ID" />
+        </property>
+        <property name="tableName" type="java.lang.String">
+            <column name="TABLE_NAME" />
+        </property>
+        <property name="tableKeyName" type="java.lang.String">
+            <column name="TABLE_KEY_NAME" />
+        </property>
+        <property name="tableStatusName" type="java.lang.String">
+            <column name="TABLE_STATUS_NAME" />
+        </property>
+        <property name="processDefId" type="java.lang.String">
+            <column name="PROCESS_DEF_ID" />
+        </property>
+        <property name="processDefKey" type="java.lang.String">
+            <column name="PROCESS_DEF_KEY" />
+        </property>
+        <property name="processDefName" type="java.lang.String">
+            <column name="PROCESS_DEF_NAME" />
+        </property>
+        <property name="taskInstId" type="java.lang.String">
+            <column name="TASK_ID" />
+        </property>
+         <property name="taskName" type="java.lang.String">
+            <column name="TASK_NAME" />
+        </property>
+        <property name="taskDefId" type="java.lang.String">
+            <column name="TASK_DEF_ID" />
+        </property>
+        <property name="userNo" type="java.lang.String">
+            <column name="USERNO" />
+        </property>
+         <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+         <property name="parentProcessInstId" type="java.lang.String">
+            <column name="parent_process_inst_id" />
+        </property>
+
+    
+    
+          <property name="issueTime" type="timestamp">
+            <column name="ISSUE_TIME" />
+        </property>
+         <property name="taskbookName" type="java.lang.String">
+            <column name="TASKBOOK_NAME" />
+        </property>
+             <property name="taskbookNo" type="java.lang.String">
+            <column name="TASKBOOK_NO" />
+        </property>
+    </class>
+    
+    
+    <query name="getByDetailRecordId">
+    	<![CDATA[ from VProcessDetail where detailRecordId= :detailRecordId order by creation_date desc]]> 
+    </query>
+    
+</hibernate-mapping>

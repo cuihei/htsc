@@ -1,0 +1,500 @@
+package com.ht.action.system.workflow.task;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.activiti.bpmn.model.SequenceFlow;
+import org.activiti.bpmn.model.UserTask;
+import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
+import org.apache.commons.lang.StringUtils;
+import org.apache.struts2.ServletActionContext;
+
+import com.ht.action.base.BaseAction;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.LoginUtil;
+import com.ht.exception.DBException;
+import com.ht.front.pages.complication.form.FormValuePage;
+import com.ht.front.pages.system.workflow.task.TaskFormPage;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.formprop.FormProp;
+import com.ht.persistence.model.system.workflow.process.ProcessForm;
+import com.ht.persistence.model.system.workflow.process.ProcessFormProp;
+import com.ht.persistence.model.system.workflow.task.Flows;
+import com.ht.service.impl.background.dicdata.constants.BaseDataConstants;
+import com.ht.service.impl.system.workflow.util.BusinessUtil;
+import com.ht.service.inter.background.dicdata.basedata.BaseDataService;
+import com.ht.service.inter.background.organization.employee.UserService;
+import com.ht.service.inter.complication.form.FormService;
+import com.ht.service.inter.complication.formprop.FormPropService;
+import com.ht.service.inter.system.issue.YearIssueService;
+import com.ht.service.inter.system.symbol.SymbolService;
+import com.ht.service.inter.system.workflow.process.ProcessFormService;
+import com.ht.service.inter.system.workflow.task.FlowsService;
+import com.ht.service.inter.system.workflow.task.TaskFormService;
+import com.ht.workflow.service.IWorkflowService;
+import com.thoughtworks.xstream.alias.ClassMapper.Null;
+
+/**
+ * @ClassName: TaskAction
+ * @Description: 流程任务处理aciton
+ * @author penghao
+ * @date 2016年10月28日 上午10:49:31
+ */
+@SuppressWarnings("serial")
+public class TaskFormAction extends BaseAction
+{
+
+	@Resource
+	IWorkflowService service;
+	@Resource
+	private SymbolService symbolService;
+	// 文件上传
+	private File upload;
+	// 文件上传名称
+	private String uploadFileName;
+	// 文件上传类型
+	private String uploadContentType;
+
+	public File getUpload()
+	{
+		return upload;
+	}
+
+	public void setUpload(File upload)
+	{
+		this.upload = upload;
+	}
+
+	public String getUploadFileName()
+	{
+		return uploadFileName;
+	}
+
+	public void setUploadFileName(String uploadFileName)
+	{
+		this.uploadFileName = uploadFileName;
+	}
+
+	public String getUploadContentType()
+	{
+		return uploadContentType;
+	}
+
+	public void setUploadContextType(String uploadContentType)
+	{
+		this.uploadContentType = uploadContentType;
+	}
+
+	// 文件下载
+	private InputStream downloadStream;
+	// 文件下载名称
+	private String fileName;
+
+	public InputStream getDownloadStream()
+	{
+		return downloadStream;
+	}
+
+	public void setDownloadStream(InputStream downloadStream)
+	{
+		this.downloadStream = downloadStream;
+	}
+
+	public String getFileName()
+	{
+		try
+		{
+			ServletActionContext.getResponse().setHeader("charset", "ISO8859-1");
+			return new String(this.fileName.getBytes(), "ISO8859-1");
+		}
+		catch (Exception e)
+		{
+			return "获取文件名出现了错误!";
+		}
+	}
+
+	public void setFileName(String fileName) throws Exception
+	{
+		this.fileName = new String(fileName.getBytes("ISO8859-1"), BaseDataConstants.BASE_CODEING);
+	}
+
+	/**
+	 * 注入任务表单Service
+	 */
+	@Resource
+	private TaskFormService taskFormService;
+
+	// 注入表单属性Service
+	@Resource
+	private FormPropService formPropService;
+	
+	@Resource
+	private FlowsService flowsService;
+
+
+	/**
+	 * 注入流程表单Service
+	 */
+	@Resource
+	private ProcessFormService processFormService;
+
+	@Resource
+	private FormService formService;
+
+	@Resource
+	UserService userService;
+	/**
+	 * 改正通告期号时间段
+	 */
+	@Resource
+	YearIssueService yearIssueService;
+	/**
+	 * 改正通告期号时间段
+	 */
+	@Resource
+	BaseDataService baseDataService;
+
+	/**
+	 * 初始化任务提交候选组页面
+	 * @return
+	 */
+	public String initPerformGroup()
+	{
+		try
+		{
+			TaskFormPage page = TaskFormPage.getInstance();
+			String taskDefId = getParam("taskDefId");
+			String processDefId = getParam("processDefId");
+			String processInstId = getParam("processInstId");
+			String parentProcessInstId = getParam("parentProcessInstId");
+			String taskId = getParam("taskId");
+			
+			/*List<String> defaultGroups = new ArrayList<>();
+			defaultGroups.add("11231238145320271");
+			defaultGroups.add("11211633168660019");
+			defaultGroups.add("11211633217290026");
+			defaultGroups.add("11211633091150012");
+			defaultGroups.add("1121163327650033");
+			defaultGroups.add("11241024398029247");*/
+			
+			// 获取分配组的ID
+			String groupId = BusinessUtil.getInstance().getProcessAllotGroupId(processDefId.split(":")[0], taskDefId);
+			// 如果配置文件的组ID为空，则去流程参数取已经分配的ID
+			if (StringUtils.isEmpty(groupId))
+			{
+				String key = BusinessUtil.getInstance().getProcessTaskAllotedArgkey(processDefId.split(":")[0], taskDefId);
+				String userId = (String) service.getProcessArgs(processInstId, key);
+				String allotGroupId = BusinessUtil.getInstance().getProcessPreTaskAllotGroupId(processDefId.split(":")[0], taskDefId);
+				List<Group> groups = service.getGroupsByUser(userId);
+				for (int i = 0; i < groups.size(); i++)
+				{
+					String id = groups.get(i).getId();
+					if (id.equals(allotGroupId))
+					{
+						groups.remove(groups.get(i));
+						break;
+					}
+				}
+				groupId = groups.get(0).getId();
+			}
+			List<User> users = service.getUsersByGroup(groupId);
+			request.setAttribute("taskDefId", taskDefId);
+			
+			 ///获取计划分配人员LIST
+			List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+			for (int i = 0; i < users.size(); i++) {
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("id", users.get(i).getId());
+				map.put("name", users.get(i).getFirstName());
+				list.add(map);
+			}
+			
+			String opinionPage = page.getPerformGroupPage(users);
+			request.setAttribute("html", opinionPage);
+			request.setAttribute("processInstId", processInstId);
+			request.setAttribute("parentProcessInstId", parentProcessInstId);
+			request.setAttribute("processDefId", processDefId);
+			request.setAttribute("taskId", taskId);
+		
+			request.setAttribute("planuserlist", list);
+			return SUCCESS;
+		}
+		catch (Exception e)
+		{
+			return ERROR;
+		}
+	}
+
+	/**
+	 * 指派下一步任务人员   组长分配人员
+	 */
+	public void assignedUser()
+	{
+		String taskId = getParam("taskId");
+		String processInstId = getParam("processInstId");
+		String processDefId = getParam("processDefId");
+		String taskDefId = getParam("taskDefId");
+		String userId = getParam("userId");
+		String parentProcessInstId = getParam("parentProcessInstId");
+		try
+		{
+			taskFormService.assignedUser(taskId, processInstId, processDefId, taskDefId, userId, parentProcessInstId);
+			writeSuccessResult();
+		}
+		catch (DBException e)
+		{
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	/**
+	 * 获取表单内容
+	 * @param
+	 * @return
+	 */
+	public String getFormContent()
+	{
+		String taskDefId = getParam("taskDefId");
+		String processDefId = getParam("processDefId");
+		String taskInstId = getParam("taskInstId");
+		String processInstId = getParam("processInstId");
+		String page = null;
+		try
+		{
+			// 查询当前任务所属表单
+			ProcessForm pfs = processFormService.getProcessFormByProAndTask(processDefId, taskDefId);
+			// 如果不为空
+			if (pfs != null)
+			{
+				if (StringUtils.isNotEmpty(pfs.getFormId()))
+				{
+					// 有跳转URL 进入URL页面
+					Form form = formService.getForm(pfs.getFormId());
+					String url = form.getUrl();
+					if (StringUtils.isNotEmpty(url))
+					{
+						request.setAttribute("url", url + "?processInstId=" + processInstId + "&taskId=" + taskInstId + "&processDefId="
+								+ processDefId + "&taskDefId=" + taskDefId);
+						return "url";
+					}
+					// 沒有跳轉URL 进入内容页面
+					page = taskFormService.getFormContent(pfs.getFormId());
+				}
+			}
+			else
+			{
+				request.setAttribute("error", "当前任务没有表单需要填写");
+				return ERROR;
+			}
+			// 将content内容返回到页面
+			request.setAttribute("html", page);
+			request.setAttribute("taskInstId", taskInstId);
+			request.setAttribute("processInstId", processInstId);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+		return SUCCESS;
+	}
+
+	/**
+	 * 获取表单内容
+	 * @param
+	 * @return
+	 */
+	@SuppressWarnings(
+	{ "rawtypes", "unchecked" })
+	public String getProcessForm()
+	{
+		String taskDefId = getParam("taskDefId");
+		String processDefId = getParam("processDefId");
+		String taskInstId = getParam("taskInstId");
+		String processInstId = getParam("processInstId");
+		String processDefKey = processDefId.split(":")[0];
+		String processType = getParam("processDefKey");
+		String parentProcessInstId = getParam("parentProcessInstId");
+		String from = getParam("from");
+		String page = null;
+		try
+		{
+			// 查询当前任务所属表单
+			ProcessForm pfs = processFormService.getProcessFormByProAndTask(processDefId, taskDefId);
+			// 如果不为空
+			if (pfs != null)
+			{
+				if (StringUtils.isNotEmpty(pfs.getFormId()))
+				{
+					// 有跳转URL 进入URL页面
+					Form form = formService.getForm(pfs.getFormId());
+					String url = form.getUrl();
+					if (StringUtils.isNotEmpty(url))
+					{
+						request.setAttribute("url", url + "?processInstId=" + processInstId + "&taskId=" + taskInstId + "&processDefId="
+								+ processDefId + "&taskDefId=" + taskDefId + "&parentProcessInstId=" + parentProcessInstId);
+						return "url";
+					}
+					// 无跳转URL 进入动态表单页面
+				
+					List<ProcessFormProp> formPropList = processFormService.getProcessFormProp(processDefKey, taskDefId);
+					
+					Map<String, Object> params = new HashMap<String, Object>();
+					params.put("processInstId", processInstId);
+					List<BaseData> dateList = baseDataService.getBaseDataByTypeId("0428145046830092");
+					page = FormValuePage.getInstance().getInitProcessForm(dateList,formPropList, form.getName(), params, symbolService,yearIssueService,baseDataService);
+
+					List<Map<String, String>> props = new ArrayList<Map<String, String>>();
+					List<FormProp> formProp = formPropService.getFormPropByFormId(form.getId());
+					for (FormProp fp : formProp)
+					{
+						String propKey = fp.getPropKey();
+						String propName = fp.getPropName();
+						String propType = fp.getPropType();
+						String required = fp.getRequired();
+			
+						Map map = new HashMap();
+						map.put("key", propKey);
+						map.put("formId", form.getId());
+						map.put("name", propName);
+						map.put("type", propType);
+						map.put("required",required);
+						props.add(map);
+					}
+					FormValuePage fpv = new FormValuePage();
+					String formValuepage = fpv.getListNode(props,form.getName(),pfs.getDelegate(),params);
+					// 将content内容返回到页面
+					request.setAttribute("left", page);
+					request.setAttribute("dateList", dateList);
+					request.setAttribute("right", formValuepage);
+					request.setAttribute("taskInstId", taskInstId);
+					request.setAttribute("formId", form.getId());
+					request.setAttribute("taskDefId", taskDefId);
+					request.setAttribute("processDefId", processDefId);
+					request.setAttribute("processInstId", processInstId);
+					request.setAttribute("processDefKey", processType);
+					request.setAttribute("from", from);
+				}
+			}
+			else
+			{
+				request.setAttribute("error", "当前任务没有表单需要填写");
+				return ERROR;
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+		return SUCCESS;
+	}
+
+	/**
+	 * 下载模板
+	 * @param
+	 * @return
+	 */
+	public String getTemplate()
+	{
+		String props = getParam("props");
+		@SuppressWarnings("unchecked")
+		List<Map<String, String>> formPropList = (List<Map<String, String>>) DataConverter.convertJson2List(props, Map.class);
+		try
+		{
+			// 表格名称
+			this.fileName = "表单导入模板" + ".xls";
+			downloadStream = taskFormService.getTemplate(formPropList, fileName);
+		}
+		catch (Exception e)
+		{
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+		return SUCCESS;
+	}
+
+	/**
+	 * 导入目录数据
+	 * @param
+	 * @return
+	 */
+	public void upload()
+	{
+		String props = getParam("props");
+		// 获取前台传入的任务ID
+		String taskInstId = getParam("taskInstId");
+		// 获取前台传入的流程ID
+		String processInstId = getParam("processInstId");
+		try
+		{
+			String addFormByExcel = taskFormService.addFormByExcel(upload, props, taskInstId, processInstId);
+			writeSuccessResult(addFormByExcel);
+		}
+		catch (Exception e)
+		{
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private List<String> getNextGroupId(String processDefId, String taskDefId)
+	{
+		// 获取下一步要分配的组
+		String nextTaskDefId = null;
+		List<String> nextTaskGroupIds = null;
+		List<UserTask> userTasks = service.getUserTasks(processDefId);
+		for (int i = 0; i < userTasks.size(); i++)
+		{
+			UserTask userTask = userTasks.get(i);
+			if (userTask.getId().equals(taskDefId))
+			{
+				if (userTask.getOutgoingFlows().size() > 0)
+				{
+					SequenceFlow outFlow = userTask.getOutgoingFlows().get(0);
+					nextTaskDefId = outFlow.getTargetRef();
+					break;
+				}
+			}
+		}
+		// 下一步的任务定义ID
+		if (StringUtils.isNotEmpty(nextTaskDefId))
+		{
+			for (int i = 0; i < userTasks.size(); i++)
+			{
+				UserTask userTask = userTasks.get(i);
+				if (userTask.getId().equals(nextTaskDefId))
+				{
+					nextTaskGroupIds = userTask.getCandidateGroups();
+					break;
+				}
+			}
+		}
+		return nextTaskGroupIds;
+	}
+	
+	 public void getplanName()
+	  {//获取任务分配人员
+	    String processInstId = getParam("processInstId");
+	    String processDefId = getParam("processDefId");
+	    String taskId = getParam("taskId");
+	    String taskDefId = getParam("taskDefId");
+	    String userId = getParam("userNo");
+	    String parentProcessInstId = getParam("parentProcessInstId");
+	    String planuser = this.taskFormService.getplanName(taskId, processInstId, processDefId, taskDefId, userId, parentProcessInstId);
+	    writeSuccessResult(planuser);
+	  }
+}

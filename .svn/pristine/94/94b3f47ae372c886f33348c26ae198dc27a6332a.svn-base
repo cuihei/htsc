@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.ht.persistence.model.correctionnotice.CorrectionNotice" table="CorrectionNotice">
+ 		<id name="id" type="java.lang.String">
+            <column name="id" />
+ 			 <generator class="assigned" />
+ 		</id>
+		<property name="IssueID" type="java.lang.String">
+            <column name="IssueID" />
+        </property>
+        <property name="ItemNo" type="java.lang.String">
+            <column name="ItemNo" />
+        </property>
+        <property name="CreateTime" type="date">
+            <column name="CreateTime" />
+        </property>
+        <property name="Title" type="java.lang.String">
+            <column name="Title" />
+        </property>
+        <property name="ChartNo" type="java.lang.String">
+            <column name="ChartNo" />
+        </property>
+        <property name="IssueNo" type="java.lang.String">
+            <column name="IssueNo" />
+        </property>
+        <property name="TotalIssueNo" type="java.lang.String">
+            <column name="TotalIssueNo" />
+        </property>
+        <property name="ReleaseTime" type="date">
+            <column name="ReleaseTime" />
+        </property>
+        <property name="Act" type="java.lang.String">
+            <column name="Act" />
+        </property>
+        <property name="NoticeType" type="java.lang.String">
+            <column name="NoticeType" />
+        </property>
+    </class>
+</hibernate-mapping>

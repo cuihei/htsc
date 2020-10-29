@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.datum.books.BooksView" table="V_BOOKS">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="chartNo" type="java.lang.String">
+            <column name="chart_no" />
+        </property>
+        <property name="chartName" type="java.lang.String">
+            <column name="chart_name" />
+        </property>
+        <property name="oneSubClass" type="java.lang.String">
+            <column name="one_sub_class" />
+        </property>
+        <property name="twoSubClass" type="java.lang.String">
+            <column name="two_sub_class" />
+        </property>
+        <property name="port" type="java.lang.String">
+            <column name="port" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="publicationDate" type="date">
+            <column name="publication_date" />
+        </property>
+        <property name="version" type="java.lang.String">
+            <column name="version" />
+        </property>
+        <property name="savePlace" type="java.lang.String">
+            <column name="save_place" />
+        </property>
+         <property name="total" type="java.lang.String">
+            <column name="total" />
+        </property>
+        <property name="canBorrowing" type="java.lang.String">
+            <column name="can_borrowing" />
+        </property>
+        <property name="stockNo" type="java.lang.String">
+            <column name="stock_no" />
+        </property>
+        <property name="state" type="java.lang.String">
+            <column name="state" />
+        </property>
+         <property name="entry" type="java.lang.String">
+            <column name="entry" />
+        </property>
+        <property name="reviewers" type="java.lang.String">
+            <column name="reviewers" />
+        </property>
+         <property name="code" type="java.lang.String">
+            <column name="code" />
+        </property>
+         <property name="status" type="java.lang.String">
+            <column name="status" />
+        </property>
+         <property name="remarks" type="java.lang.String">
+            <column name="remarks" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getBooksView">
+    	<![CDATA[ from BooksView order by creationDate desc]]>
+    </query>
+    <query name="getBooksViewById">
+    	<![CDATA[ from BooksView where id= :id]]> 
+    </query>
+</hibernate-mapping>

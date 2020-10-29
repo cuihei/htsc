@@ -1,0 +1,90 @@
+$(function() {
+	taskform.init();
+	getplan.getplanuser();
+	})
+
+var getplan = {
+	getplanuser : function() {
+		//组长获取计划中同节点的分配人员。
+		// http://localhost:8002/ht//taskform/getplan_Name?processInstId=254487&processDefId=SEA_MAP_COMPILATION_ELECTRONIC_ALL%3A1%3A24&taskId=254592&taskDefId=u_task_distribution_worker&userNo=040307
+		var processDefId= $("#processDefId").val();
+		
+	
+		if (processDefId.indexOf("PLAN") == -1&&processDefId.indexOf("ALL:")== -1) {
+		
+		
+		$.ajax({
+			type : "POST",
+			url : "../taskform/getplan_Name",
+			data : {
+				processInstId : $("#processInstId").val(),
+				processDefId : $("#processDefId").val(),
+				taskId : $("#taskId").val(),
+				taskDefId : $("#taskDefId").val(),
+				userNo : $("#_userNo").val(),
+				parentProcessInstId : $("#parentProcessInstId").val()
+			},
+			dataType : "json",
+			success : function(resultValue) {
+				$("#usersfpr").append("<option value=''>" + resultValue.value	+ "</option>");
+				$("#planName").append($("#jhfpr"));
+				$("#jhfpr").show();
+					}
+		});
+
+	}
+}}
+
+
+
+
+var taskform = {
+	/**
+	 * 初始化
+	 */
+	init:function() {
+
+		taskform.bindPageEvent();
+	},
+	/**
+	 * 绑定页面事件
+	 */
+
+	bindPageEvent : function() {
+		/** 绑定提交按钮的click事件 */
+		$("#submit").on("click", function() {
+
+			// 流程实例ID
+			var processInstId = $("#processInstId").val();
+			var parentProcessInstId = $("#parentProcessInstId").val();
+			// 流程定义ID
+			var processDefId = $("#processDefId").val();
+			// 流程定义ID
+			var taskDefId = $("#taskDefId").val();
+			// 任务ID
+			var taskId = $("#taskId").val();
+			// 指派人ID
+			var userId = $("#users").val();
+			common.init("../taskform/assigne_user", "POST", function(result) {
+				if (result.code == 0) {
+					layer.msg(result.value);
+					return;
+				}
+				layer.msg("分配成功");
+				history.back();
+			});
+			common.add_param("processInstId", processInstId);
+			common.add_param("parentProcessInstId", parentProcessInstId);
+			common.add_param("taskId", taskId);
+			common.add_param("processDefId", processDefId);
+			common.add_param("taskDefId", taskDefId);
+			var param = common.add_param("userId", userId);
+			common.do_submit(param);
+		});
+
+		/** 绑定返回按钮的click事件 */
+		$("#back").on("click", function() {
+			history.back();
+		})
+	}
+}

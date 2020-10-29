@@ -1,0 +1,224 @@
+package com.ht.persistence.dao.impl.datum.books;
+
+import java.util.List;
+
+import org.hibernate.SQLQuery;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.datum.books.BooksDao;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.datum.bookinfo.ViewBookInfo;
+import com.ht.persistence.model.datum.books.Books;
+import com.ht.persistence.model.datum.books.BooksView;
+
+/**
+ * Books数据映射操作类
+ * @author houchen
+ *
+ */
+public class BooksDaoImpl extends BaseDaoImpl implements BooksDao {
+	
+	/**
+	 * 海图添加
+	 */
+	@Override
+	public void addBooks(Books Books) {
+		this.save(Books);
+	}
+
+	/**
+	 * 海图更新
+	 */
+	@Override
+	public void modifyBooks(Books Books) {
+		this.update(Books);
+	}
+	
+	/**
+	 * 更新海图，与update不同
+	 */
+	@Override
+	public void mergeBooks(Books Books) {
+		super.merge(Books);
+	}
+	
+	/**
+	 * 删除海图
+	 */
+	@Override
+	public void deleteBooks(Books Books) {
+		 this.delete(Books);
+	}
+	
+	/**
+	 * 获取所有海图
+	 */
+	@Override
+	public List<Books> getBooks() {
+		try {
+			@SuppressWarnings("unchecked")
+			// 执行查询
+			List<Books> result = this.findByNamedQuery("getBooks");
+			if(result.size() > 0){
+				return result;
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * 获取一条海图
+	 */
+	@Override
+	public Books getBooks(Books Books) {
+		@SuppressWarnings("unchecked")
+		List<Books> result = this.findByNamedQueryAndNamedParam("getBooksById", "id", Books.getId());
+		if(result.size()>0){
+			return result.get(0);
+		}
+		return null;
+	}
+	
+	/**
+	 * 获取所有海图视图
+	 */
+	@Override
+	public List<BooksView> getBooksView() {
+		try {
+			@SuppressWarnings("unchecked")
+			// 执行查询
+			List<BooksView> result = this.findByNamedQuery("getBooksView");
+			if(result.size() > 0){
+				return result;
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	@Override
+	public List<BooksView> getBooksByStatus() {
+		
+		SQLQuery query = this.getSession().createSQLQuery("select * from V_books t where t.status = '审核通过' order by t.MODIFY_DATE desc");
+		query.addEntity(BooksView.class);
+		
+		@SuppressWarnings("unchecked")
+		List<BooksView> appList =  query.list();
+		if(appList.size()>0){
+			return appList;
+		}
+		return null;
+	}
+	
+	/**
+	 * 根据ChartNo获取一条海图
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public Books getBooksByChartNo(Books books) {
+		@SuppressWarnings("unchecked")
+		List<Books> result = this.findByNamedQueryAndNamedParam("getBooksByChartNo", "chartNo", books.getChartNo());
+		if(result.size()>0){
+			return result.get(0);
+		}
+		return null;
+	}
+	
+	/**
+	 * 根据ChartNo获取一条海图
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public Books getBooksByCode(Books books) {
+		@SuppressWarnings("unchecked")
+		List<Books> result = this.findByNamedQueryAndNamedParam("getBooksByCode", "code", books.getCode());
+		if(result.size()>0){
+			return result.get(0);
+		}
+		return null;
+	}
+	
+	/**
+	 * 根据条件模糊查询
+	 */
+	@Override
+	public List<BooksView> getList(String hql) {
+		try {
+			SQLQuery query = this.getSession().createSQLQuery(hql);
+			query.addEntity(BooksView.class);
+			List<BooksView> list = query.list();
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public BooksView getBooksView(BooksView Books) {
+		@SuppressWarnings("unchecked")
+		List<BooksView> result = this.findByNamedQueryAndNamedParam("getBooksViewById", "id", Books.getId());
+		if(result.size()>0){
+			return result.get(0);
+		}
+		return null;
+	}
+
+	/**
+	 * 校验编码是否存在
+	 */
+	@Override
+	public Boolean isCodeExist(Books books) {
+		String [] values={"code","id"};
+		String [] params={books.getCode(),books.getId()};
+		@SuppressWarnings("unchecked")
+		List<BooksView> result = this.findByNamedQueryAndNamedParam("isCodeExist", values, params);
+		if(result.size()>0){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 获取一条图书资料
+	 */
+	@Override
+	public BooksView getBooksBySql(String sql) {
+		try {
+			SQLQuery query = this.getSession().createSQLQuery(sql);
+			query.addEntity(BooksView.class);
+			List<BooksView> list = query.list();
+			if(list.size()>0){
+				return list.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
+	/**
+	 * 校验port是否存在
+	 */
+	@Override
+	public BaseData checkPortIfExist(BaseData bd) {
+		String [] values={"typeId","value"};
+		String [] params={bd.getTypeId(),bd.getValue()};
+		@SuppressWarnings("unchecked")
+		List<BaseData> result = this.findByNamedQueryAndNamedParam("checkPortIfExist", values, params);
+		if(result.size()>0){
+			return result.get(0);
+		}else{
+			return null;
+		}
+	}
+}

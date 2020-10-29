@@ -1,0 +1,138 @@
+package com.ht.persistence.model.system.workflow.process;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.ht.persistence.model.base.BaseModel;
+
+@Entity
+@Table(name = "PROCESS_FLOW")
+public class ProcessFlow  extends BaseModel{
+	
+	@Id
+	@Column(name = "ID")
+	private String id;
+
+	//流程实例ID
+	@Column(name = "PROCESS_INST_ID")
+	private String processInstId;
+	
+	//操作人编号
+	@Column(name = "USER_NO")
+	private String userNo;
+	
+	//操作类型    审批  开启  结束
+	@Column(name = "TYPE")
+	private String type;
+	
+	//流程任务ID
+	@Column(name = "TASK_ID")
+	private String taskId;
+	
+	//任务处理结果   通过 不通过
+	@Column(name = "TASK_RESULT")
+	private String taskResult;
+	
+	//任务父节点ID
+	@Column(name = "PARENT_TASK_ID")
+	private String parentTaskId;
+	
+	//任务处理意见
+	@Column(name = "ADVICE")
+	private String advice;
+	
+	//任务处理意见
+	@Column(name = "ADVICE1")
+	private String advice1;
+	
+	//备注
+	@Column(name = "REMARK")
+	private String remark;
+
+	public ProcessFlow() {
+		super();
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getProcessInstId() {
+		return processInstId;
+	}
+
+	public void setProcessInstId(String processInstId) {
+		this.processInstId = processInstId;
+	}
+
+	public String getUserNo() {
+		return userNo;
+	}
+
+	public void setUserNo(String userNo) {
+		this.userNo = userNo;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
+	}
+
+	public String getTaskResult() {
+		return taskResult;
+	}
+
+	public void setTaskResult(String taskResult) {
+		this.taskResult = taskResult;
+	}
+
+	public String getParentTaskId() {
+		return parentTaskId;
+	}
+
+	public void setParentTaskId(String parentTaskId) {
+		this.parentTaskId = parentTaskId;
+	}
+
+	public String getAdvice() {
+		return advice;
+	}
+
+	public void setAdvice(String advice) {
+		this.advice = advice;
+	}
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public String getAdvice1()
+	{
+		return advice1;
+	}
+
+	public void setAdvice1(String advice1)
+	{
+		this.advice1 = advice1;
+	}	
+}

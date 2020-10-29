@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.drawtask.plan.PlanFile" table="PLAN_FILE">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="planYear" type="date">
+            <column name="plan_year" />
+        </property>
+        <property name="fileName" type="java.lang.String">
+            <column name="file_name" />
+        </property>
+        <property name="suffixName" type="java.lang.String">
+            <column name="suffix_name" />
+        </property>
+        <property name="spaceSize" type="java.lang.String">
+            <column name="space_size" />
+        </property>
+        <property name="filePath" type="java.lang.String">
+            <column name="file_path" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getPlanFileById">
+    	<![CDATA[ from PlanFile where id= :id]]> 
+    </query>
+</hibernate-mapping>

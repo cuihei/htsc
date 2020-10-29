@@ -1,0 +1,1516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<package name="tabPageAction" namespace="/tabpage" extends="struts-default">
+		<action name="init" class="tabPageAction" method="initPage">
+		    <result name="success">/ht/pages/Tab.jsp</result>
+		</action>
+	</package>
+	
+	<package name="problemAction" namespace="/problem" extends="struts-default">
+		<action name="init" class="problemAction" method="init">
+		    <result name="success">/ht/pages/system/workflow/task/Problem.jsp</result>
+		</action>
+		<action name="list" class="problemAction" method="FormValueList" />
+	</package>
+	
+	<!-- workflowAction -->
+	<package name="workflowAction" namespace="/workflow" extends="struts-default">
+
+		<action name="test" class="workflowAction" method="init" />
+		<action name="init" class="workflowAction" method="initFlowList">
+		    <result name="success">/ht/pages/system/workflow/process/FlowChart.jsp</result>
+		</action>
+		<action name="addUser" class="workflowAction" method="addUser"/>
+		<action name="getHPD" class="ruTaskAction" method="getHPD"/>
+		<action name="getElehpd" class="ruTaskAction" method="getElehpd"/>
+		<action name="distributeUserList" class="workflowAction" method="distributeUserList">
+			 <result name="success">/ht/pages/system/workflow/process/FlowDistributeUserList.jsp</result>
+		</action>
+		<action name="selectUser" class="workflowAction" method="selectUser"/>
+		<action name="process_init" class="createWorkFlowAction" method="init">
+			<result name="success">/ht/pages/system/workflow/process/CreateWorkFlow.jsp</result>
+		</action>
+		<action name="flowImage" class="workflowAction" method="flowImage">
+			<result name="success">/ht/pages/system/workflow/process/FlowChartView.jsp</result>
+		</action>
+		<action name="flowLayout" class="workflowAction" method="flowLayout">
+			<result name="success">/ht/pages/system/workflow/process/FlowLayout.jsp</result>
+		</action>
+		<action name="task_outflow_count" class="workflowAction" method="getTaskOutGoingFlowCount"/>
+		<action name="create_process" class="createWorkFlowAction" method="createProcess"/>
+		<action name="ProcessLayout" class="createWorkFlowAction" method="ProcessLayout"/>
+		<action name="publish" class="publishAction" method="publishProcess"/>
+		<action name="publish_problem" class="publishAction" method="publishProblemProcess"/>
+		<action name="publish_task_book" class="publishAction" method="publishTaskBookProcess"/>
+		<action name="publish_task" class="publishAction" method="publishTaskProcess"/>
+		<action name="publishcnp" class="publishAction" method="publishCorrectionNoticeProcess"/>
+		<action name="publishcatalog" class="publishAction" method="publishCatalogProcess"/>
+		<action name="publishdatainput" class="publishAction" method="publishDataInputProcess"/>
+		<action name="publishbooks" class="publishAction" method="publishBooksProcess"/>
+		<action name="publishreturnbooks" class="publishAction" method="publishReturnBooksProcess"/>
+		<action name="list" class="workflowAction" method="getFlowChart"/>
+		<action name="task_init" class="ruTaskAction" method="init">
+			<result name="success">/ht/pages/system/workflow/task/RuTask.jsp</result>
+		</action> 
+		<action name="flow_init" class="ruTaskAction" method="initFlows">
+			<result name="success">/ht/pages/system/workflow/task/Flows.jsp</result>
+		</action> 
+		<action name="task_flow_page" class="ruTaskAction" method="flowImage">
+			<result name="success">/ht/pages/system/workflow/process/FlowChartView.jsp</result>
+		</action>
+		<action name="ru_task_list" class="ruTaskAction" method="getRuTask"></action>
+		<action name="flow_list" class="ruTaskAction" method="getFlow"></action>
+		<action name="export_book" class="ruTaskAction" method="ExportBook"></action>
+		<action name="task_perform" class="ruTaskAction" method="performTask"></action>
+		<action name="task_batchperform" class="ruTaskAction" method="batchPerformTask"></action>
+		<action name="suspend" class="ruTaskAction" method="suspendProcessInstance"></action>
+		<action name="activate" class="ruTaskAction" method="activateProcessInstance"></action>
+		<action name="delegate" class="ruTaskAction" method="delegateTask"></action>
+		
+		<action name="hi_task_init" class="hiTaskAction" method="init">
+			<result name="success">/ht/pages/system/workflow/task/HiTask.jsp</result>
+		</action>
+		<action name="hi_task_init_index" class="hiTaskAction" method="init">
+			<result name="success">/ht/pages/system/workflow/task/HiTaskIndex.jsp</result>
+		</action>
+		<action name="hi_task_list" class="hiTaskAction" method="getHiTask"></action>
+		<action name="hi_task_list_index" class="hiTaskAction" method="getHiTaskGroupByProcessInstId"></action>
+		
+		<action name="delegate_task_init" class="delegateTaskAction" method="init">
+			<result name="success">/ht/pages/system/workflow/task/DelegateTask.jsp</result>
+		</action>
+		<action name="delegate_task_list" class="delegateTaskAction" method="getTaskList"></action>
+	</package>
+	
+	<package name="taskConfigurationAction" namespace="/workflow/task" extends="struts-default">
+		<action name="init" class="taskConfigurationAction" method="init">
+			<result name="success">/ht/pages/system/workflow/task/Index.jsp</result>
+		</action>
+		<action name="list" class="taskConfigurationAction" method="getTaskList"/>
+		<action name="form" class="taskConfigurationAction" method="initFormEdit">
+			<result name="success">/ht/pages/system/workflow/task/Form.jsp</result>
+		</action>
+		<action name="status" class="taskConfigurationAction" method="initStatusEdit">
+			<result name="success">/ht/pages/system/workflow/task/Status.jsp</result>
+		</action>
+		<action name="associated" class="taskConfigurationAction" method="initAssociatedEdit">
+			<result name="success">/ht/pages/system/workflow/task/Associated.jsp</result>
+		</action>
+		<action name="formEdit" class="taskConfigurationAction" method="formEdit"/>
+		<action name="statusEdit" class="taskConfigurationAction" method="statusEdit"/>
+		<action name="associatedEdit" class="taskConfigurationAction" method="associatedEdit"/>
+		<action name="getChildeForm" class="taskConfigurationAction" method="getChildeForm"/>
+		<action name="getChildeStatus" class="taskConfigurationAction" method="getChildeStatus"/>
+		<action name="process_form_prop_init" class="taskConfigurationAction" method="initProcessFormProp">
+			<result name="success">/ht/pages/system/workflow/task/ProcessFormProp.jsp</result>
+		</action>
+		<action name="process_form_prop_list" class="taskConfigurationAction" method="getProcessFormProp"/>
+		<action name="process_form_prop_save" class="taskConfigurationAction" method="saveProcessFormProp"/>
+	</package>
+	
+	<package name="assineeAction" namespace="/workflow/role" extends="struts-default">
+		<action name="add_group" class="assineeAction" method="addGroup"/>
+		<action name="remove_group" class="assineeAction" method="removeGroup"/>
+	</package>
+	
+	<package name="taskFormAction" namespace="/taskform" extends="struts-default">
+		<action name="group_user" class="taskFormAction" method="initPerformGroup">
+			<result name="success">/ht/pages/system/workflow/task/TaskForm.jsp</result>
+		</action>
+		<action name="assigne_user" class="taskFormAction" method="assignedUser"/>
+
+			<!-- 获取计划中的同节点分配人员 -->
+  	   <action name="getplan_Name" class="taskFormAction" method="getplanName"/>
+  	   
+
+		<!-- 获取计划中的同节点分配人员 -->
+  	   <action name="getplan_Name" class="taskFormAction" method="getplanName"/>
+  	   
+
+		<action name="content" class="taskFormAction" method="getFormContent">
+			<result name="success">/ht/pages/complication/form/FormValue_Edit.jsp</result>
+			<result name="error">/ht/pages/system/workflow/task/RuTask.jsp</result>
+			<result name="url">/ht/pages/complication/form/FormUrl.jsp</result>
+		</action>
+		
+		<action name="process" class="taskFormAction" method="getProcessForm">
+			<result name="success">/ht/pages/complication/form/ProcessForm.jsp</result>
+			<result name="error">/ht/pages/system/workflow/task/RuTask.jsp</result>
+			<result name="url">/ht/pages/complication/form/FormUrl.jsp</result>
+		</action>
+		<action name="importform" class="taskFormAction" method="upload"/>
+	</package>
+	
+	<!-- IndexAction -->
+	<package name="indexAction" namespace="/index" extends="struts-default">
+		<action name="init" class="indexAction" method="init">
+<!-- 			<result name="success">/ht/pages/index/New_Index.jsp</result> -->
+			<result name="success">/ht/pages/index/Index_1.jsp</result>
+		</action>
+		<action name="login" class="indexAction" method="loginInit">
+			<result name="success">/ht/pages/index/Login.jsp</result>
+		</action>
+		<action name="loginout" class="indexAction" method="loginOut">
+			<result name="success">/ht/pages/index/Login.jsp</result>
+		</action>
+		<action name="passwordedit" class="indexAction" method="passwordEdit"></action>
+		<action name="validation" class="indexAction" method="login"></action>
+	</package>
+	
+	<!-- 人员管理的action -->
+	<package name="userAction" namespace="/user" extends="struts-default">
+		<action name="index" class="userAction" method="init">
+			<result name="success">/ht/pages/background/organization/employee/Employee.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="userAction" method="editInit">
+			<result name="success">/ht/pages/background/organization/employee/EditEmployee.jsp</result>
+		</action>
+		
+		<action name="signature_init" class="userAction" method="signatureInit">
+			<result name="success">/ht/pages/background/organization/employee/EmployeeImg.jsp</result>
+		</action>
+		
+		<action name="add" class="userAction" method="addUser"/>
+		<action name="edit" class="userAction" method="modifyUser"/>
+		<action name="remove" class="userAction" method="removeUser"/>
+		<action name="all" class="userAction" method="getUserById"/>
+		<action name="list" class="userAction" method="getUserList"/>
+		<action name="export" class="userAction" method="exportExcel"/>
+		<action name="getUserByUserNo" class="userAction" method="getUserByUserNo"/>
+	</package>
+	
+	<!-- 组织机构管理的action -->
+	<package name="organizationAction" namespace="/org" extends="struts-default">
+		<action name="index" class="organizationAction" method="index">
+			<result name="success">/ht/pages/background/organization/organization/Organization.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="organizationAction" method="editIndex">
+			<result name="success">/ht/pages/background/organization/organization/EditOrganization.jsp</result>
+		</action>
+		
+		<action name="alloc_user" class="organizationAction" method="allocUserIndex">
+			<result name="success">/ht/pages/background/organization/organization/EditOrganizationUser.jsp</result>
+		</action>
+		
+		<action name="add" class="organizationAction" method="addOrganization"/>
+		<action name="edit" class="organizationAction" method="modifyOrganization"/>
+		<action name="remove" class="organizationAction" method="removeOrganization"/>
+		<action name="all" class="organizationAction" method="getOrganizationByKey"/>
+		<action name="list" class="organizationAction" method="getOrganization"/>
+		<action name="addusers" class="organizationAction" method="addOrgUsers"/>
+		<action name="userlist" class="organizationAction" method="getOrgUsers"/>
+		<action name="orgtree" class="organizationAction" method="getOrganizationTree"/>
+	</package>
+	
+	<!-- 权限管理的action -->
+	<package name="authAction" namespace="/auth" extends="struts-default">
+		
+		<action name="add" class="authAction" method="addAuth"/>
+		<action name="edit" class="authAction" method="modifyAuth"/>
+		<action name="remove" class="authAction" method="removeAuth"/>
+		<action name="all" class="authAction" method="getAuthByKey"/>
+		<action name="list" class="authAction" method="getAuth"/>
+	</package>
+
+	<!-- 角色管理的action -->
+	<package name="roleAction" namespace="/role" extends="struts-default">
+		<action name="index" class="roleAction" method="init">
+			<result name="success">/ht/pages/background/authority/role/Role.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="roleAction" method="editInit">
+			<result name="success">/ht/pages/background/authority/role/EditRole.jsp</result>
+		</action>
+		
+		<action name="alloc_user" class="roleAction" method="allocUserIndex">
+			<result name="success">/ht/pages/background/authority/role/EditRoleUser.jsp</result>
+		</action>
+		
+		<action name="alloc_app" class="roleAction" method="allocAppIndex">
+			<result name="success">/ht/pages/background/authority/role/EditRoleApp.jsp</result>
+		</action>
+		
+		<action name="add" class="roleAction" method="addRole"/>
+		<action name="edit" class="roleAction" method="modifyRole"/>
+		<action name="remove" class="roleAction" method="removeRole"/>
+		<action name="all" class="roleAction" method="getRoleByKey"/>
+		<action name="list" class="roleAction" method="getRole"/>
+		<action name="roleusers" class="roleAction" method="getRoleUsersByroleId"/>
+		<action name="userlist" class="roleAction" method="getRoleUsers"/>
+		<action name="addusers" class="roleAction" method="addRoleUsers"/>
+		<action name="addapps" class="roleAction" method="addRoleApps"/>
+		<action name="roleapps" class="roleAction" method="getAppsByRoleId"/>
+	</package>
+	
+	<!-- 系统访问日志管理的action -->
+	<package name="syslogAction" namespace="/syslog" extends="struts-default">
+		<action name="index" class="syslogAction" method="init">
+			<result name="success">/ht/pages/background/monitor/accesslog/Accesslog.jsp</result>
+		</action>
+		<action name="addinit" class="syslogAction" method="addInit">
+			<result name="success">/ht/pages/background/monitor/accesslog/AddAccesslog.jsp</result>
+		</action>
+		
+		<action name="add" class="syslogAction" method="addSyslog"/>
+		<action name="edit" class="syslogAction" method="modifySyslog"/>
+		<action name="remove" class="syslogAction" method="removeSyslog"/>
+		<action name="all" class="syslogAction" method="getSyslogByKey"/>
+		<action name="list" class="syslogAction" method="getSyslog"/>
+		<action name="export" class="syslogAction" method="exportExcel"/>
+	</package>
+	
+	<!-- 系统操作日志管理的action -->
+	<package name="syslogOperationAction" namespace="/so" extends="struts-default">
+		<action name="index" class="syslogOperationAction" method="init">
+			<result name="success">/ht/pages/background/monitor/operationlog/Operationlog.jsp</result>
+		</action>
+		<action name="addinit" class="syslogOperationAction" method="addInit">
+			<result name="success">/ht/pages/background/monitor/operationlog/AddOperationlog.jsp</result>
+		</action>
+		
+		<action name="add" class="syslogOperationAction" method="addSyslogOperation"/>
+		<action name="edit" class="syslogOperationAction" method="modifySyslogOperation"/>
+		<action name="remove" class="syslogOperationAction" method="removeSyslogOperation"/>
+		<action name="all" class="syslogOperationAction" method="getSyslogOperationByKey"/>
+		<action name="list" class="syslogOperationAction" method="getSyslogOperation"/>
+		<action name="export" class="syslogOperationAction" method="exportExcel"/>
+	</package>
+	
+	<!-- 通知管理的action -->
+	<package name="noticeAction" namespace="/notice" extends="struts-default">
+		 <action name="index" class="noticeAction" method="init">
+			<result name="success">/ht/pages/system/notice/Notice.jsp</result>
+		</action>  
+		
+		<action name="edit_init" class="noticeAction" method="editInit">
+			<result name="success">/ht/pages/system/notice/EditNotice.jsp</result>
+		</action>
+		
+		<action name="publish" class="noticeAction" method="publish">
+			<result name="success">/ht/pages/system/notice/Notice.jsp</result>
+		</action>
+		<action name="add" class="noticeAction" method="addNotice"/>
+		<action name="edit" class="noticeAction" method="modifyNotice"/>
+		<action name="remove" class="noticeAction" method="removeNotice"/>
+		<action name="all" class="noticeAction" method="getNoticeByKey"/>
+		<action name="list" class="noticeAction" method="getNotice"/>
+		<action name="export" class="noticeAction" method="exportExcel"/>
+		<action name="isRelease" class="noticeAction" method="isRelease"/>
+	</package>
+
+	<!-- 产品修改源数据的action -->
+	<package name="productUpdSourceDataAction" namespace="/product" extends="struts-default">
+		 <action name="index" class="productUpdSourceDataAction" method="init">
+			<result name="success">/ht/pages/datum/productupdsourcedata/ProductUpdSourceData.jsp</result>
+		</action>  
+		
+		<action name="edit_init" class="productUpdSourceDataAction" method="editInit">
+			<result name="success">/ht/pages/datum/productupdsourcedata/EditProductUpdSourceData.jsp</result>
+		</action>
+		
+		<action name="add" class="productUpdSourceDataAction" method="addProductUpdSourceData"/>
+		<action name="list" class="productUpdSourceDataAction" method="getProductUpdSourceData"/>
+		<action name="getPersonByMapNo" class="productUpdSourceDataAction" method="getPersonByMapNo"/>
+		<action name="updataPusdStatus" class="productUpdSourceDataAction" method="updataPusdStatus"/>
+	</package>
+	
+	<!-- 人员通知关系的action -->
+	<package name="usernoticeAction" namespace="/une" extends="struts-default">
+	
+		<action name="index" class="usernoticeAction" method="init">
+			<result name="success">/ht/pages/system/notice/usernotice/UserNotice.jsp</result>
+		</action>  
+		
+		<action name="add" class="usernoticeAction" method="addUserNotice"/>
+		<action name="edit" class="usernoticeAction" method="modifyUserNotice"/>
+		<action name="remove" class="usernoticeAction" method="removeUserNotice"/>
+		<action name="all" class="usernoticeAction" method="getUserNoticeByKey"/>
+		<action name="list" class="usernoticeAction" method="getUserNotice"/>
+	</package>
+	
+	<!-- 计划的action -->
+	<package name="planAction" namespace="/plan" extends="struts-default">
+		<action name="index" class="planAction" method="index">
+			<result name="success">/ht/pages/drawtask/plan/Plan.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="init_edit" class="planAction" method="initEdit">
+			<result name="success">/ht/pages/drawtask/plan/PlanEdit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="planAttachmentInit" class="planAction" method="planAttachmentInit">
+			<result name="success">/ht/pages/drawtask/plan/PlanAttachment.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="add" class="planAction" method="add"/>
+		<action name="edit" class="planAction" method="update"/>
+		<action name="remove" class="planAction" method="remove"/>
+		<action name="list" class="planAction" method="getPlanList"/>
+		<action name="upload" class="planAction" method="upload"/>
+		<action name="monthPlanList" class="planAction" method="monthPlanList"/>
+		<action name="planAttachment" class="planAction" method="getPlanAttachmentList"/>
+		<action name="uploadfile" class="planAction" method="uploadFile"/>
+		<action name="download" class="planAction" method="download"/>
+		<action name="getUrlById" class="planAction" method="getUrlById"/>
+		<action name="checkFile" class="planAction" method="checkFile"/>
+		<action name="planFilesRemove" class="planAction" method="planFilesRemove"/>
+	</package>
+	
+	<!-- 编绘任务书的action -->
+	<package name="taskbookAction" namespace="/taskbook" extends="struts-default">
+		<action name="index" class="taskbookAction" method="index">
+			<result name="success">/ht/pages/drawtask/taskbook/TaskBook_list.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action> 
+		<action name="edit" class="taskbookAction" method="update"/>
+		
+		<action name="upload_file" class="taskbookAction" method="uploadFile"/>
+		<action name="remove_file" class="taskbookAction" method="removeFile"/>
+		
+		<action name="edit_page" class="taskbookAction" method="editPage">
+			<result name="success">/ht/pages/drawtask/taskbook/TaskBook_edit.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+		<action name="details_page" class="taskbookAction" method="detailsPage">
+			<result name="success">/ht/pages/drawtask/taskbook/TaskBook_details.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+		<action name="remove" class="taskbookAction" method="remove"/>
+		
+		<action name="list" class="taskbookAction" method="getTaskBookList"/>
+		
+		<action name="down_load" class="taskbookAction" method="downLoad">
+			<result name="success">/ht/pages/drawtask/taskbook/TaskBook_down.jsp</result>
+			<result name="loadError">/ht/pages/drawtask/taskbook/TaskBook_down_error.jsp</result>
+		</action>
+		<action name="export_taskbook" class="taskbookAction" method="Export"/>
+		<action name="planlist" class="taskbookAction" method="selectPlan"/>
+		<action name="issue" class="taskbookAction" method="issue"/>
+		<action name="verificationNo" class="taskbookAction" method="verificationNo"/>
+
+
+		<action name="editHisList" class="taskbookAction" method="editHisList"/>
+		<action name="editcontent" class="taskbookAction" method="editcontent"/>
+
+		<action name="editHisList" class="taskbookAction" method="editHisList"/>
+		<action name="editcontent" class="taskbookAction" method="editcontent"/>
+
+	</package>
+	
+	<!-- 编绘任务书的action -->
+	<package name="yearTaskbookAction" namespace="/yeartaskbook" extends="struts-default">
+		<action name="index" class="yearTaskbookAction" method="index">
+			<result name="success">/ht/pages/drawtask/taskbook/YearTaskBook_list.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action> 
+		<action name="edit" class="yearTaskbookAction" method="update"/>
+		
+		<action name="upload_file" class="yearTaskbookAction" method="uploadFile"/>
+		
+		<action name="edit_page" class="yearTaskbookAction" method="editPage">
+			<result name="success">/ht/pages/drawtask/taskbook/YearTaskBook_edit.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+		<action name="details_page" class="yearTaskbookAction" method="detailsPage">
+			<result name="success">/ht/pages/drawtask/taskbook/YearTaskBook_details.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+		<action name="remove" class="yearTaskbookAction" method="remove"/>
+		
+		<action name="list" class="yearTaskbookAction" method="getTaskBookList"/>
+		
+		<action name="down_load" class="yearTaskbookAction" method="downLoad">
+			<result name="success">/ht/pages/drawtask/taskbook/YearTaskBook_down.jsp</result>
+			<result name="loadError">/ht/pages/drawtask/taskbook/YearTaskBook_down_error.jsp</result>
+		</action>
+		<action name="planlist" class="yearTaskbookAction" method="selectPlan"/>
+		
+		
+	</package>
+	
+	<!-- 应用资源管理的action -->
+	<package name="applicationAction" namespace="/app" extends="struts-default">
+	
+		<action name="index" class="applicationAction" method="init">
+			<result name="success">/ht/pages/background/application/application_list.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="applicationAction" method="initAppEdit">
+			<result name="success">/ht/pages/background/application/application_edit.jsp</result>
+		</action>
+		
+		<action name="add" class="applicationAction" method="addApplication"/>
+		<action name="edit" class="applicationAction" method="modifyApplication"/>
+		<action name="remove" class="applicationAction" method="removeApplication"/>
+		<action name="all" class="applicationAction" method="getApplicationByKey"/>
+		<action name="list" class="applicationAction" method="getApplication"/>
+		<action name="export" class="applicationAction" method="exportExcel"/>
+		<action name="tree" class="applicationAction" method="getApplicationTree"/>
+		<action name="appChilds" class="applicationAction" method="getApplicationChilds"></action>
+		<action name="appRole" class="applicationAction" method="getRoleAppByAppId"></action>
+	</package>
+	
+	<!-- 资料类别的action -->
+	<package name="datumCategoryAction" namespace="/datumCategory" extends="struts-default">
+		
+		<action name="index" class="datumCategoryAction" method="init">
+			<result name="success">/ht/pages/datum/type/DatumCategoryList.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="datumCategoryAction" method="editInit">
+			<result name="success">/ht/pages/datum/type/EditDatumCategory.jsp</result>
+		</action>
+		
+		<action name="add" class="datumCategoryAction" method="addDatumCategory"/>
+		<action name="edit" class="datumCategoryAction" method="modifyDatumCategory"/>
+		<action name="remove" class="datumCategoryAction" method="removeDatumCategory"/>
+		<action name="all" class="datumCategoryAction" method="getDatumCategoryByKey"/>
+		<action name="list" class="datumCategoryAction" method="getDatumCategory"/>
+		<!-- <action name="export" class="datumCategoryAction" method="exportExcel"/> -->
+		<action name="tree" class="datumCategoryAction" method="getDatumCategoryTree"/>
+		<action name="isFile" class="datumCategoryAction" method="getFile"/>
+	</package>
+	
+	<!-- 资料维护的action -->
+	<package name="datumFileAction" namespace="/datumFile" extends="struts-default">
+		
+		<action name="index" class="datumFileAction" method="init">
+			<result name="success">/ht/pages/datum/datum/DatumFileList.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="datumFileAction" method="editInit">
+			<result name="success">/ht/pages/datum/datum/EditDatumFile.jsp</result>
+		</action>
+
+		<action name="borrowing_init" class="datumFileAction" method="borrowingInit">
+			<result name="success">/ht/pages/datum/datum/DatumFileBorrowing.jsp</result>
+		</action>
+
+		<action name="view_folder_init" class="datumFileAction" method="viewFolderInit">
+			<result name="success">/ht/pages/datum/datum/ViewFolder.jsp</result>
+		</action>
+
+		<action name="fileAttr_init" class="datumFileAction" method="fileAttr">
+			<result name="success">/ht/pages/datum/datum/FileAttr.jsp</result>
+		</action>
+		
+		<action name="add" class="datumFileAction" method="addDatumFile"/>
+		<action name="edit" class="datumFileAction" method="modifyDatumFile"/>
+		<action name="remove" class="datumFileAction" method="removeDatumFile"/>
+		<action name="all" class="datumFileAction" method="getDatumFileByKey"/>
+		<action name="list" class="datumFileAction" method="getDatumFile"/>
+		<action name="add_borrowing" class="datumFileAction" method="addBorrowing"/>
+		<action name="file_list" class="datumFileAction" method="getFileByCategoryId"/>
+		<action name="tree" class="datumFileAction" method="getDatumFileTree"/>
+	</package>
+	
+	<!-- 历史任务书的action -->
+	<package name="historyTaskBookAction" namespace="/historyTaskBook" extends="struts-default">
+		<action name="index" class="historyTaskBookAction" method="index">
+			<result name="success">/ht/pages/drawtask/taskbook/HistoryTaskBook_list.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action> 
+		<action name="list" class="historyTaskBookAction" method="findList"/>
+		<action name="list_bytaskbookid" class="historyTaskBookAction" method="findListByTaskBookId"/>
+		<action name="detail" class="historyTaskBookAction" method="findDetailList">
+			<result name="success">/ht/pages/drawtask/taskbook/HistoryTaskBook_Details.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action>
+		<action name="remove" class="historyTaskBookAction" method="delete"/>
+		<action name="down_load" class="historyTaskBookAction" method="downLoad">
+			<result name="success">/ht/pages/drawtask/taskbook/TaskBook_down.jsp</result>
+			<result name="loadError">/ht/pages/drawtask/taskbook/TaskBook_down_error.jsp</result>
+		</action>
+	</package>
+	
+	<!-- 目录明细 -->
+	<package name="catalogDetailAction" namespace="/detail" extends="struts-default">
+		<action name="index" class="catalogDetailAction" method="index">
+			<result name="success">/ht/pages/catalog/detail/CatalogDetailList.jsp</result>
+			<result name="nomarl">/ht/pages/catalog/detail/CatalogDetailNomarlList.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="init_edit" class="catalogDetailAction" method="initEdit">
+			<result name="success">/ht/pages/catalog/detail/CatalogDetailEdit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="init_view" class="catalogDetailAction" method="initViewImg">
+			<result name="success">/ht/pages/catalog/detail/CatalogDetailView.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+
+		<action name="add" class="catalogDetailAction" method="add"/>
+		<action name="remove" class="catalogDetailAction" method="remove"/>
+		<action name="list" class="catalogDetailAction" method="getDetailList"/>
+		<action name="importdetail" class="catalogDetailAction" method="upload"/>
+	</package>
+	
+	<!-- 目录类型-->
+	<package name="catalogTypeAction" namespace="/cta" extends="struts-default">
+		<action name="index" class="catalogTypeAction" method="index">
+			<result name="success">/ht/pages/catalog/type/CatalogType.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="initedit" class="catalogTypeAction" method="initEdit">
+			<result name="success">/ht/pages/catalog/type/CatalogTypeEdit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="list" class="catalogTypeAction" method="getCatalogTypeList"/>
+		<action name="remove" class="catalogTypeAction" method="delCatalogType"/>
+		<action name="removeexist" class="catalogTypeAction" method="delExistType"/>
+		<action name="edit" class="catalogTypeAction" method="modifyCatalogType"/>
+		<action name="export" class="catalogTypeAction" method="export"/>
+	</package>
+	
+	<!-- 目录区域 -->
+	<package name="catalogAreaAction" namespace="/catalog/area" extends="struts-default">
+		<action name="index" class="catalogAreaAction" method="initCatalog">
+			<result name="success">/ht/pages/catalog/area/CatalogArea.jsp</result>
+		</action>
+		<action name="initadd" class="catalogAreaAction" method="initEdit">
+			<result name="success">/ht/pages/catalog/area/CatalogAreaEdit.jsp</result>
+		</action>
+		<action name="initedit" class="catalogAreaAction" method="initEdit">
+			<result name="success">/ht/pages/catalog/area/CatalogAreaEdit.jsp</result>
+		</action>
+		<action name="list" class="catalogAreaAction" method="findList"/>
+		<action name="add" class="catalogAreaAction" method="save"/>
+		<action name="remove" class="catalogAreaAction" method="delete"/>
+		<action name="update" class="catalogAreaAction" method="update"/>
+		<action name="export" class="catalogAreaAction" method="export"/>
+	</package>
+	
+	<!-- 历史目录详情 -->
+	<package name="catalogHistoryDetailAction" namespace="/catalogHistoryDetail" extends="struts-default">
+		<!-- <action name="index" class="userAction" method="index">
+			<result name="success">/dzy/pages/index/Index.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action> -->
+		<action name="list" class="catalogHistoryDetailAction" method="findList"/>
+	</package>
+	
+	<!-- 模板 -->
+	<package name="modelAction" namespace="/model" extends="struts-default">
+		<!-- <action name="index" class="userAction" method="index">
+			<result name="success">/dzy/pages/index/Index.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action> -->
+		<action name="add" class="modelAction" method="addModel"/>
+		<action name="edit" class="modelAction" method="modifyModel"/>
+		<action name="remove" class="modelAction" method="removeModel"/>
+		<action name="all" class="modelAction" method="getModelByKey"/>
+		<action name="list" class="modelAction" method="getModel"/>
+	</package>
+	
+	<!-- 模板项 -->
+	<package name="modelitemAction" namespace="/mim" extends="struts-default">
+		<!-- <action name="index" class="userAction" method="index">
+			<result name="success">/dzy/pages/index/Index.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action> -->
+		<action name="add" class="modelitemAction" method="addModelItem"/>
+		<action name="edit" class="modelitemAction" method="modifyModelItem"/>
+		<action name="remove" class="modelitemAction" method="removeModelItem"/>
+		<action name="all" class="modelitemAction" method="getModelItemByKey"/>
+		<action name="list" class="modelitemAction" method="getModelItem"/>
+	</package>
+	
+	<!-- 模板类型 -->
+	<package name="modeltypeAction" namespace="/mte" extends="struts-default">
+		 <action name="index" class="modeltypeAction" method="init">
+			<result name="success">/ht/pages/system/document/type/ModelType.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		
+		 <action name="edit_init" class="modeltypeAction" method="editInit">
+			<result name="success">/ht/pages/system/document/type/EditModelType.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="add" class="modeltypeAction" method="addModelType"/>
+		<action name="edit" class="modeltypeAction" method="modifyModelType"/>
+		<action name="remove" class="modeltypeAction" method="removeModelType"/>
+		<action name="all" class="modeltypeAction" method="getModelTypeByKey"/>
+		<action name="list" class="modeltypeAction" method="getModelType"/>
+		<action name="export" class="modeltypeAction" method="exportExcel"/>
+	</package>
+	
+	<!-- 改正通告 -->
+	<package name="correctionNoticAction" namespace="/cns" extends="struts-default">
+		<action name="notice" class="correctionNoticAction" method="noticePage">
+			<result name="success">/ht/pages/cns/Notice_list.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		<action name="noticeitem" class="correctionNoticAction" method="noticeItemNoPage">
+			<result name="success">/ht/pages/cns/Notice_itemNo_list.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		
+		<action name="newest" class="correctionNoticAction" method="newestNoticePage">
+			<result name="success">/ht/pages/cns/Newest_list.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		
+		<!-- 获取改正通告数据，获取所有和查询公用一个方法 -->
+		<action name="notice_list" class="correctionNoticAction" method="getNoticeList"/>
+		
+		<!-- 获取改正通告数据，获取所有和查询公用一个方法 -->
+		<action name="notice_itemNo_list" class="correctionNoticAction" method="getNoticeItemNoList"/>
+		
+		<!-- 获取最新改正通告数据，获取所有和查询公用一个方法-->
+		<action name="newest_list" class="correctionNoticAction" method="getNewestList"/>
+		
+		<!-- 查询项号信息-->
+		<action name="getItem" class="correctionNoticAction" method="getItem"/>
+		
+	</package>
+	
+	<!-- 历史明细 -->
+	<package name="historyCatalogDetailAction" namespace="/hcd" extends="struts-default">
+		<action name="planIndex" class="historyCatalogDetailAction" method="planIndex">
+			<result name="success">/ht/pages/catalog/history/planIndex.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		
+		<action name="navyIndex" class="historyCatalogDetailAction" method="navyIndex">
+			<result name="success">/ht/pages/catalog/history/navyIndex.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="portChannelIndex" class="historyCatalogDetailAction" method="portChannelIndex">
+			<result name="success">/ht/pages/catalog/history/portChannelIndex.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="export" class="historyCatalogDetailAction" method="export"/>
+		<action name="list" class="historyCatalogDetailAction" method="list"/>
+		<!-- 
+		<action name="add" class="historyCatalogDetailAction" method="save"/>
+		<action name="remove" class="historyCatalogDetailAction" method="remove"/>
+		<action name="update" class="historyCatalogDetailAction" method="update"/>
+		 -->
+	</package>
+	
+	<!-- 编绘任务清单-->
+	<package name="taskBillAction" namespace="/taskbill" extends="struts-default">
+		<action name="init" class="taskBillAction" method="initTaskBill">
+			<result name="success">/ht/pages/drawtask/taskbill/TaskBill.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		<action name="see" class="taskBillAction" method="seeTaskBill">
+			<result name="success">/ht/pages/drawtask/taskbill/SeeTaskBill.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		<action name="list" class="taskBillAction" method="findList"/>
+	</package>
+	
+	<!-- 人员通知关系视图-->
+	<package name="usernoticeviewAction" namespace="/unv" extends="struts-default">
+		 <action name="index" class="usernoticeviewAction" method="init">
+			<result name="success">/ht/pages/system/notice/UserNoticeView.jsp</result>
+		</action> 
+		<action name="list" class="usernoticeviewAction" method="getUserNoticeView"/>
+		<action name="export" class="dictionariesAction" method="exportExcel"/>
+		<action name="getUserNoticeByUserNo" class="usernoticeviewAction" method="getUserNoticeByUserNo"/>
+	</package>
+	
+	<!-- 字典基础数据 -->
+	<package name="dictionariesAction" namespace="/dictionaries" extends="struts-default">
+		<action name="index" class="dictionariesAction" method="dictionariesIndex">
+			<result name="success">/ht/pages/system/dictionaries/dictionariesIndex.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="edit_init" class="dictionariesAction" method="initDicEdit">
+			<result name="success">/ht/pages/system/dictionaries/dictionariesEdit.jsp</result>
+		</action>
+		<action name="add" class="dictionariesAction" method="addBaseData"/>
+		<action name="edit" class="dictionariesAction" method="modifyBaseData"/>
+		<action name="remove" class="dictionariesAction" method="removeBaseData"/>
+		<action name="all" class="dictionariesAction" method="getBaseDataByKey"/>
+		<action name="list" class="dictionariesAction" method="getBaseData"/>
+		<action name="export" class="dictionariesAction" method="exportExcel"/>
+		
+		<action name="books_index" class="dictionariesAction" method="booksInit">
+			<result name="success">/ht/pages/system/dictionaries/booksIndex.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="booksarea" class="dictionariesAction" method="getBooksArea"/>
+		<action name="edit_books" class="dictionariesAction" method="initBooksEdit">
+			<result name="success">/ht/pages/system/dictionaries/booksEdit.jsp</result>
+		</action>
+		<action name="exportbooks" class="dictionariesAction" method="exportBooksAreaExcel"/>
+	</package>
+	
+
+	<!-- 字典类型 -->
+	<package name="dictionariesTypeAction" namespace="/dictionariesType" extends="struts-default">
+		<action name="index" class="dictionariesTypeAction" method="dictionariesTypeIndex">
+			<result name="success">/ht/pages/system/dictionariesType/dictionariesTypeIndex.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="edit_init" class="dictionariesTypeAction" method="initDicEdit">
+			<result name="success">/ht/pages/system/dictionariesType/dictionariesTypeEdit.jsp</result>
+		</action>
+		<action name="add" class="dictionariesTypeAction" method="addBaseData"/>
+		<action name="edit" class="dictionariesTypeAction" method="modifyBaseData"/>
+		<action name="remove" class="dictionariesTypeAction" method="removeBaseData"/>
+		<action name="all" class="dictionariesTypeAction" method="getBaseDataByKey"/>
+		<action name="list" class="dictionariesTypeAction" method="getBaseData"/>
+		<action name="export" class="dictionariesTypeAction" method="exportExcel"/>
+	</package>
+	
+
+	<!-- 源数据编绘 -->
+	<package name="sourceAction" namespace="/source" extends="struts-default">
+		<action name="index" class="sourceAction" method="initSeaMap">
+			<result name="success">/ht/pages/complication/seamap/source/Source.jsp</result>
+		</action>
+		<action name="initstatus" class="sourceAction" method="initStatus">
+			<result name="success">/ht/pages/complication/seamap/source/SourceStatus.jsp</result>
+		</action>
+		<action name="initdetails" class="sourceAction" method="initDetails">
+			<result name="success">/ht/pages/complication/seamap/source/SourceDetails.jsp</result>
+		</action>
+		<action name="initAdopt" class="sourceAction" method="initAdoptPage">
+			<result name="success">/ht/pages/complication/seamap/source/SourceAdopt.jsp</result>
+		</action>
+		<action name="initIndexMap" class="sourceAction" method="initIndexMapPage">
+			<result name="success">/ht/pages/complication/seamap/source/SourceIndexMap.jsp</result>
+		</action>
+		<action name="sourcelist" class="sourceAction" method="findSourceList"/>
+		<action name="sourcestatus" class="sourceAction" method="findSourceStatus"/>
+		<action name="sourceadopt" class="sourceAction" method="findSourceAdopt"/>
+		<action name="sourceindexmap" class="sourceAction" method="findSourceIndexMap"/>
+	</package>
+	
+	<!-- 纸海图编绘 -->
+	<package name="paperAction" namespace="/paper" extends="struts-default">
+		<action name="index" class="paperAction" method="initSeaMap">
+			<result name="success">/ht/pages/complication/seamap/paper/Paper.jsp</result>
+		</action>
+		<action name="initstatus" class="paperAction" method="initStatus">
+			<result name="success">/ht/pages/complication/seamap/paper/PaperStatus.jsp</result>
+		</action>
+		<action name="initdetails" class="paperAction" method="initDetails">
+			<result name="success">/ht/pages/complication/seamap/paper/PaperDetails.jsp</result>
+		</action>
+		<action name="paperstatus" class="paperAction" method="findPaperStatus"/>
+		<action name="paperlist" class="paperAction" method="findPaperList"/>
+	</package>
+	
+	<!-- 电子海图编绘 -->
+	<package name="electronAction" namespace="/electron" extends="struts-default">
+		<action name="index" class="electronAction" method="initSeaMap">
+			<result name="success">/ht/pages/complication/seamap/electron/Electron.jsp</result>
+		</action>
+		<action name="initstatus" class="electronAction" method="initStatus">
+			<result name="success">/ht/pages/complication/seamap/electron/ElectronStatus.jsp</result>
+		</action>
+		<action name="initdetails" class="electronAction" method="initDetails">
+			<result name="success">/ht/pages/complication/seamap/electron/ElectronDetails.jsp</result>
+		</action>
+		<action name="electronstatus" class="electronAction" method="findEleStatus"/>
+		<action name="electronlist" class="electronAction" method="findElectronList"/>
+	</package>
+	
+	<!-- 改正通告编辑模板 -->
+	<package name="templeteAction" namespace="/templete" extends="struts-default">
+		<action name="index" class="templeteAction" method="initCorNotice">
+			<result name="success">/ht/pages/complication/correctionnotice/templete/Templete.jsp</result>
+		</action>
+		<action name="initstatus" class="templeteAction" method="initStatus">
+			<result name="success">/ht/pages/complication/correctionnotice/templete/TempleteStatus.jsp</result>
+		</action>
+		<action name="initdetails" class="templeteAction" method="initDetails">
+			<result name="success">/ht/pages/complication/correctionnotice/templete/TempleteDetails.jsp</result>
+		</action>
+		<action name="templetelist" class="templeteAction" method="findTempleteList"/>
+		<action name="templetestatus" class="templeteAction" method="findTempleteStatus"/>
+	</package>
+	
+	<!-- 改正通告编辑 -->
+	<package name="corNoticeAction" namespace="/correctionnotice" extends="struts-default">
+		<action name="index" class="corNoticeAction" method="initCorNotice">
+			<result name="success">/ht/pages/complication/correctionnotice/correctionnotice/CorNotice.jsp</result>
+		</action>
+			<action name="initstatus" class="corNoticeAction" method="initStatus">
+			<result name="success">/ht/pages/complication/correctionnotice/correctionnotice/CorNoticeStatus.jsp</result>
+		</action>
+		<action name="initdetails" class="corNoticeAction" method="initDetails">
+			<result name="success">/ht/pages/complication/correctionnotice/correctionnotice/CorNoticeDetails.jsp</result>
+		</action>
+		<action name="cornoticestatus" class="corNoticeAction" method="findCorNoticeStatus"/>
+		<action name="cornoticelist" class="corNoticeAction" method="findCorNoticeList"/>
+	</package>
+	
+	<!-- 源数据小改正-->
+	<package name="sourSmallCorAction" namespace="/soursmallcor" extends="struts-default">
+		<action name="index" class="sourSmallCorAction" method="initCorNotice">
+			<result name="success">/ht/pages/complication/correctionnotice/sourcedatasmallcorrection/SourSmallCor.jsp</result>
+		</action>
+		<action name="initstatus" class="sourSmallCorAction" method="initStatus">
+			<result name="success">/ht/pages/complication/correctionnotice/sourcedatasmallcorrection/SourSmallCorStatus.jsp</result>
+		</action>
+		<action name="initdetails" class="sourSmallCorAction" method="initDetails">
+			<result name="success">/ht/pages/complication/correctionnotice/sourcedatasmallcorrection/SourSmallCorDetails.jsp</result>
+		</action>
+		<action name="soursmallcorstatus" class="sourSmallCorAction" method="findSourSmallCorStatus"/>
+		<action name="soursmallcorlist" class="sourSmallCorAction" method="findSourSmallCorList"/>
+	</package>
+	
+	<!-- 纸海图小改正编绘-->
+	<package name="paperSmallCorAction" namespace="/papersmallcor" extends="struts-default">
+		<action name="index" class="paperSmallCorAction" method="initSmallCor">
+			<result name="success">/ht/pages/complication/smallcorrection/paper/PaperSmallCor.jsp</result>
+		</action>
+		<action name="initstatus" class="eleSmallCorAction" method="initStatus">
+			<result name="success">/ht/pages/complication/smallcorrection/paper/PaperSmallCorStatus.jsp</result>
+		</action>
+		<action name="papersmallcorstatus" class="paperSmallCorAction" method="findPaperSmallCorStatus"/>
+		<action name="papersmallcorlist" class="paperSmallCorAction" method="findPaperSmallCorList"/>
+	</package>
+	
+	<!--电子海图小改正编绘-->
+	<package name="eleSmallCorAction" namespace="/electronsmallcor" extends="struts-default">
+		<action name="index" class="eleSmallCorAction" method="initSmallCor">
+			<result name="success">/ht/pages/complication/smallcorrection/electron/EleSmallCor.jsp</result>
+		</action>
+		<action name="initstatus" class="eleSmallCorAction" method="initStatus">
+			<result name="success">/ht/pages/complication/smallcorrection/electron/EleSmallCorStatus.jsp</result>
+		</action>
+		<action name="elesmallcorstatus" class="eleSmallCorAction" method="findEleSmallCorStatus"/>
+		<action name="elesmallcorlist" class="eleSmallCorAction" method="findEleSmallCorList"/>
+	</package>
+	
+	<!-- 工程图纸海图编绘 -->
+	<package name="proPaperAction" namespace="/propaper" extends="struts-default">
+		<action name="index" class="proPaperAction" method="initProject">
+			<result name="success">/ht/pages/complication/project/paper/ProPaper.jsp</result>
+		</action>
+		<action name="initstatus" class="proPaperAction" method="initStatus">
+			<result name="success">/ht/pages/complication/project/paper/ProPaperStatus.jsp</result>
+		</action>
+		<action name="propaperstatus" class="proPaperAction" method="findProPaperStatus"/>
+		<action name="propaperlist" class="proPaperAction" method="findProPaperList"/>
+	</package>
+	
+	<!-- 工程图电子海图编绘 -->
+	<package name="proElectronAction" namespace="/proelectron" extends="struts-default">
+		<action name="index" class="proElectronAction" method="initProject">
+			<result name="success">/ht/pages/complication/project/electron/ProElectron.jsp</result>
+		</action>
+		<action name="initstatus" class="proElectronAction" method="initStatus">
+			<result name="success">/ht/pages/complication/project/electron/ProElectronStatus.jsp</result>
+		</action>
+		<action name="proelectronstatus" class="proElectronAction" method="findProElectronStatus"/>
+		<action name="proelectronlist" class="proElectronAction" method="findProEleList"/>
+	</package>
+	
+	<!-- 编绘计划(生产管理) -->
+	<package name="compilationYearPlanAction" namespace="/compilationYearPlan" extends="struts-default">
+		<action name="yearPlan" class="compilationYearPlanAction" method="initYearPlan">
+			<result name="success">/ht/pages/statisticalanalysis/Year_plan.jsp</result>
+		</action>
+		<action name="list" class="compilationYearPlanAction" method="getCompilationYearPlan"/>
+	</package>
+
+	<!-- 港口航道图完成情况 -->
+	<package name="statisticAlanalysisAction" namespace="/statistic" extends="struts-default">
+		<action name="completionStatus" class="statisticAlanalysisAction" method="initCompletionStatus">
+			<result name="success">/ht/pages/statisticalanalysis/Completion_status.jsp</result>
+		</action>
+		<action name="list" class="statisticAlanalysisAction" method="getCompletionStatus"/>
+		<action name="export" class="statisticAlanalysisAction" method="export"/>
+	</package>
+
+	<!-- 港口航道图月度在编动态 -->
+	<package name="dynamicTableAction" namespace="/dynamic" extends="struts-default">
+		<action name="dynamicTable" class="dynamicTableAction" method="initDynamicTable">
+			<result name="success">/ht/pages/statisticalanalysis/Dynamic_table.jsp</result>
+		</action>
+		<action name="list" class="dynamicTableAction" method="getDynamicTable"/>
+		<action name="export" class="dynamicTableAction" method="export"/>
+	</package>
+
+	<!-- 港口航道图月度汇交 -->
+	<package name="submissionSummaryAction" namespace="/submission" extends="struts-default">
+		<action name="submissionSummary" class="submissionSummaryAction" method="initSubmissionSummary">
+			<result name="success">/ht/pages/statisticalanalysis/Submission_summary.jsp</result>
+		</action>
+		<action name="list" class="submissionSummaryAction" method="getCompilationResultSummary"/>
+		<action name="export" class="submissionSummaryAction" method="export"/>
+	</package>
+
+	<!-- 港口航道图月度编绘计划 -->
+	<package name="monthPlanAction" namespace="/month" extends="struts-default">
+		<action name="monthlyPlan" class="monthPlanAction" method="initMonthlyPlan">
+			<result name="success">/ht/pages/statisticalanalysis/Monthly_plan.jsp</result>
+		</action>
+		<action name="list" class="monthPlanAction" method="getCompilationMonthPlan"/>
+		<action name="export" class="monthPlanAction" method="export"/>
+	</package>
+	
+	<!-- 审批角色 -->
+	<package name="auditrole" namespace="/auditrole" extends="struts-default">
+		<action name="index" class="AuditRoleAction" method="init">
+			<result name="success">/ht/pages/system/workflow/process/AuditRole.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="AuditRoleAction" method="editInit">
+			<result name="success">/ht/pages/system/workflow/process/EditAuditRole.jsp</result>
+		</action>
+		<action name="allotaudit" class="AuditRoleAction" method="allotAudit">
+			<result name="success">/ht/pages/system/workflow/process/AllotAudit.jsp</result>
+		</action>
+		<action name="list" class="AuditRoleAction" method="getList"/>
+		<action name="remove" class="AuditRoleAction" method="removeBaseData"/>
+		<action name="add" class="AuditRoleAction" method="addUser"/>
+		<action name="alluser" class="AuditRoleAction" method="getUserList"/>
+		<action name="binguser" class="AuditRoleAction" method="BindUser"/>
+		<action name="allot_delegate_user_init" class="AuditRoleAction" method="delegateUserInit">
+			<result name="success">/ht/pages/system/workflow/process/AllotDelegateUser.jsp</result>
+		</action>
+		<action name="allot_delegate_user_list" class="AuditRoleAction" method="getDelegateUserList"/>
+		<action name="allot_delegate_user" class="AuditRoleAction" method="allotDelegateUser"/>
+
+
+
+	</package>
+	
+	<!-- 表单管理的action -->
+	<package name="formAction" namespace="/form" extends="struts-default">
+		<action name="index" class="formAction" method="init">
+			<result name="success">/ht/pages/complication/form/Form.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="formAction" method="editInit">
+			<result name="success">/ht/pages/complication/form/EditForm.jsp</result>
+		</action>
+		
+		<action name="add" class="formAction" method="addForm"/>
+		<action name="edit" class="formAction" method="modifyForm"/>
+		<action name="remove" class="formAction" method="removeForm"/>
+		<action name="all" class="formAction" method="getFormById"/>
+		<action name="list" class="formAction" method="getForm"/>
+		<action name="getFormByBaseDataId" class="formAction" method="getFormByBaseDataId"/>
+		<action name="add_all" class="formAction" method="addAllForm"/>
+	</package>
+	
+	<!-- 模板管理导入导出 -->
+	<package name="docTempleteAction" namespace="/docTempleteAction" extends="struts-default">
+		<action name="index" class="docTempleteAction" method="index">
+			<result name="success">/ht/pages/system/document/template/docTemplete_index.jsp</result>
+		</action>
+		<action name="detils" class="docTempleteAction" method="detilsPage">
+			<result name="success">/ht/pages/system/document/template/docTemplete_detils.jsp</result>
+		</action>
+		<action name="list" class="docTempleteAction" method="getForm"/>
+		<!-- 
+		<action name="get_doc" class="docTempleteAction" method="getDoc"/>
+		
+		<action name="get_doc_detils" class="docTempleteAction" method="getDocDetils"/> -->
+		
+		<action name="save" class="docTempleteAction" method="saveDoc"/>
+		
+		<action name="download" class="docTempleteAction" method="downLoad"/>
+		
+	</package>
+	
+	<!-- 表单属性管理的action -->
+	<package name="formPropAction" namespace="/formProp" extends="struts-default">
+		<action name="index" class="formPropAction" method="init">
+			<result name="success">/ht/pages/complication/formprop/FormProp.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="formPropAction" method="editInit">
+			<result name="success">/ht/pages/complication/formprop/EditFormProp.jsp</result>
+		</action>
+		
+		<action name="base_data_init" class="formPropAction" method="initBaseData">
+			<result name="success">/ht/pages/complication/formprop/FormPropBaseData.jsp</result>
+		</action>
+		<action name="add" class="formPropAction" method="addFormProp"/>
+		<action name="edit" class="formPropAction" method="modifyFormProp"/>
+		<action name="remove" class="formPropAction" method="removeFormProp"/>
+		<action name="all" class="formPropAction" method="getFormPropById"/>
+		<action name="list" class="formPropAction" method="getFormProp"/>
+		<action name="baseDataList" class="formPropAction" method="getBaseData"/>
+		<action name="base_data_list" class="formPropAction" method="getBaseDataList"/>
+	</package>
+	
+	<!-- 表单编辑列表 -->
+	<package name="formValueAction" namespace="/formValue" extends="struts-default">
+		<action name="index" class="formValueAction" method="editFormValue">
+			<result name="success">/ht/pages/complication/form/FormValue_Look.jsp</result>
+		</action>
+		<action name="init_form" class="formValueAction" method="initFormValue">
+			<result name="success">/ht/pages/complication/form/FormValue_List.jsp</result>
+			<result name="error">/ht/pages/system/workflow/task/RuTask.jsp</result>
+			<result name="url">/ht/pages/complication/form/FormUrl.jsp</result>
+		</action>
+		<action name="list" class="formValueAction" method="FormValueList"/>
+		<action name="form_img" class="formValueAction" method="initFormImg">
+			<result name="success">/ht/pages/complication/form/formValue_Img.jsp</result>
+		</action>
+		<action name="form_file" class="formValueAction" method="downLoadFile">
+			<result name="error">/ht/pages/complication/form/FormValue_List.jsp</result>
+		</action>
+		<action name="remove" class="formValueAction" method="removeForm"/>
+		<action name="process_forms_init" class="formValueAction" method="initProcessForms">
+			<result name="success">/ht/pages/complication/form/ProcessForms.jsp</result>
+		</action>
+		<action name="process_forms_list" class="formValueAction" method="getProcessForms"/>
+		<action name="addcnb" class="formValueAction" method="addCnb"/>
+		<action name="fileisexist" class="formValueAction" method="fileIsExist"/>
+		<action name="verificationpropvalue" class="formValueAction" method="verificationPropValue"/>
+		<action name="plan" class="formValueAction" method="planInit">
+			<result name="success">/ht/pages/system/workflow/task/Plan.jsp</result>
+		</action>
+		<action name="addProcessPlan" class="formValueAction" method="addProcessPlan"/>
+		<action name="modifyProcessPlan" class="formValueAction" method="modifyProcessPlan"/>
+		<action name="removeProcessPlan" class="formValueAction" method="removeProcessPlan"/>
+		<action name="getProcessPlanByKey" class="formValueAction" method="getProcessPlanByKey"/>
+		<action name="getByProcess" class="formValueAction" method="getByProcess"/>
+
+
+	</package>
+	
+	
+	<!-- 编绘任务拆分-->
+	<package name="taskSplitAction" namespace="/tasksplit" extends="struts-default">
+		<action name="init" class="taskSplitAction" method="initTaskSplit">
+			<result name="success">/ht/pages/drawtask/tasksplit/TaskSplit.jsp</result>
+			<result name="error">/error.jsp</result>
+		</action> 
+		<action name="list" class="taskSplitAction" method="findList"/>
+		<action name="split" class="taskSplitAction" method="doSplit"/>
+	</package>
+	<!-- -->
+	<package name="vProcessDetailAction" namespace="/vProcessDetail" extends="struts-default">
+		<action name="index" class="vProcessDetailAction" method="index">
+			<result name="success">/ht/pages/drawtask/tasksplit/TaskSplit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action> 
+		<action name="list" class="vProcessDetailAction" method="findList"/>
+	</package>
+	
+	<!-- 个人工作台action-->
+	<package name="workSpaceAction" namespace="/workSpace" extends="struts-default">
+		<action name="init" class="workSpaceAction" method="init">
+			<result name="success">/ht/pages/background/workspace/WorkSpace.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="sysNoticeSeeMore" class="workSpaceAction" method="sysNoticeSeeMore">
+			<result name="success">/ht/pages/background/workspace/SeeMore.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="list" class="workSpaceAction" method="getUserNoticeView"/>
+		<action name="modify" class="workSpaceAction" method="modifyRead"/>
+	</package>
+	
+	<!-- 图书资料action -->
+	<package name="bookInfoAction" namespace="/bookinfo" extends="struts-default">
+		<action name="index" class="bookInfoAction" method="init">
+			<result name="success">/ht/pages/datum/bookinfo/BookInfo.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="bookInfoAction" method="editInit">
+			<result name="success">/ht/pages/datum/bookinfo/EditBookInfo.jsp</result>
+		</action>
+		
+		<action name="bookfile_init" class="bookInfoAction" method="bookFileInit">
+			<result name="success">/ht/pages/datum/bookinfo/BookFile.jsp</result>
+		</action>
+
+		<action name="borrowing_init" class="bookInfoAction" method="borrowingInit">
+			<result name="success">/ht/pages/datum/bookinfo/BookInfoBorrowing.jsp</result>
+		</action>
+		<action name="batch_borrowing_init" class="bookInfoAction" method="batchBorrowingInit">
+			<result name="success">/ht/pages/datum/bookinfo/BatchBookInfoBorrowing.jsp</result>
+		</action>
+		
+		<action name="batch_return_init" class="bookInfoAction" method="batchReturnInit">
+			<result name="success">/ht/pages/datum/bookinfo/BatchBookInfoReturn.jsp</result>
+		</action>
+
+		<action name="return_init" class="bookInfoAction" method="returnInit">
+			<result name="success">/ht/pages/datum/bookinfo/BookInfoReturn.jsp</result>
+		</action>
+		<action name="borrowing_list" class="bookInfoAction" method="getBorrowingList"/>
+		<action name="return_list" class="bookInfoAction" method="getReturnList"/>
+		<action name="list" class="bookInfoAction" method="getBookInfo"/>
+		<action name="delete" class="bookInfoAction" method="removeBookFile"/>
+		<action name="get_list" class="bookInfoAction" method="getList"/>
+		<action name="add" class="bookInfoAction" method="addBookInfo"/>
+		<action name="modify" class="bookInfoAction" method="modifyRead"/>
+		<action name="remove" class="bookInfoAction" method="remove"/>
+		<action name="oneSubClass" class="bookInfoAction" method="getOneSubClass"/>
+		<action name="twoSubClass" class="bookInfoAction" method="getTwoSubClass"/>
+		<action name="export" class="bookInfoAction" method="export"/>
+		<action name="bookfile" class="bookInfoAction" method="getBookFile"/>
+		<action name="add_borrowing" class="bookInfoAction" method="addBorrowing"/>
+		<action name="return_book" class="bookInfoAction" method="returnBook"/>
+		<action name="template" class="bookInfoAction" method="exportInfoTemplate"/>
+		<action name="uploadInfoFile" class="bookInfoAction" method="uploadInfoFile">
+			<result name="error" >/ht/pages/index/404.jsp</result>  
+		</action>
+		<action name="getByCode" class="bookInfoAction" method="getBookInfoByCode"/>
+	</package>
+	
+	<!-- 海图action -->
+	<package name="booksAction" namespace="/books" extends="struts-default">
+		<action name="index" class="booksAction" method="init">
+			<result name="success">/ht/pages/datum/books/Books.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="booksAction" method="editInit">
+			<result name="success">/ht/pages/datum/books/EditBooks.jsp</result>
+		</action>
+		
+		<action name="batch_borrowing_init" class="booksAction" method="batchBorrowingInit">
+			<result name="success">/ht/pages/datum/books/BatchBooksBorrowing.jsp</result>
+		</action>
+		
+		<action name="booksfile_init" class="booksAction" method="booksFileInit">
+			<result name="success">/ht/pages/datum/books/BooksFile.jsp</result>
+		</action>
+		
+		<action name="borrowing_init" class="booksAction" method="borrowingInit">
+			<result name="success">/ht/pages/datum/books/BooksBorrowing.jsp</result>
+		</action>
+
+		<action name="return_init" class="booksAction" method="returnInit">
+			<result name="success">/ht/pages/datum/books/BooksReturn.jsp</result>
+		</action>
+		<action name="list" class="booksAction" method="getBooks"/>
+		<action name="get_list" class="booksAction" method="getList"/>
+		<action name="borrowing_list" class="booksAction" method="getBorrowingList"/>
+		<action name="add" class="booksAction" method="addBooks"/>
+		<action name="delete" class="booksAction" method="removeBookFile"/>
+		<action name="modify" class="booksAction" method="modify"/>
+		<action name="remove" class="booksAction" method="remove"/>
+		<action name="export" class="booksAction" method="export"/>
+		<action name="oneSubClass" class="booksAction" method="getOneSubClass"/>
+		<action name="twoSubClass" class="booksAction" method="getTwoSubClass"/>
+		<action name="booksfile" class="booksAction" method="getBooksFile"/>
+		<action name="getByCode" class="booksAction" method="getBooksByCode"/>
+		<action name="add_borrowing" class="booksAction" method="addBorrowing"/>
+		<action name="return_book" class="booksAction" method="returnBook"/>
+		<action name="template" class="booksAction" method="exportBookTemplate"/>
+		<action name="uploadBookFile" class="booksAction" method="uploadBookFile"/>
+	</package>
+	
+	<!-- 借阅历史记录action -->
+	<package name="borrowingAction" namespace="/borrowing" extends="struts-default">
+		<action name="index" class="borrowingAction" method="init">
+			<result name="success">/ht/pages/datum/his/BorrowHis.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="curIndex" class="borrowingAction" method="init_cur">
+			<result name="success">/ht/pages/datum/his/BorrowCur.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="list" class="borrowingAction" method="getBorrowingReturn"/>
+		<action name="curList" class="borrowingAction" method="getBorrowingReturnCur"/>
+	</package>
+
+	<!-- 归还历史记录action -->
+	<package name="returnAction" namespace="/returnbook" extends="struts-default">
+		<action name="index" class="returnAction" method="init">
+			<result name="success">/ht/pages/datum/his/ReturnHis.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="list" class="returnAction" method="getReturnBook"/>
+	</package>
+
+	<!-- 外业数据action -->
+	<package name="filedDataAction" namespace="/filedData" extends="struts-default">
+		<action name="index" class="filedDataAction" method="init">
+			<result name="success">/ht/pages/datum/fileddata/FiledData.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="filedDataAction" method="editInit">
+			<result name="success">/ht/pages/datum/fileddata/EditFiledData.jsp</result>
+		</action>
+		
+		<action name="batch_borrowing_init" class="filedDataAction" method="batchBorrowingInit">
+			<result name="success">/ht/pages/datum/fileddata/BatchFiledDataBorrowing.jsp</result>
+		</action>
+		
+		<action name="file_init" class="filedDataAction" method="fileInit">
+			<result name="success">/ht/pages/datum/fileddata/FiledDataFile.jsp</result>
+		</action>
+		
+		<action name="borrowing_init" class="filedDataAction" method="borrowingInit">
+			<result name="success">/ht/pages/datum/fileddata/FiledDataBorrowing.jsp</result>
+		</action>
+		
+		<action name="return_init" class="filedDataAction" method="returnInit">
+			<result name="success">/ht/pages/datum/fileddata/FiledDataReturn.jsp</result>
+		</action>
+		
+		<action name="list" class="filedDataAction" method="getFiledData"/>
+		<action name="borrowing_list" class="filedDataAction" method="getBorrowingList"/>
+		<action name="add" class="filedDataAction" method="addFiledData"/>
+		<action name="remove" class="filedDataAction" method="remove"/>
+		<action name="export" class="filedDataAction" method="export"/>
+		<action name="add_borrowing" class="filedDataAction" method="addBorrowing"/>
+		<action name="return_filed_data" class="filedDataAction" method="returnFiledData"/>
+		<action name="filedDataFile" class="filedDataAction" method="getFiledDataFile"/>
+		<action name="search" class="filedDataAction" method="getList"/>
+		<action name="getByCode" class="filedDataAction" method="getFiledDataByCode"/>
+	</package>
+	
+	<!-- 缺陷action -->
+	<package name="defectAction" namespace="/defect" extends="struts-default">
+		<action name="index" class="defectAction" method="init">
+			<result name="success">/ht/pages/system/defect/Defect.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="init_edit" class="defectAction" method="initEdit">
+			<result name="success">/ht/pages/system/defect/DefectEdit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="list" class="defectAction" method="getDefectList"/>
+		<action name="defect_list" class="defectAction" method="getList"/>
+		<action name="defect" class="defectAction" method="getDefect"/>
+		<action name="edit" class="defectAction" method="add"/>
+		<action name="addform" class="defectAction" method="addForm"/>
+		<action name="updategrading" class="defectAction" method="updateGrading"/>
+		<action name="remove_form" class="defectAction" method="removeForm"/>
+		<action name="formlist" class="defectAction" method="getDefectFormList"/>
+		<action name="remove" class="defectAction" method="remove"/>
+		<action name="content" class="defectAction" method="getDefectListBy3Id"/>
+		<action name="form" class="defectAction" method="initDefectForm">
+			<result name="source">/ht/pages/system/defect/DefectFormSource.jsp</result>
+			<result name="paper">/ht/pages/system/defect/DefectFormPaper.jsp</result>
+			<result name="electronic">/ht/pages/system/defect/DefectFormElect.jsp</result>
+			<result name="notice">/ht/pages/system/defect/DefectFormNotice.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+	</package>
+	
+	<!-- 缺陷项目action -->
+	<package name="defectItemAction" namespace="/defectitem" extends="struts-default">
+		<action name="index" class="defectItemAction" method="init">
+			<result name="success">/ht/pages/system/defectitem/DefectItem.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="init_edit" class="defectItemAction" method="initEdit">
+			<result name="success">/ht/pages/system/defectitem/DefectItemEdit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="item" class="defectItemAction" method="getDefectItemListByDefectTypeId"/>
+		<action name="list" class="defectItemAction" method="getDefectItemList"/>
+		<action name="byid" class="defectItemAction" method="getDefectItemById"/>
+		<action name="edit" class="defectItemAction" method="add"/>
+		<action name="remove" class="defectItemAction" method="remove"/>
+	</package>
+	
+	<!-- 缺陷类别action -->
+	<package name="defectTypeAction" namespace="/defecttype" extends="struts-default">
+		<action name="index" class="defectTypeAction" method="init">
+			<result name="success">/ht/pages/system/defecttype/DefectType.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="init_edit" class="defectTypeAction" method="initEdit">
+			<result name="success">/ht/pages/system/defecttype/DefectTypeEdit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="type" class="defectTypeAction" method="getDefectTypeListByCharttypeId"/>
+		<action name="list" class="defectTypeAction" method="getDefectTypeList"/>
+		<action name="edit" class="defectTypeAction" method="add"/>
+		<action name="remove" class="defectTypeAction" method="remove"/>
+	</package>
+	
+	<!-- coefficientAction -->
+	<package name="coefficientAction" namespace="/coefficient" extends="struts-default">
+		<action name="init" class="coefficientAction" method="init">
+			<result name="success">/ht/pages/background/dicdata/coefficient/Coefficient.jsp</result>
+		</action>
+		<action name="init_edit" class="coefficientAction" method="editInit">
+			<result name="success">/ht/pages/background/dicdata/coefficient/EditCoefficient.jsp</result>
+		</action>
+		<action name="add" class="coefficientAction" method="addCoe"></action>
+		<action name="remove" class="coefficientAction" method="remove"></action>
+		<action name="list" class="coefficientAction" method="getCoeList"></action>
+		<action name="one" class="coefficientAction" method="getCoeById"></action>
+	</package>
+	
+	<!-- 比例尺管理的action -->
+	<package name="scaleControlAction" namespace="/scaleControl" extends="struts-default">
+		<action name="index" class="scaleControlAction" method="init">
+			<result name="success">/ht/pages/background/dicdata/scalecontrol/ScaleControl.jsp</result>
+		</action>
+		<action name="editinit" class="scaleControlAction" method="editInit">
+			<result name="success">/ht/pages/background/dicdata/scalecontrol/EditScaleControl.jsp</result>
+		</action>
+		
+		<action name="add" class="scaleControlAction" method="addScaleControl"/>
+		<action name="edit" class="scaleControlAction" method="modifyScaleControl"/>
+		<action name="remove" class="scaleControlAction" method="removeScaleControl"/>
+		<action name="all" class="scaleControlAction" method="getScaleControlByKey"/>
+		<action name="list" class="scaleControlAction" method="getScaleControl"/>
+		<action name="export" class="scaleControlAction" method="exportExcel"/>
+	</package>
+	
+	
+	<!-- "fileToolAction" -->
+<!-- 	<package name="fileToolAction" namespace="/filetool" extends="struts-default"> -->
+<!-- 		<action name="upload" class="fileToolAction" method="upload"></action> -->
+<!-- 	</package> -->
+	
+	<!-- fileToolAction -->
+	<package name="fileToolAction" namespace="/filetool" extends="struts-default">
+		<action name="init" class="fileToolAction" method="init">
+			<result name="success">/ht/pages/system/ftp/Ftp.jsp</result>
+		</action>
+	</package>
+	
+	<!-- 图幅管理 -->
+	<package name="mapsAction" namespace="/maps" extends="struts-default">
+		<action name="index" class="mapsAction" method="init">
+			<result name="success">/ht/pages/system/maps/MapsIndex.jsp</result>
+		</action>
+		<action name="edit_init" class="mapsAction" method="initEdit">
+			<result name="success">/ht/pages/system/maps/MapsEdit.jsp</result>
+		</action>
+		<action name="init_view" class="mapsAction" method="initViewImg">
+			<result name="success">/ht/pages/system/maps/MapsView.jsp</result>
+		</action>
+		<action name="list" class="mapsAction" method="getMapsList"></action>
+		<action name="changeCatalogType" class="mapsAction" method="changeCatalogType"></action>
+		<action name="changeCatalogAreaId" class="mapsAction" method="changeCatalogAreaId"></action>
+		<action name="changeMapNo" class="mapsAction" method="changeMapNo"></action>
+		<action name="remove" class="mapsAction" method="remove"></action>
+	</package>
+	<!--  小改正符号管理 -->
+	<package name="symbolAction" namespace="/symbol" extends="struts-default">
+		<action name="index" class="symbolAction" method="init">
+			<result name="success">/ht/pages/system/symbol/SymbolIndex.jsp</result>
+		</action>
+		<action name="edit_init" class="symbolAction" method="initEdit">
+			<result name="success">/ht/pages/system/symbol/SymbolEdit.jsp</result>
+		</action>
+		<action name="init_view" class="symbolAction" method="initViewImg">
+			<result name="success">/ht/pages/system/symbol/SymbolView.jsp</result>
+		</action>
+		<action name="symbol_list" class="symbolAction" method="getSymbolList"/>
+		<action name="remove" class="symbolAction" method="remove"></action>
+		<action name="checkCode" class="symbolAction" method="checkCode"></action>
+	</package>
+	
+	<!-- 工天管理 -->
+	<package name="workDaysAction" namespace="/workDays" extends="struts-default">
+		<action name="index" class="workDaysAction" method="init">
+			<result name="success">/ht/pages/system/workDays/WorkDaysIndex.jsp</result>
+		</action>
+		<action name="edit_init" class="workDaysAction" method="initEdit">
+			<result name="success">/ht/pages/system/workDays/WorkDaysEdit.jsp</result>
+		</action>
+		<action name="list" class="workDaysAction" method="getWorkDaysList"></action>
+		<action name="save" class="workDaysAction" method="save"></action>
+		<action name="remove" class="workDaysAction" method="remove"></action>
+	</package>
+	
+	<!-- 完成情况 -->
+	<package name="chartCompletionAction" namespace="/chartCompletion" extends="struts-default">
+		<action name="index" class="chartCompletionAction" method="init">
+			<result name="success">/ht/pages/statisticalanalysis/chartCompletion.jsp</result>
+		</action>
+		
+		
+		<action name="list" class="chartCompletionAction" method="getChartCompletion"></action>
+		<action name="listByKey" class="chartCompletionAction" method="getChartCompletionByKey"></action>
+		<action name="all" class="chartCompletionAction" method="getAllChartCompletion"></action>
+				    <!--手更新临时表-->
+		<action name="taskrun" class="chartCompletionAction" method="taskrun"/>
+		<action name="planrun" class="chartCompletionAction" method="planrun"/>
+	</package>
+	
+	<!-- 创建任务书 -->
+	<package name="createTask" namespace="/createTask" extends="struts-default">
+		<action name="index" class="createTaskAction" method="index">
+			<result name="success">/ht/pages/drawtask/taskbook/CreateTask_list.jsp</result>
+		</action>
+		<action name="create_init" class="createTaskAction" method="initChildTaskCreate">
+			<result name="success">/ht/pages/drawtask/taskbook/CreateTask_edit.jsp</result>
+		</action>
+		<action name="child_task_init" class="createTaskAction" method="initChildTask">
+			<result name="success">/ht/pages/drawtask/taskbook/ChildTask.jsp</result>
+		</action>
+		<action name="child_task_edit" class="createTaskAction" method="editChildTask">
+			<result name="success">/ht/pages/drawtask/taskbook/child_task_edit.jsp</result>
+		</action>
+		
+		<action name="list" class="createTaskAction" method="getTaskList"></action>
+		<action name="save" class="createTaskAction" method="saveChildTask"></action>
+		<action name="changeTask" class="createTaskAction" method="changeTask"></action>
+		<action name="add" class="createTaskAction" method="add"></action>
+		<action name="edit" class="createTaskAction" method="edit"></action>
+		<action name="delete" class="createTaskAction" method="delete"></action>
+		<action name="downTemplate" class="createTaskAction" method="downTemplate"></action>
+		<action name="uploadFile" class="createTaskAction" method="uploadFile"></action>
+		<action name="child_task_list" class="createTaskAction" method="getChildTaskList"></action>
+	</package>
+	
+	
+	<package name="correctionNoticeBookAction" namespace="/cnba" extends="struts-default">
+		<action name="index" class="correctionNoticeBookAction" method="init">
+			<result name="success">/ht/pages/datum/correctionnoticebook/correctionNoticeBook.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="booksfile_init" class="correctionNoticeBookAction" method="booksFileInit">
+			<result name="success">/ht/pages/datum/correctionnoticebook/CorrectionNoticeFile.jsp</result>
+		</action>
+		
+		<action name="edit_init" class="correctionNoticeBookAction" method="editInit">
+			<result name="success">/ht/pages/datum/correctionnoticebook/EditcorrectionNoticeBook.jsp</result>
+		</action>
+		<action name="list" class="correctionNoticeBookAction" method="getCorrectionNoticeBooks"></action>
+		<action name="template" class="correctionNoticeBookAction" method="exportInfoTemplate"></action>
+		<action name="add" class="correctionNoticeBookAction" method="addCorrectionNoticeBooks"></action>
+		<action name="changeState" class="correctionNoticeBookAction" method="changeState"></action>
+		<action name="remove" class="correctionNoticeBookAction" method="remove"></action>
+		<action name="uploadInfoFile" class="correctionNoticeBookAction" method="uploadInfoFile">
+			<result name="error" >/ht/pages/index/404.jsp</result>  
+		</action>
+		<action name="uploadfile" class="correctionNoticeBookAction" method="uploadFile">
+			<result name="error" >/ht/pages/index/404.jsp</result>  
+		</action>
+	</package>
+	<package name="yearIssueAction" namespace="/issue" extends="struts-default">
+		<action name="index" class="yearIssueAction" method="init">
+			<result name="success">/ht/pages/system/issue/YearIssueIndex.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="list" class="yearIssueAction" method="getYearIssueList"/>
+		<action name="edit_init" class="yearIssueAction" method="initEdit">
+			<result name="success">/ht/pages/system/issue/YearIssueEdit.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="add" class="yearIssueAction" method="editYearIssue"/>
+		<action name="remove" class="yearIssueAction" method="deleteYearIssue"/>
+	</package>
+	<package name="qualityAnalysisStatisticsAction" namespace="/qualityAnalysisStatistics" extends="struts-default">
+		<action name="index" class="qualityAnalysisStatisticsAction" method="init">
+			<result name="success">/ht/pages/statisticalanalysis/qualityAnalysisStatistics.jsp</result>
+			<result name="error">/ht/pages/index/404.jsp</result>
+		</action>
+		<action name="all" class="qualityAnalysisStatisticsAction" method="getAllChartCompletion"/>
+		<action name="search" class="qualityAnalysisStatisticsAction" method="getChartCompletionByDate"/>
+	</package>
+</struts>

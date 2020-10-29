@@ -1,0 +1,173 @@
+$(function(){
+	plan_edit.init();
+	
+	$("#mapNo").attr("onkeyup","value=value.replace(/[^\\w]/ig,'')");
+	$("#mapNo").attr("onafterpaste","value=value.replace(/[^\\w]/ig,'')");
+	
+	$("#scale").attr("onkeyup","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	$("#scale").attr("onafterpaste","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	
+	$("#planMonth").attr("onkeyup","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	$("#planMonth").attr("onafterpaste","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	//初始化时间控件
+	$("#year").datepicker({
+		startView: 2, 
+		maxViewMode: 2,
+		minViewMode:2,
+		 format: 'yyyy',
+		 autoclose: true
+	})
+	
+	//初始化时间控件
+	$("#lastYear").datepicker({
+		startView: 2, 
+		maxViewMode: 2,
+		minViewMode:2,
+		 format: 'yyyy',
+		 autoclose: true
+	})
+})
+
+var plan_edit = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		plan_edit.bindPageEvent();
+	},
+	
+	editSuccess : function(result){
+		if(result.code != 1){
+			if(result.value != "" || result.value != null){
+				layer.msg(result.value);
+				return;
+			}
+			layer.msg("保存失败！");
+			return;
+		}
+		layer.msg("保存成功！");
+		var type = $("#typeCode").val();
+		var categoryId = $("#categoryId").val();
+		 //返回目录主页面
+		common.toPage("../plan/index?type="+type+"&categoryId="+categoryId);
+		 //执行刷新用户列表按钮
+		 parent.$("#refresh").click();
+	},
+	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		/** 绑定提交按钮的click事件*/
+		$("#submit").on("click",function(){
+			var categoryId = $("#categoryId").val();
+			 var typeCode = $("#typeCode").val();
+			
+			// 获取登陆账号参数
+			var plan = {};
+			plan.id = $("#planId").val();
+			if(typeCode == '1'){
+				var seaArea = $("#catalogAreaId").find("option:selected").text();
+				if(seaArea == null || seaArea == "" || seaArea == "--请选择--"){
+					layer.msg("请选择海区！");
+					return;
+				}
+				plan.seaArea = seaArea;
+				plan.mapNo = $("#mapNo").val();
+				if(plan.mapNo == null || plan.mapNo == ""){
+					layer.msg("请填写图号！");
+					return;
+				}
+				plan.mapName = $("#mapName").val();
+				if(plan.mapName == null || plan.mapName == ""){
+					layer.msg("请填写图名！");
+					return;
+				}
+				plan.scale = $("#scale").val();
+				if(plan.scale == null || plan.scale == ""){
+					layer.msg("请填写比例尺！");
+					return;
+				}
+				plan.type = $("#type").val();
+				if(plan.type == null || plan.type == ""){
+					layer.msg("请填写类别！");
+					return;
+				}
+				plan.deliverTime = $("#deliverTime").val();
+				if(plan.deliverTime == null || plan.deliverTime == ""){
+					layer.msg("请填写资料汇交时间！");
+					return;
+				}
+				plan.year = $("#year").val();
+				if(plan.year == null || plan.year == ""){
+					layer.msg("请填写所属年份！");
+					return;
+				}
+				plan.measurementPeriod = $("#measurementPeriod").val();
+				if(plan.measurementPeriod == null || plan.measurementPeriod == ""){
+					layer.msg("请填写基测周期！");
+					return;
+				}
+				plan.taskSource = $("#taskSource").val();
+				if(plan.taskSource == null || plan.taskSource == ""|| plan.taskSource == "--请选择--"){
+					layer.msg("请填写任务来源！");
+					return;
+				}
+				
+				plan.nature = $("#nature").val();
+				if(plan.nature == null || plan.nature == ""){
+					layer.msg("请填写上次测量/编绘性质！");
+					return;
+				}
+				
+				plan.lastYear = $("#lastYear").val();
+				if(plan.lastYear == null || plan.lastYear == ""){
+					layer.msg("请填写上次测量年份！");
+					return;
+				}
+			 }else{
+				plan.planMonth = $("#planMonth").val();
+				if(plan.planMonth != null || plan.planMonth != ""){
+					if(Number(plan.planMonth)<1||Number(plan.planMonth)>12){
+						layer.msg("请填写正确的月份！");
+						return;
+					}
+				}
+				var seaArea = $("#catalogAreaId").val();
+				plan.seaArea = seaArea;
+				plan.mapNo = $("#mapNo").val();
+				plan.scale = $("#scale").val();
+				plan.type = $("#type").val();
+				plan.deliverTime = $("#deliverTime").val();
+				plan.year = $("#year").val();
+				plan.planMonth = $("#planMonth").val();
+				plan.measurementPeriod = $("#measurementPeriod").val();
+				plan.taskSource = $("#taskSource").val();
+				plan.nature = $("#nature").val();
+				plan.lastYear = $("#lastYear").val();
+			    plan.mapName = $("#mapName").val();
+				if(plan.mapName == null || plan.mapName == ""){
+					layer.msg("请填写任务名！");
+					return;
+				}
+			 }
+			plan.discription = $("#discription").val();
+			plan.relationId = $("#relationId").val();
+			var planJson = JSON.stringify(plan);
+			var param = common.add_param("plan", planJson);
+			common.init("../plan/add?categoryId="+categoryId+"&type="+typeCode,"POST",plan_edit.editSuccess);
+			common.do_submit(param);
+		});
+		
+		/** 绑定返回按钮的click事件*/
+		 $("#back").on("click",function(){
+			 /*var type = $("#type").val();
+			 var categoryId = $("#categoryId").val();
+			//调回用户列表显示页面
+			 parent.$("#page").prop("src","../plan/index?type="+type+"&categoryId="+categoryId+"&type="+typeCode);
+			//执行刷新用户列表按钮
+			 parent.$("#refresh").click();*/
+			 window.history.go(-1);
+		 })
+	}
+}

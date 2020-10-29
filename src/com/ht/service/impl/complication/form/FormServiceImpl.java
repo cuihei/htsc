@@ -1,0 +1,180 @@
+package com.ht.service.impl.complication.form;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.complication.form.FormDao;
+import com.ht.persistence.model.background.monitor.accesslog.Syslog;
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.form.FormBaseDataView;
+import com.ht.persistence.model.complication.formprop.FormProp;
+import com.ht.service.inter.complication.form.FormService;
+
+/**
+ * 表单列表Service类的实现接口类
+ * @author zqy
+ */
+public class FormServiceImpl implements FormService{
+
+	//注入FomDao
+	@Resource
+	private FormDao formDao;
+
+	/**
+	 * 增加一个表单内容
+	 * @param formParam Form对象
+	 * @throws Exception
+	 */
+	public void addForm(String formParam) throws Exception {
+		try {
+			//将用户String类型转成Form类型
+			Form form = (Form) DataConverter.convertJson2Object(formParam, Form.class);
+			if (form.getId()!=null) {
+				//执行修改操作
+				formDao.modifyForm(form);
+			}else{
+				String id = GenerateSequenceUtil.generateSequenceNo();
+				form.setId(id);
+				//执行保存操作
+				formDao.addForm(form);
+			}
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 修改一个表单内容
+	 * @param formParam Form对象
+	 * @throws Exception
+	 */
+	public void modifyForm(String fromParam) throws Exception {
+		try {
+			// 将String转换为Form对象
+			Form form = (Form) DataConverter.convertJson2Object(
+					fromParam, Form.class);
+			// 获取Form对象的AppId属性
+			String formId = form.getId();
+			if(formId != null){
+				// 更新Application
+				formDao.modifyForm(form);
+			}else{
+				// Form对象的AppId设置值
+				form.setId(GenerateSequenceUtil.generateSequenceNo());
+				formDao.addForm(form);
+			}
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 删除一个表单内容
+	 * @param formParam Form对象
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	public void delForm(String formParam) throws Exception {
+		try {
+			// 将String类型转成Form对象
+			List<Form> list = (List<Form>) DataConverter.convertJson2List(formParam,Form.class);
+			for (int i = 0; i < list.size(); i++) {
+				// 删除Form
+				formDao.delForm(list.get(i));
+			}
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+		
+	}
+
+	/**
+	 * 查找多个表单内容
+	 * @param formParam Form对象
+	 * @return List<Form> Form对象集合
+	 * @throws Exception
+	 */
+	public List<Form> getForm() throws Exception {
+		try {
+			// 获取所有Form对象
+			return formDao.getForm();
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 查询一个表单内容
+	 * @param formParam Form对象
+	 * @return Form Form对象
+	 * @throws Exception
+	 */
+	public Form getForm(String formParam) throws Exception {
+		try {
+			Form form = new Form();
+			form.setId(formParam);
+			// 获取所有Form对象
+			return formDao.getForm(form);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	@Override
+	public List<Form> getFormByBaseDataId(String BaseDataId) throws Exception {
+		try {
+			Form form = new Form();
+			form.setBaseDataId(BaseDataId);
+			// 获取所有Form对象
+			return formDao.getFormByBaseDataId(form);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 查找多个表单内容
+	 * @param formParam Form对象
+	 * @return List<Form> Form对象集合
+	 * @throws Exception
+	 */
+	public List<FormBaseDataView> getFormList() throws Exception {
+		try {
+			// 获取所有Form对象
+			return formDao.getFormList();
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+///评分记录
+	@Override
+	public Integer getFormValueNum(String taskId, String processInstId, String taskName) {
+		return formDao.getFormValueNum(taskId,processInstId,taskName);
+	}
+}

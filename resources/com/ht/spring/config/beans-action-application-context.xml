@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	     xmlns:aop="http://www.springframework.org/schema/aop"
+	     xmlns:tx="http://www.springframework.org/schema/tx"
+	     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<bean id="tabPageAction" class="com.ht.action.base.TabPageAction" scope="prototype"></bean>
+	<bean id="indexAction" class="com.ht.action.index.IndexAction" scope="prototype"></bean>
+	<!-- action默认scope的属性为多实例。每起一个线程，就会创建一个实例 scope="prototype"-->
+	
+	<bean id="publishAction" class="com.ht.action.system.workflow.publish.PublishAction" scope="prototype"></bean>
+	<bean id="ruTaskAction" class="com.ht.action.system.workflow.task.RuTaskAction" scope="prototype"></bean>
+	<bean id="hiTaskAction" class="com.ht.action.system.workflow.task.HiTaskAction" scope="prototype"></bean>
+	<bean id="workflowAction" class="com.ht.action.system.workflow.process.ProcessAction" scope="prototype"></bean>
+	<bean id="createWorkFlowAction" class="com.ht.action.system.workflow.process.CreateWorkFlowAction" scope="prototype"></bean>
+	<bean id="assineeAction" class="com.ht.action.system.workflow.process.AssineeAction" scope="prototype"></bean>
+	
+	<!-- 后台管理 -->
+	<!-- 用户 -->
+	<bean id="userAction" class="com.ht.action.background.organization.employee.UserAction" scope="prototype"></bean>
+
+	<!-- 基础数据 -->
+	<bean id="baseDataAction" class="com.ht.action.background.dicdata.basedata.BaseDataAction" scope="prototype"></bean>
+
+	<!-- 组织机构 -->
+	<bean id="organizationAction" class="com.ht.action.background.organization.organization.OrganizationAction" scope="prototype"></bean>
+	
+	<!-- 权限 -->	
+	<bean id="authAction" class="com.ht.action.background.authority.auth.AuthAction" scope="prototype"></bean>
+	
+	<!-- 角色-->
+	<bean id="roleAction" class="com.ht.action.background.authority.role.RoleAction" scope="prototype"></bean>
+	
+	<!-- 系统访问日志 -->
+	<bean id="syslogAction" class="com.ht.action.background.monitor.accesslog.SyslogAction" scope="prototype"></bean>
+	
+	<!-- 系统操作日志 -->
+	<bean id="syslogOperationAction" class="com.ht.action.background.monitor.operationlog.SyslogOperationAction" scope="prototype"></bean>
+	
+	<!-- 类别数据 -->
+	<bean id="typeAction" class="com.ht.action.background.dicdata.type.TypeAction" scope="prototype"></bean>
+	
+	<!-- 应用资源 -->
+	<bean id="applicationAction" class="com.ht.action.background.application.ApplicationAction" scope="prototype"></bean>
+	
+	<!-- 目录类型 -->
+	<bean id="catalogTypeAction" class="com.ht.action.catalog.type.CatalogTypeAction" scope="prototype"></bean>
+	
+	<!-- 目录区域 -->
+	<bean id="catalogAreaAction" class="com.ht.action.catalog.area.CatalogAreaAction" scope="prototype"></bean>
+	
+    <!-- 目录详情 -->
+	<bean id="catalogDetailAction" class="com.ht.action.catalog.detail.CatalogDetailAction" scope="prototype"></bean>
+
+	<!-- 编绘计划 -->
+	<bean id="planAction" class="com.ht.action.drawtask.plan.PlanAction" scope="prototype"></bean>
+	
+	<!-- 编绘任务书 -->
+	<bean id="taskbookAction" class="com.ht.action.drawtask.taskbook.book.TaskBookAction" scope="prototype"></bean>
+	
+	<!-- 编绘任务书 -->
+	<bean id="yearTaskbookAction" class="com.ht.action.drawtask.taskbook.book.YearTaskBookAction" scope="prototype"></bean>
+	
+	<!-- 通知 -->
+	<bean id="noticeAction" class="com.ht.action.system.notice.NoticeAction" scope="prototype"></bean>
+
+	<!-- 产品修改源数据 -->
+	<bean id="productUpdSourceDataAction" class="com.ht.action.datum.productupdsorcedata.ProductUpdSourceDataAction" scope="prototype"></bean>
+
+	<!-- 人员通知关系-->
+	<bean id="usernoticeAction" class="com.ht.action.system.notice.UserNoticeAction" scope="prototype"></bean>
+	
+	<!-- 资料类别 -->
+	<bean id="datumCategoryAction" class="com.ht.action.datum.type.DatumCategoryAction" scope="prototype"></bean>
+	
+	<!-- 资料文件 -->
+	<bean id="datumFileAction" class="com.ht.action.datum.datum.DatumFileAction" scope="prototype"></bean>
+
+	<!-- 图书借阅 -->
+	<bean id="borrowingAction" class="com.ht.action.datum.datum.BorrowingAction" scope="prototype"></bean>
+
+	<!-- 历史任务 -->
+	<bean id="historyTaskBookAction" class="com.ht.action.drawtask.taskbook.history.HistoryTaskBookAction" scope="prototype"></bean>
+	
+	<!-- 模板 -->
+	<bean id="modelAction" class="com.ht.action.system.document.template.ModelAction" scope="prototype"></bean>
+	
+	<!-- 模板项 -->
+	<bean id="modelitemAction" class="com.ht.action.system.document.template.ModelItemAction" scope="prototype"></bean>
+	
+	<!-- 模板类型 -->
+	<bean id="modeltypeAction" class="com.ht.action.system.document.type.ModelTypeAction" scope="prototype"></bean>
+	
+	<!-- 模板类型 -->
+	<bean id="correctionNoticAction" class="com.ht.action.correctionnoticesearch.CorrectionNoticeAction" scope="prototype"></bean>
+	
+	<!-- 历史明细 -->
+	<bean id="historyCatalogDetailAction" class="com.ht.action.catalog.history.HistoryCatalogDetailAction" scope="prototype"></bean>
+	
+	<!-- 改正通告 -->
+	<bean id="correctionNoticeAction" class="com.ht.action.correctionnoticesearch.CorrectionNoticeAction" scope="prototype"></bean>
+
+	<!--编绘任务清单-->
+	<bean id="taskBillAction" class="com.ht.action.drawtask.taskbill.TaskBillAction" scope="prototype"></bean>
+	
+	<!-- 字典基础数据 -->
+	<bean id="dictionariesAction" class="com.ht.action.system.dictionaries.DictionariesAction" scope="prototype"></bean>
+
+	<!-- 人员通知关系视图 -->
+	<bean id="usernoticeviewAction" class="com.ht.action.system.notice.UserNoticeViewAction" scope="prototype"></bean>
+
+	<!-- 数据字典类型 -->
+	<bean id="dictionariesTypeAction" class="com.ht.action.system.dictionariesType.DictionariesTypeAction" scope="prototype"></bean>
+
+	<!--源数据-->
+	<bean id="sourceAction" class="com.ht.action.complication.seamap.source.SourceAction" scope="prototype"></bean>
+	
+	<!--电子海图编绘-->
+	<bean id="paperAction" class="com.ht.action.complication.seamap.paper.PaperAction" scope="prototype"></bean>
+	
+	<!--纸海图编绘-->
+	<bean id="electronAction" class="com.ht.action.complication.seamap.electron.ElectronAction" scope="prototype"></bean>
+	
+	<!--改正通告编辑-->
+	<bean id="corNoticeAction" class="com.ht.action.complication.correctionnotice.correctionnotice.CorNoticeAction" scope="prototype"></bean>
+	
+	<!--源数据小改正-->
+	<bean id="sourSmallCorAction" class="com.ht.action.complication.correctionnotice.sourcedatasmallcorrection.SourSmallCorAction" scope="prototype"></bean>
+	
+	<!--改正通告编辑模板-->
+	<bean id="templeteAction" class="com.ht.action.complication.correctionnotice.templete.TempleteAction" scope="prototype"></bean>
+	
+	<!--纸海图小改正编绘-->
+	<bean id="paperSmallCorAction" class="com.ht.action.complication.smallcorrection.paper.PaperSmallCorAction" scope="prototype"></bean>
+	
+	<!--电子海图小改正编绘-->
+	<bean id="eleSmallCorAction" class="com.ht.action.complication.smallcorrection.electron.EleSmallCorAction" scope="prototype"></bean>
+	
+	<!--工程图电子海图编绘-->
+	<bean id="proPaperAction" class="com.ht.action.complication.project.paper.ProPaperAction" scope="prototype"></bean>
+	
+	<!--工程图纸海图编绘-->
+	<bean id="proElectronAction" class="com.ht.action.complication.project.electron.ProElectronAction" scope="prototype"></bean>
+
+
+	
+
+	<!-- 编绘计划(生产管理) -->
+	<bean id="compilationYearPlanAction" class="com.ht.action.statisticalanalysis.CompilationYearPlanAction" scope="prototype"/>
+
+	<!-- 港口航道图完成情况 -->
+	<bean id="statisticAlanalysisAction" class="com.ht.action.statisticalanalysis.StatisticAlanalysisAction" scope="prototype"/>
+
+	<!-- 港口航道图月度在编动态 -->
+	<bean id="dynamicTableAction" class="com.ht.action.statisticalanalysis.DynamicTableAction" scope="prototype"/>
+
+	<!-- 港口航道图月度汇交 -->
+	<bean id="submissionSummaryAction" class="com.ht.action.statisticalanalysis.SubmissionSummaryAction" scope="prototype"/>
+
+	<!-- 港口航道图月度编绘计划 -->
+	<bean id="monthPlanAction" class="com.ht.action.statisticalanalysis.MonthPlanAction" scope="prototype"/>
+
+
+
+
+
+	<!-- 流程审批角色 -->
+	<bean id="AuditRoleAction" class="com.ht.action.system.workflow.process.AuditRoleAction" scope="prototype"/>
+	
+	<!-- 表单属性 -->
+	<bean id="formPropAction" class="com.ht.action.complication.formprop.FormPropAction" scope="prototype"/>
+	
+	<!-- 流程任务配置 -->
+	<bean id="taskConfigurationAction" class="com.ht.action.system.workflow.taskconfig.TaskConfigurationAction" scope="prototype"/>
+	
+	<!-- 任务表单 -->
+	<bean id="taskFormAction" class="com.ht.action.system.workflow.task.TaskFormAction" scope="prototype"/>
+	
+	<!-- 表单编辑属性 -->
+	<bean id="formValueAction" class="com.ht.action.complication.form.FormValueAction" scope="prototype"/>
+	
+	<!-- 表单管理 -->
+	<bean id="formAction" class="com.ht.action.complication.form.FormAction" scope="prototype"/>
+	
+	<!--编绘任务拆分-->
+	<bean id="taskSplitAction" class="com.ht.action.drawtask.tasksplit.TaskSplitAction" scope="prototype"></bean>
+	
+	<!--编绘任务拆分-->
+	<bean id="vProcessDetailAction" class="com.ht.action.system.workflow.publish.VProcessDetailAction" scope="prototype"></bean>
+	
+	<!-- 个人工作台 -->
+	<bean id="workSpaceAction" class="com.ht.action.background.workspace.WorkSpaceAction" scope="prototype"></bean>
+
+	<!-- 图书资料 -->
+	<bean id="bookInfoAction" class="com.ht.action.datum.book.BookInfoAction" scope="prototype"></bean>
+	
+	<!-- 海图 -->
+	<bean id="booksAction" class="com.ht.action.datum.books.BooksAction" scope="prototype"></bean>
+	
+	<!-- 模板管理导入导出 -->
+	<bean id="docTempleteAction" class="com.ht.action.system.document.template.DocTempleteAction" scope="prototype"></bean>
+
+	<!-- 归还历史记录 -->
+	<bean id="returnAction" class="com.ht.action.datum.his.ReturnAction" scope="prototype"></bean>
+
+	<!-- 外业数据 -->
+	<bean id="filedDataAction" class="com.ht.action.datum.fileddata.FiledDataAction" scope="prototype"></bean>
+
+	<!-- 缺陷 -->
+	<bean id="defectAction" class="com.ht.action.background.dicdata.defect.DefectAction" scope="prototype"></bean>
+	
+	<!-- 缺陷项目 -->
+	<bean id="defectItemAction" class="com.ht.action.background.dicdata.defectitem.DefectItemAction" scope="prototype"></bean>
+	
+	<!-- 缺陷项目 -->
+	<bean id="defectTypeAction" class="com.ht.action.background.dicdata.defecttype.DefectTypeAction" scope="prototype"></bean>
+
+	<!-- 调整系数 -->
+	<bean id="coefficientAction" class="com.ht.action.background.dicdata.coefficient.CoefficientAction" scope="prototype"></bean>
+	
+	<!-- ftp文件上传-->
+	<bean id="fileToolAction" class="com.ht.action.system.ftp.FileToolAction" scope="prototype"></bean>
+	
+	<!-- 比例尺管理-->
+	<bean id="scaleControlAction" class="com.ht.action.background.dicdata.scalecontrol.ScaleControlAction" scope="prototype"></bean>
+	
+	<!-- 图幅管理 -->
+	<bean id="mapsAction" class="com.ht.action.system.maps.MapsAction" scope="prototype"></bean>
+	
+	<!-- 小改正符号管理 -->
+	<bean id="symbolAction" class="com.ht.action.system.symbol.SymbolAction" scope="prototype"></bean>
+
+	<!-- 工天 -->
+	<bean id="workDaysAction" class="com.ht.action.system.workDays.CompilationWorkDaysAction" scope="prototype"></bean>
+	
+	<!-- 完成情况 -->
+	<bean id="chartCompletionAction" class="com.ht.action.statisticalanalysis.ChartCompletionAction" scope="prototype"></bean>
+	
+	<!-- 完成情况2 --> 
+	<bean id="chartCompletionAction2" class="com.ht.action.statisticalanalysis.ChartCompletionAction2" scope="prototype"></bean>
+ 
+	<!-- 创建编绘任务书 -->
+	<bean id="createTaskAction" class="com.ht.action.drawtask.taskbook.create.CreateTaskAction" scope="prototype"></bean>
+	
+	<!-- 疑难问题 -->
+	<bean id="problemAction" class="com.ht.action.system.workflow.task.ProblemAction" scope="prototype"></bean>
+	
+	<bean id="delegateTaskAction" class="com.ht.action.system.workflow.task.DelegateTaskAction" scope="prototype"></bean>
+
+	<bean id="correctionNoticeBookAction" class="com.ht.action.datum.correctionnoticebook.CorrectionNoticeBookAction" scope="prototype"></bean>
+	<!--改正通告期号时段 -->
+	<bean id="yearIssueAction" class="com.ht.action.system.issue.YearIssueAction" scope="prototype"></bean>
+	<!--改正通告期号时段 -->
+	<bean id="qualityAnalysisStatisticsAction" class="com.ht.action.statisticalanalysis.QualityAnalysisStatisticsAction" scope="prototype"></bean>
+</beans>

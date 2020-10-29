@@ -1,0 +1,130 @@
+<%@ include file="../TagLibs.jsp"%>
+<jsp:include page="../Main.jsp"></jsp:include>
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/statisticalanalysis/chartCompletion.js"></script>
+<script type="text/javascript" src="${RESOURCE_PATH}/kendo/js/jszip.min.js"></script>
+<input type="hidden" value="${isComplete}" id= "isComplete">
+<input type="hidden" value="${type}" id= "type">
+
+
+<style>
+#sdup{display:none;};
+.upbuttun{ width:700px; color: #8E8282};
+
+</style>
+<script>
+///如果当前正在更新表的情况下，定时查看是否执行完毕，完毕后销毁定时器。
+function myif(){
+	var type=$("#type").val(); if(type==""||type==null){type="task"};
+     $.ajax({url:"../chartCompletion/upstate",data: {type:type}, datatype:"json",success:function(result){  
+	 var upstate = eval("("+result+")");//将json类型字符串转换为json对象
+	 if(upstate.value[0][0]!="1"){		
+	 //解除禁用
+	 $("#sdup").removeAttr("disabled"); 
+	 //更新表单添加更新日期
+	 $("#upstate").val("\u6700\u540e\u66f4\u65b0\uff1a"+upstate.value[0][1])	
+		//设置定时器 每五秒检查一下状态；
+	clearInterval(interval );//停止定时器
+	 }}});};
+	 
+	 
+$(function(){
+	var webtype=$("#type").val();
+	var nowuserNo=$("#_userNo").val();
+
+	if((nowuserNo=="admin"||nowuserNo=="028785"||nowuserNo=="029762")&&webtype!="distribution"){
+	//更新按钮显示
+	$("#sdup").show(); 
+	//插入更新日期
+	$("#sdup").after("<input id='upstate' style='width:230px;background-color:transparent;outline:none;border:none; padding:2px; border-bottom: 1px solid #dbdbdb; line-height:29px; font-size:14px; color:#666;'  disabled  value=''>"); 
+	//获取更新状态
+	var type=$("#type").val(); if(type==""||type==null){type="task"};
+		 $.ajax({url:"../chartCompletion/upstate",data: {type:type}, datatype:"json",success:function(result){ 
+	 var upstate = eval("("+result+")");//将json类型字符串转换为json对象
+		//获取更新状态.更新中
+		 if(upstate.value[0][0]=="1"){  
+		 //按钮增加禁用
+			 $("#sdup").attr("disabled","disabled"); 
+			//更新表单显示更新中..
+			 $("#upstate").val("\u6b63\u5728\u6267\u884c\u66f4\u65b0\uff0c\u8bf7\u7a0d\u5019\u002e\u002e\u002e\u002e\u002e")  
+	 			 window.interval = setInterval(myif, 5000); 	//定义一个全局的定时器，任意代码块都可以结束该事件。每5秒执行一下。   
+		 }else{ 
+			//发送获取更新日期'
+			//解除禁用
+		 $("#sdup").removeAttr("disabled"); 
+			 //更新表单添加更新日期
+		 $("#upstate").val("\u6700\u540e\u66f4\u65b0\uff1a"+upstate.value[0][1])	
+	}
+		  } });
+		
+	}else{$("#sdup").hide();};
+	
+})
+
+	
+
+	$("ul[class^='nav-tabs'] li").click(function(){
+		
+		alert("")
+		
+	});
+	
+	
+	
+	
+	
+ 	$("#sdup").click(function(){
+ 		var webtype=$("#type").val();
+ 		var nowuserNo=$("#_userNo").val();
+ 		
+ 		alert(webtype)
+ 	///计划完成情况
+	if(webtype=="plan"){
+        //按钮增加禁用
+		 $("#sdup").attr("disabled","disabled"); 
+		//更新表单显示更新中..
+		 $("#upstate").val("\u6b63\u5728\u6267\u884c\u66f4\u65b0\uff0c\u8bf7\u7a0d\u5019\u002e\u002e\u002e\u002e\u002e")  
+						 //发送更新命 令
+						 $.ajax({url:"../chartCompletion/planrun?type="+webtype+"",success:function(result){
+											$.ajax({url:"../chartCompletion/updateUpTab?type=plan&state=0",success:function(result){
+											 var upstate = eval("("+result+")");//将json类型字符串转换为json对象
+											 $("#sdup").removeAttr("disabled"); 
+											 //更新表单添加更新日期
+											 $("#upstate").val("\u6700\u540e\u66f4\u65b0\uff1a"+upstate.value)		
+										     }});  
+							
+						}});  
+
+	}
+ 	/////////////////////////////////////////
+	//任务完成情况
+	if(webtype==""||webtype==null){
+        //按钮增加禁用
+		 $("#sdup").attr("disabled","disabled"); 
+		//更新表单显示更新中..
+		 $("#upstate").val("\u6b63\u5728\u6267\u884c\u66f4\u65b0\uff0c\u8bf7\u7a0d\u5019\u002e\u002e\u002e\u002e\u002e")  
+						 //发送更新命 令
+						 $.ajax({url:"../chartCompletion/taskrun?type="+webtype+"",success:function(result){
+											$.ajax({url:"../chartCompletion/updateUpTab?type=task&state=0",success:function(result){
+											 var upstate = eval("("+result+")");//将json类型字符串转换为json对象
+											 $("#sdup").removeAttr("disabled"); 
+											 //更新表单添加更新日期
+											 $("#upstate").val("\u6700\u540e\u66f4\u65b0\uff1a"+upstate.value)		
+										     }});  
+							
+						}});  
+	};
+	
+	
+	})
+
+
+
+
+
+
+
+
+
+
+
+</script>

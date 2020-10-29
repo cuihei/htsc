@@ -1,0 +1,99 @@
+package com.ht.persistence.dao.inter.datum.books;
+
+import java.util.List;
+
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.background.organization.organization.Organization;
+import com.ht.persistence.model.datum.books.Books;
+import com.ht.persistence.model.datum.books.BooksView;
+
+/**
+ * 海图Dao
+ * @author houchen
+ *
+ */
+public interface BooksDao {
+	
+	/**
+	 * 增加海图
+	 * @param Books Books实体
+	 */
+	public void addBooks(Books Books);
+	
+	/**
+	 * 更新海图
+	 * @param Books Books实体
+	 */
+	public void modifyBooks(Books Books);
+	
+	/**
+	 * 更新海图，与update不同
+	 * @param books
+	 */
+	public void mergeBooks(Books books);
+	
+	/**
+	 * 删除海图
+	 * @param Books Books实体
+	 */
+	public void deleteBooks(Books Books);
+	
+	/**
+	 * 获取所有海图
+	 * @return Books列表
+	 */
+	public List<Books> getBooks();
+	
+	/**
+	 * 获取一条海图
+	 * @param id Books主键
+	 * @return Books实体
+	 */
+	public Books getBooks(Books Books);
+	
+	/**
+	 * 获取一条海图
+	 * @param id Books主键
+	 * @return Books实体
+	 */
+	public BooksView getBooksView(BooksView Books);
+	
+	/**
+	 * 获取所有海图视图
+	 * @return Books列表
+	 */
+	public List<BooksView> getBooksView();
+	
+	/**
+	 * 根据ChartNo获取一条海图
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public Books getBooksByChartNo(Books books);
+	
+	/**
+	 * 根据条件模糊查询
+	 * @param hql
+	 * @return
+	 */
+	public List<BooksView> getList(String hql);
+
+	/**
+	 * 校验编码是否存在
+	 */
+	Boolean isCodeExist(Books books);
+
+	/**
+	 * 校验port是否存在
+	 */
+	BaseData checkPortIfExist(BaseData bd);
+
+	public BooksView getBooksBySql(String sql);
+
+	public Books getBooksByCode(Books books);
+
+	public List<BooksView> getBooksByStatus();
+	
+
+}

@@ -1,0 +1,143 @@
+body{
+	font-family: "Î¢ÈíÑÅºÚ";
+    margin:0px;
+	padding:0px;
+	min-width: 768px; 
+	text-align:center;
+	background-size:100%;
+}
+img{
+	border: none;
+	vertical-align: top;
+}
+a{
+	text-decoration:none;
+}
+.box{
+	width: 100%;
+	height: 100%;
+	background-color: #fffff;
+}
+.logo_box{
+	width: 100%;
+	height: 86px;
+	margin: 0px auto;
+	padding-top: 34px;
+}
+.logo{
+	width: 64px;
+	height: 64px;
+	float: left;
+	overflow: hidden;
+}
+.logo_text{
+	font-size: 32px;
+	color: #000000;
+	float: left;
+	margin-left: 30px;
+	line-height: 64px;
+	font-weight: 600;
+}
+.content{
+	height: 70%;
+	margin: 0px auto;
+	width: 100%;
+	background-color: #5ba7ee;
+	-webkit-box-shadow:inset 0 0 10px #626e79;  
+	-moz-box-shadow:inset 0 0 20px #626e79;  
+	box-shadow:inset 0 0 20px #626e79;
+}
+.content_box{
+	width: 100%;
+	margin: 0 auto;
+}
+.content_img{
+	width: 633px;
+	height: 342px;
+	float: left;
+	margin-top: 50px;
+}
+@media screen and (min-width: 1064px) {
+.content_input_box{
+	width: 364px;
+	float: right;
+	background-color: #ffffff;
+	border-radius: 6px;
+	padding: 34px 0px;
+	margin: 6% 50px;
+}
+} 
+
+@media screen and (max-width: 1064px) {
+.content_input_box{
+	width: 364px;
+	float: right;
+	background-color: #ffffff;
+	border-radius: 6px;
+	padding: 34px 0px;
+	margin: -310px 50px;
+}
+}
+
+.content_input_list{
+	width: 280px;
+	height: 45px;
+	position: relative;
+	margin: 20px auto;
+}
+.content_input_list2{
+	width: 280px;
+	height: 20px;
+	position: relative;
+	margin: 2px auto;
+	
+}
+.content_input_list2 label{
+	font-size: 14px;
+	color: #999999;
+}
+.content_input_img{
+	width: 20px;
+	height: 20px;
+	padding:0px 10px;
+	border-right: 1px solid #E1E1E1;
+	position:absolute;
+	top: 13px;
+	left: 5px;
+}
+.content_input{
+	width: 280px;
+	height: 43px;
+	float: left;
+	border: none;
+	border-radius: 5px;
+	padding-left: 65px;
+	background-color: #fafafa;
+	border: 1px solid #e1e1e1;
+}
+.content_input2{
+	float: left;
+	border: none;
+	border-radius: 5px;
+	padding-left: 65px;
+	background-color: #fafafa;
+	border: 1px solid #e1e1e1;
+}
+.content_input_button{
+	width: 280px;
+	height: 45px;
+	background-color: #0C7EAB;
+	border-radius: 4px;
+	margin: 10px auto;
+	line-height: 45px;
+	color: #FFFFFF;
+	font-weight: 700;
+	text-align: center;
+	cursor: pointer;
+}
+.foot{
+	width: 1100px;
+	line-height: 100px;
+	text-align: center;
+	margin: 0 auto;
+}

@@ -1,0 +1,9 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8" %>
+<%@ include file="../../../TagLibs.jsp"%>
+<jsp:include page="../../../Main.jsp"></jsp:include>
+<input type="hidden" id="processInstId" value="${processInstId}">
+<input type="hidden" id="processDefId" value="${processDefId}">
+<input type="hidden" id="taskId" value="${taskId}">
+<input type="hidden" id="taskDefId" value="${taskDefId}">
+<input type="hidden" id="parentProcessInstId" value="${parentProcessInstId}">
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/system/workflow/task/taskform.js"></script>

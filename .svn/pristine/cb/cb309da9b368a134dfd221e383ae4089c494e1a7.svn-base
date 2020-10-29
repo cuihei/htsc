@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.statisticalanalysis.view.DynamicTableView" table="V_COMPILATION_DYNAMIC_SUMMARY">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="mapNo" type="java.lang.String">
+            <column name="map_no" />
+        </property>
+        <property name="area" type="java.lang.String">
+            <column name="area" />
+        </property>
+        <property name="mapName" type="java.lang.String">
+            <column name="map_name" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="property" type="java.lang.String">
+            <column name="property" />
+        </property>
+        <property name="planExchangeTime" type="date">
+            <column name="plan_exchange_time" />
+        </property>
+        <property name="actualExchangeTime" type="timestamp">
+            <column name="actual_exchange_time" />
+        </property>
+        <property name="taskReleaseTime" type="date">
+            <column name="task_release_time" />
+        </property>
+         <property name="planCompleteTime" type="date">
+            <column name="plan_complete_time" />
+        </property>
+         <property name="processInstId" type="java.lang.String">
+            <column name="process_inst_id" />
+        </property>
+        <property name="taskDefId" type="java.lang.String">
+            <column name="task_def_id" />
+        </property>
+          <property name="year" type="java.lang.String">
+            <column name="year" />
+        </property>
+    </class>
+    <query name="getDynamicTable">
+    	<![CDATA[ from DynamicTableView]]>
+    </query>
+    <query name="getDynamicTableById">
+    	<![CDATA[ from DynamicTableView where id = :id]]>
+    </query>
+    <query name="getDynamicTableByYear">
+ 		<![CDATA[ from DynamicTableView where year = :year]]>
+ 	</query>
+</hibernate-mapping>

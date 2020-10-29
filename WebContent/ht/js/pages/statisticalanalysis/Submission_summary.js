@@ -1,0 +1,166 @@
+$(function(){
+	submissionSummary.init();
+})
+
+var submissionSummary = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		
+		grid.init("submission_Summary");
+		loading.init();
+		try{
+			submissionSummary.createSubmissionSummaryGrid();
+			submissionSummary.requestSubmissionSummaryData();
+			submissionSummary.bindPageEvent();
+		}
+		catch(err){
+			loading.close();
+		}
+		$("#year").datepicker({
+			startView: 2, 
+			maxViewMode: 2,
+			minViewMode:2,
+			 format: 'yyyy',
+			 autoclose: true
+		}).on('changeDate',gotoDate);
+		function gotoDate(){
+			var date = $("#year").val();
+			common.init("../submission/list?year="+date,"POST",submissionSummary.bindSubmissionSummaryGrid);
+			common.do_submit();
+		}
+	},
+	
+	/**
+	 * 创建资源列表
+	 */
+	createSubmissionSummaryGrid : function(){
+		var columns = submissionSummary.createSubmissionSummaryColumns();
+		grid.createGrid(columns);
+	},
+	
+	/**
+	 * 构建资源列表列集合
+	 */
+	createSubmissionSummaryColumns : function(){
+		grid.resetColumn();
+		grid.addColumn("100px","mapNo","图号");
+		grid.addColumn("160px","mapName","图名");
+		grid.addColumn("160px","seaArea","海区");
+		grid.addColumn("150px","scale","比例尺 1:");
+		grid.addColumn("150px","property","性质");
+		grid.addColumn("150px","planExchangeTime","计划汇交时间");
+		return grid.addColumn("150px","actualExchangeTime","实际汇交时间");
+	},
+	
+	/**
+	 * 发送数据请求
+	 */
+	requestSubmissionSummaryData : function(){
+		var date = $("#year").val();
+	    common.init("../submission/list?year="+date,"POST",submissionSummary.bindSubmissionSummaryGrid);
+		common.do_submit();
+	},
+	
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindSubmissionSummaryGrid : function(result){
+		grid.bindData(result);
+		var zg = 0;
+		var dh = 0;
+		var nh = 0;
+		var bf = 0;
+		var list = result.value;
+	/*
+			if(list.length>0){
+				for (var i = 0; i < list.length; i++) {
+					if(list[i].seaArea == "中国海区"){
+						zg ++;
+					}else if(list[i].seaArea == "东海海区"){
+						dh ++;
+					}else if(list[i].seaArea == "南海海区"){
+						nh ++;
+					}else if(list[i].seaArea == "北方海区"){
+						bf ++;
+					}
+				}
+			}*/
+		
+		$("#zg").val(zg);
+		$("#dh").val(dh);
+		$("#nh").val(nh);
+		$("#bf").val(bf);
+		//grid.setEvents();
+	},
+	
+	/**
+	 * 绑定页面按钮点击事件
+	 */
+	bindPageEvent : function(){
+		/** 绑定导出通知按钮的click事件*/
+		$("#export").on("click",function(){
+			var rowDatas = grid.getSelectRowsData();
+			// 判断是否选中行
+			if (rowDatas.length<=0) {
+				layer.msg('未选择任何行!', {icon:5,time:1000});
+				return false;
+			}
+			var submissionSummarys = [];
+			$.each(rowDatas,function(i,item){
+				var id = $("#submission_Summary").data("kendoGrid").dataItem(item).id;
+				var submissionSummary = {};
+				submissionSummary.id = id;
+				submissionSummarys.push(submissionSummary);
+			});
+			var param = JSON.stringify(submissionSummarys);
+			// 添加参数 @param 参数key；参数value
+			var data = common.add_param("submissionSummarys",param);
+			window.location.href = "../submission/export?submissionSummarys="+param;
+		});
+		
+		/**
+		 * 查询按钮点击事件
+		 */
+		$("#search").on("click",function(){
+			// 获取出版日期
+			var date1 = $("#date1").val();
+			if(date1 == null || date1 ==""){
+				layer.msg('未选择开始时间!', {icon:5,time:1000});
+				return false;
+			}
+			var year = $("#year").val();
+			if(date1.indexOf(year) > -1){
+				
+			}else{
+				layer.msg('开始时间的年份和当前选择的年份不一致!', {icon:5,time:3000});
+				return false;
+			}
+			var date2 = $("#date2").val();
+			if(date2 == null || date2 ==""){
+				layer.msg('未选择结束时间!', {icon:5,time:1000});
+				return false;
+			}
+			if(date2.indexOf(year) > -1){
+				
+			}else{
+				layer.msg('结束时间的年份和当前选择的年份不一致!', {icon:5,time:3000});
+				return false;
+			}
+			submissionSummary.search(date1,date2);
+		});
+	},
+	/**
+	 * 模糊查询查询
+	 */
+	search : function(date1,date2){
+		// 创建grid
+		submissionSummary.createSubmissionSummaryGrid();
+		common.init("../submission/list?startTime="+date1+"&endTime="+date2,"POST",submissionSummary.bindSubmissionSummaryGrid);
+		common.do_submit();
+	}
+	
+	
+}

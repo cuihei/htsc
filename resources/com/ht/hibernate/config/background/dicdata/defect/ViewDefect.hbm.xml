@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.dicdata.defect.ViewDefect" table="V_DEFECTIVE">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="chartName" type="java.lang.String">
+            <column name="chart_name" />
+        </property>
+        <property name="typeName" type="java.lang.String">
+            <column name="type_name" />
+        </property>
+        <property name="itemName" type="java.lang.String">
+            <column name="item_name" />
+        </property>   
+        <property name="discription" type="java.lang.String">
+            <column name="discription" />
+        </property>
+        
+        <property name="deep" type="java.lang.String">
+            <column name="deep" />
+        </property>
+        
+        <property name="score" type="java.lang.String">
+            <column name="score" />
+        </property>
+    </class>
+
+    <query name="getViewDefectList">
+    	<![CDATA[ from ViewDefect]]>
+    </query>
+</hibernate-mapping>

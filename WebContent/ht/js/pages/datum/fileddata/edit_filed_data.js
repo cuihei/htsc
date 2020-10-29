@@ -1,0 +1,223 @@
+$(function(){
+	edit_filed_data.init();
+	$("#scale").attr("onkeyup","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	$("#scale").attr("onafterpaste","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	
+})
+
+var edit_filed_data = {
+	
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		$("#total").attr("onkeyup","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+		$("#total").attr("onafterpaste","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+		var mark = $("#mark").val();
+		 if(mark == "1"){
+			 $("#submit").hide();
+			 $(" :input").each(function () {
+					$(this).attr("readonly","readonly");//设为只读 
+			 });
+		 }
+		edit_filed_data.bindPageEvent();
+	},
+	
+	/**
+	 * 绑定页面按钮事件
+	 */
+	bindPageEvent : function(){
+		/**
+		 * 确定按钮的点击事件
+		 */
+		$("#submit").on("click",function(){
+			var filedData = {};
+			
+			// 设置id
+			filedData.id = $("#filedDataId").val();
+			// 设置图号
+			filedData.picNo = $("#picNo").val();
+			// 设置海区
+			filedData.seaArea = $("#seaArea").find("option:selected").text();
+			// 设置比例尺
+			filedData.scale = $("#scale").val();
+			// 设置项目名称
+			filedData.projectName = $("#projectName").val();
+			// 设置测量周期
+			filedData.measureCycle = $("#measureCycle").val();
+			// 设置汇交时间
+			filedData.concurrentTime = $("#concurrentTime").val();
+			// 设置数据名称
+			filedData.dataName = $("#dataName").val();
+			// 设置数据形式
+			filedData.dataForm = $("#dataForm").val();
+			// 设置原始文件名称
+			filedData.originalFileName = $("#originalFileName").val();
+			// 设置总份数
+			var total = $("#total").val();
+			if(filedData.picNo==null||filedData.picNo==""){
+				layer.msg("图号不能为空");
+				return false;
+			}
+			if(filedData.seaArea==null||filedData.seaArea==""||filedData.seaArea=="--请选择--"){
+				layer.msg("海区不能为空");
+				return false;
+			}
+			if(filedData.scale==null||filedData.scale==""){
+				layer.msg("比例尺不能为空");
+				return false;
+			}
+			if(filedData.concurrentTime==null||filedData.concurrentTime==""){
+				layer.msg("汇交时间不能为空");
+				return false;
+			}
+			/*if(){
+				
+			}*/
+			if(total != null && total != ""){
+				filedData.total = total;
+			}else{
+				layer.msg("总份数不能为空");
+				return false;
+			}
+			if(filedData.id == null || filedData.id == ""){
+				// 创建库存总数和在库、可用数量是一致的
+				filedData.copies = total;
+				filedData.canBorrowing = total;
+			}else{
+				// 编辑库存则有多种情况
+				var  sum = $("#sum").val();
+				if(Number(total)>=Number(sum)){
+					// 总数增加了
+					var plus = Number(total)-Number(sum);
+					// 在库也加上增加量
+					filedData.copies = Number($("#copies").val())+plus;
+					// 可用数量也加上增加量
+					filedData.canBorrowing = Number($("#canBorrowing").val())+plus;
+				}else{
+					// 总数减少了 
+					var reduce = Number(sum)-Number(total); 
+					// 外借的数量
+					var borrowNum = Number(sum)-Number($("#copies").val());
+					// 没有外借
+					if(Number(borrowNum)==0){
+						filedData.copies = Number($("#copies").val())-Number(reduce);
+						var canborrowNum = Number($("#canBorrowing").val())-Number(reduce);
+						if(Number(canborrowNum)<=0){
+							filedData.canBorrowing = 0;	
+						}else{
+							filedData.canBorrowing = canborrowNum;
+						}
+					}else{ // 有外借
+						if(Number(reduce)>Number($("#copies").val())){
+							layer.msg("库存减少数量不能大于在库数量！");
+							return false;
+						}
+						var copies = Number($("#copies").val())-Number(reduce);
+						filedData.copies = copies;
+						
+				//alert(copies)
+						// 可借数量
+						var canBorrowNum = Number($("#canBorrowing").val())-Number(reduce);
+						if(Number(canBorrowNum)<=0){
+							filedData.canBorrowing = 0;
+						}else{
+							filedData.canBorrowing = canBorrowNum;
+						}
+						
+					}
+				}
+				
+			}
+			// 设置接收人
+			var recipient = $("#recipient").val();
+			if(recipient != null && recipient != ""&&recipient!="--请选择--"){
+				filedData.recipient=recipient;
+			}else{
+				layer.msg("请设置接收人");
+				return false;
+			}
+			
+			// 转成JSON
+			var filedDataJson = JSON.stringify(filedData);
+			var param = common.add_param("filedData",filedDataJson);
+
+			common.init("../filedData/add","POST",function(result){
+				// 返回图书资料列表页面
+				layer.msg(result.value);
+				common.toPage("../filedData/index");
+				/*if (result.code == "0") {
+					if(result.value !="" && result.value != null){
+						
+						return;
+					}else{
+						layer.msg("保存失败！");
+						return;
+					}
+					
+					// 执行刷新按钮的点击事件
+					parent.$("#refresh").click();
+				}else{
+					layer.msg("保存失败！");
+					return;
+				}*/
+			});
+			common.do_submit(param);
+		});
+		
+		/**
+		 * 返回按钮的点击事件
+		 */
+		$("#back").on("click",function(){
+			// 返回图书资料列表页面
+			common.toPage("../filedData/index");
+			// 执行刷新按钮的点击事件
+			parent.$("#refresh").click();
+			var mark = $("#mark").val();
+			if(mark == "1"){
+				window.history.go(-1);
+			}else{
+				// 返回图书资料列表页面
+				common.toPage("../filedData/index");
+				// 执行刷新按钮的点击事件
+				parent.$("#refresh").click();
+			}
+		});
+		
+		 $("#picNo").blur(function(){
+				var param = common.add_param("picNo",$("#picNo").val());
+				common.init("../filedData/getByCode","POST",function(result){
+						if (result.value == null) {
+							layer.msg("图号不存在，没有数据！");
+							return;
+						}
+						$("#seaArea option").each(function(){
+	     					if($(this).val()==result.value.seaArea){
+			     				$(this).attr("selected",true);
+	     					}
+	     				});
+						$("#scale").val(result.value.scale);
+						$("#projectName").val(result.value.projectName);
+						$("#measureCycle").val(result.value.measureCycle);
+						
+						var firstDate = new Date(result.value.concurrentTime);
+						var firstY = firstDate.getFullYear() + '-';
+						var firstM = (firstDate.getMonth()+1 < 10 ? '0'+(firstDate.getMonth()+1) : firstDate.getMonth()+1)+'-';
+						var firstD = firstDate.getDate();
+						$("#concurrentTime").val(firstY+firstM+firstD);
+						$("#dataName").val(result.value.dataName);
+						$("#dataForm").val(result.value.dataForm);
+						$("#originalFileName").val(result.value.originalFileName);
+						$("#total").val(result.value.total);
+						$("#recipient option").each(function(){
+	     					if($(this).val()==result.value.recipient){
+			     				$(this).attr("selected","selected");
+	     					}
+	     				});
+						layer.msg("加载成功");
+
+					});
+					common.do_submit(param);
+			 });
+	}
+}

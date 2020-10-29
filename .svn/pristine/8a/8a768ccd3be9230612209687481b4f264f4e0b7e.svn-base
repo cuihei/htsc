@@ -1,0 +1,80 @@
+package com.ht.persistence.dao.impl.drawtask.taskbook.book;
+
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.UUID;
+
+import org.hibernate.Query;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.drawtask.taskbook.book.TaskBookEditHisDao;
+import com.ht.persistence.model.drawtask.plan.VPlan;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBookEditHis;
+import com.sun.star.bridge.oleautomation.Date;
+
+/**
+ * 编绘任务书
+ * @author huodesheng
+ * @param <Student>
+ *
+ */
+public class TaskBookEditHisDaoImpl<Student> extends BaseDaoImpl implements TaskBookEditHisDao {
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<TaskBookEditHis> findEditListById(String taskbookId) {
+			String hql="from TaskBookEditHis  where taskbookId=:param ORDER BY REVISION asc";
+			return this.getSession().createQuery(hql).setString("param", taskbookId).list();
+
+	}
+	
+
+	   //查询当前任务书的条数
+		@Override
+		public int editcount(String taskbookid) {
+			String sqlcount="SELECT count(*) from COMPILATION_TASK_BOOK_EIDT_HIS where TASKBOOK_ID ='"+taskbookid+"'"; 
+	
+			Query query1 = this.getSession().createSQLQuery(sqlcount);
+			Integer count=((Number)query1.uniqueResult()).intValue();
+			return count;
+			
+		}
+		
+	
+	
+	@Override
+	public String addTaskBookEdit(String taskbookid, String editcount, String creatro,String taskbookNo,String nowtime)  {
+		    //查询当前任务书的条数
+	        int count=editcount(taskbookid) ;
+			/*生成UUID*/
+			String uid=UUID.randomUUID().toString().replace("-", "").toLowerCase();
+				
+			//如果没有修订记录则新增
+			if(count<1) {	count=1; }else {count=count+1;};
+
+				String sqlinsert = "insert into COMPILATION_TASK_BOOK_EIDT_HIS (ID,TASKBOOK_ID,TASKBOOK_NO,EDIT_CONTENT,REVISION,CREATOR,CREATION_DATE) values (?,?,?,?,"+count+",?,TO_DATE('"+nowtime+"','yyyy-mm-dd'))";
+				Query query2= this.getSession().createSQLQuery(sqlinsert);
+				query2.setString(0, uid);
+				query2.setString(1, taskbookid);
+				query2.setString(2, taskbookNo);
+				query2.setString(3, editcount);
+				//query2.setString(4, count.toString());
+				query2.setString(4, creatro);
+				//query2.setString(5, creatro);
+				//query2.setString(6, arg1)
+				query2.executeUpdate();
+				
+				//更新任务书中的 修订次数 2018.8.6
+				String sqlup="UPDATE COMPILATION_TASK_BOOK SET EH_REVISION=to_char("+count+", '999'),EH_CREATION_DATE=TO_DATE('"+nowtime+"','yyyy-mm-dd') where id='"+taskbookid+"'"; 
+				Query query3 = this.getSession().createSQLQuery(sqlup);
+				query3.executeUpdate();
+		
+	  	return "1";
+		
+			}
+
+
+
+
+}

@@ -1,0 +1,318 @@
+package com.ht.front.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+
+/**
+ * 控件基类
+ * @author 王有为
+ * @date 2016/10/13
+ */
+public class Base {
+	/**
+	 * 节点开头部分
+	 */
+	StringBuffer elementNodeBegin = null;
+	
+	/**
+	 * 节点结束部分
+	 */
+	StringBuffer elementNodeEnd = null;
+	
+	/**
+	 * 内容
+	 */
+	String content = null;
+	
+	/**
+	 * 子节点集合
+	 */
+	List<Base> childNodes = new ArrayList<Base>();
+	
+	/**
+	 * 最终生成的节点字符串
+	 */
+	StringBuffer node = null;
+	
+	/**
+	 * 节点类型名称
+	 */
+	String nodeType = null;
+	
+	/**
+	 * 节点ID
+	 */
+	String nodeId = null;
+	
+	/**
+	 * 节点name属性
+	 */
+	String nodeName = null;
+	
+	/**
+	 * 节点name属性
+	 */
+	String placeholder = null;
+	
+	/**
+	 * value 属性
+	 */
+	String value = null;
+	
+	/**
+	 * 节点css类型
+	 */
+	CssClass cssClass = null;
+	
+	/**
+	 * 节点href属性
+	 */
+	String href = null;
+	
+	protected Base(String nodeType,String nodeId,CssClass cssClass){
+		this.cssClass = cssClass;
+		this.nodeId = nodeId;
+		this.nodeType = nodeType;
+		createElement();
+	}
+	
+	protected Base(String nodeType,String nodeId,CssClass cssClass,String content){
+		this.cssClass = cssClass;
+		this.nodeId = nodeId;
+		this.nodeType = nodeType;
+		this.content = content;
+		createElement();
+	}
+	
+	protected Base(String nodeType,String nodeId,CssClass cssClass,String value,String content){
+		this.cssClass = cssClass;
+		this.nodeId = nodeId;
+		this.nodeType = nodeType;
+		this.content = content;
+		this.value = value;
+		createElement();
+	}
+	
+	protected Base(String nodeType,String nodeId,String nodeName,String value,CssClass cssClass,String placeholder){
+		this.cssClass = cssClass;
+		this.nodeId = nodeId;
+		this.nodeType = nodeType;
+		this.value = value;
+		this.nodeName = nodeName;
+		this.placeholder = placeholder;
+		CreateInput();
+	}
+	
+	protected Base(String nodeType,String nodeId,String nodeName,String value,CssClass cssClass,String placeholder,String content){
+		this.cssClass = cssClass;
+		this.nodeId = nodeId;
+		this.nodeType = nodeType;
+		this.value = value;
+		this.nodeName = nodeName;
+		this.placeholder = placeholder;
+		this.content = content;
+		CreateInput();
+	}
+	
+	protected Base(CssClass cssClass){
+		this.cssClass = cssClass;
+		CreateHr();
+	}
+	
+	protected Base(String href,String content){
+		this.content = content;
+		this.href = href;
+		CreateA();
+	}
+	
+	/**
+	 * 创建节点
+	 */
+	protected void createElement(){
+		// 定义节点ID部分
+		String id = null;
+		if (StringUtils.isNotEmpty(nodeId)) {
+			id = " id='"+nodeId+"' ";
+		}
+		// 定义节点class部分
+		// css插入的内容
+		String css = null;
+		if (cssClass != null) {
+			css = cssClass.getCssClass() + " ";
+		}
+		String value = null;
+		if (StringUtils.isNotEmpty(this.value)) {
+			value = " value='"+this.value+"' ";
+		}
+		// 编辑节点开头部分
+		this.elementNodeBegin = new StringBuffer();
+		this.elementNodeBegin.append("<");
+		this.elementNodeBegin.append(nodeType);
+		// 设置ID
+		if (StringUtils.isNotEmpty(id)) {
+			this.elementNodeBegin.append(id);
+		}
+		// 设置cssClass
+		if (StringUtils.isNotEmpty(css)) {
+			this.elementNodeBegin.append(css);
+		}
+		if (StringUtils.isNotEmpty(value)) {
+			this.elementNodeBegin.append(value);
+		}
+		this.elementNodeBegin.append(">");
+		// 编辑节点结尾部分
+		this.elementNodeEnd = new StringBuffer();
+		this.elementNodeEnd.append("</");
+		this.elementNodeEnd.append(nodeType);
+		this.elementNodeEnd.append(">");
+	}
+	
+	/**
+	 * 创建Input对象
+	 */
+	public void CreateInput(){
+		String id=null;
+		String type = null;
+		String name = null;
+		String value = null;
+		String placeholder = null;
+		this.elementNodeBegin = new StringBuffer();
+		elementNodeBegin.append("<input");
+		if (StringUtils.isNotEmpty(this.nodeId)) {
+			id = " id='"+this.nodeId+"' ";
+			elementNodeBegin.append(id);
+		}
+		if (StringUtils.isNotEmpty(this.nodeType)) {
+			type = " type='"+this.nodeType+"' ";
+			elementNodeBegin.append(type);
+		}
+		if (StringUtils.isNotEmpty(this.nodeName)) {
+			name = " name='"+this.nodeName+"' ";
+			elementNodeBegin.append(name);
+		}
+		if (StringUtils.isNotEmpty(this.value)) {
+			value = " value='"+this.value+"' ";
+			elementNodeBegin.append(value);
+		}
+		if (this.cssClass != null) {
+			elementNodeBegin.append(this.cssClass.getCssClass());
+		}
+		if (StringUtils.isNotEmpty(this.placeholder)) {
+			placeholder = " placeholder='"+this.placeholder+"' ";
+			elementNodeBegin.append(placeholder);
+		}
+		elementNodeBegin.append(">");
+	}
+	
+	/**
+	 * 创建Hr对象
+	 */
+	public void CreateHr(){
+		this.elementNodeBegin = new StringBuffer();
+		elementNodeBegin.append("<Hr ");
+		if (this.cssClass != null) {
+			elementNodeBegin.append(this.cssClass.getCssClass());
+		}
+		elementNodeBegin.append(">");
+	}
+	
+	/**
+	 * 创建A对象
+	 */
+	public void CreateA(){
+		String href = null;
+		this.elementNodeBegin = new StringBuffer();
+		elementNodeBegin.append("<a");
+		if (StringUtils.isNotEmpty(this.href)) {
+			href = " href='"+this.href+"' ";
+			elementNodeBegin.append(href);
+		}
+		elementNodeBegin.append(">");
+		this.elementNodeEnd = new StringBuffer();
+		this.elementNodeEnd.append("</a>");
+	}
+	
+	/**
+	 * 增加子节点
+	 * @param node
+	 */
+	public void addChildNode(Base node){
+		if (node != null) {
+			this.childNodes.add(node);
+		}
+	}
+	
+	/**
+	 * 移除样式
+	 * @param node 要移除的节点
+	 */
+	public void removeCssClass(Base node){
+		if (node.cssClass != null) {
+			Integer index = node.elementNodeBegin.indexOf(node.cssClass.getCssClass());
+			Integer lastIndex = index + node.cssClass.getCssClass().length()+1;
+			node.elementNodeBegin.replace(index, lastIndex, "");
+			node.cssClass = null;
+		}
+	}
+	
+	/**
+	 * 增加属性
+	 * @param node 要增加属性的节点
+	 */
+	public void addProp(Prop prop){
+		if (this.elementNodeBegin != null) {
+			if (prop != null) {
+				String propStr = " ";
+				if (prop.getPropKey() != null) {
+					propStr += prop.getPropKey();
+				}
+				if (prop.getPropValue() != null) {
+					propStr += "='"+prop.getPropValue()+"'";
+				}
+				this.elementNodeBegin.replace(this.elementNodeBegin.length()-1, this.elementNodeBegin.length()-1, propStr);
+			}
+		}
+	}
+	
+	/**
+	 * 获取节点字符串
+	 * @return 节点字符串
+	 */
+	public String getNode(){
+		// 组织节点
+		this.node = new StringBuffer();
+		if (this.elementNodeBegin != null) {
+			this.node.append(this.elementNodeBegin);
+		}
+		if ("button".equals(this.nodeType)) {
+			if (this.childNodes != null) {
+				for (int i = 0; i < childNodes.size(); i++) {
+					this.node.append(this.childNodes.get(i).getNode());
+				}
+			}
+			if (StringUtils.isNotEmpty(content)) {
+				this.node.append(content);
+			}
+		}
+		else{
+			if (StringUtils.isNotEmpty(content)) {
+				this.node.append(content);
+			}
+			if (this.childNodes != null) {
+				for (int i = 0; i < childNodes.size(); i++) {
+					this.node.append(this.childNodes.get(i).getNode());
+				}
+			}
+		}
+		if (this.elementNodeEnd != null) {
+			this.node.append(this.elementNodeEnd.toString());
+		}
+		// 返回节点字符串
+		return this.node.toString();
+	}
+}

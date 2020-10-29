@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.complication.form.Form" table="FORM">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="baseDataId" type="java.lang.String">
+            <column name="base_data_id" />
+        </property>
+        <property name="name" type="java.lang.String">
+            <column name="name" />
+        </property>
+        <property name="url" type="java.lang.String">
+            <column name="url" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+     <query name="getForm">
+    	<![CDATA[ from Form]]>
+    </query>
+    <query name="getFormById">
+    	<![CDATA[ from Form where id= :id]]> 
+    </query>
+    <query name="getFormByBaseDataId">
+    	<![CDATA[ from Form where baseDataId= :baseDataId]]> 
+    </query>
+    
+</hibernate-mapping>

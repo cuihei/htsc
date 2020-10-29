@@ -1,0 +1,20 @@
+package com.ht.persistence.dao.inter.drawtask.taskbook.book;
+
+import java.util.List;
+
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBook;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBookList;
+import com.ht.persistence.model.drawtask.taskbook.book.VTaskBook;
+
+/**
+ * TaskBookDao
+ * @author weihua
+ *
+ */
+public interface TaskAnalysisDao {
+	
+	
+	
+	
+}

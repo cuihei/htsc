@@ -1,0 +1,93 @@
+package com.ht.persistence.dao.inter.catalog.detail;
+
+import java.util.List;
+
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.catalog.area.CatalogArea;
+import com.ht.persistence.model.catalog.detail.CatalogDetail;
+
+/**
+ * 目录明细的数据操作类
+ * @author penghao
+ */
+public interface CatalogDetailDao{
+	
+	/**
+	 * 查找实体对象
+	 * @param id ID
+	 * @return 实体对象，若不存在则返回null
+	 */
+	CatalogDetail getDetail(CatalogDetail detail) throws Exception;
+	
+	/**
+	 * 查找所有实体对象集合
+	 * @return 所有实体对象集合
+	 */
+	List<CatalogDetail> getDetailListByCatalogTypeId(CatalogDetail detail) throws Exception;
+
+	/**
+	 * 判断实体对象是否存在
+	 * @param mapNo 图号
+	 * @return 实体对象是否存在
+	 */
+	boolean exists(CatalogDetail detail) throws Exception;
+	
+	/**
+	 * 获取明细list
+	 * @param mapNo 图号
+	 * @return 实体对象是否存在
+	 */
+	List<CatalogDetail> getDetialListByMapNo(CatalogDetail detail) throws Exception;
+	
+	/**
+	 * 获取明细list
+	 * @param mapNo 图号
+	 * @return 实体对象是否存在
+	 */
+	List<CatalogDetail> getDetialListByMapNoAndCatalogId(CatalogDetail detail) throws Exception;
+	
+	/**
+	* 新增目录明细
+	* @param detail 目录明细实体
+	* @return void    返回类型 
+	 */
+	void addDetail(CatalogDetail detail) throws Exception;
+
+	/**
+	 * 更新实体对象
+	 * @param entity 实体对象
+	 * @return void    返回类型 
+	 */
+	void modifyDetail(CatalogDetail detail) throws Exception;
+	
+	/**
+	 * 删除实体对象
+	 * @param entity 实体对象
+	 * @return void    返回类型 
+	 */
+	void delDetail(CatalogDetail detail) throws Exception;
+	
+	/**
+	 * 根据CATEGORY_ID,AREA_ID获取目录
+	 * @param entity 实体对象
+	 * @return void    返回类型 
+	 */
+	public List<CatalogDetail> getDetailByCategoryId(CatalogDetail detail) throws Exception;
+	
+	/**
+	 * 获取存在图号的目录类型
+	 * @return void    返回类型 
+	 */
+	List<BaseData> getBaseDataFromDetail() throws Exception;
+	
+	/**
+	 * 根据目录类型获取存在图号的目录区域
+	 * @return void    返回类型 
+	 */
+	List<CatalogArea> getCatalogAreaListFromDetail(BaseData baseData) throws Exception;
+
+	List<CatalogDetail> getOtherDetailListByCatalogTypeId(CatalogDetail detail) throws Exception;
+
+	List<CatalogDetail> getOtherMeDetailListByCatalogTypeId(
+			CatalogDetail detail, String userNo) throws Exception;
+}

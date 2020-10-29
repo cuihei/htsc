@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+
+	<constant name="struts.multipart.saveDir" value ="/temp"/>
+	
+	<constant name="struts.multipart.maxSize" value ="10485760000" />
+	<!-- 文件上传 -->
+	<package name="upload" namespace="/file" extends="struts-default">
+    	<action name="import" class="catalogDetailAction" method="upload">
+			<interceptor-ref name="fileUpload">  
+	                <param name="allowedTypes"></param>  
+	                <param name="maximumSize">1024*1024</param>  
+	            </interceptor-ref>   
+	        <interceptor-ref name="defaultStack"></interceptor-ref> 
+    	</action>
+    	
+    	<action name="uploadftp" class="fileToolAction" method="upload">
+			<interceptor-ref name="fileUpload">  
+	                <param name="allowedTypes"></param>  
+	                <param name="maximumSize">1024*1024</param>  
+	            </interceptor-ref>   
+	        <interceptor-ref name="defaultStack"></interceptor-ref> 
+	        <result name="success">/ht/pages/system/ftp/Ftp.jsp</result>
+    	</action>
+    	
+	</package>
+	<!-- 目录文件下载 -->
+	<package name="download" namespace="/detaildownload" extends="struts-default">
+		<!-- 目录模板下载 -->
+		<action name="template" class="catalogDetailAction" method="getTemplate">
+			<result name="success" type="stream">  
+               <param name="contentType">application/vnd.ms-excel</param>  
+               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+               <param name="inputName">downloadStream</param>  
+               <param name="bufferSize">1024</param>  
+           </result>  
+	    </action>
+	    <!-- 表单模板下载 -->
+		<action name="formtemplate" class="taskFormAction" method="getTemplate">
+			<result name="success" type="stream">  
+               <param name="contentType">application/vnd.ms-excel</param>  
+               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+               <param name="inputName">downloadStream</param>  
+               <param name="bufferSize">1024</param>  
+           </result>  
+	    </action>
+	    <!-- 目录下载 -->
+	    <action name="excel" class="catalogDetailAction" method="export">
+				<result name="success" type="stream">  
+	               <param name="contentType">application/vnd.ms-excel</param>  
+	               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+	               <param name="inputName">downloadStream</param>  
+	               <param name="bufferSize">1024</param>  
+	           </result>  
+	    </action>
+	    
+	    <!-- 人员信息下载 -->
+	    <action name="exceluser" class="userAction" method="export">
+				<result name="success" type="stream">  
+	               <param name="contentType">application/vnd.ms-excel</param>  
+	               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+	               <param name="inputName">downloadStream</param>  
+	               <param name="bufferSize">1024</param>  
+	           </result>  
+	    </action> 
+	    
+	      <!-- 人员信息下载 -->
+	    <action name="excelyearplan" class="compilationYearPlanAction" method="export">
+				<result name="success" type="stream">  
+	               <param name="contentType">application/vnd.ms-excel</param>  
+	               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+	               <param name="inputName">downloadStream</param>  
+	               <param name="bufferSize">1024</param>  
+	           </result>  
+	    </action> 
+	    
+	    <action name="excelnotice" class="correctionNoticeBookAction" method="export">
+				<result name="success" type="stream">  
+	               <param name="contentType">application/vnd.ms-excel</param>  
+	               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+	               <param name="inputName">downloadStream</param>  
+	               <param name="bufferSize">1024</param>  
+	           </result>  
+	    </action> 
+	</package>
+	
+	<!-- 计划文件下载 -->
+	<package name="default" namespace="/plandownload" extends="struts-default">
+		<!-- 目录模板下载 -->
+		<action name="template" class="planAction" method="getTemplate">
+			<result name="success" type="stream">  
+               <param name="contentType">application/vnd.ms-excel</param>  
+               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+               <param name="inputName">downloadStream</param>  
+               <param name="bufferSize">1024</param>  
+           </result>  
+	    </action>
+	    <!-- 目录下载 -->
+	    <action name="excel" class="planAction" method="export">
+				<result name="success" type="stream">  
+	               <param name="contentType">application/vnd.ms-excel</param>  
+	               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+	               <param name="inputName">downloadStream</param>  
+	               <param name="bufferSize">1024</param>  
+	           </result>  
+	    </action> 
+	</package>
+	
+	<!-- 资料添加 -->
+	<package name="datumFileUpload" namespace="/datumFileUpload" extends="struts-default">
+		<!-- 资料上传 -->
+		<action name="uploadFile" class="datumFileAction" method="uploadFile">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/datum/datum/DatumFileList.jsp</result>
+		</action> 
+	</package>
+
+		
+	<package name="datumFileDownload" namespace="/datumFileDownload" extends="struts-default">
+		<action name="download" class="datumFileAction" method="execute">
+			<result name="success" type="stream">  
+	               <param name="contentType">application/vnd.ms-excel</param>  
+	               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+	               <param name="inputName">downloadStream</param>  
+	               <param name="bufferSize">1024</param>  
+	       </result>  
+        </action>
+        <!-- 图书附件下载 -->
+        <action name="filedownload" class="bookInfoAction" method="execute">
+			<result name="success" type="stream">  
+	               <param name="contentType">application/vnd.ms-excel</param>  
+	               <param name="contentDisposition">attachment;fileName="${fileName}"</param>  
+	               <param name="inputName">downloadStream</param>  
+	               <param name="bufferSize">1024</param>  
+	       </result>  
+        </action>
+	</package>
+	
+	<package name="areaImgUpload" namespace="/areaImgUpload" extends="struts-default">
+		<!-- 目录区域上传 -->
+		<action name="upload" class="catalogAreaAction" method="update">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/catalog/area/CatalogArea.jsp</result>
+		</action> 
+		
+		<!-- 目录区域上传 -->
+		<action name="uploaduser" class="userAction" method="addUser">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">500*500</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/background/organization/employee/Employee.jsp</result>
+		</action>
+		
+		<!-- 资料添加 -->
+		<action name="uploadfile" class="datumFileAction" method="addDatumFile">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/datum/datum/DatumFileList.jsp</result>
+		</action> 
+		
+		<!-- 表单添加 -->
+		<action name="uploadForm" class="formValueAction" method="addFormValue">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+<!-- 			<result name="success">/ht/pages/complication/form/FormValue_List.jsp</result> -->
+		</action> 
+	</package>
+	
+	<!-- 图书附件上传 -->	
+	<package name="bookInfoUpload" namespace="/bookInfo" extends="struts-default">
+		<!-- 资料添加 -->
+		<action name="uploadfile" class="bookInfoAction" method="uploadFile">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/datum/bookinfo/BookInfo.jsp</result>
+		</action> 
+	</package>
+
+	<!-- 外业附件上传 -->	
+	<package name="fileddataUpload" namespace="/fileddata" extends="struts-default">
+		<!-- 资料添加 -->
+		<action name="uploadfile" class="filedDataAction" method="uploadFile">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/datum/bookinfo/BookInfo.jsp</result>
+		</action> 
+	</package>
+	
+	<!-- 海图附件上传 -->	
+	<package name="booksUpload" namespace="/books" extends="struts-default">
+		<!-- 资料添加 -->
+		<action name="uploadfile" class="booksAction" method="uploadFile">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/datum/books/Books.jsp</result>
+		</action> 
+	</package>
+	
+	<!-- 图幅管理-->	
+	<package name="mapsImgUpload" namespace="/mapsImgUpload" extends="struts-default">
+		<!-- 图片上传  -->
+		<action name="upload" class="mapsAction" method="update">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/system/maps/MapsIndex.jsp</result>
+		</action> 
+	</package>
+	<!--小改正符号管理-->	
+	<package name="symbolImgUpload" namespace="/symbolImgUpload" extends="struts-default">
+		<!-- 图片上传  -->
+		<action name="upload" class="symbolAction" method="update">
+			<interceptor-ref name="fileUpload">
+				<param name="allowedTypes"></param>
+				<param name="maximumSize">1024*1024</param>
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/ht/pages/system/symbol/SymbolIndex.jsp</result>
+		</action> 
+	</package>
+	
+</struts>

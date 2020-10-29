@@ -1,0 +1,263 @@
+package com.ht.action.datum.datum;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import com.ht.action.base.BaseAction;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.LoginUtil;
+import com.ht.exception.DBException;
+import com.ht.front.pages.datum.his.BorrowHisPage;
+import com.ht.persistence.model.background.organization.employee.User;
+import com.ht.persistence.model.datum.datum.Borrowing;
+import com.ht.persistence.model.datum.datum.BorrowingReturn;
+import com.ht.persistence.model.datum.datum.VBorrowingReturn;
+import com.ht.service.inter.background.organization.employee.UserService;
+import com.ht.service.inter.datum.datum.BorrowingService;
+
+/**
+ * 借阅记录action
+ * @author zyd
+ *
+ */
+@SuppressWarnings("serial")
+public class BorrowingAction extends BaseAction {
+	
+	/**
+	 * 注入borrowingService
+	 */
+	@Resource(name="borrowingService")
+	BorrowingService borrowingService;
+	
+	@Resource
+	UserService userService;
+	
+	
+	/**
+	 * 初始化借阅历史记录页面，返回成功列表页面
+	 * @return
+	 */
+	public String init(){
+		// 创建图书资料页面初始化类
+		BorrowHisPage bhPage = new BorrowHisPage();
+		// 当前登陆人
+		String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+		List<User> users = null;
+		String userName = null;
+		try {
+			users = userService.getUserByNo(LoginUser);
+			if (users != null) {
+				if (users.size()>0) {
+					userName = users.get(0).getUserName();
+				}
+			}
+		} catch (DBException e) {
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+		String type = getParam("type");
+		
+		// 将获取的节点字符串返回给前台页面
+		request.setAttribute("html", bhPage.getListNode(userName,type));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 初始化借阅历史记录页面，返回成功列表页面
+	 * @return
+	 */
+	public String init_cur(){
+		// 创建图书资料页面初始化类
+		BorrowHisPage bhPage = new BorrowHisPage();
+		// 当前登陆人
+		String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+		List<User> users = null;
+		String userName = null;
+		try {
+			users = userService.getUserByNo(LoginUser);
+			if (users != null) {
+				if (users.size()>0) {
+					userName = users.get(0).getUserName();
+				}
+			}
+		} catch (DBException e) {
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+		
+		// 将获取的节点字符串返回给前台页面
+		request.setAttribute("html", bhPage.getCurListNode(userName));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 新增借阅记录数据
+	 * @throws Exception 
+	 */
+	public void addBorrowing() throws Exception {
+		// 获取前台传入参数
+		String borrowing = getParam("borrowing");
+		// 执行保存操作
+		try {
+			borrowingService.addBorrowing(borrowing, null, borrowing);
+		} catch (DBException e) {
+			e.printStackTrace();
+		}
+		// 返回客户端消息
+		writeSuccessResult(borrowing);
+	}
+	
+	/**
+	 * 更新借阅记录数据
+	 */
+	public void modifyBorrowing(){
+		// 接收前台传入的参数
+		String Borrowing = getParam("Borrowing");
+		// 将对象转成JSON
+		String BorrowingParam = DataConverter.convertObject2Json(Borrowing);
+		try {
+			borrowingService.modifyBorrowing(BorrowingParam);
+			writeSuccessResult();
+		} catch (Exception e) {
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 删除借阅记录数据
+	 */
+	public void removeBorrowing(){
+		// 获取借阅记录标识
+		String id = getParam("id");
+		try {
+			borrowingService.deleteBorrowing(id);
+			writeSuccessResult();
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取借阅记录列表
+	 */
+	public void getBorrowing(){
+		try {
+			List<Borrowing> BorrowingList = borrowingService.getBorrowing();
+			writeSuccessResult(BorrowingList);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 根据id获取借阅记录数据
+	 */
+	public void getBorrowingByKey(){
+		try {
+			// 获取借阅记录标识
+			String id = "id";
+			Borrowing df = borrowingService.getBorrowing(id);
+			writeSuccessResult(df);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取当前登陆人全部图书借阅归还信息
+	 * return Borrowing列表
+	 */
+	public void getBorrowingReturn(){
+		try {
+			// 当前登陆人
+			String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+			List<User> users = null;
+			String userName = null;
+			try {
+				users = userService.getUserByNo(LoginUser);
+				if (users != null) {
+					if (users.size()>0) {
+						userName = users.get(0).getUserName();
+					}
+				}
+			} catch (DBException e) {
+				LogHelper.ERROR.log(e.getMessage());
+				writeFailResult(e.getMessage());
+			}
+			String type = getParam("type")==null?"1":getParam("type");// type为1显示当前登录人的，type为2显示所有人的
+			if(!type.equals("1")){
+				List<BorrowingReturn> BorrowingList = borrowingService.getBorrowingReturn();
+				writeSuccessResult(BorrowingList);
+			}else{// type为1显示当前登录人的
+				List<VBorrowingReturn> BorrowingList = borrowingService.getBorrowingReturnListByPerson(userName);
+				writeSuccessResult(BorrowingList);
+			}
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	
+	/**
+	 * 获取当前登陆人全部图书借阅归还信息
+	 * return Borrowing列表
+	 */
+	public void getBorrowingReturnCur(){
+		try {
+			// 当前登陆人
+			String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+			List<User> users = null;
+			String userName = null;
+			try {
+				users = userService.getUserByNo(LoginUser);
+				if (users != null) {
+					if (users.size()>0) {
+						userName = users.get(0).getUserName();
+					}
+				}
+			} catch (DBException e) {
+				LogHelper.ERROR.log(e.getMessage());
+				writeFailResult(e.getMessage());
+			}
+			List<VBorrowingReturn> BorrowingList = borrowingService.getBorrowingReturnListByPerson(userName);
+			List<VBorrowingReturn> result = new ArrayList<VBorrowingReturn>();
+			for (int i = 0; i < BorrowingList.size(); i++)
+			{
+				if(!iscontain(BorrowingList.get(i).getBorrowId(),result)){
+					result.add(BorrowingList.get(i));
+				}
+			}
+			Iterator<VBorrowingReturn> stuIter = result.iterator();  
+	        while (stuIter.hasNext()) {  
+	        	VBorrowingReturn student = stuIter.next();  
+	            if (student.getShouldReturn().equals("0")||student.getJystatus().equals("退回"))  
+	                stuIter.remove();  
+	        }
+			writeSuccessResult(result);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	public boolean iscontain(String id,List<VBorrowingReturn> list) throws Exception {
+		if(list.size()>0){
+			for (int i = 0; i < list.size(); i++)
+			{
+				String vId = list.get(i).getBorrowId();
+				if(vId.equals(id)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+}

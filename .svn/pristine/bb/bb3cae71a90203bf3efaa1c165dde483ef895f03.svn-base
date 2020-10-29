@@ -1,0 +1,305 @@
+package com.ht.action.statisticalanalysis;
+
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.action.base.BaseAction;
+import com.ht.common.util.DateComparator;
+import com.ht.common.util.LogHelper;
+import com.ht.front.pages.statisticalanalysis.ChartCompletionPage;
+import com.ht.persistence.util.PageObject;
+import com.ht.service.inter.statisticalanalysis.CompilationChildTaskService;
+import com.ht.service.inter.system.workflow.task.TaskService;
+
+/**
+ * 海图完成情况action 
+ * @author 侯晨
+ *
+ */
+@SuppressWarnings("serial")
+public class ChartCompletionAction extends BaseAction {
+	
+	/**
+	 * 注入TaskService
+	 */
+	@Resource
+	TaskService taskService;
+	@Resource
+	CompilationChildTaskService compilationChildTaskService;
+	
+	/**
+	 * 初始化海图完成情况页面，返回成功列表页面
+	 * */
+	public String init() {
+		String key = this.getParam("processDefKey");
+		String isComplete = getParam("isComplete");
+		String type = getParam("type");
+		ChartCompletionPage ccp = new ChartCompletionPage();
+		//将获取的节点字符串返回到前台页面
+		request.setAttribute("isComplete", isComplete);
+		request.setAttribute("type", type);
+		List<String> list = null;
+		try
+		{
+			list = compilationChildTaskService.getYearList();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}		
+		request.setAttribute("html", ccp.getListPage(key,list));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 获取所有海图完成情况
+	 */
+	public void getChartCompletion(){
+		String page = getParam("page");
+		String pageSize = getParam("pageSize");
+		PageObject p = new PageObject();
+		try {
+			String isComplete = getParam("isComplete");
+			String key = this.getParam("processDefKey");
+			List<Map<String, Object>> list = null;
+			int total= 0;
+			if (StringUtils.isNotEmpty(key))
+			{
+				if (isComplete.equals("true"))
+				{
+					list = taskService.getCompleteTaskByKey(key,page,pageSize);
+					if(list.size()>0){
+						Collections.sort(list, new DateComparator());
+					}
+					total = taskService.getCompleteTaskByKeyCount(key);
+				}
+				else{
+					list = taskService.getRuTaskByKey(key,page,pageSize);
+					if(list.size()>0){
+						Collections.sort(list, new DateComparator());
+					}
+					total = taskService.getRuTaskByKeyCount(key);
+				}
+			}
+			else{
+				if (isComplete.equals("true"))
+				{
+					list = taskService.getCompleteTask(page,pageSize);
+					total = taskService.getCompleteTaskCount();
+					if(list.size()>0){
+						Collections.sort(list, new DateComparator());
+					}
+				}
+				else{
+					list = taskService.getRuTaskAll(page,pageSize);
+					total = taskService.getRuTaskAllCount();
+					if(list.size()>0){
+						Collections.sort(list, new DateComparator());
+					}
+				}
+			}
+			// 返回客户端消息
+			p.setList(list);
+			p.setTotal(total);
+			writeSuccessResult(p);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取所有海图完成情况
+	 */
+	public void getAllChartCompletion(){
+		String page = getParam("page");
+		String pageSize = getParam("pageSize");
+		String compType = getParam("compType");//完成情况
+		PageObject p = new PageObject();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			String plan = getParam("type");
+			String year = getParam("year");
+			// 计划完成情况
+			if(plan!=null&&plan.equals("plan")){
+				if(compType.equals("1")){
+					List<Map<String, Object>> list1 = taskService.getPlanCompleteTask(page,pageSize);
+					//int total = taskService.getPlanCompleteTaskCount();
+					if(list1.size()>0){
+						if(!StringUtils.isEmpty(year)&&!year.equals("--请选择--")){
+							Iterator<Map<String, Object>> iter = list1.iterator();
+					        while (iter.hasNext()) {
+					        	Map<String, Object> item = iter.next();
+					        	String taskBookTime = String.valueOf(item.get("taskBookTime"));
+					            if (!taskBookTime.contains(year)) {
+					                iter.remove();
+					            }
+					        }
+						}
+						Collections.sort(list1, new DateComparator());
+					}
+					p.setList(list1);
+					//p.setTotal(total);
+					p.setTotal(list1.size());
+				}else if(compType.equals("2")){
+					List<Map<String, Object>> list2 = taskService.getPlanRuTask(page,pageSize);
+					//int total = taskService.getPlanRuTaskCount();
+					if(list2.size()>0){
+						if(!StringUtils.isEmpty(year)&&!year.equals("--请选择--")){
+							Iterator<Map<String, Object>> iter = list2.iterator();
+					        while (iter.hasNext()) {
+					        	Map<String, Object> item = iter.next();
+					        	String taskBookTime = String.valueOf(item.get("taskBookTime"));
+					            if (!taskBookTime.contains(year)) {
+					                iter.remove();
+					            }
+					        }
+						}
+						Collections.sort(list2, new DateComparator());
+					}
+					p.setList(list2);
+					p.setTotal(list2.size());
+				}else if(compType.equals("0")){///全部
+					List<Map<String, Object>> list0 = taskService.getPlanRuTask(page, pageSize);
+					List<Map<String, Object>> list1 = taskService.getPlanCompleteTask(page, pageSize);
+		            list0.addAll(list1);
+					if (list0.size() > 0) {
+						if (!StringUtils.isEmpty(year) && !year.equals("--请选择--")) {
+							Iterator<Map<String, Object>> iter = list0.iterator();
+							while (iter.hasNext()) {
+								Map<String, Object> item = iter.next();
+								String taskBookTime = String.valueOf(item.get("taskBookTime"));
+								if (!taskBookTime.contains(year)) {
+									iter.remove();
+								}
+							}
+						}
+						Collections.sort(list0, new DateComparator());
+					}
+					//int total1 = taskService.getCompleteTaskCount();
+					//int total2 = taskService.getRuTaskAllCount();
+					//int total0 = total2 + total1;
+					p.setList(list0);
+					p.setTotal(list0.size());			
+				}
+			// 任务分配情况
+			}else if(plan!=null&&plan.equals("distribution")){
+				List<Map<String, Object>> list1 = taskService.getRuTaskAllDis();
+				p.setList(list1);
+				p.setTotal(list1.size());
+			// 任务完成情况
+			}else{
+				
+				if (compType.equals("0")){//全部任务
+					List<Map<String, Object>> list0 = taskService.getCompleteTask(page, pageSize);
+					List<Map<String, Object>> list1 = taskService.getRuTaskAll(page, pageSize);
+		            list0.addAll(list1);
+					if (list0.size() > 0) {
+						if (!StringUtils.isEmpty(year) && !year.equals("--请选择--")) {
+							Iterator<Map<String, Object>> iter = list0.iterator();
+							while (iter.hasNext()) {
+								Map<String, Object> item = iter.next();
+								String taskBookTime = String.valueOf(item.get("taskBookTime"));
+								if (!taskBookTime.contains(year)) {
+									iter.remove();
+								}
+							}
+						}
+						Collections.sort(list0, new DateComparator());
+					}
+					//int total1 = taskService.getCompleteTaskCount();
+					//int total2 = taskService.getRuTaskAllCount();
+					//int total0 = total2 + total1;
+					p.setList(list0);
+					p.setTotal(list0.size());
+				}else if(compType.equals("1")){///已完成
+					List<Map<String, Object>> list1 = taskService.getCompleteTask(page,pageSize);
+					//int total = taskService.getCompleteTaskCount();
+					if(list1.size()>0){
+						if(!StringUtils.isEmpty(year)&&!year.equals("--请选择--")){
+							Iterator<Map<String, Object>> iter = list1.iterator();
+					        while (iter.hasNext()) {
+					        	Map<String, Object> item = iter.next();
+					        	String taskBookTime = String.valueOf(item.get("taskBookTime"));
+					            if (!taskBookTime.contains(year)) {
+					                iter.remove();
+					            }
+					        }
+						}
+						Collections.sort(list1, new DateComparator());
+					}
+					p.setList(list1);
+					p.setTotal(list1.size());
+				}else if(compType.equals("2")){////未完成
+					List<Map<String, Object>> list2 = taskService.getRuTaskAll(page,pageSize);
+					//int total = taskService.getRuTaskAllCount();
+					if(list2.size()>0){
+						if(!StringUtils.isEmpty(year)&&!year.equals("--请选择--")){
+							Iterator<Map<String, Object>> iter = list2.iterator();
+					        while (iter.hasNext()) {
+					        	Map<String, Object> item = iter.next();
+					        	String taskBookTime = String.valueOf(item.get("taskBookTime"));
+					            if (!taskBookTime.contains(year)) {
+					                iter.remove();
+					            }
+					        }
+							Collections.sort(list2, new DateComparator());
+						}
+					}
+					p.setList(list2);
+					//p.setTotal(total);
+					p.setTotal(list2.size());
+				}
+			}
+			writeSuccessResult(p);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 根据key获取海图完成情况
+	 */
+	public void getChartCompletionByKey(){
+		String page = getParam("page");
+		String pageSize = getParam("pageSize");
+		PageObject p = new PageObject();
+		try {
+			String key = this.getParam("processDefKey");
+			String isComplete = getParam("isComplete");
+			List<Map<String, Object>> list = null;
+			int count= 0;
+			if (isComplete.equals("true"))
+			{
+				list = taskService.getCompleteTaskByKey(key,page,pageSize);
+				count = taskService.getCompleteTaskByKeyCount(key);
+			}
+			else{
+				list = taskService.getRuTaskByKey(key,page,pageSize);
+				count = taskService.getRuTaskByKeyCount(key);
+			}
+			p.setList(list);
+			p.setTotal(count);
+			// 返回客户端消息
+			writeSuccessResult(p);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+}

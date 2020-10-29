@@ -1,0 +1,1004 @@
+package com.ht.front.pages.drawtask.taskbook;
+
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+import com.ht.front.model.Base;
+import com.ht.front.model.Button;
+import com.ht.front.model.ButtonGroup;
+import com.ht.front.model.Div;
+import com.ht.front.model.File;
+import com.ht.front.model.Form;
+import com.ht.front.model.I;
+import com.ht.front.model.InputGroup;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.P;
+import com.ht.front.model.Script;
+import com.ht.front.model.Select;
+import com.ht.front.model.Span;
+import com.ht.front.model.TextArea;
+import com.ht.front.model.TextBox;
+import com.ht.front.util.FrontUtil;
+import com.ht.persistence.dao.inter.system.workflow.publish.VProcessDetailDao;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.background.organization.organization.Organization;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBook;
+import com.ht.persistence.model.drawtask.taskbook.relation.TaskBookPlanRelation;
+import com.ht.persistence.model.system.workflow.publish.VProcessDetail;
+import com.ht.service.impl.background.dicdata.constants.BaseDataConstants;
+import com.ht.service.inter.background.dicdata.basedata.BaseDataService;
+import com.ht.service.inter.background.organization.organization.OrganizationService;
+import com.ht.service.inter.drawtask.taskbook.book.TaskBookService;
+import com.ht.service.inter.drawtask.taskbook.relation.TaskBookPlanRelationService;
+
+/**
+ * 编绘任务书生成前端页面类
+ * @author huodesheng
+ * @date 2016/10/20
+ */
+public class TaskBookPage
+{
+	// 计划书序号数字位数
+	private static final String STR_FORMAT = "000";
+	FrontUtil util = null;
+
+	Base root = null;
+
+	public TaskBookPage()
+	{
+		// 获取前端工具实例
+		util = FrontUtil.getInstance();
+	}
+
+	/**
+	 * 生成列表页面
+	 * @param taskBookService 传入service
+	 * @return 返回html
+	 */
+	public String getListPage(TaskBookService taskBookService, String taskBookType, BaseDataService baseDataService,boolean jurisdiction)
+	{
+		// 获取根节点
+		this.root = util.createRoot();
+		util.createHeaderBar(this.root, "编绘任务书");
+		util.createRowSpace(this.root);
+		// 创建第一行
+		Base row = util.createRow(root);
+		// 创建列
+		Base col1 = util.createColumn(row, "6", "6", null, null);
+		// 创建列
+		Base col3 = util.createColumn(row, "3", "3", "3", null);
+		Span span = Span.getDefault("年份:");
+		CssClass css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);
+		Calendar cal = Calendar.getInstance();
+		int year = cal.get(Calendar.YEAR);
+		TextBox text = TextBox.getDefault("year", String.valueOf(year), "年份");
+		InputGroup ig = InputGroup.getInstance(span, text);
+		col3.addChildNode(ig);
+		Base col4 = util.createColumn(row, "3", "3", "3", null);
+		List<BaseData> typeList= new ArrayList<BaseData>();
+		BaseData 	b0= new BaseData();
+		BaseData 	b1= new BaseData();
+		BaseData 	b2= new BaseData();
+			
+		b0.setId("0");
+		b0.setValue("全部任务");
+		typeList.add(b0);
+		
+		b1.setId("1");
+		b1.setValue("指令性任务");
+		typeList.add(b1);
+		
+		b2= new BaseData();
+		b2.setId("2");
+		b2.setValue("临时性任务");
+		typeList.add(b2);
+		
+		InputGroup ig4 = InputGroup.getSelectGroup("指令性/临时性", "booktype", typeList, "id", "value", "0", Boolean.valueOf(true));
+		col4.addChildNode(ig4);
+		
+		
+		
+		
+		
+		
+		/*	List<BaseData> taskBookTypeList = baseDataService.getBaseDataByTypeId(BaseDataConstants.TASK_BOOK_TYPE);
+		// 排除改正通告任务书
+		for (int j = 0; j < taskBookTypeList.size(); j++)
+		{
+			BaseData bd = taskBookTypeList.get(j);
+			String value = bd.getValue();
+			if (value.equals("改正通告任务书"))
+			{
+				taskBookTypeList.remove(bd);
+			}
+		}
+			Base sg = util.creatDefaultSelectGroup("任务书类型", "typeId", taskBookTypeList, "code", "value", false);
+		col1.addChildNode(sg);*/
+		// 添加列表下方的按钮组。TASK_BOOK_SEA_MAP
+		if(jurisdiction){
+			css = new CssClass("fa fa-plus");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-success bk-margin-5 search");
+			Button btn = Button.getButtonWithIcon("submit", css, "创建", i);
+			col1.addChildNode(btn);
+			
+			css = new CssClass("fa fa-times");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-danger bk-margin-5 search");
+			btn = Button.getButtonWithIcon("delete", css, "删除", i);
+			col1.addChildNode(btn);
+			
+			css = new CssClass("fa fa-check");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-success bk-margin-5 search");
+			btn = Button.getButtonWithIcon("audit", css, "提交审核", i);
+			col1.addChildNode(btn);
+			
+			css = new CssClass("fa fa-x fa-users");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-success bk-margin-5 search");
+			btn = Button.getButtonWithIcon("issue", css, "下发", i);
+			col1.addChildNode(btn);
+		}
+		
+		
+	
+	/* util.createSubmitButton(column); */
+		
+		root.addChildNode(InputHidden.getInstance("taskBookType", taskBookType));
+		root.addChildNode(util.createRowSpace());
+//		ButtonGroup buttonAdd = ButtonGroup.getInstance(this.createButtonList(
+//				false, false, true));
+//		col2.addChildNode(buttonAdd);
+		// 创建编会任务书列表模块
+		this.createTaskBookGrid("taskBooks");
+		this.createUploadDialog();
+		// 创建编会任务书列表中的按钮
+		String buttons = this.createButtonInGrid(jurisdiction);
+		root.addChildNode(InputHidden.getInstance("jurisdiction", jurisdiction+""));
+		// 返回拼接好的html
+		return root.getNode() + buttons;
+	}
+
+	/**
+	 * 生成编辑页面
+	 * @param taskBookService 传入service
+	 * @return 返回html
+	 * @throws Exception
+	 */
+	public String getEditPage(String taskBookType, TaskBookService taskBookService, OrganizationService organizationService, String id,
+			String processInstId, String taskId, String processDefId, String taskDefId, VProcessDetailDao vProcessDetailDao,
+			TaskBookPlanRelationService taskBookPlanRelationService, BaseDataService baseDataService,String flag) throws Exception
+	{
+		TaskBook taskbook = new TaskBook();
+		String planId = null;
+		if (StringUtils.isNotEmpty(processInstId))
+		{
+			if (StringUtils.isEmpty(id))
+			{
+				VProcessDetail process = vProcessDetailDao.getProcessDetailByProcessIdAndId(processInstId, taskId, processDefId, taskDefId);
+				if (process != null)
+				{
+					id = process.getDetailRecordId();
+				}
+			}
+		}
+		if (StringUtils.isNotEmpty(id))
+		{
+			taskbook = taskBookService.findById(id);
+			List<TaskBookPlanRelation> list = taskBookPlanRelationService.findListByBookId(taskbook.getId());
+			for (TaskBookPlanRelation taskBookPlanRelation : list)
+			{
+				if (taskBookPlanRelation != null)
+				{
+					if (planId == null)
+					{
+						planId = taskBookPlanRelation.getPlanId();
+					}
+					else
+					{
+						planId += "," + taskBookPlanRelation.getPlanId();
+					}
+				}
+			}
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+		Date date = new Date();
+		// 获取根节点
+		this.root = util.createRoot();
+		if (flag != null)
+		{
+			if(flag.equals("1")){
+				util.createHeaderBar(this.root, "编绘任务书");
+			}else{
+				util.createHeaderBar(this.root, "编绘任务书历史查看");
+			}
+		}
+		else{
+			util.createHeaderBar(this.root, "编绘任务书");
+		}
+		util.createRowSpace(this.root);
+		root.addChildNode(InputHidden.getInstance("taskBookType", taskBookType));
+		// 隐藏id
+		root.addChildNode(InputHidden.getInstance("taskBookId", taskbook.getId()));
+		root.addChildNode(InputHidden.getInstance("flag", flag));
+		Base row = util.createRow(root);
+		Base col = util.createColumn(row, "10", "10", "4", null);
+		String[] number =
+		{ "&#12288一、", "&#12288二、", "&#12288三、", "&#12288四、", "&#12288五、", "&#12288六、", "&#12288七、", "&#12288八、", "&#12288九、", "&#12288十、", "十一、", "十二、", "十三、", "十四、", "十五、", "十六、" };
+		int i = 0;
+		List<BaseData> taskBookTypeList = baseDataService.getBaseDataByTypeId(BaseDataConstants.TASK_BOOK_TYPE);
+		/*Base sg = util.creatDefaultSelectGroup("&#12288&#12288类&#12288&#12288型", "typeId", taskBookTypeList, "code", "value", taskBookType);
+		col.addChildNode(sg);*/
+		// 沪印绘 任务书的数量
+		long hyh = 0;
+		List<TaskBook> hyhList = taskBookService.countByNo("沪印绘");
+		for (TaskBook hyhBook : hyhList) {
+			String taskbookNo = hyhBook.getTaskbookNo();
+			String num = taskbookNo.substring(taskbookNo.indexOf("绘")+1,taskbookNo.indexOf("号"));
+			if(isNumeric(num)){
+				if(hyh<Integer.valueOf(num)){
+					hyh=Integer.valueOf(num);
+				}
+			}
+		}
+		// 沪印临 任务书的数量
+		long hyl = 0;
+		List<TaskBook> hylList = taskBookService.countByNo("沪印临");
+		for (TaskBook hylBook : hylList) {
+			String taskbookNo = hylBook.getTaskbookNo();
+			String num = taskbookNo.substring(taskbookNo.indexOf("临")+1,taskbookNo.indexOf("号"));
+			if(isNumeric(num)){
+				if(hyl<Integer.valueOf(num)){
+					hyl=Integer.valueOf(num);
+				}
+			}
+		}
+		// 拼接任务书序号
+		String hyhNo = "";
+		String hylNo = "";
+		hyhNo = sdf.format(date) + "沪印绘" + formatNo(String.valueOf(hyh)) + "号";
+		hylNo = sdf.format(date) + "沪印临" + formatNo(String.valueOf(hyl)) + "号";
+		root.addChildNode(InputHidden.getInstance("hyhNo", hyhNo));
+		root.addChildNode(InputHidden.getInstance("hylNo", hylNo));
+		root.addChildNode(InputHidden.getInstance("planId", planId));
+		root.addChildNode(InputHidden.getInstance("deptId", taskbook.getExecuteDeptId()));
+		if (null != taskbook.getTaskbookNo() && "" != taskbook.getTaskbookNo())
+		{
+			hyhNo = taskbook.getTaskbookNo();
+		}
+		// 设置任务书编号
+		TextBox taskbookNo = TextBox.getInstance("taskbookNo", "taskbookNo", hyhNo, new CssClass("page_footer"), "请输入任务书编号");
+		// 一、选择任务：级联选择
+		Div div = Div.getInstance("", new CssClass("input-group"),
+				Span.getDefault(number[i++] + "选择任务：").getNode()
+						+ Button.getInstance("chooseTask", new CssClass("btn btn-primary"), "选择任务").getNode() + taskbookNo.getNode());
+		col.addChildNode(div);
+		// 创建选择任务页面
+		this.createModalDialog();
+		util.createGrid(col, "taskShow");
+		// 二、任务名称：
+		if("TASK_BOOK_SMALL_CORRECTION".equals(taskBookType)){
+			col.addChildNode(InputGroup.getInGroup(number[i++] + "名&#12288&#12288称", "taskbookName", taskbook.getTaskbookName(), "请输入任务书名称"));
+		}else{
+			col.addChildNode(InputGroup.getInGroup(number[i++] + "名&#12288&#12288称", "taskbookName", taskbook.getTaskbookName(), "请输入任务书名称"));
+		}
+		// 三、任务来源：
+		col.addChildNode(InputGroup.getInGroup(number[i++] + "任务来源", "taskFrom", taskbook.getTaskFrom(), "请输入任务来源"));
+		// 四、执行部门：
+		List<Organization> organizationList = organizationService.getOrganization();// "executeDeptId", organization, "id",
+																					// "orgName",false
+		List<Organization> organization = new ArrayList<Organization>();
+		for (Organization organization2 : organizationList)
+		{
+			if (organization2.getParentId() != null && organization2.getParentId().equals("1019142929270002"))
+			{
+				organization.add(organization2);
+			}
+		}
+		if (taskbook.getExecuteDeptId() != "" && taskbook.getExecuteDeptId() != null)
+		{
+			div = Div.getInstance("", null,
+					InputGroup.getSelectGroup((number[i++] + "执行部门"), "executeDeptId", organization, "id", "orgName", "false").getNode());
+		}
+		else
+		{
+			div = Div.getInstance(
+					"",
+					new CssClass("input-group"),
+					Span.getDefault(number[i++] + "执行部门：").getNode()
+							+ Select.getDefaultWithOption("executeDeptId", organization, "id", "orgName", "10311115414710008").getNode());
+		}
+		col.addChildNode(div);
+		// 五、执行日期：
+		// 执行日期默认当前时间
+		Date dt = new Date();// 如果不需要格式,可直接用dt,dt就是当前系统时间
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置显示格式
+		String nowTime = "";
+		if (null != taskbook.getExecuteTime())
+		{
+			nowTime = df.format(taskbook.getExecuteTime());
+		}
+		else
+		{
+			nowTime = df.format(dt);
+		}
+		InputGroup ig = InputGroup.getDatePicker(number[i++] + "执行日期", "executeTime", nowTime, "请选择执行日期");
+		col.addChildNode(ig);
+		// 六、结束日期：
+		String endTime = "";
+		if (null != taskbook.getEndTime())
+		{
+			endTime = df.format(taskbook.getEndTime());
+		}
+		ig = InputGroup.getDatePicker(number[i++] + "结束日期", "endTime", endTime, "请选择结束日期");
+		col.addChildNode(ig);
+		
+		// 七、实际汇交： 创建任务书 添加  数据汇交时间（实际汇交）  必填项 默认当天时间 临时任务非必填 2019.8.14
+		String sjhjTime = "";
+		if (null != taskbook.getSjhjTime())
+		{
+			sjhjTime = df.format(taskbook.getSjhjTime());
+		}
+		else
+		{
+			sjhjTime = df.format(dt);
+		}
+		ig = InputGroup.getDatePicker(number[i++] + "实际汇交", "sjhjTime", sjhjTime, "请选择实际汇交日期");
+		col.addChildNode(ig);
+		// 八、技术标准：text
+		div = Div.getInstance("", new CssClass("input-group"), "");
+		div.addChildNode(Span.getDefault(number[i++] + "技术标准："));// "technologyStandard","10"
+		List<BaseData> technologyStandardList = taskBookService.getTechnologyStandard();
+		if (null != taskbook && null != taskbook.getTechnologyStandard())
+		{
+			div.addChildNode(TextArea.getInstance("technologyStandard", new CssClass("form-control"), "10", taskbook.getTechnologyStandard()));
+		}
+		else if (technologyStandardList.size() != 0)
+		{
+			String technologyStandard = "";
+			for (BaseData baseData : technologyStandardList)
+			{
+				if ("" != technologyStandard)
+				{
+					technologyStandard += "\n" + baseData.getValue();
+				}
+				else
+				{
+					technologyStandard += baseData.getValue();
+				}
+			}
+			div.addChildNode(TextArea.getInstance("technologyStandard", new CssClass("form-control"), "10", technologyStandard));
+		}
+		else
+		{
+			div.addChildNode(TextArea.getInstance("technologyStandard", new CssClass("form-control"), "10", ""));
+		}
+		col.addChildNode(div);
+		// 九、技术要求：
+		div = Div.getInstance("", new CssClass("input-group"), "");
+		div.addChildNode(Span.getDefault(number[i++] + "技术要求："));
+		List<BaseData> technologyDemandList = taskBookService.getTechnologyDemand();
+		if (null != taskbook && null != taskbook.getTechnologyDemand())
+		{
+			div.addChildNode(TextArea.getInstance("technologyDemand", new CssClass("form-control"), "10", taskbook.getTechnologyDemand()));
+		}
+		else if (technologyDemandList.size() != 0)
+		{
+			String technologyDemand = "";
+			for (BaseData baseData : technologyDemandList)
+			{
+				if ("" != technologyDemand)
+				{
+					technologyDemand += "\n" + baseData.getValue();
+				}
+				else
+				{
+					technologyDemand += baseData.getValue();
+				}
+			}
+			div.addChildNode(TextArea.getInstance("technologyDemand", new CssClass("form-control"), "10", technologyDemand));
+		}
+		else
+		{
+			div.addChildNode(TextArea.getInstance("technologyDemand", new CssClass("form-control"), "10", ""));
+		}
+		col.addChildNode(div);
+		//十、其他要求：
+		div = Div.getInstance("", new CssClass("input-group"), "");
+		div.addChildNode(Span.getDefault(number[i++] + "其他要求："));
+		List<BaseData> otherDemandList = taskBookService.getOtherDemand();
+		if (null != taskbook && null != taskbook.getOtherDemand())
+		{
+			div.addChildNode(TextArea.getInstance("otherDemand", new CssClass("form-control"), "10", taskbook.getOtherDemand()));
+		}
+		else if (otherDemandList.size() != 0)
+		{
+			String otherDemand = "";
+			for (BaseData baseData : otherDemandList)
+			{
+				if ("" != otherDemand)
+				{
+					otherDemand += "\n" + baseData.getValue();
+				}
+				else
+				{
+					otherDemand += baseData.getValue();
+				}
+			}
+			div.addChildNode(TextArea.getInstance("otherDemand", new CssClass("form-control"), "10", otherDemand));
+		}
+		else
+		{
+			div.addChildNode(TextArea.getInstance("otherDemand", new CssClass("form-control"), "10", ""));
+		}
+		col.addChildNode(div);
+		// 十一、修订记录：
+				div = Div.getInstance("", new CssClass("input-group edithight"), "");
+				div.addChildNode(Span.getDefault(number[i++] + "修订记录："));
+			    div.addChildNode(Div.getInstance("edithightId", new CssClass("form-control edithighttab"), ""));
+
+		col.addChildNode(div);
+
+		// 编绘管理科
+		col.addChildNode(Span.getInstance(new CssClass("page_footer"), "编绘管理科"));
+
+		// 编绘管理科下方的日期 为任务书创建日期 2018.8.8
+
+		List<TaskBookPlanRelation> list = taskBookPlanRelationService.findListByBookId(taskbook.getId());
+		sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if (list.size() > 0) {
+			col.addChildNode(Span.getInstance(new CssClass("page_footer"), sdf.format(taskbook.getCreationDate())));
+		} else {
+			// 2016-09-09
+			col.addChildNode(Span.getInstance(new CssClass("page_footer"), sdf.format(date)));
+		}
+
+		// 保存，返回按钮
+		ButtonGroup buttonGroup = ButtonGroup.getInstance(this.createButtonList1(true, true, false,flag));
+		col.addChildNode(util.createRowSpace());
+		col.addChildNode(buttonGroup);
+		return root.getNode();
+	}
+
+	/**
+	 * 获取详情页面
+	 * @param taskbook 查询出来的数据
+	 * @param organizationService
+	 * @return
+	 * @throws Exception
+	 */
+	public String getDetailsPage(TaskBook taskbook, OrganizationService organizationService) throws Exception
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+		Date date = new Date();
+		// 获取根节点
+		this.root = util.createRoot();
+		util.createHeaderBar(root, "编绘任务书详情查看");
+		// 隐藏id
+		root.addChildNode(InputHidden.getInstance("taskBookId", taskbook.getId()));
+		Base row = util.createRow(root);
+		Base col = util.createColumn(row, "10", "10", "4", "1");
+		// 一、选择任务：级联选择
+		Div div = null;
+		// Div.getInstance("", new
+		// CssClass("input-group"),Span.getDefault("一、选择任务：").getNode());
+		// col.addChildNode(div);
+		// 创建选择任务页面
+		this.createModalDialog();
+		util.createGrid(col, "taskShow");
+		// 二、任务名称：
+		col.addChildNode(InputGroup.getInGroup("二、任务书名称：", null, taskbook.getTaskbookName(), ""));
+		// 三、任务来源：
+		col.addChildNode(InputGroup.getInGroup("三、任务来源：", null, taskbook.getTaskFrom(), ""));
+		// 四、执行部门：
+		Organization organization = organizationService.getOrganization(taskbook.getExecuteDeptId());// "executeDeptId",
+																										// organization,
+																										// "id",
+																										// "orgName",false
+		col.addChildNode(InputGroup.getInGroup("四、执行部门：", null, organization.getOrgName(), ""));
+		// 五、执行日期：
+		col.addChildNode(InputGroup.getInGroup("五、执行日期：", null, taskbook.getExecuteTime() + "", ""));
+		// 六、技术标准：text
+		div = Div.getInstance("", new CssClass("input-group"), "");
+		div.addChildNode(Span.getDefault("六、技术标准："));// "technologyStandard","10"
+		div.addChildNode(TextArea.getInstance("technologyStandard", new CssClass("form-control"), "10", taskbook.getTechnologyStandard()));
+		col.addChildNode(div);
+		// 七、技术要求：
+		div = Div.getInstance("", new CssClass("input-group"), "");
+		div.addChildNode(Span.getDefault("七、技术要求："));
+		div.addChildNode(TextArea.getInstance("technologyDemand", new CssClass("form-control"), "10", taskbook.getTechnologyDemand()));
+		col.addChildNode(div);
+		// 八、其他要求：
+		div = Div.getInstance("", new CssClass("input-group"), "");
+		div.addChildNode(Span.getDefault("八、其他要求："));
+		div.addChildNode(TextArea.getInstance("otherDemand", new CssClass("form-control"), "10", taskbook.getOtherDemand()));
+		col.addChildNode(div);
+		// 设置任务书编号
+		Span taskbookNo = Span.getInstance(new CssClass("page_footer"), taskbook.getTaskbookNo());
+		col.addChildNode(taskbookNo);
+		// 编绘管理科
+		col.addChildNode(Span.getInstance(new CssClass("page_footer"), "编绘管理科"));
+		// 2016-09-09
+		sdf = new SimpleDateFormat("yyyy-MM-dd");
+		col.addChildNode(Span.getInstance(new CssClass("page_footer"), sdf.format(date)));
+		// 保存，返回按钮
+		ButtonGroup buttonGroup = ButtonGroup.getInstance(this.createButtonList(true, false, false));
+		col.addChildNode(util.createRowSpace());
+		col.addChildNode(buttonGroup);
+		return root.getNode();
+	}
+
+	/**
+	 * 创建列表模块
+	 * @param listName div的名字
+	 */
+	private void createTaskBookGrid(String listName)
+	{
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace();
+		/** 创建Grid行 结束 */
+		// 将行加入到容器
+		root.addChildNode(rowSpace);
+		root.addChildNode(util.createGrid(listName));
+	}
+
+	/**
+	 * 在script中放入按钮的html。
+	 * @param btnCss 按钮的css
+	 * @param iCss i标签的css
+	 * @param btnName 按钮的name值
+	 * @param scriptId 按钮所在的script的id
+	 * @return
+	 */
+	public String createButtonInScript(CssClass btnCss, CssClass iCss, String btnName, String scriptId,boolean jurisdiction)
+	{
+		// 创建属性组件
+		Prop prop = new Prop();
+		// 创建按钮
+		Button btn = Button.getButtonWithIcon(null, btnCss, null, I.getInstance(iCss));
+		Script script = Script.getInstance(scriptId);
+		// 为按钮设置属性
+		prop.setPropKey("name");
+		prop.setPropValue(btnName);
+		// 为按钮添加属性
+		btn.addProp(prop);
+		if (btnName.equals("histroy"))
+		{// 历史版本
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("历史版本");
+			btn.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("histroyPage(this)");
+			btn.addProp(prop);
+			script.addChildNode(btn);
+		}
+		else if (btnName.equals("upload"))
+		{
+			if(jurisdiction){
+				prop = new Prop();
+				prop.setPropKey("title");
+				prop.setPropValue("上传附件");
+				btn.addProp(prop);
+				prop = new Prop();
+				prop.setPropKey("onclick");
+				prop.setPropValue("uploadPage(this)");
+				btn.addProp(prop);
+				script.addChildNode(btn);
+			}
+		}
+		/*else if (btnName.equals("download"))
+		{
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("下载附件");
+			btn.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("downPage(this)");
+			btn.addProp(prop);
+		}*/
+		else if (btnName.equals("edit"))
+		{
+			// 查看按钮
+			Button btns = Button.getButtonWithIcon("operation", new CssClass("btn btn-success bk-margin-5"), null, I.getInstance(new CssClass("fa fa-file-text-o")));
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("查看");
+			btns.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("operation(this)");
+			btns.addProp(prop);
+			script.addChildNode(btns);
+			
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("编辑");
+			btn.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("editPage(this)");
+			btn.addProp(prop);
+			script.addChildNode(btn);
+		}
+
+		// 创建scrpit模块
+		
+		// 将按钮添加到script中。
+		
+		if (btnName.equals("edit"))
+		{
+			CssClass css = new CssClass("btn btn-info bk-margin-5");
+			// 加入导出按钮
+			btn = Button.getButtonWithIcon(null, css, null, I.getInstance(new CssClass("fa fa-sign-out")));
+			// 为按钮设置属性
+			prop.setPropKey("name");
+			prop.setPropValue("exportbook");
+			// 为按钮添加属性
+			btn.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("导出");
+			btn.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("exportTaskbook(this)");
+			btn.addProp(prop);
+			script.addChildNode(btn);
+		}
+		if (btnName.equals("upload"))
+		{
+			if(jurisdiction){
+				CssClass css = new CssClass("btn btn-danger bk-margin-5");
+				// 加入导出按钮
+				btn = Button.getButtonWithIcon(null, css, null, I.getInstance(new CssClass("fa fa-times")));
+				// 为按钮设置属性
+				prop.setPropKey("name");
+				prop.setPropValue("removeFile");
+				// 为按钮添加属性
+				btn.addProp(prop);
+				prop = new Prop();
+				prop.setPropKey("title");
+				prop.setPropValue("删除附件");
+				btn.addProp(prop);
+				prop = new Prop();
+				prop.setPropKey("onclick");
+				prop.setPropValue("removeFile(this)");
+				btn.addProp(prop);
+				script.addChildNode(btn);
+			}
+		}
+		
+		return script.getNode();
+	}
+
+	/**
+	 * 创建编会任务书列表中的按钮,将创建好的按钮组装好
+	 * @return
+	 */
+	public String createButtonInGrid(boolean jurisdiction)
+	{
+		// 历史版本按钮
+		String buttons = this.createButtonInScript(new CssClass("btn btn-warning"), new CssClass("fa fa-eye"), "histroy", "hisTemplate",jurisdiction);
+		// 上传附件按钮
+		buttons += this.createButtonInScript(new CssClass("btn btn-info btn-setting"), new CssClass("fa fa-upload"), "upload", "uploadTemplate",jurisdiction);
+		// 下载附件按钮
+		buttons += this.createButtonInScript(new CssClass("btn btn-info btn-setting"), new CssClass("fa fa-download"), "download",
+				"downloadTemplate",jurisdiction);
+		if(jurisdiction){
+			buttons += this.createButtonInScript(new CssClass("btn btn-success"), new CssClass("fa fa-edit"), "edit", "editTemplate",jurisdiction);
+		}else{
+			// 查看按钮
+			Script script = Script.getInstance("editTemplate");
+			Button btns = Button.getButtonWithIcon("operation", new CssClass("btn btn-success bk-margin-5"), null, I.getInstance(new CssClass("fa fa-file-text-o")));
+			Prop prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("查看");
+			btns.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("operation(this)");
+			btns.addProp(prop);
+			script.addChildNode(btns);
+			
+			CssClass css = new CssClass("btn btn-info bk-margin-5");
+			// 加入导出按钮
+			Button	btn = Button.getButtonWithIcon(null, css, null, I.getInstance(new CssClass("fa fa-sign-out")));
+			// 为按钮设置属性
+			prop.setPropKey("name");
+			prop.setPropValue("exportbook");
+			// 为按钮添加属性
+			btn.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("导出");
+			btn.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("exportTaskbook(this)");
+			btn.addProp(prop);
+			script.addChildNode(btn);
+			
+			buttons +=script.getNode();
+		}
+		// 编辑按钮
+		// 删除按钮
+		// buttons += this.createButtonInScript(new
+		// CssClass("btn btn-danger btn-setting"),
+		// new CssClass("fa fa-trash-o"), "delete", "delTemplate");
+		return buttons;
+	}
+
+	/**
+	 * 创建列表下方的按钮组
+	 * @param isBack 是否包含返回按钮
+	 * @param isSubmit 是否包含确认按钮
+	 * @param isAdd 是否包含新增
+	 * @return
+	 */
+	public List<Button> createButtonList(boolean isBack, boolean isSubmit, boolean isAdd)
+	{
+		// 创建按钮组
+		List<Button> btnList = new ArrayList<Button>();
+		// 如果条件成立，创建新增按钮。
+		if (isAdd)
+		{
+			btnList.add(Button.getInstance("addTaskBook", new CssClass("btn btn-success"), "新增"));
+		}
+		// 如果条件成立，创建提交按钮。
+		if (isSubmit)
+		{
+			btnList.add(Button.getInstance("submit", new CssClass("btn btn-success"), "提交"));
+		}
+		// 如果条件成立，创建返回按钮。
+		if (isBack)
+		{
+			btnList.add(Button.getInstance("backPage", new CssClass("btn btn-default"), "返回"));
+		}
+		return btnList;
+	}
+	
+	/**
+	 * 创建列表下方的按钮组
+	 * @param isBack 是否包含返回按钮
+	 * @param isSubmit 是否包含确认按钮
+	 * @param isAdd 是否包含新增
+	 * @return
+	 */
+	public List<Button> createButtonList1(boolean isBack, boolean isSubmit, boolean isAdd,String flag)
+	{
+		// 创建按钮组
+		List<Button> btnList = new ArrayList<Button>();
+		// 如果条件成立，创建新增按钮。
+		if (isAdd)
+		{
+			btnList.add(Button.getInstance("addTaskBook", new CssClass("btn btn-success"), "新增"));
+		}
+		// 如果条件成立，创建提交按钮。
+		if (isSubmit)
+		{
+			if(flag != null){
+				if(flag.equals("1")){
+					btnList.add(Button.getInstance("submit", new CssClass("btn btn-success"), "提交"));
+				}
+			}
+		}
+		// 如果条件成立，创建返回按钮。
+		if (isBack)
+		{
+			btnList.add(Button.getInstance("backPage", new CssClass("btn btn-default"), "返回"));
+		}
+		return btnList;
+	}
+
+	/**
+	 * 弹出框
+	 */
+	public void createModalDialog()
+	{
+		/** 创建Modal Dialog 开始 */
+		CssClass modelCss = new CssClass("modal fade col-lg-12 in");
+		Div modalDiv = Div.getInstance("myModal", modelCss, null);
+		// 创建div
+		CssClass dialogCss = new CssClass("modal-dialog");
+		Div dialogDiv = Div.getInstance(null, dialogCss, null);
+		Prop styleProp = new Prop();
+		styleProp.setPropKey("style");
+		styleProp.setPropValue("width:100%");
+		dialogDiv.addProp(styleProp);
+		modalDiv.addChildNode(dialogDiv);
+		// 创建div
+		CssClass contentCss = new CssClass("modal-content");
+		Div contentDiv = Div.getInstance(null, contentCss, null);
+		dialogDiv.addChildNode(contentDiv);
+		// 创建header div
+		CssClass headerCss = new CssClass("modal-header");
+		Div headerDiv = Div.getInstance(null, headerCss, null);
+		contentDiv.addChildNode(headerDiv);
+		// 构建关闭按钮
+		CssClass closeCss = new CssClass("close");
+		Button closeBtn = Button.getInstance("closeModel", closeCss, "&times;");
+		/* Prop closeProp = new Prop(); closeProp.setPropKey("data-dismiss"); closeProp.setPropValue("modal"); Prop closeProps = new Prop();
+		 * closeProps.setPropKey("aria-hidden"); closeProps.setPropValue("true"); // 绑定属性 closeBtn.addProp(closeProp); closeBtn.addProp(closeProps); */
+		headerDiv.addChildNode(closeBtn);
+		// 创建标题div
+		CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv = Div.getInstance(null, titleCss, "选择任务");
+		headerDiv.addChildNode(titleDiv);
+		// 创建计划类型选择框
+		Select select = Select.getDefault("taskSelect");
+		// 创建行
+		Base rowGrid = util.createRow();
+		// 创建列
+		Base columnGrid = util.createColumn(rowGrid, "12", "12");
+		// 创建Grid
+		util.createGrid(columnGrid, "taskDiv");
+		headerDiv.addChildNode(select);
+		headerDiv.addChildNode(util.createRowSpace());
+		headerDiv.addChildNode(rowGrid);
+		// 绑定按钮组
+		List<Button> btnList = new ArrayList<Button>();
+		// 创建确定按钮。
+		Prop closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		Button taskSubmit = Button.getInstance("taskSubmit", new CssClass("btn btn-success"), "确定");
+		taskSubmit.addProp(closeProp);
+		btnList.add(taskSubmit);
+		// 创建返回按钮。
+		Button backBtn = Button.getInstance("hiddenModal", new CssClass("btn btn-default"), "返回");
+		backBtn.addProp(closeProp);
+		btnList.add(backBtn);
+		headerDiv.addChildNode(util.createRowSpace());
+		headerDiv.addChildNode(ButtonGroup.getInstance(btnList));
+		/** Modal Dialog 结束 */
+		// 加入到root
+		root.addChildNode(modalDiv);
+	}
+
+	/**
+	 * 弹出框
+	 */
+	public void createUploadDialog()
+	{
+		/** 创建Modal Dialog 开始 */
+		CssClass modelCss = new CssClass("modal fade col-lg-12 in");
+		Div modalDiv = Div.getInstance("myModal", modelCss, null);
+		// 创建div
+		CssClass dialogCss = new CssClass("modal-dialog");
+		Div dialogDiv = Div.getInstance(null, dialogCss, null);
+		Prop styleProp = new Prop();
+		styleProp.setPropKey("style");
+		styleProp.setPropValue("width:40%");
+		dialogDiv.addProp(styleProp);
+		modalDiv.addChildNode(dialogDiv);
+		// 创建div
+		CssClass contentCss = new CssClass("modal-content");
+		Div contentDiv = Div.getInstance(null, contentCss, null);
+		dialogDiv.addChildNode(contentDiv);
+		// 创建header div
+		CssClass headerCss = new CssClass("modal-header");
+		Div headerDiv = Div.getInstance(null, headerCss, null);
+		contentDiv.addChildNode(headerDiv);
+		// 构建关闭按钮
+		CssClass closeCss = new CssClass("close");
+		Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+		Prop closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		Prop closeProps = new Prop();
+		closeProps.setPropKey("aria-hidden");
+		closeProps.setPropValue("true");
+		// 绑定属性
+		closeBtn.addProp(closeProp);
+		closeBtn.addProp(closeProps);
+		headerDiv.addChildNode(closeBtn);
+		// 创建标题div
+		CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv = Div.getInstance(null, titleCss, "上传文件");
+		headerDiv.addChildNode(titleDiv);
+		// 创建行
+		Base rowGrid = util.createRow();
+		// 创建列
+		Base columnGrid = util.createColumn(rowGrid, "12", "12");
+		// 创建form
+		CssClass formCss = new CssClass("form-search");
+		Form form = Form.getInstance("importForm", formCss, null);
+		Prop formProp = new Prop();
+		formProp.setPropKey("method");
+		formProp.setPropValue("post");
+		Prop formProps = new Prop();
+		formProps.setPropKey("enctype");
+		formProps.setPropValue("multipart/form-data");
+		Prop formUrl = new Prop();
+		formUrl.setPropKey("action");
+		formUrl.setPropValue("../taskbook/upload_file");
+		form.addProp(formProp);
+		form.addProp(formProps);
+		form.addProp(formUrl);
+		columnGrid.addChildNode(form);
+		// 创建文件导入input框
+		CssClass fileCss = new CssClass("file-input file-input-style");
+		File file = File.getInstance("upload", fileCss);
+		Prop fileProp = new Prop();
+		fileProp.setPropKey("name");
+		fileProp.setPropValue("upload");
+		file.addProp(fileProp);
+		form.addChildNode(file);
+		// 设置隐藏id
+		InputHidden hiddenId = InputHidden.getInstance("taskBookId", "");
+		Prop hiddenProp = new Prop();
+		hiddenProp.setPropKey("name");
+		hiddenProp.setPropValue("taskbookId");
+		hiddenId.addProp(hiddenProp);
+		form.addChildNode(hiddenId);
+		headerDiv.addChildNode(util.createRowSpace());
+		headerDiv.addChildNode(rowGrid);
+		// 绑定按钮组
+		List<Button> btnList = new ArrayList<Button>();
+		// 创建确定按钮。
+		closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		/* Button taskSubmit = Button.getInstance("taskSubmit", new CssClass( "btn btn-success"), "确定"); taskSubmit.addProp(closeProp);
+		 * btnList.add(taskSubmit); */
+
+		CssClass submitCss = new CssClass("btn btn-success");
+		Button submitBtn = Button.getInstance("taskSubmit", submitCss, "确定");
+		Prop submitProp = new Prop();
+		submitProp.setPropKey("data-dismiss");
+		submitProp.setPropValue("modal");
+		submitBtn.addProp(submitProp);
+		headerDiv.addChildNode(submitBtn);
+
+		CssClass backCss = new CssClass("btn btn-default");
+		Button backBtn = Button.getInstance("hiddenModal", backCss, "返回");
+		backBtn.addProp(closeProp);
+		Prop prop = new Prop();
+		prop.setPropKey("style");
+		prop.setPropValue("margin-left: 10px");
+		backBtn.addProp(prop);
+		headerDiv.addChildNode(backBtn);
+
+		// 创建返回按钮。
+		/* Button backBtn = Button.getInstance("hiddenModal", new CssClass( "btn btn-default"), "返回"); backBtn.addProp(closeProp);
+		 * btnList.add(backBtn); */
+		headerDiv.addChildNode(util.createRowSpace());
+		headerDiv.addChildNode(ButtonGroup.getInstance(btnList));
+		/** Modal Dialog 结束 */
+		// 加入到root
+		root.addChildNode(modalDiv);
+	}
+
+	public static String formatNo(String no)
+	{
+		Integer intHao = Integer.parseInt(no);
+		intHao++;
+		DecimalFormat df = new DecimalFormat(STR_FORMAT);
+		return df.format(intHao);
+	}
+	public boolean isNumeric(String str){ 
+		   Pattern pattern = Pattern.compile("^[0-9]*$"); 
+		   Matcher isNum = pattern.matcher(str);
+		   if( !isNum.matches() ){
+		       return false; 
+		   } 
+		   return true; 
+	}
+}

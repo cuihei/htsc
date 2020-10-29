@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<engine-type>activiti</engine-type>
+	<engines>
+		<engine type="activiti" class="com.ht.workflow.util.ActivitiEngine">
+			<templates>
+<!-- 				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_SOURCE_DATA.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_SOURCE_DATA_PLAN.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_SOURCE_DATA_ALL.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_ELECTRONIC_PLAN.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_ELECTRONIC.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_ELECTRONIC_ALL.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_PAPER_PLAN.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_PAPER.bpmn</template>
+				<template>com/ht/workflow/template/SEA_MAP_COMPILATION_PAPER_ALL.bpmn</template>
+				<template>com/ht/workflow/template/TASK_BOOK_SEA_MAP.bpmn</template>
+				<template>com/ht/workflow/template/CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION.bpmn</template>
+				<template>com/ht/workflow/template/CORRECTION_NOTICE_TEMPLATE_EDIT.bpmn</template>
+				<template>com/ht/workflow/template/CORRECTION_NOTICE_TEMPLATE.bpmn</template>
+				<template>com/ht/workflow/template/DATA_INPUT.bpmn</template>
+				<template>com/ht/workflow/template/DATA_BORROWING.bpmn</template>
+				<template>com/ht/workflow/template/CATALOG_MANAGEMENT.bpmn</template>
+				<template>com/ht/workflow/template/SMALL_CORRECTION_ELECTRONIC.bpmn</template>
+ 				<template>com/ht/workflow/template/SMALL_CORRECTION_PAPER.bpmn</template>
+				<template>com/ht/workflow/template/PROJECT_SPECIAL_PAPER.bpmn</template>
+				<template>com/ht/workflow/template/PROJECT_SPECIAL_ELECTRONIC.bpmn</template>
+				<template>com/ht/workflow/template/DATA_RETURN.bpmn</template>
+				<template>com/ht/workflow/template/TASK_BOOK.bpmn</template>
+				<template>com/ht/workflow/template/PROBLEM_SUBMIT.bpmn</template>
+				<template>com/ht/workflow/template/OTHER_NAVIGATIONAL.bpmn</template> -->
+			</templates>
+			<task-mapper>
+			</task-mapper>
+		</engine>
+	</engines>
+</configuration>

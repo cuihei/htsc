@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.complication.formprop.FormValue" table="FORM_VALUE">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="formId" type="java.lang.String">
+            <column name="form_id" />
+        </property>
+        <property name="propKey" type="java.lang.String">
+            <column name="prop_key" />
+        </property>
+        <property name="propValue" type="java.lang.String">
+            <column name="prop_value" />
+        </property>
+        <property name="rowFlag" type="java.lang.String">
+            <column name="row_flag" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        <property name="processInstId" type="java.lang.String">
+            <column name="PROCESS_INST_ID" />
+        </property>
+        <property name="taskInstId" type="java.lang.String">
+            <column name="TASK_INST_ID" />
+        </property>
+    </class>
+    <query name="getFormValue">
+    	<![CDATA[ from FormValue]]>
+    </query>
+    <query name="getFormValueById">
+    	<![CDATA[ from FormValue where id= :id]]> 
+    </query>
+     <query name="getFormValueByFromId">
+    	<![CDATA[ from FormValue where formId= :formId order by rowFlag]]> 
+    </query>
+</hibernate-mapping>

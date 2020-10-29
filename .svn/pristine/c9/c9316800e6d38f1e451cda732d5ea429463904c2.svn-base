@@ -1,0 +1,357 @@
+package com.ht.persistence.dao.impl.system.workflow.task;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.system.workflow.task.TaskDao;
+import com.ht.persistence.model.background.application.Application;
+import com.ht.persistence.model.system.notice.UserNoticeView;
+import com.ht.persistence.model.system.workflow.process.ProcessTypeCount;
+import com.ht.persistence.model.system.workflow.task.HiTask;
+import com.ht.persistence.model.system.workflow.task.RuTask;
+
+public class TaskDaoImpl extends BaseDaoImpl implements TaskDao{
+
+	/**
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getAllRuTask() {
+		List<RuTask> list = this.findByNamedQuery("getAllRuTask");
+		return list;
+	}
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskByProcessDefKey(RuTask ruTask) {
+		String[] params = {"processDefKey"};
+		String[] values = {ruTask.getProcessDefKey()};
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRuTaskByProcessDefKey",params,values);
+		return list;
+	}
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskByProcessDefKey(RuTask ruTask,String page,String pageSize) {
+		String sql = "SELECT PROCESS_INST_ID,PROCESS_DEF_ID,TASK_ID,TASK_DEF_ID,PROCESS_DEF_NAME,TASK_NAME,CREATION_DATE,MAIN_PROCESS_INST_ID,EXCUTION_ID,PARENT_PROCESS_INST_ID,GROUP_ID,GROUP_NAME,ASSIGNEE,ASSIGNEE_NAME,SUSPEND_STATE,PROCESS_DEF_KEY,END_TIME FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY CREATION_DATE DESC) rn,V_RU_TASK.* FROM  V_RU_TASK where PROCESS_DEF_KEY in  (:processDefKeys)) WHERE rn = 1";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		List<String> param = new ArrayList<String>();
+		param.add(ruTask.getProcessDefKey());
+		query.setParameterList("processDefKeys",param);
+		query.addEntity(RuTask.class);
+		List<RuTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize)).setMaxResults(Integer.parseInt(pageSize)).list();
+		return list;
+	}
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+	public int getRuTaskByProcessDefKeyCount(RuTask ruTask) {
+		String sql = "SELECT PROCESS_INST_ID,PROCESS_DEF_ID,TASK_ID,TASK_DEF_ID,PROCESS_DEF_NAME,TASK_NAME,CREATION_DATE,MAIN_PROCESS_INST_ID,EXCUTION_ID,PARENT_PROCESS_INST_ID,GROUP_ID,GROUP_NAME,ASSIGNEE,ASSIGNEE_NAME,SUSPEND_STATE,PROCESS_DEF_KEY,END_TIME FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY CREATION_DATE DESC) rn,V_RU_TASK.* FROM  V_RU_TASK where PROCESS_DEF_KEY in  (:processDefKeys)) WHERE rn = 1";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		List<String> param = new ArrayList<String>();
+		param.add(ruTask.getProcessDefKey());
+		query.setParameterList("processDefKeys",param);
+		query.addEntity(RuTask.class);
+		int count = query.list().size();
+		return count;
+	}
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskInProcessDefKey(List<String> name) {
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRuTaskInProcessDefKey","processDefKey",name);
+		return list;
+	}
+	
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskInProcessDefKey(List<String> name,String page,String pageSize) {
+		String hql = "from RuTask where processDefKey in (:processDefKeys) order by createTime desc";
+		Query query = this.getSession().createQuery(hql);
+		query.setParameterList("processDefKeys",name);
+		List<RuTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize)).setMaxResults(Integer.parseInt(pageSize)).list();
+		return list;
+	}
+	
+	@Override
+	public int getRuTaskInProcessDefKeyCount(List<String> name) {
+		String hql = "from RuTask where processDefKey in (:processDefKeys) order by createTime desc";
+		Query query = this.getSession().createQuery(hql);
+		query.setParameterList("processDefKeys",name);
+		int count = query.list().size();
+		return count;
+	}
+	
+	@Override
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	public List<RuTask> getRuTaskByGroupIdAndProcessDefId(RuTask ruTask) {
+		String[] params = {"groupId","processDefId"};
+		String[] values = {ruTask.getGroupId(),ruTask.getProcessDefId()};
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRuTaskByGroupIdAndProcessDefId", params, values);
+		return list;
+	}
+
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskByGroupId(RuTask ruTask) {
+		String[] params = {"groupId"};
+		String[] values = {ruTask.getGroupId()};
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRuTaskByGroupId", params, values);
+		return list;
+	}
+
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskByParentProcessInstId(RuTask ruTask) {
+		String[] params = {"parentProcessInstId"};
+		String[] values = {ruTask.getParentProcessInstId()};
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRuTaskByParentProcessInstId", params, values);
+		return list;
+	}
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskByProcessInstId(RuTask ruTask) {
+		String[] params = {"processInstId"};
+		String[] values = {ruTask.getProcessInstId()};
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRuTaskByProcessInstId", params, values);
+		return list;
+	}
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<RuTask> getRuTaskByAssigneeList(List<String> assigneeList) {
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRuTaskByAssigneeList", "assigneeList", assigneeList);
+		return list;
+	}
+	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+	public List<ProcessTypeCount> getRuTaskCountGroupByKey(String userId,String groupId) {
+		String sql = "select tmp.Process_Def_Id,tmp.PROCESS_DEF_KEY,tmp.PROCESS_DEF_NAME,count(*) as cnt from (";
+		sql += "select Process_Def_Id,PROCESS_DEF_KEY,PROCESS_DEF_NAME from V_RU_TASK  where ASSIGNEE = "+userId;
+		if(!StringUtils.isEmpty(groupId)){
+			sql += " union all select Process_Def_Id,PROCESS_DEF_KEY,PROCESS_DEF_NAME from V_RU_TASK  where  GROUP_ID in ("+groupId+") ";
+		}
+		sql += "  ) tmp group by tmp.Process_Def_Id,tmp.PROCESS_DEF_KEY,tmp.PROCESS_DEF_NAME";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		query.addEntity(ProcessTypeCount.class);
+		List<ProcessTypeCount> list = query.list();
+		return list;
+	}
+
+
+	@Override
+	public int updateTable(String tableName, String id, String key, String tableStatusName, String status)
+	{
+		String sql = "update "+tableName+" set "+tableStatusName+" = '"+status+"' where "+key+ " = '"+id+"'";
+		return this.getSession().createSQLQuery(sql).executeUpdate();
+	}
+
+	@Override
+	public List<HiTask> getHiTaskByParentProcessIdAndProcessDefKey(String parentProcessInstId, String processDefKey)
+	{
+		String[] params = {"parentProcessInstId","processDefKey"};
+		String[] values = {parentProcessInstId,processDefKey};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByParentProcessIdAndProcessDefKey", params, values);
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getHiTaskByProcessId(String processInstId)
+	{
+		String[] params = {"processInstId"};
+		String[] values = {processInstId};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByProcessId", params, values);
+		return list;
+	}
+
+	@Override
+	public List<HiTask> getHiTaskByAssignee(String assignee) {
+		String[] params = {"assignee"};
+		String[] values = {assignee};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByAssignee", params, values);
+		return list;
+	}
+
+	@Override
+	public List<HiTask> getHiTaskByAssigneeAndProcessDefKey(String assignee,
+			String processDefKey) {
+		String[] params = {"assignee","processDefKey"};
+		String[] values = {assignee,processDefKey};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByAssigneeAndProcessDefKey", params, values);
+		return list;
+	}
+	@Override
+	public List<HiTask> getHiTaskByAssigneeAndProcessInstId(String assignee,
+			String processDefKey,String processInstId) {
+		String[] params = {"assignee","processDefKey","processInstId"};
+		String[] values = {assignee,processDefKey,processInstId};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByAssigneeAndProcessInstId", params, values);
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getHiTaskByGroupAndProcessDefKey(String group,String processDefKey) {
+		String[] params = {"groupId","processDefKey"};
+		String[] values = {group,processDefKey};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByGroupAndProcessDefKey", params, values);
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getHiTaskByGroupAndProcessInstId(String group,String processDefKey,String processInstId) {
+		String[] params = {"groupId","processDefKey","processInstId"};
+		String[] values = {group,processDefKey,processInstId};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByGroupAndProcessInstId", params, values);
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getHiTaskByProcessDefKey(List<String> processDefKeys) {
+		String[] params = {"processDefKeys"};
+		Object[] values = {processDefKeys};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByProcessDefKey", params, values);
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getCompleteTask(List<String> processDefKeys,String page,String pageSize) {
+		String sql = "SELECT task_id,process_def_id,task_def_id,process_def_name,process_def_key,process_inst_id,execution_id,task_name,assignee,assignee_name,start_time,end_time,claim_time,delete_reason,parent_process_inst_id,group_id,group_name,process_end_time,record_id FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY PROCESS_END_TIME DESC) rn,V_HI_TASK.* FROM  V_HI_TASK where PROCESS_DEF_KEY in  (:processDefKeys) and PROCESS_END_TIME is not null) WHERE rn = 1";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		query.setParameterList("processDefKeys",processDefKeys);
+		query.addEntity(HiTask.class);
+		List<HiTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize)).setMaxResults(Integer.parseInt(pageSize)).list();
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getCompleteTask(List<String> processDefKeys) {
+		String[] params = {"processDefKeys"};
+		Object[] values = {processDefKeys};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getCompleteTask", params, values);
+		return list;
+	}
+	
+	@Override
+	public int getCompleteTaskCount(List<String> processDefKeys) {
+		String sql = "SELECT * FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY PROCESS_END_TIME DESC) rn,V_HI_TASK.* FROM  V_HI_TASK where PROCESS_DEF_KEY in  (:processDefKeys) and PROCESS_END_TIME is not null) WHERE rn = 1";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		query.setParameterList("processDefKeys",processDefKeys);
+		query.addEntity(HiTask.class);
+		int count = query.list().size();
+		return count;
+	}
+	
+	@Override
+	public List<HiTask> getCompleteTask(List<String> processDefKeys,Date startTime,Date endTime) {
+		String[] params = {"processDefKeys","startTime","endTime"};
+		Object[] values = {processDefKeys,startTime,endTime};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getCompleteTaskByDate", params, values);
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getHiTaskByProcessInstIdAndTaskDefId(String processInstId,String taskDefId) {
+		String[] params = {"processInstId","taskDefId"};
+		Object[] values = {processInstId,taskDefId};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskByProcessInstIdAndTaskDefId", params, values);
+		return list;
+	}
+	
+	@Override
+	public List<HiTask> getHiTaskNotInProcessInstId(String processInstId, String parentProcessInstId){
+		String[] params = {"processInstId","parentProcessInstId"};
+		Object[] values = {processInstId,parentProcessInstId};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getHiTaskNotInProcessInstId", params, values);
+		return list;
+	}
+	/**
+	 * 根据流程分组获取经办
+	 * @param assignee
+	 * @param processDefKey
+	 * @return
+	 */
+	@Override
+	public List<HiTask> getHiTaskGroupByProcessInstId(String assignee,
+			String processDefKey) {
+		String sql = "select task_id,process_def_id,task_def_id,process_def_name,process_def_key,process_inst_id,execution_id,task_name,assignee,assignee_name,start_time,end_time,claim_time,delete_reason,parent_process_inst_id,group_id,group_name,process_end_time,record_id from (select row_number()over(partition by process_inst_id order by end_time desc nulls last)rn, t.* from(select * from v_hi_task where process_def_key=? and assignee=?) t)t  where t.rn=1";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		query.setParameter(0, processDefKey);
+		query.setParameter(1, assignee);
+		query.addEntity(HiTask.class);
+		List<HiTask> list = query.list();
+		return list;
+	}
+
+	@Override
+	public List<HiTask> getTaskByParentProcessInstId(String parentProcessInstId) {
+		String[] params = {"parentProcessInstId"};
+		Object[] values = {parentProcessInstId};
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getTaskByParentProcessInstId", params, values);
+		return list;
+	}
+
+	@Override
+	public RuTask getRtByParentProcessInstId(String parentProcessInstId) {
+		String[] params = {"parentProcessInstId"};
+		String[] values = {parentProcessInstId};
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRtByParentProcessInstId", params, values);
+		
+		if(list.size() > 0){
+			return list.get(0);
+		}
+		return null;
+	}
+}

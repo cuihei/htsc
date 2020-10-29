@@ -1,0 +1,70 @@
+package com.ht.persistence.dao.impl.complication.formprop;
+
+import java.util.List;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.complication.formprop.ProcessPlanDao;
+import com.ht.persistence.model.complication.formprop.ProcessPlan;
+
+/**
+ * FormValue 接口的实现类
+ * @author 侯晨
+ */
+public class ProcessPlanDaoImpl extends BaseDaoImpl implements ProcessPlanDao
+{
+
+	/**
+	 * 增加一个ProcessPlan
+	 * @param ProcessPlan ProcessPlan实体
+	 */
+	@Override
+	public void addProcessPlan(ProcessPlan processPlan)
+	{
+		this.save(processPlan);
+	}
+
+	/**
+	 * 更新一个ProcessPlan
+	 * @param ProcessPlan ProcessPlan实体
+	 */
+	@Override
+	public void modifyProcessPlan(ProcessPlan processPlan)
+	{
+		processPlan = (ProcessPlan) this.merge(processPlan);
+		this.update(processPlan);
+	}
+
+	/**
+	 * 删除processPlan 相关
+	 * @param processPlan processPlan对象
+	 */
+	@Override
+	public void delProcessPlan(ProcessPlan processPlan)
+	{
+		this.delete(processPlan);
+	}
+
+
+	/**
+	 * 获取一条ProcessPlan
+	 * @param ProcessPlan ProcessPlan对象getProcessPlan
+	 * @return ProcessPlan实体
+	 */
+	@Override
+	public ProcessPlan getProcessPlan(ProcessPlan processPlan)
+	{
+		@SuppressWarnings("unchecked")
+		List<ProcessPlan> result = this.findByNamedQueryAndNamedParam("getById", "id", processPlan.getId());
+		if (result.size() > 0) { return result.get(0); }
+		return null;
+	}
+
+	@Override
+	public List<ProcessPlan> getByProcess(ProcessPlan processPlan) {
+		String[] params = {"taskDefId","parentProcessInstId"};
+		String[] values = {processPlan.getTaskDefId(),processPlan.getParentProcessInstId()};
+		List<ProcessPlan> list = this.findByNamedQueryAndNamedParam("getByProcess",params,values);
+		return list;
+	}
+
+}

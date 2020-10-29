@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.datum.productupdsourcedata.ProductUpdSourceData" table="Product_Upd_Source_Data">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="draw" type="java.lang.String">
+            <column name="draw" />
+        </property>
+        <property name="figure_caption" type="java.lang.String">
+            <column name="figure_caption" />
+        </property>
+        <property name="compiler" type="java.lang.String">
+            <column name="compiler" />
+        </property>
+        <property name="quality_inspector" type="java.lang.String">
+            <column name="quality_inspector" />
+        </property>
+        <property name="authorized_member" type="java.lang.String">
+            <column name="authorized_member" />
+        </property>
+        <property name="sourcedata_problem" type="java.lang.String">
+            <column name="sourcedata_problem" />
+        </property>
+        <property name="status" type="java.lang.String">
+            <column name="status" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getProductUpdSourceDataView">
+    	<![CDATA[ from ProductUpdSourceData order by creation_date desc]]>
+    </query>
+    <query name="getProductUpdSourceDataById">
+    	<![CDATA[ from ProductUpdSourceData where id = :id]]>
+    </query>
+    <query name="getPusdByStatusAndBhy">
+    	<![CDATA[ from ProductUpdSourceData where status = :status and compiler = :userName]]>
+    </query>
+    <query name="getPusdByStatusAndZjy">
+    	<![CDATA[ from ProductUpdSourceData where status = :status and quality_inspector = :userName]]>
+    </query>
+    <query name="getPusdByStatusAndSdy">
+    	<![CDATA[ from ProductUpdSourceData where status = :status and authorized_member = :userName]]>
+    </query>
+</hibernate-mapping>

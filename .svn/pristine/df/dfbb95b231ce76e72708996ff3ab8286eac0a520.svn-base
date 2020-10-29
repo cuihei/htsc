@@ -1,0 +1,59 @@
+$(function(){
+	coe_edit.init();
+	$("#scale").attr("onkeyup","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	$("#scale").attr("onafterpaste","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	
+})
+
+var coe_edit = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		coe_edit.bindPageEvent();
+	},
+	
+	editSuccess : function(result){
+		if(result.code != 1){
+			if(result.value != "" || result.value != null){
+				layer.msg(result.value);
+				return;
+			}
+			layer.msg("保存失败！");
+			return;
+		}
+		 layer.msg("保存成功！");
+		 //返回目录主页面
+		 common.toPage("../coefficient/init");
+		 //执行刷新用户列表按钮
+		 parent.$("#refresh").click();
+	},
+	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		/** 绑定提交按钮的click事件*/
+		$("#submit").on("click",function(){
+			 var coe = {};
+			 var type = {};
+			 coe.id = $("#coeId").val();
+			 coe.mapNo = $("#mapNo").val();
+			 coe.mapName = $("#mapName").val();
+			 coe.scale = $("#scale").val();
+			 type.id = $("#type").val();
+			 coe.type = type;
+			 coe.firstEdition = $("#firstEdition").val();
+			 coe.reprint = $("#reprint").val();
+			 var coeJson = JSON.stringify(coe);
+			 var param = common.add_param("coe",coeJson);
+			 common.init("../coefficient/add","POST",coe_edit.editSuccess);
+			 common.do_submit(param);
+		});
+		
+		/** 绑定返回按钮的click事件*/
+		 $("#back").on("click",function(){
+			 window.history.go(-1);
+		 });
+	}
+}

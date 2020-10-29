@@ -1,0 +1,65 @@
+package com.ht.service.inter.complication.form;
+
+import java.util.List;
+
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.form.FormBaseDataView;
+
+/**
+ * 表单类接口
+ * @author zqy
+ *
+ */
+public interface FormService {
+	/**
+	 * 增加一个表单列表
+	 * @param formParam Form对象
+	 * @throws Exception
+	 */
+	public void addForm(String formParam) throws Exception;
+	
+	/**
+	 * 删除一个表单列表
+	 * @param formParam Form对象
+	 * @throws Exception
+	 */
+	public void modifyForm(String fromParam) throws Exception;
+	
+	/**
+	 * 修改一个表单列表
+	 * @param formParam Form对象
+	 * @throws Exception
+	 * @throws Exception
+	 */
+	public void delForm(String formParam) throws Exception;
+	
+	/**
+	 * 查询所有的表单列表
+	 * @return List<Form> Form对象集合
+	 * @throws Exception
+	 */
+	public List<Form> getForm() throws Exception;
+	
+	/**
+	 * 查询一个表单列表
+	 * @param formParam Form对象的ID属性
+	 * @return Form Form对象
+	 * @throws Exception
+	 */
+	public Form getForm(String formParam) throws Exception;
+	
+	/**
+	 * 根据BasedataId查询所有的表单列表
+	 * @param BaseDataId Form对象的BaseDataId属性
+	 * @return List<Form> Form对象集合
+	 * @throws Exception
+	 */
+	public List<Form> getFormByBaseDataId(String BaseDataId) throws Exception;
+	
+	/**
+	 * 查询所有的表单列表
+	 * @return List<FormBaseDataView> FormBaseDataView对象集合
+	 * @throws Exception
+	 */
+	public List<FormBaseDataView> getFormList() throws Exception;
+}

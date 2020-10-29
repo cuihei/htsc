@@ -1,0 +1,74 @@
+<%@ include file="../../TagLibs.jsp"%>
+<html>
+<head><jsp:include page="../../_Include.jsp"></jsp:include>
+<style>
+         /*  #editMoadl{overflow:hidden} */
+</style> 
+</head>
+<body style="overflow:hidden">
+	<input type="hidden" value="${userNo}" id="_userNo">
+	<input type="hidden" value="${error}" id="_error">
+	<input type="hidden" value="${write}" id="_write">
+	<input type="hidden" value="${taskInstId}" id="taskInstId"  name="taskInstId">
+	<input type="hidden" value="${processInstId}" id="processInstId" name="processInstId" > 
+	<input type="hidden" value="${formId}" id="formId" name="formId">
+	<input type="hidden" value="${flag}" id="flag">
+	<input type="hidden" value="${processDefId}" id="processDefId" name="processDefId">
+	<input type="hidden" value="${taskDefId}" id="taskDefId" name="taskDefId">
+	<input type="hidden" value="${processDefKey}" id="processDefKey">
+	<input type="hidden" value="" id="rowFlag" name="rowFlag">
+	<input type="hidden" value="${success}" id="success">
+	<input type="hidden" value="" id="isold">
+	<input type="hidden" value="${from}" id="from">
+	${right}
+	<div id="editMoadl" class="modal fade in" aria-hidden="false">
+	<div class="modal-dialog" style="width:80%">
+		<div class="modal-content">
+			${left}
+		</div>
+	</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	$(function(){
+		var userNo = $("#_userNo").val();
+		if (userNo == "" || userNo == null) {
+			parent.window.location.href = "../index/login";
+		}
+		var error = $("#_error").val();
+		if (error != "" && error != null) {
+
+			layer.confirm(error, {
+					btn: ["BACK"]
+				}, 
+				function(){
+					history.back();
+			});
+		}
+		
+		
+	})
+	var stateProps;
+		var statelist=$("#dateList").val(); 
+		if(typeof statelist == 'object'){
+			stateProps = statelist;
+		}
+		else{
+			stateProps = eval("("+statelist+")");
+		}
+		var stateValues= new Array();
+		for(var i=0;i<stateProps.length;i++){
+			stateValues.push(stateProps[i].value);
+		}
+</script>
+<script id="stateTemplate" type="text/x-kendo-template">
+	<div class='form-group'>
+        <select  style='width:100px' onchange='editstate.call(this)'> 
+			# for(var i=0;i<stateProps.length;i++){# 
+			<option #if(stateProps[i].value==state){# #:selected='selected'# #}# value='#=stateProps[i].value #'>#=stateProps[i].value #</option> 
+		#}#
+     </select></div>
+</script>
+
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/complication/form/processform.js"></script>

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.ht.persistence.model.drawtask.taskbook.create.ViewCreateTask"
+		table="V_COMPILATION_CHILD_TASK">
+
+		<id name="id" type="java.lang.String">
+			<column name="id" />
+			<generator class="assigned" />
+		</id>
+		<property name="parentTaskbookId" type="java.lang.String">
+			<column name="parent_taskbook_id" />
+		</property>
+		<property name="taskbookName" type="java.lang.String">
+			<column name="taskbook_name" />
+		</property>
+		<property name="taskName" type="java.lang.String">
+			<column name="task_name" />
+		</property>
+		<property name="mapNo" type="java.lang.String">
+			<column name="map_no" />
+		</property>
+		<property name="scale" type="java.lang.String">
+			<column name="scale" />
+		</property>
+		<property name="revision" type="java.lang.String">
+			<column name="revision" />
+		</property>
+		<property name="year" type="java.lang.String">
+			<column name="year" />
+		</property>
+		<property name="month" type="java.lang.String">
+			<column name="month" />
+		</property>
+		<property name="creator" type="java.lang.String">
+			<column name="creator" />
+		</property>
+		<property name="creationDate" type="timestamp">
+			<column name="creation_date" />
+		</property>
+		<property name="modifier" type="java.lang.String">
+			<column name="modifier" />
+		</property>
+		<property name="modifyDate" type="timestamp">
+			<column name="modify_date" />
+		</property>
+		<property name="taskType" type="java.lang.String">
+			<column name="task_type" />
+		</property>
+		<property name="childTaskType" type="java.lang.String">
+			<column name="child_task_type" />
+		</property>
+		<property name="status" type="java.lang.String">
+			<column name="status" />
+		</property>
+		<property name="publishTimes" type="java.lang.Integer">
+			<column name="publish_times" />
+		</property>
+	</class>
+	<query name="getViewTaskList">
+	  	<![CDATA[from ViewCreateTask order by creationDate desc]]>
+	</query>
+	<query name="getTaskListByTaskBookId">
+	  	<![CDATA[from CreateTask where parentTaskbookId = :parentTaskbookId order by creationDate desc ]]>
+	</query>
+</hibernate-mapping>

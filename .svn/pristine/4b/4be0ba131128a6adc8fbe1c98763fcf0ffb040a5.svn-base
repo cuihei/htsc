@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.datum.type.DatumCategory" table="DATUM_CATEGORY">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="categoryName" type="java.lang.String">
+            <column name="category_name" />
+        </property>
+        <property name="parentId" type="java.lang.String">
+            <column name="parent_id" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getDatumCategory">
+    	<![CDATA[ from DatumCategory]]>
+    </query>
+    <query name="getDatumCategoryById">
+    	<![CDATA[ from DatumCategory where id= :id]]> 
+    </query>
+    <query name="getDatumCategoryByParentId">
+    	<![CDATA[ from DatumCategory where parentId= :parentId]]> 
+    </query>
+     <query name="checkSubClass">
+    	<![CDATA[ from DatumCategory where parentId= :parentId and categoryName =:categoryName]]> 
+    </query>
+</hibernate-mapping>

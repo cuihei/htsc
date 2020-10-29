@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<display-name>SSH2</display-name>
+	<welcome-file-list>
+		<welcome-file>index/login</welcome-file>
+	</welcome-file-list>
+	<listener>  
+        <listener-class>com.ht.listener.SessionListener</listener-class>  
+    </listener>
+    <session-config> 
+		<session-timeout>30</session-timeout> 
+	</session-config> 
+	<listener>
+  		<listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
+ 	</listener>
+	<context-param> 
+		<param-name>webAppRootKey</param-name> 
+		<param-value>ht.root</param-value> 
+	</context-param>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:com/ht/spring/config/application-context.xml</param-value>
+	</context-param>
+
+	<!-- 配置spring -->  
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	
+<!-- 	<listener>  
+	 <listener-class>  
+  			com.ht.action.statisticalanalysis.NFDFlightDataTaskListener  
+ 	</listener-class>  
+	</listener>  --> 
+	
+	<!-- 自定义Filter：必须在struts2的Filter的上面 -->
+	<filter>
+		<filter-name>myFilter</filter-name>
+		
+		 <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		 
+		<!-- 参数注入：在applicationContext中，如果name的名称与class的名称不同，需要这么配置-->
+		 <init-param>
+		 	<param-name>targetBeanName</param-name>
+		 	<param-value>myCustomFilter</param-value>
+		 </init-param>
+		 
+		 <!--参数注入：设置为true，表示自己管理Filter的生命周期 -->
+		 <init-param>
+		 	<param-name>targetFilterLifecycle</param-name>
+		 	<param-value>true</param-value>	
+		 </init-param>
+		 
+		  <!--参数注入 -->
+		 <init-param>
+		 	<param-name>encoding</param-name>
+		 	<param-value>UTF-8</param-value>
+		 </init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>myFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+  <!-- 将HibernateSession开关控制配置在Filter，保证一个请求一个session，并对lazy提供支持 -->  
+  <filter>  
+    <filter-name>hibernateFilter</filter-name>  
+    <filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>  
+    <init-param>  
+      <param-name>singleSession</param-name>  
+      <param-value>true</param-value>  
+    </init-param>  
+    <init-param>
+        <param-name>flushMode</param-name>
+   		<param-value>COMMIT</param-value>        
+     </init-param>
+  </filter> 
+  
+  <filter-mapping>  
+    <filter-name>hibernateFilter</filter-name>  
+    <url-pattern>/*</url-pattern>  
+  </filter-mapping>  
+	
+	<!-- Struts2配置 -->
+	<filter>
+		<filter-name>struts2</filter-name>
+		<filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
+		<init-param>
+			<param-name>config</param-name>
+			<param-value>
+				struts-default.xml,
+				struts-plugin.xml,
+				com/ht/struts/config/struts-application.xml
+			</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>struts2</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!-- 错误页面 -->
+	<error-page>
+		<error-code>404</error-code>
+		<location>/ht/pages/index/404.jsp</location>
+	</error-page> 
+	<error-page>
+		<error-code>500</error-code>
+		<location>/ht/pages/index/500.jsp</location>
+	</error-page> 
+</web-app>

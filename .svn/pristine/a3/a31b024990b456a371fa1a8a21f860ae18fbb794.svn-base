@@ -1,0 +1,372 @@
+var _grid = null;
+
+var grid = {
+	
+	columns : [],
+		
+	events : {},
+	
+	init:function(gridId){
+		this._grid = $("#"+gridId);
+	},
+	
+	getGrid : function(){
+		return this._grid;
+	},
+	
+	setEvents :  function(){
+		var elements = $(".bg-grid-container").find("button");
+		// 获取元素所有事件
+		if (elements != null) {
+			for (var int = 0; int < elements.length; int++) {
+				var element = elements[int];
+				var events = $._data(element,"events");
+				grid.events[$(element).attr("name")] = events;
+			}
+		}
+	},
+	
+	resetEvents : function(){
+		var events = grid.events;
+		if (events != null) {
+			for(var name in events){  
+				var event = events[name];
+				var btns = $(".bg-grid-container").find("button[name='"+name+"']");
+				for (var int = 0; int < btns.length; int++) {
+					$(btns[int]).on("click",event["click"][0].handler)
+				}
+			}
+		}
+	},
+	
+	/**
+	 * 初始化Grid
+	 */
+	createGrid : function(columns){
+		common.init_grid(this._grid,columns,true,true);
+	},
+	
+	bindData : function(result,autoFitColumnable){
+		if (result.code != 1) {
+			layer.msg(result.value);
+			loading.close();
+			return;
+		}
+		var gridInst = this._grid.data("kendoGrid");
+		var parentPage = parent.$(".page.in.active");
+		if (parentPage == null||parentPage.length==0) {
+			parentPage = parent.$("#page");
+		}
+		var fullHeight = parentPage.height();
+		var otherHeight = 0;
+		var divs = $(".container-fluid").children("div");
+		for (var int = 0; int < divs.length; int++) {
+			var div = divs[int];
+			var css = $(div).attr("class");
+			if (css != null) {
+				if (css.indexOf("bg-grid-container")<0 && css.indexOf("modal fade")<0 && css != "page-header") {
+					otherHeight += $(div).outerHeight(true);
+				}
+			}
+			else{
+				otherHeight += $(div).outerHeight(true);
+			}
+		}
+		var height = fullHeight - otherHeight - 30;
+		gridInst.setOptions({
+			height:height,
+			dataSource: result.value
+		});
+		if (autoFitColumnable == true) {
+			grid.autoFitColumn(this._grid,grid.columns);
+		}
+		loading.close();
+	},
+		
+	/**
+	 * 自动列宽
+	 */
+	autoFitColumn : function(grid,columns){
+		if(columns != null){
+			if (columns.length>=10) {
+				for (var int = 0; int < columns.length; int++) {
+					if (columns[int].template == null && columns[int].autoCell != false && int != columns.length-1) {
+						grid.data("kendoGrid").autoFitColumn(columns[int].field);
+					}
+				}
+			}
+			for (var int = 0; int < columns.length; int++) {
+				if (columns[int].field == "selected" || columns[int].field == "rowNumber" ||  columns[int].autoCell == true) {
+					grid.data("kendoGrid").autoFitColumn(columns[int].field);
+				}
+			}
+		}
+	},
+	
+	/**
+	 * 获取选择行的数据对象
+	 */
+	getSelectRowData : function() {
+		return common.get_select_row_data(this._grid);
+	},
+	
+	/**
+	 * 获取所有行的数据对象
+	 */
+	getAllRowsData : function() {
+		return common.get_all_row_data(this._grid);
+	},
+
+	/**
+	 * 获取选择行的数据对象
+	 */
+	getSelectRowsData : function() {
+		return common.get_select_rows_data(this._grid);
+	},
+	
+	/**
+	 * 根据行对象获取行数据对象 
+	 */
+	getSelectRowDataByRow : function(tr){
+		// 获取选中行数据对象
+		var rowData = this._grid.data("kendoGrid").dataItem(tr);
+		return rowData;
+	},
+	
+	/**
+	 * 增加列
+	 */
+	addColumn : function(width, field, title, template,footerTemplate,format,autoCell,editor){
+		if (grid.columns.length==0) {
+			var col = common.add_checkbox($("#tmplt_name_checkbox"),"check_all","common.bind_select_all_row(this)");
+			grid.columns.push(col);
+		}
+		var col = {};
+		var filterable = {};
+		var cell = {};
+		cell.showOperators = false;
+		cell.operator = "contains";
+		cell.width = "100%";
+		filterable.cell = cell;
+		if (template != null){
+			col.template = template;
+			col.width = width;
+			col.field = field;
+			col.title = title;
+		}
+		else {
+			col.width = width;
+			col.field = field;
+			col.title = title;
+		}
+		col.filterable = filterable;
+		if (footerTemplate != null) {
+			col.footerTemplate = footerTemplate;
+		}
+		col.format = format;
+		if (autoCell != null) {
+			col.autoCell = autoCell;
+		}
+		if(editor != null){
+				col.editor = editor;
+				col.values =col.field;
+				
+		}
+		grid.columns.push(col);
+		return grid.columns;
+	},
+	
+	/**
+	 * 增加列
+	 */
+	addColumn1 : function(width, field, title, template,footerTemplate,format,autoCell,editor){
+		if (grid.columns.length==0) {
+			var col = common.add_checkbox($("#tmplt_name_checkbox"),"check_all","common.bind_select_all_row(this)");
+			grid.columns.push(col);
+		}
+		var col = {};
+		var filterable = {};
+		var cell = {};
+		cell.showOperators = false;
+		cell.operator = "contains";
+		cell.width = "100%";
+		filterable.cell = cell;
+		filterable.multi = true;
+		filterable.checkAll = false;
+		if (template != null){
+			col.template = template;
+			col.width = width;
+			col.field = field;
+			col.title = title;
+		}
+		else {
+			col.width = width;
+			col.field = field;
+			col.title = title;
+		}
+		col.filterable = filterable;
+		if (footerTemplate != null) {
+			col.footerTemplate = footerTemplate;
+		}
+		col.format = format;
+		if (autoCell != null) {
+			col.autoCell = autoCell;
+		}
+		if(editor != null){
+				col.editor = editor;
+				col.values =col.field;
+				
+		}
+		grid.columns.push(col);
+		return grid.columns;
+	},
+	
+	/**
+	 * 增无勾选框加列
+	 */
+	addLockedColumn : function(width, field, title,checkbook){
+		if (grid.columns.length==0&&checkbook==null) {
+			var col = common.add_checkbox($("#tmplt_name_checkbox"),"check_all","common.bind_select_all_row(this)");
+			grid.columns.push(col);
+		}
+		var col = {};
+		col.field = field;
+		col.title = title;
+		var filterable = {};
+		var cell = {};
+		cell.showOperators = false;
+		cell.operator = "contains";
+		cell.width = "100%";
+		filterable.cell = cell;
+		col.filterable = filterable;
+		col.locked = true;
+		grid.columns.push(col);
+		return grid.columns;
+	},
+	
+	/**
+	 * 增无勾选框加列
+	 */
+	addLockedColumn1 : function(width, field, title,checkbook){
+		if (grid.columns.length==0&&checkbook==null) {
+			var col = common.add_checkbox($("#tmplt_name_checkbox"),"check_all","common.bind_select_all_row(this)");
+			grid.columns.push(col);
+		}
+		var col = {};
+		col.field = field;
+		col.title = title;
+		var filterable = {};
+		var cell = {};
+		cell.showOperators = false;
+		cell.operator = "contains";
+		cell.width = "100%";
+		filterable.multi = true;
+		filterable.checkAll = false;
+		filterable.cell = cell;
+		col.filterable = filterable;
+		col.locked = true;
+		grid.columns.push(col);
+		return grid.columns;
+	},
+	
+	resetColumn : function(){
+		grid.columns = [];
+	},
+	
+	/** 绑定数据表双击事件*/
+	bindTrDbClick : function(dbclick_success) {
+		this._grid.data("kendoGrid").table.on("dblclick", "tr", dbclick_success);
+	},
+	
+	/**
+	 * 根据行对象获取行数据对象 
+	 */
+	getTreeSelectRowDataByRow : function(tr){
+		// 获取选中行数据对象
+		var rowData = this._grid.data("kendoTreeList").dataItem(tr);
+		return rowData;
+	},
+	
+	/**
+	 * 刷新grid
+	 */
+	refresh : function(){
+		this._grid.data("kendoGrid").refresh();
+	},
+	
+	bindServerData:function(url,columns){
+		var dataSource = new kendo.data.DataSource({
+	        transport :{
+	            read : {
+	            	type: 'GET', 
+	                url : url,
+	                dataType : "json",
+	                contentType : "application/json"
+	            },
+	            parameterMap : function(options, operation) {
+	                if (operation == "read") {
+	                    var parameter = {
+	                        page : options.page,    //当前页
+	                        pageSize : options.pageSize//每页显示个数
+	                    };
+	                    return parameter;
+	                }
+	            }
+	        },
+	        batch : true,
+	        pageSize : 50, //每页显示个数
+	        schema : {
+	            data : function(d) {
+	                return d.value.list;  //响应到页面的数据
+	            },
+	            total : function(d) {
+	                return d.value.total;   //总条数
+	            }
+	        },
+	        serverPaging : true,
+	        serverFiltering : false,
+	        serverSorting : false
+
+	    });
+		
+		var gridInst = this._grid.data("kendoGrid");
+		
+		
+		var parentPage = parent.$(".page.in.active");
+		if (parentPage == null||parentPage.length==0) {
+			parentPage = parent.$("#page");
+		}
+		var fullHeight = parentPage.height();
+		var otherHeight = 0;
+		var divs = $(".container-fluid").children("div");
+		for (var int = 0; int < divs.length; int++) {
+			var div = divs[int];
+			var css = $(div).attr("class");
+			if (css != null) {
+				if (css.indexOf("bg-grid-container")<0 && css.indexOf("modal fade")<0 && css != "page-header") {
+					otherHeight += $(div).outerHeight(true);
+				}
+			}
+			else{
+				otherHeight += $(div).outerHeight(true);
+			}
+		}
+		var height = fullHeight - otherHeight - 30;
+		
+		gridInst.setOptions({
+			dataSource: dataSource,
+            filterable: {
+            	extra: false
+            },
+            sortable: true,
+            height:height,
+            pageable: {
+                pageSizes: true,
+                buttonCount: 5,
+                page: 1,
+                pageSize: 50
+            },
+		});
+		grid.autoFitColumn(this._grid,columns);
+	}
+}

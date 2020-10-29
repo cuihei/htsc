@@ -1,0 +1,545 @@
+package com.ht.service.impl.complication.formprop;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.struts2.ServletActionContext;
+
+import com.ht.common.util.ConvertUtil;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.ExcelFileUtil;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.ZipFileUtil;
+import com.ht.persistence.dao.inter.complication.formprop.FormValueDao;
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.service.inter.complication.formprop.FormValueService;
+
+/**
+ * FormValueService的实现类
+ * @author 侯晨
+ */
+public class FormValueServiceImpl implements FormValueService {
+	/**
+	 * 注入formValueDao
+	 * */
+	@Resource(name = "formValueDao") 
+	private FormValueDao formValueDao;
+	
+	/**
+	 * 新增
+	 * @param formValueParam 
+	 * @throws Exception
+	 */
+	@Override
+	public void addFormValue(String formValueParam) throws Exception {
+		try {
+			//将用户String类型转成FormValue类型
+			FormValue formValue = (FormValue) DataConverter.convertJson2Object(formValueParam, FormValue.class);
+			//执行保存操作
+			formValue.setId(GenerateSequenceUtil.generateSequenceNo());
+			formValueDao.addFormValue(formValue);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+		
+	}
+	/**
+	 * 更新
+	 * @param formValueParam 
+	 * @throws Exception
+	 */
+	@Override
+	public void modifyFormValue(String formValueParam) throws Exception {
+		try {
+			//将用户String类型转成FormValue类型
+			FormValue formValue = (FormValue) DataConverter.convertJson2Object(formValueParam, FormValue.class);
+			formValueDao.modifyFormValue(formValue);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 删除
+	 * @param id 
+	 * @throws Exception
+	 */
+	@Override
+	public void delFormValue(String formValue) throws Exception {
+		try {
+			// 将日志String类型转成FormValue对象
+			@SuppressWarnings("unchecked")
+			FormValue form = (FormValue) DataConverter.convertJson2Object(formValue,FormValue.class);
+			if(form!=null) {
+				// 删除FormValue
+				formValueDao.delFormValue(form);
+			}
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 获取所有FormValue
+	 * @throws Exception
+	 */
+	@Override
+	public List<FormValue> getFormValue() throws Exception {
+		try {
+			// 获取所有FormValue
+			return formValueDao.getFormValue();
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据id获取FormValue
+	 * @param id 
+	 * @throws Exception
+	 */
+	@Override
+	public FormValue getFormValue(String id) throws Exception {
+		try {
+			//创建FormValue对象
+			FormValue formValue = new FormValue();
+			formValue.setId(id);
+			return formValueDao.getFormValue(formValue);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据formid获取FormValue
+	 * @param formid 
+	 * @throws Exception
+	 */
+	@Override
+	public List<FormValue> getFormValueByFromId(String formId) throws Exception {
+		try {
+			//创建FormValue对象
+			FormValue formValue = new FormValue();
+			formValue.setFormId(formId);
+			return formValueDao.getFormValueByFromId(formValue);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据流程实例id，流程任务id查询所有的Formvalue对象
+	 * @param processInstId 流程实例ID
+	 * @param taskInstId 流程任务ID
+	 * @param formId 表单ID
+	 * @return Exception
+	 */
+	public List<FormValue> getFormValueByPt(String processInstId,
+			String taskInstId,String formId) throws Exception {
+		try{
+			FormValue fv = new FormValue();
+			fv.setProcessInstId(processInstId);
+			fv.setTaskInstId(taskInstId);
+			fv.setFormId(formId);
+			List<FormValue> fvList = formValueDao.getFormValueByPt(fv);
+			return fvList;
+		}catch(Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据流程实例id，流程任务id查询所有的Formvalue对象
+	 * @param processInstId 流程实例ID
+	 * @param taskInstId 流程任务ID
+	 * @param formId 表单ID
+	 * @return Exception
+	 */
+	public List<FormValue> getFormValueByPF(String processInstId,String formId) throws Exception {
+		try{
+			FormValue fv = new FormValue();
+			fv.setProcessInstId(processInstId);
+			fv.setFormId(formId);
+			List<FormValue> fvList = formValueDao.getFormValueByPf(fv);
+			return fvList;
+		}catch(Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据流程实例id，流程任务id查询所有的Formvalue对象
+	 * @param processInstId 流程实例ID
+	 * @param taskInstId 流程任务ID
+	 * @param formId 表单ID
+	 * @return Exception
+	 */
+	@Override
+	public List<FormValue> getFormValueByProcessInstId(String processInstId,String formId) throws Exception {
+		try{
+			FormValue fv = new FormValue();
+			fv.setProcessInstId(processInstId);
+			fv.setFormId(formId);
+			//FormValue [id=null, formId=null, propKey=null, processInstId=312519, taskInstId=null, rowFlag=null, propValue=null, form=null]
+			
+			List<FormValue> fvList = formValueDao.getFormValueByProcessInstId(fv);
+			return fvList;
+		}catch(Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 上传文件
+	 */
+	@SuppressWarnings("unused")
+	@Override
+	public String uploadFile(File upload, String uploadFileName) throws IOException {
+		// 获取项目在服务器的路径
+ 		String serverPath = FileUtil.ROOT_PATH;
+ 		// 新建一个路径，在最后以当前年月日新建一个文件夹
+ 		String path = "\\upload\\formImg\\"+ ConvertUtil.convertDateToString("yyyyMMdd",new Date());
+ 		// 创建文件夹
+ 		FileUtil.CreateFolder(serverPath+path);
+ 		// 文件名称
+ 		String type = uploadFileName.split("\\.")[uploadFileName.split("\\.").length-1];
+ 		String fileName = uploadFileName ;
+        InputStream is = new FileInputStream(upload);
+        OutputStream os = new FileOutputStream(new File(serverPath+path, fileName));
+        System.out.println("fileFileName: " + fileName);
+
+        // 因为file是存放在临时文件夹的文件，我们可以将其文件名和文件路径打印出来，看和之前的fileFileName是否相同
+        System.out.println("file: " + upload.getName());
+        System.out.println("file: " + upload.getPath());
+        
+        byte[] buffer = new byte[500];
+        int length = 0;
+        
+        while(-1 != (length = is.read(buffer, 0, buffer.length)))
+        {
+            os.write(buffer);
+        }
+        
+        os.close();
+        is.close();
+        return "\\ht"+path+"\\"+fileName;
+	}
+	
+	/**
+	 * 上传文件
+	 */
+	@SuppressWarnings("unused")
+	@Override
+	public String uploadImg(File upload, String uploadFileName) throws IOException {
+		// 获取项目在服务器的路径
+ 		String serverPath = FileUtil.ROOT_PATH;
+ 		// 新建一个路径，在最后以当前年月日新建一个文件夹
+ 		String path = "\\upload\\formImg\\"+ ConvertUtil.convertDateToString("yyyyMMdd",new Date());
+ 		// 创建文件夹
+ 		FileUtil.CreateFolder(serverPath+path);
+ 		// 文件名称
+ 		String fileName = GenerateSequenceUtil.generateSequenceNo() +".jpg" ;
+        InputStream is = new FileInputStream(upload);
+        OutputStream os = new FileOutputStream(new File(serverPath+path, fileName));
+        System.out.println("fileFileName: " + fileName);
+
+        // 因为file是存放在临时文件夹的文件，我们可以将其文件名和文件路径打印出来，看和之前的fileFileName是否相同
+        System.out.println("file: " + upload.getName());
+        System.out.println("file: " + upload.getPath());
+        
+        byte[] buffer = new byte[500];
+        int length = 0;
+        
+        while(-1 != (length = is.read(buffer, 0, buffer.length)))
+        {
+            os.write(buffer);
+        }
+        
+        os.close();
+        is.close();
+        return "\\ht"+path+"\\"+fileName;
+	}
+	
+	/**
+	 * 上传文件
+	 */
+	@SuppressWarnings("unused")
+	@Override
+	public String uploadFiles(File[] files, String[] filesFileName) throws IOException {
+		// 获取项目在服务器的路径
+ 		String serverPath = FileUtil.ROOT_PATH;
+ 		// 新建一个路径，在最后以当前年月日新建一个文件夹
+ 		String path = "\\upload\\formImg\\"+ ConvertUtil.convertDateToString("yyyyMMdd",new Date());
+ 		// 创建文件夹
+ 		FileUtil.CreateFolder(serverPath+path);
+ 		String result = "";
+ 		// 文件名称
+ 		if(files!=null){
+ 			for(int i=0;i<files.length;i++){
+ 				// 创建格式化时间
+ 				SimpleDateFormat sd = new SimpleDateFormat("yyyyMMddHHmmss");
+ 				String str = sd.format(new Date());
+ 				String fileName = str + "_" +filesFileName[i];
+ 				InputStream is = new FileInputStream(files[i]);
+ 				OutputStream os = new FileOutputStream(new File(serverPath+path, fileName));
+ 				System.out.println("fileFileName: " + fileName);
+
+		        // 因为file是存放在临时文件夹的文件，我们可以将其文件名和文件路径打印出来，看和之前的fileFileName是否相同
+		        System.out.println("file: " + files[i].getName());
+		        System.out.println("file: " + files[i].getPath());
+		        byte[] buffer = new byte[500];
+		        int length = 0;
+		        
+		        while(-1 != (length = is.read(buffer, 0, buffer.length)))
+		        {
+		            os.write(buffer);
+		        }
+		        
+		        os.close();
+		        is.close();
+		        result += ",\\ht"+path+"\\"+fileName;
+ 	 		}
+ 		}
+        return result.substring(1);
+	}
+	
+	/**
+	 * 文件下载
+	 * @throws Exception 
+	 */
+	@Override
+	public void downloadFile(FormValueService formValueService,String url) throws Exception {
+		try {
+			// 获取项目所在服务器路径，将\\替换为/
+			String serverPath = (FileUtil.ROOT_PATH).replaceAll("\\\\", "/");
+			// 获取文件路径
+			String filePath = url.replaceAll("\\\\", "/");
+			String[] filePahts = filePath.split("/ht");
+			String fileRealPath = filePahts[filePahts.length-1];
+
+			// 获取文件名称
+			String[] fileNames = filePath.split("/");
+			String fileName = fileNames[fileNames.length-1];
+			
+			String[] realFileNames = fileName.split("_");
+			String realFileName = realFileNames[realFileNames.length-1];
+			File file = new File(serverPath+fileRealPath);
+			if(file.exists()){
+				InputStream is = new FileInputStream(serverPath+fileRealPath);
+				//下载到哪里？客户端
+				HttpServletResponse response = ServletActionContext.getResponse();
+				OutputStream os = response.getOutputStream();
+				//弹出下载的框filename:提示用户下载的文件名，解决中文乱码
+				response.addHeader("content-disposition", "attachment;fileName="+new String(realFileName.getBytes(),"ISO-8859-1"));
+				byte[] b = new byte[1024];
+				int size = is.read(b);
+				while(size>0){
+					os.write(b,0,size);
+					size = is.read(b);
+				}
+				os.flush();
+				is.close();
+				os.close();
+			}
+		}catch (Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 多文件下载
+	 * @throws Exception 
+	 */
+	@Override
+	public void downloadFiles(FormValueService formValueService,String url) throws Exception {
+		String formatDate =new  SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+		try {
+			File[] files = new File[url.split(",").length];
+			if(url!=null){
+				for(int i=0;i<url.split(",").length;i++){
+					// 获取项目所在服务器路径，将\\替换为/
+					String serverPath = (FileUtil.ROOT_PATH).replaceAll("\\\\", "/");
+					// 获取文件路径
+					String filePath = url.split(",")[i].replaceAll("\\\\", "/");
+					String[] filePahts = filePath.split("/ht");
+					String fileRealPath = filePahts[filePahts.length-1];
+
+					// 获取文件名称
+					//String[] fileNames = filePath.split("/");
+					//String fileName = fileNames[fileNames.length-1];
+					
+					//String[] realFileNames = fileName.split("_");
+					//String realFileName = realFileNames[realFileNames.length-1];
+					File file = new File(serverPath+fileRealPath);
+					if(file.exists()){
+						files[i] = file;
+					}
+				}
+			}
+			 //将多个附件压缩成zip
+			String zipFilePath = "D:\\"+formatDate+".zip";
+			ZipFileUtil.compressFiles2Zip(files, zipFilePath);
+			//下载到哪里？客户端
+			HttpServletResponse response = ServletActionContext.getResponse();
+			ExcelFileUtil.download(zipFilePath, response); 
+		}catch (Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	
+	@Override
+	public FormValue getFormValueByRowFlag(String key, String rowFlag)
+			throws Exception {
+		try{
+			FormValue fv = new FormValue();
+			fv.setPropKey(key);
+			fv.setRowFlag(rowFlag);
+			List<FormValue> fvList = formValueDao.getFormValueByRowFlag(fv);
+			if(fvList!=null&&fvList.size()>0){
+				return fvList.get(0);
+			}else{
+				return null;
+			}
+		}catch(Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	@Override
+	public List<FormValue> getFormValueByPf(String processInstId, String formId)
+	{
+		try{
+			FormValue fv = new FormValue();
+			fv.setProcessInstId(processInstId);
+			fv.setFormId(formId);
+			List<FormValue> fvList = formValueDao.getFormValueByPf(fv);
+			return fvList;
+		}catch(Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	// 查询最新一条的任务Id,不包括当前任务
+	@Override
+	public String getTaskIdBypft(String processInstId, String taskInstId, String formId)
+	{
+		try{
+			FormValue fv = new FormValue();
+			fv.setProcessInstId(processInstId);
+			fv.setTaskInstId(taskInstId);
+			fv.setFormId(formId);
+			return formValueDao.getTaskIdBypft(fv);
+		}catch(Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 文件下载
+	 * @throws Exception 
+	 */
+	@Override
+	public String fileIsExist(FormValueService formValueService,String url) throws Exception {
+		try {
+			// 获取项目所在服务器路径，将\\替换为/
+			String serverPath = (FileUtil.ROOT_PATH).replaceAll("\\\\", "/");
+			// 获取文件路径
+			String filePath = url.replaceAll("\\\\", "/");
+			String[] filePahts = filePath.split("/ht");
+			String fileRealPath = filePahts[filePahts.length-1];
+
+			// 获取文件名称
+			String[] fileNames = filePath.split("/");
+			String fileName = fileNames[fileNames.length-1];
+			
+			String[] realFileNames = fileName.split("_");
+			String realFileName = realFileNames[realFileNames.length-1];
+			File file = new File(serverPath+fileRealPath);
+			if(!file.exists()){
+				return "notExist";
+			}
+		}catch (Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+		return "exist";
+	}
+	@Override
+	public List<FormValue> getFormValueByFromIdAndPropValue(String fromId,
+			String propValue) throws Exception {
+		try {
+			//创建FormValue对象
+			FormValue formValue = new FormValue();
+			formValue.setFormId(fromId);
+			formValue.setPropValue(propValue);
+			return formValueDao.getFormValueByFromIdAndPropValue(formValue);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	@Override
+	///   向FLORLVALUE添加 提交时的TASKID 2018.9.14
+	public void addFormValueByTaskId(String processInstId, String loginUser,String taskinstid) {
+		// TODO 自动生成的方法存根
+		 formValueDao.addFormValueByTaskId(processInstId,loginUser,taskinstid);
+		
+	}
+}

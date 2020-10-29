@@ -1,0 +1,108 @@
+package com.ht.front.pages.statisticalanalysis;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import com.ht.front.css.CssClass;
+import com.ht.front.model.Base;
+import com.ht.front.model.Button;
+import com.ht.front.model.I;
+import com.ht.front.model.InputGroup;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.Span;
+import com.ht.front.model.TextBox;
+import com.ht.front.util.FrontUtil;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.background.organization.organization.Organization;
+
+public class ChartCompletionPage {
+	/**
+	 * 初始化海图完成情况数据页面
+	 * @return 节点字符串
+	 * */
+	public String getListPage(String key,List<String> list) {
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		//util.createHeaderBar(root, "海图任务进度");
+		util.createRowSpace(root);
+		/** 创建按钮组行  开始*/
+		
+		List<BaseData> yearList= new ArrayList<BaseData>();
+		if(list != null){
+			if(list.size()>0){
+				for (int i = 0; i < list.size(); i++)
+				{
+					BaseData b= new BaseData();
+					b.setId(list.get(i));
+					b.setValue(list.get(i));
+					yearList.add(b);
+				}
+			}
+		}
+		List<BaseData> typeList= new ArrayList<BaseData>();
+		BaseData 	b= new BaseData();
+		BaseData 	b1= new BaseData();
+		BaseData 	b2= new BaseData();
+		
+		b2= new BaseData();
+		b2.setId("0");
+		b2.setValue("全&nbsp;&nbsp;&nbsp;&nbsp;部");
+		typeList.add(b2);
+
+		b.setId("2");
+		b.setValue("未完成");
+		typeList.add(b);
+			
+		b1= new BaseData();
+		b1.setId("1");
+		b1.setValue("已完成");
+		typeList.add(b1);
+	    
+	    Calendar date = Calendar.getInstance();
+	    String year = String.valueOf(date.get(1));
+		
+		// 创建行
+	    Base rowBg1 = util.createRow(root);
+		Base col1 = util.createColumn(rowBg1, "3", "3", "3", null);
+    	 InputGroup ig1 = InputGroup.getSelectGroup("任务书创建年份", "year", yearList, "id", "value", year, Boolean.valueOf(true));
+		col1.addChildNode(ig1);
+		util.createRowSpace(root);
+
+
+		Base rowBg = util.createRow(root);
+		Base col3 = util.createColumn(rowBg1, "3", "3", "3", null);
+		InputGroup ig = InputGroup.getSelectGroup("任务完成情况", "compType", typeList, "id", "value", "2", Boolean.valueOf(true));
+		col3.addChildNode(ig);
+		
+		// 创建按钮组
+		Base column = util.createColumn(rowBg1, "3", "3", "3", null);
+		// 构建创建div
+		CssClass css = new CssClass("fa fa-sign-out");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-info btn-setting search");
+		Button button = Button.getButtonWithIcon("export", css, "&nbsp;"+"导出", i);
+		column.addChildNode(button);
+	
+    css = new CssClass("fa fa-hand-o-up");
+    i = I.getInstance(css);
+    css = new CssClass("btn btn-info bk-margin-5 search");
+    button = Button.getButtonWithIcon("sdup", css, "更新", i);
+    column.addChildNode(button);
+		
+		/** 创建按钮组行  结束*/
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行  开始*/
+		// 创建Grid
+		Base rowGrid = util.createGrid(root,"chartCompletion");
+		/** 创建Grid行  结束*/
+		//返回节点字符串
+		InputHidden hidden = InputHidden.getInstance("key", key);
+		root.addChildNode(hidden);
+		return root.getNode();
+	}
+
+}

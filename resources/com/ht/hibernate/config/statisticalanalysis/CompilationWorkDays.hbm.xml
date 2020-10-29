@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.statisticalanalysis.CompilationWorkDays" table="COMPILATION_WORKDAYS">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="mapNo" type="java.lang.String">
+            <column name="map_no" />
+        </property>
+        <property name="mapName" type="java.lang.String">
+            <column name="map_name" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="revision" type="java.lang.String">
+            <column name="revision" />
+        </property>
+        <property name="content" type="java.lang.String">
+            <column name="content" />
+        </property>
+         <property name="compilationWorkDays" type="java.lang.String">
+            <column name="compilation_workdays" />
+        </property>
+         <property name="checkWorkDays" type="java.lang.String">
+            <column name="check_workdays" />
+        </property>
+         <property name="examineWorkDays" type="java.lang.String">
+            <column name="examine_workdays" />
+        </property>
+         <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        
+    </class>
+    
+    <query name="getCompilationWorkDaysSum">
+    	<![CDATA[ select examineWorkDays+checkWorkDays+compilationWorkDays from CompilationWorkDays where mapNo = :mapNo and content = :content and revision = :revision]]>
+    </query>
+    
+    <query name="getCompilationWorkDaysList">
+    	<![CDATA[ from CompilationWorkDays where mapNo = :mapNo and content = :content and revision = :revision]]>
+    </query>
+    
+    <query name="getWorkDaysList">
+    	<![CDATA[ from CompilationWorkDays]]>
+    </query>
+    
+    <query name="getWorkDaysListById">
+    	<![CDATA[ from CompilationWorkDays where id = :id]]>
+    </query>
+    
+    <query name="ifExistWorkDays">
+    	<![CDATA[ from CompilationWorkDays where mapNo = :mapNo]]>
+    </query>
+    
+    <query name="getCompilationWorkDaysByMapNo">
+    	<![CDATA[ from CompilationWorkDays where mapNo = :mapNo and content = :content order by  revision desc]]>
+    </query>
+</hibernate-mapping>

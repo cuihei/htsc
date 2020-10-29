@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.ht.persistence.model.system.workflow.task.Flows"
+		table="V_PROCESS_FLOW">
+		<id name="id" type="java.lang.String">
+			<column name="id" />
+			<generator class="assigned" />
+		</id>
+		<property name="processInstId" type="java.lang.String">
+			<column name="process_inst_id" />
+		</property>
+		<property name="processDefId" type="java.lang.String">
+			<column name="process_def_id" />
+		</property>
+		<property name="userNo" type="java.lang.String">
+			<column name="user_no" />
+		</property>
+		<property name="userName" type="java.lang.String">
+			<column name="user_name" />
+		</property>
+		<property name="type" type="java.lang.String">
+			<column name="type" />
+		</property>
+		<property name="taskId" type="java.lang.String">
+			<column name="task_id" />
+		</property>
+		<property name="taskDefId" type="java.lang.String">
+			<column name="task_def_id" />
+		</property>
+		<property name="taskResult" type="java.lang.String">
+			<column name="task_result" />
+		</property>
+		<property name="advice" type="java.lang.String">
+			<column name="advice" />
+		</property>
+		<property name="remark" type="java.lang.String">
+			<column name="remark" />
+		</property>
+		<property name="processName" type="java.lang.String">
+			<column name="process_name" />
+		</property>
+		<property name="taskName" type="java.lang.String">
+			<column name="task_name" />
+		</property>
+		<property name="startTime" type="timestamp">
+			<column name="start_time" />
+		</property>
+		<property name="endTime" type="timestamp">
+			<column name="end_time" />
+		</property>
+		 <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+	</class>
+	<query name="getProcessFlowByProcessId">
+    	<![CDATA[ from Flows where processInstId= :processInstId order by modifyDate desc]]>
+	</query>
+	<query name="countCompleteByMonth">
+    	<![CDATA[ from Flows where endTime between last_day(add_months(sysdate,-1))+1 and last_day(sysdate)]]>
+	</query>
+
+	<query name="getProcessFlowsByProcessInstIdAndTypes">
+    	<![CDATA[ from Flows where processInstId= :processInstId and type in (:types)]]>
+	</query>
+	<query name="getProcessFlowsByProcessInstIdAndTaskDefId">
+    	<![CDATA[ from Flows where processInstId= :processInstId and taskDefId in (:taskDefId) ]]>
+	</query>
+</hibernate-mapping>

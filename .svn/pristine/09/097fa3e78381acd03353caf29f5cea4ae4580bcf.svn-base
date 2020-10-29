@@ -1,0 +1,204 @@
+package com.ht.common.util;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.ht.persistence.model.catalog.history.HistoryCatalogDetail;
+
+public class ExportUtil {
+	
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
+	public static String [] titles = {"图号","图名","比例尺(1:)","图幅范围（北纬）","图幅范围（南纬）","图幅范围（东经）","图幅范围（西经）"
+			,"性质","测量周期","出版年份","基准纬度","图积","调整性质","出版日期","版次","备注"};
+	
+	/**
+	 * 导出历史目录模板
+	 * 
+	 * @param String sheetName sheet名称
+	 * @param String[] title 第一行标题
+	 * @param String url 下载后存放的位置
+	 * @param String excelName excel的名称
+	 * @return
+	 */
+	public static void template(String sheetName, String[] title, String url, String excelName,
+			List<HistoryCatalogDetail> lists) {
+		// 创建excel工作簿
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		// 创建一个工作表
+		XSSFSheet sheet = workbook.createSheet(sheetName);
+		// 给一个工作表名称一个长度
+		sheet.setDefaultColumnWidth(15);
+		// 生成一个样式
+		XSSFCellStyle style = workbook.createCellStyle();
+		// 创建第一行
+		XSSFRow row = sheet.createRow(0);
+		// 设置样式居中
+		style.setAlignment(XSSFCellStyle.ALIGN_CENTER);
+		// 创建字体对象  
+		Font font = workbook.createFont();
+		//字体加粗
+		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		//添加字体样式
+		style.setFont(font);
+		// 设置行高
+		row.setHeightInPoints(20);
+		// 设置第一行标题
+		XSSFCell cell = null;
+		for (int i = 0; i < title.length; i++) {
+			cell = row.createCell(i);
+			cell.setCellValue(title[i]);
+			sheet.setColumnWidth(i, title[i].getBytes().length * 1 * 256);
+			cell.setCellStyle(style);
+		}
+		
+		
+		//创建记录
+		int size = lists.size();
+		if (size>0) {
+			for (int i = 1; i <= size; i++) {
+				XSSFRow xssfRow = sheet.createRow(i);
+				XSSFCell xssfCell = null;
+				HistoryCatalogDetail hcd = lists.get(i-1);
+				for (int j = 0; j < title.length; j++) {
+					
+					if (j==0) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getMapNo());
+						//sheet.setColumnWidth(i, hcd.getMapNo().getBytes().length * 1 * 256);
+					}
+					
+					if (j==1) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getMapName());
+						//sheet.setColumnWidth(i, hcd.getMapName().getBytes().length * 1 * 256);
+					}
+					
+					if (j==2) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getScale());
+						//sheet.setColumnWidth(i, hcd.getScale().getBytes().length * 1 * 256);
+					}
+					
+					if (j==3) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getStarLatitude()==null?null:ConvertUtil.convertPlusMinusToLatitude(hcd.getStarLatitude()));
+						//sheet.setColumnWidth(i, hcd.getNorthLatitude().getBytes().length * 1 * 256);
+					}
+					
+					if (j==4) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getEndLatitude()==null?null:ConvertUtil.convertPlusMinusToLatitude(hcd.getEndLatitude()));
+						//sheet.setColumnWidth(i, hcd.getSouthLatitude().getBytes().length * 1 * 256);
+					}
+					
+					if (j==5) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getStarLongitude()==null?null:ConvertUtil.convertPlusMinusToLongitude(hcd.getStarLongitude()));
+						//sheet.setColumnWidth(i, hcd.getEastLongitude().getBytes().length * 1 * 256);
+					}
+					
+					if (j==6) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getEndLongitude()==null?null:ConvertUtil.convertPlusMinusToLongitude(hcd.getEndLongitude()));
+						//sheet.setColumnWidth(i, hcd.getWestLongitude().getBytes().length * 1 * 256);
+					}
+					
+					if (j==7) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getNature());
+						//sheet.setColumnWidth(i, hcd.getNature().getBytes().length * 1 * 256);
+					}
+					
+					if (j==8) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getMeasurementPeriod());
+						//sheet.setColumnWidth(i, hcd.getMeasurementPeriod().getBytes().length * 1 * 256);
+					}
+					
+					if (j==9) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getPublicationYear());
+						//sheet.setColumnWidth(i, hcd.getPublicationYear().getBytes().length * 1 * 256);
+					}
+					
+					if (j==10) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getDatumLatitude());
+						//sheet.setColumnWidth(i, hcd.getDatumLatitude().getBytes().length * 1 * 256);
+					}
+					
+					if (j==11) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getMapProportion());
+						//sheet.setColumnWidth(i, hcd.getMapProportion().getBytes().length * 1 * 256);
+					}
+					
+					if (j==12) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getAdjustmentProperty());
+						//sheet.setColumnWidth(i, hcd.getAdjustmentProperty().getBytes().length * 1 * 256);
+					}
+					
+					if (j==13) {
+						xssfCell = xssfRow.createCell(j);
+						Date date = hcd.getPublicationDate();
+						if (date!=null) {
+							xssfCell.setCellValue(sdf.format(date));
+						}
+						//sheet.setColumnWidth(i, sdf.format(date).getBytes().length * 1 * 256);
+					}
+					
+					if (j==14) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getPrintNum());
+						//sheet.setColumnWidth(i, hcd.getRevision().getBytes().length * 1 * 256);
+					}
+					
+					if (j==15) {
+						xssfCell = xssfRow.createCell(j);
+						xssfCell.setCellValue(hcd.getRemarks());
+						//sheet.setColumnWidth(i, hcd.getRemarks().getBytes().length * 1 * 256);
+					}
+					
+					xssfCell.setCellStyle(style);
+				}
+			}
+		}
+		// 创建一个文件
+		File file = new File(url + excelName+".xls");
+		try {
+			file.createNewFile();
+			FileOutputStream stream = new FileOutputStream(file);
+			workbook.write(stream);
+			stream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public static void main(String[] args) {
+		
+		
+		List<HistoryCatalogDetail> lists = new ArrayList<HistoryCatalogDetail>();
+		HistoryCatalogDetail hcd = new HistoryCatalogDetail();
+		hcd.setPublicationDate(new Date());
+		lists.add(hcd);
+		
+		template("历史目录", titles, "d:\\", "历史目录", lists) ;
+	}
+	
+	
+}

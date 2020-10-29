@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.statisticalanalysis.view.CompilationResultSummaryView" table="V_COMPILATION_RESULT_SUMMARY">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="mapNo" type="java.lang.String">
+            <column name="map_no" />
+        </property>
+        <property name="seaArea" type="java.lang.String">
+            <column name="sea_area" />
+        </property>
+        <property name="mapName" type="java.lang.String">
+            <column name="map_name" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="property" type="java.lang.String">
+            <column name="property" />
+        </property>
+        <property name="planExchangeTime" type="date">
+            <column name="plan_exchange_time" />
+        </property>
+        <property name="actualExchangeTime" type="date">
+            <column name="actual_exchange_time" />
+        </property>
+        <property name="year" type="java.lang.String">
+            <column name="year" />
+        </property>
+    </class>
+    <query name="getCompilationResultsSummary">
+    	<![CDATA[ from CompilationResultSummaryView]]>
+    </query>
+    <query name="getSubmissionSummaryById">
+    	<![CDATA[ from CompilationResultSummaryView where id = :id]]>
+    </query>
+     <query name="getSubmissionSummaryByYear">
+    	<![CDATA[ from CompilationResultSummaryView where year = :year]]>
+    </query>
+</hibernate-mapping>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.statisticalanalysis.view.CompilationMonthPlanView" table="V_COMPILATION_MONTH_PLAN">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        
+         <property name="seaArea" type="java.lang.String">
+            <column name="sea_area" />
+        </property>
+        <property name="mapNo" type="java.lang.String">
+            <column name="map_no" />
+        </property>
+        <property name="mapName" type="java.lang.String">
+            <column name="map_name" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="property" type="java.lang.String">
+            <column name="property" />
+        </property>
+         <property name="planExchangeTime" type="date">
+            <column name="plan_exchange_time" />
+        </property>
+        <property name="year" type="java.lang.String">
+            <column name="year" />
+        </property>
+    </class>
+    <query name="getCompilationMonthPlan">
+    	<![CDATA[ from CompilationMonthPlanView]]>
+    </query>
+    <query name="getCompilationMonthPlanById">
+    	<![CDATA[ from CompilationMonthPlanView where id = :id]]>
+    </query>
+     <query name="getCompilationMonthPlanByYear">
+    	<![CDATA[ from CompilationMonthPlanView where year = :year]]>
+    </query>
+</hibernate-mapping>

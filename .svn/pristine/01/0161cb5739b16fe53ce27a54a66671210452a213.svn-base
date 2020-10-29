@@ -1,0 +1,251 @@
+package com.ht.common.util;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+
+/**
+ * 利用开源组件POI3.0.2动态导出EXCEL文档
+ * 
+ * @author zyd
+ * @version v1.0
+ * @param <t>
+ *            应用泛型，代表任意一个符合javabean风格的类
+ *            注意这里为了简单起见，boolean型的属性xxx的get器方式为getXxx(),而不是isXxx()
+ */
+//T这里代表一个不确定是实体类，即参数实体
+public class ExportExcel<t> {
+ 
+    /**
+     * 这是一个通用的方法，利用了JAVA的反射机制，可以将放置在JAVA集合中并且符号一定条件的数据以EXCEL 的形式输出
+     * 
+     * @param title
+     *            表格标题名
+     * @param headersName
+     *            表格属性列名数组
+     * @param headersId
+     *            表格属性列名对应的字段
+     * @param dataset
+     *            需要显示的数据集合,集合中一定要放置符合javabean风格的类的对象
+     * @param out
+     *            与输出设备关联的流对象，可以将EXCEL文档导出到本地文件或者网络中
+     */
+    public boolean exportExcel(String title, String[] headersName,String[] headersId,
+            List<t> dtoList,String path) {
+    	
+        //表头
+        Map<Integer, String> map = new HashMap<Integer, String>();
+        int key=0;
+        for (int i = 0; i < headersName.length; i++) {
+            if (!headersName[i].equals(null)) {
+                map.put(key, headersName[i]);
+                key++;
+            }
+        }
+        //字段
+        Map<Integer, String> zdMap = new HashMap<Integer, String>();
+        int value = 0;
+        for (int i = 0; i < headersId.length; i++) {
+            if (!headersId[i].equals(null)) {
+                zdMap.put(value, headersId[i]);
+                value++;
+            }
+        }
+        // 声明一个工作薄
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFSheet sheet = wb.createSheet(title);
+        sheet.setColumnWidth((short) 0, (short) 9000);
+        sheet.setColumnWidth((short) 1, (short) 6000);
+        sheet.setColumnWidth((short) 2, (short) 6000);
+        sheet.setColumnWidth((short) 3, (short) 6000);
+        sheet.setColumnWidth((short) 4, (short) 6000);
+        sheet.setColumnWidth((short) 5, (short) 6000);
+        sheet.setColumnWidth((short) 6, (short) 6000);
+        sheet.setColumnWidth((short) 7, (short) 6000);
+        sheet.setColumnWidth((short) 8, (short) 6000);
+        sheet.setColumnWidth((short) 9, (short) 6000);
+        sheet.setColumnWidth((short) 10, (short) 6000);
+        sheet.setColumnWidth((short) 11, (short) 6000);
+        sheet.setColumnWidth((short) 12, (short) 6000);
+        sheet.setColumnWidth((short) 13, (short) 6000);
+        sheet.setColumnWidth((short) 14, (short) 6000);
+        sheet.setColumnWidth((short) 15, (short) 6000);
+        sheet.setColumnWidth((short) 16, (short) 6000);
+        sheet.setColumnWidth((short) 17, (short) 6000);
+        sheet.setColumnWidth((short) 18, (short) 6000);
+        sheet.setColumnWidth((short) 19, (short) 6000);
+        sheet.setColumnWidth((short) 20, (short) 6000);
+        sheet.setColumnWidth((short) 21, (short) 6000);
+        sheet.setColumnWidth((short) 22, (short) 6000);
+        sheet.setColumnWidth((short) 23, (short) 6000);
+        sheet.setColumnWidth((short) 24, (short) 6000);
+        sheet.setColumnWidth((short) 25, (short) 6000);
+        sheet.setColumnWidth((short) 26, (short) 6000);
+        sheet.setColumnWidth((short) 27, (short) 6000);
+        sheet.setColumnWidth((short) 28, (short) 6000);
+        sheet.setColumnWidth((short) 29, (short) 6000);
+        sheet.setColumnWidth((short) 30, (short) 6000);
+        sheet.setColumnWidth((short) 31, (short) 6000);
+        sheet.setColumnWidth((short) 32, (short) 6000);
+        sheet.setColumnWidth((short) 33, (short) 6000);
+        sheet.setColumnWidth((short) 34, (short) 6000);
+        sheet.setColumnWidth((short) 35, (short) 6000);
+        sheet.setColumnWidth((short) 36, (short) 6000);
+        sheet.setColumnWidth((short) 37, (short) 6000);
+        sheet.setColumnWidth((short) 38, (short) 6000);
+        sheet.setColumnWidth((short) 39, (short) 6000);
+        sheet.setColumnWidth((short) 40, (short) 6000);
+        sheet.setColumnWidth((short) 41, (short) 6000);
+        sheet.setColumnWidth((short) 42, (short) 6000);
+        sheet.setColumnWidth((short) 43, (short) 6000);
+        sheet.setColumnWidth((short) 44, (short) 6000);
+        sheet.setColumnWidth((short) 45, (short) 6000);
+        sheet.setColumnWidth((short) 46, (short) 6000);
+        // 生成一个样式  
+        HSSFCellStyle titlestyle = wb.createCellStyle();
+        
+        // 设置单元格边框样式
+        titlestyle.setBorderTop(HSSFCellStyle.BORDER_THIN);// 上边框 细边线
+        titlestyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);// 下边框 细边线
+        titlestyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);// 左边框 细边线
+        titlestyle.setBorderRight(HSSFCellStyle.BORDER_THIN);// 右边框 细边线
+        //设置单元格背景样式
+        titlestyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+        titlestyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        // 设置单元格对齐方式
+        titlestyle.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 水平居中
+        titlestyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER); // 垂直居中
+        // 设置字体样式
+        Font titleFont = wb.createFont();
+        titleFont.setFontHeightInPoints((short) 14); // 字体高度
+        titleFont.setFontName("华文仿宋"); // 字体样式
+        titlestyle.setFont(titleFont);
+        HSSFRow row = sheet.createRow(0);
+        HSSFCell cell;
+        HSSFCell celldata;
+        Collection c = map.values();
+        Iterator<String> it = c.iterator();
+        //产生表格标题行
+        HSSFRow row1 = sheet.createRow(0);
+        for (int i = 0; i < headersId.length; i++) {
+           HSSFCell cell1 = row1.createCell(i);
+           cell1.setCellStyle(titlestyle);
+           HSSFRichTextString text = new HSSFRichTextString(headersId[i]);
+           cell1.setCellValue(text);
+        }
+        //根据选择的字段生成表头
+        short size = 0;
+        while (it.hasNext()) {
+                cell = row1.createCell(size);
+            cell.setCellValue(it.next().toString());
+            cell.setCellStyle(titlestyle);
+            size++;
+        }
+        // 字段        
+        Collection zdC = zdMap.values();
+        Iterator<t> labIt = (Iterator<t>) dtoList.iterator();
+        
+        // 数据样式 因为标题和数据样式不同 需要分开设置 不然会覆盖
+        HSSFCellStyle dataStyle = wb.createCellStyle();
+        // 设置边框样式
+        dataStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);// 上边框 细边线
+        dataStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);// 下边框 细边线
+        dataStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);// 左边框 细边线
+        dataStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);// 右边框 细边线
+        // 设置居中样式
+        dataStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 水平居中
+        dataStyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER); // 垂直居中
+        int zdRow =0;
+        while (labIt.hasNext()) {
+            int zdCell = 0;
+            zdRow++;
+            row1 = sheet.createRow(zdRow);
+            t l = (t) labIt.next();
+            // 利用反射，根据javabean属性的先后顺序，动态调用getXxx()方法得到属性值
+            Field[] fields1 = l.getClass().getDeclaredFields();
+            Field[] declaredFields = l.getClass().getSuperclass().getDeclaredFields();
+            Field[] fields = ArrayUtils.addAll(fields1, declaredFields);
+            for (short i = 0; i < fields.length; i++) {
+                Field field = fields[i];
+                String fieldName = field.getName();
+//              System.out.println(fieldName);
+                Iterator<String> zdIt = zdC.iterator();
+                while (zdIt.hasNext()) {
+                    if (zdIt.next().equals(fieldName)) {
+                        String getMethodName = "get"
+                            + fieldName.substring(0, 1).toUpperCase()
+                            + fieldName.substring(1);
+                        Class tCls = l.getClass();
+                        try {
+                            Method getMethod = tCls.getMethod(getMethodName,
+                                    new Class[] {});
+                            Object val = getMethod.invoke(l, new Object[] {});
+//                          System.out.println(fields[i].getName());
+//                          System.out.println(val);
+                            String textVal = null;
+                            if (val!= null) {
+                                textVal = val.toString();
+                            }else{
+                                textVal = null;
+                            }
+                            celldata = row1.createCell((short) zdCell);
+                            celldata.setCellValue(textVal);
+                            celldata.setCellStyle(dataStyle);
+                            zdCell++;
+                        } catch (SecurityException e) {
+                            e.printStackTrace();
+                        } catch (IllegalArgumentException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchMethodException e) {
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        }finally {
+                            //清理资源
+                        }
+                    }
+                }
+                 
+            }
+        }
+        try {
+            
+        	FileOutputStream xls = new FileOutputStream(path);
+            wb.write(xls); 
+            xls.close();
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    
+}

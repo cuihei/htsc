@@ -1,0 +1,147 @@
+package com.ht.service.impl.statisticalanalysis;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.ExcelFileUtil;
+import com.ht.common.util.ExportExcel;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.statisticalanalysis.CompilationResultSummaryDao;
+import com.ht.persistence.dao.inter.statisticalanalysis.DynamicTableDao;
+import com.ht.persistence.model.statisticalanalysis.CompilationResultsSummary;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationCompleteStatusView;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationMonthPlanView;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationResultSummaryView;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationResultSummaryView;
+import com.ht.persistence.model.statisticalanalysis.view.DynamicTableView;
+import com.ht.service.inter.statisticalanalysis.CompilationCompleteStatusService;
+import com.ht.service.inter.statisticalanalysis.CompilationResultSummaryService;
+import com.ht.service.inter.statisticalanalysis.DynamicTableService;
+
+/**
+ * 港口航道图月度在编动态Service实现类
+ * @author zyd
+ *
+ */
+public class CompilationResultSummaryServiceImpl implements CompilationResultSummaryService {
+	
+	/**
+	 * 注入港口航道图月度在编动态Dao
+	 */
+	@Resource(name="compilationResultSummaryDao")
+	CompilationResultSummaryDao compilationResultSummaryDao;
+
+	
+	/**
+	 * 获取所有港口航道图月度在编动态
+	 */
+	@Override
+	public List<CompilationResultSummaryView> getCompilationResultSummary(String start,String end,String year) throws Exception {
+		try {
+			List<CompilationResultSummaryView> list = new ArrayList<CompilationResultSummaryView>();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date date1 = null;
+			Date date2 = null;
+			if(start != null && end != null){
+				date1 = sdf.parse(start);
+			    date2 = sdf.parse(end);
+			    list = compilationResultSummaryDao.getCompilationResultSummary(date1,date2);
+			}else{
+				CompilationResultSummaryView c= new CompilationResultSummaryView();
+				c.setYear(year);
+				list = compilationResultSummaryDao.getSubmissionSummaryByYear(c);
+			}
+			return list;
+		}catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 获取一条港口航道图月度在编动态
+	 */
+	@Override
+	public CompilationResultSummaryView getSubmissionSummaryById(String id){
+		try {
+			CompilationResultSummaryView crs = new CompilationResultSummaryView();
+			crs.setId(id);
+			// 根据id获取图书资料
+			return compilationResultSummaryDao.getSubmissionSummaryById(crs);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 新增一条
+	 * @param c
+	 * @throws Exception
+	 */
+	@Override
+	public void addCompilationResultSummary(CompilationResultsSummary c)
+			throws Exception {
+		try {
+			//执行保存操作
+			compilationResultSummaryDao.addCompilationResultSummary(c);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 导出
+	 */
+	@Override
+	public void export(String submissionSummarys, HttpServletResponse respose) {
+		// 获取路径
+		String folderPath = FileUtil.ROOT_PATH + "dzy\\export\\" + "dynamicTable";
+		// 判断文件夹是否存在，不存在则创建
+		if(!FileUtil.exists(folderPath)){
+			FileUtil.CreateFolder(folderPath);
+		}
+		String path = folderPath + "\\" + ("港口航道图——汇交")  + ".xls";
+		// 将Json转换为list
+		List<CompilationResultSummaryView> list = (List<CompilationResultSummaryView>) DataConverter.convertJson2List(submissionSummarys,CompilationResultSummaryView.class);
+		// 数组的形式创建表格标题行
+		String[] col = {"序号","图名","图号","比例尺(1:)","海区","计划汇交时间","实际汇交时间","退还日期","退还原因","备注"};
+		// 数组的形式创建表格值（对应实体类的字段）
+		String[] zd = {"id","mapName","mapNo","scale","seaArea","planExchangeTime","actualExchangeTime","","",""};
+
+		List<CompilationResultSummaryView> crsList = new ArrayList<CompilationResultSummaryView>();
+		for (int i = 0; i < list.size(); i++) {
+			CompilationResultSummaryView crs = this.getSubmissionSummaryById(list.get(i).getId());
+			crs.setId((i+1)+"");
+			crsList.add(crs);
+		}
+		if(crsList.size() > 0){
+			ExportExcel ee = new ExportExcel();
+			boolean exportResult = ee.exportSubmissionExcel("港口航道图汇交", col, zd, crsList,path);
+			if(exportResult){
+				try {
+					ExcelFileUtil.download(path, respose);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} 
+			}
+		}
+	}
+	
+}

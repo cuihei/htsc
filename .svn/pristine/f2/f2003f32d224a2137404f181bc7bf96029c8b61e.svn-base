@@ -1,0 +1,1155 @@
+package com.ht.service.impl.drawtask.plan;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.struts2.ServletActionContext;
+
+import com.ht.common.exception.CommonException;
+import com.ht.common.util.BuildExcelTemplate;
+import com.ht.common.util.CellValueUtil;
+import com.ht.common.util.ConvertUtil;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.File2PdfUtil;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.background.dicdata.basedata.BaseDataDao;
+import com.ht.persistence.dao.inter.catalog.area.CatalogAreaDao;
+import com.ht.persistence.dao.inter.drawtask.plan.PlanDao;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.catalog.area.CatalogArea;
+import com.ht.persistence.model.drawtask.plan.Plan;
+import com.ht.persistence.model.drawtask.plan.PlanFile;
+import com.ht.persistence.model.drawtask.plan.VPlan;
+import com.ht.service.impl.background.dicdata.constants.BaseDataConstants;
+import com.ht.service.inter.drawtask.plan.PlanService;
+
+/**
+ * @ClassName: PlanServiceImpl
+ * @Description: 计划业务处理
+ * @author penghao
+ * @date 2016年10月12日 上午11:10:37
+ * 
+ */
+@SuppressWarnings("unchecked")
+public class PlanServiceImpl implements PlanService {
+
+	/**
+	 * 注入计划Dao
+	 */
+	@Resource(name = "planDao")
+	private PlanDao planDao;
+
+	/**
+	 * 注入基础数据Dao
+	 */
+	@Resource(name = "baseDataDao")
+	private BaseDataDao baseDataDao;
+
+	/**
+	 * 注入区域数据Dao
+	 */
+	@Resource(name = "catalogAreaDao")
+	private CatalogAreaDao catalogAreaDao;
+
+	/**
+	 * 根据计划id获取计划
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public Plan getPlanById(String id) throws Exception {
+		try {
+			Plan plan = new Plan();
+			plan.setId(id);
+			// 获取计划
+			return planDao.getPlanById(plan);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 获取计划列表
+	 * 
+	 * @param
+	 * @return
+	 */
+	@Override
+	public List<VPlan> getPlanList(String categoryId,String year) throws Exception {
+		try {
+			// 获取类别
+			BaseData data = new BaseData();
+			Plan plan = new Plan();
+			data.setId(categoryId);
+			plan.setCategory(data);
+			// 指定一个日期  
+			if(StringUtils.isBlank(year)){
+				Calendar cal = Calendar.getInstance();
+				int yearint = cal.get(Calendar.YEAR);
+				year  = String.valueOf(yearint);
+			}
+			/*String dateStr = year+"-01-01";
+		    Date date = DateUtils.parseDate(dateStr, "yyyy-MM-dd");
+			plan.setCreationDate(date);*/
+			plan.setYear(year);
+			// 获取所有的目录明细列表
+			List<VPlan> list = planDao.getPlanListByTyepId(plan);
+			
+			return list;
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 获取月计划列表
+	 * 
+	 * @param
+	 * @return
+	 */
+	@Override
+	public List<VPlan> getMonthPlanList(String categoryId,String dateStr) throws Exception {
+		try {
+			// 获取类别
+			BaseData data = new BaseData();
+			Plan plan = new Plan();
+			data.setId(categoryId);
+			plan.setCategory(data);
+			// 指定一个日期  
+			String year = "";
+			String month = "";
+			if(StringUtils.isBlank(dateStr)){
+				Calendar cal = Calendar.getInstance();
+				int yearint = cal.get(Calendar.YEAR);
+				year  = String.valueOf(yearint);
+				int monthint = cal.get(Calendar.MONTH)+1;
+				month = String.valueOf(monthint);
+			}else{
+				Date date = new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(date);
+				int yearint = cal.get(Calendar.YEAR);
+				year  = String.valueOf(yearint);
+				int monthint = cal.get(Calendar.MONTH)+1;
+				month = String.valueOf(monthint);
+			}
+			plan.setYear(year);
+			plan.setPlanMonth(month);
+			// 获取所有的目录明细列表
+			List<VPlan> list = planDao.getMonthPlanListByTyepId(plan);
+			return list;
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 获取年度布局计划列表
+	 * 
+	 * @param
+	 * @return
+	 */
+	@Override
+	public List<PlanFile> getPlanAttachmentList(String year) throws Exception {
+		try {
+			PlanFile pf = new PlanFile();
+			// 指定一个日期  
+			if(StringUtils.isBlank(year)){
+				year=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			}
+		    Date date = DateUtils.parseDate(year, "yyyy-MM-dd");
+			pf.setPlanYear(date);
+			// 获取所有的目录明细列表
+			List<PlanFile> list = planDao.getPlanAttachmentList(pf);
+			return list;
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 保存计划
+	 * 
+	 * @param String
+	 *            planParam
+	 * @return
+	 */
+	@Override
+	public void addPlan(String planParam, String categoryId, String type)
+			throws Exception {
+		try {
+			// 将计划String类型转成Plan对象
+			Plan plan = (Plan) DataConverter.convertJson2Object(planParam,
+					Plan.class);
+			BaseData data = new BaseData();
+			data.setId(categoryId);
+			// 获取目录类型的ID
+			plan.setCategory(data);
+			if (StringUtils.isEmpty(plan.getId())) {
+				// 判重
+				if (planDao.exists(plan)) {
+					throw new CommonException("本年度： 该图号已存在，请返回重新修改"); ///图号判重 抛出异常 2018.4.3
+				}
+				String planId = GenerateSequenceUtil.generateSequenceNo();
+				plan.setId(planId);
+				String monthPlanId = GenerateSequenceUtil.generateSequenceNo();
+				// 执行添加操作
+				plan.setRelationId(monthPlanId);//临时计划/年计划的relationId是月计划Id
+				planDao.addPlan(plan);
+				// 如果是临时计划,则向月度计划中也插入一条数据
+				if ("3".equals(type)) {
+					Plan monthPlan = new Plan();
+					monthPlan.setId(monthPlanId);
+					BaseData base = new BaseData();
+					base.setId(BaseDataConstants.BHJH_ID_YDJH);
+					monthPlan.setCategory(base);
+					monthPlan.setSeaArea(plan.getSeaArea());
+					monthPlan.setMapNo(plan.getMapNo());
+					monthPlan.setMapName(plan.getMapName());
+					monthPlan.setScale(plan.getScale());
+					monthPlan.setType(plan.getType());
+					monthPlan.setWorkload(plan.getWorkload());
+					monthPlan.setDeliverTime(plan.getDeliverTime());
+					monthPlan.setMeasurementPeriod(plan.getMeasurementPeriod());
+					monthPlan.setPlanMonth(plan.getPlanMonth() == null ? null: plan.getPlanMonth());
+					monthPlan.setRevision(plan.getRevision());
+					monthPlan.setPrintQuantity(plan.getPrintQuantity());
+					monthPlan.setDiscription(plan.getDiscription() == null ? null: plan.getDiscription());
+					monthPlan.setRelationId(plan.getId());//月计划relationId是临时计划/年计划的ID
+					// 获取资料汇交时间
+					Date date = plan.getDeliverTime();
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(date);
+					int month = cal.get(Calendar.MONTH)+1;
+					int year = cal.get(Calendar.YEAR);
+					int day = cal.get(Calendar.DATE);
+					String monthstr = null;
+					if(day>=28){
+						if(month==12){
+							monthstr ="1";
+							year = year + 1;
+						}else{
+							monthstr = String.valueOf(month + 1);
+						}
+					}else{
+						monthstr = String.valueOf(month);
+					}
+					monthPlan.setYear(String.valueOf(year));
+					monthPlan.setPlanMonth(monthstr);
+					monthPlan.setTaskSource(plan.getTaskSource());
+					monthPlan.setLastYear(plan.getLastYear());
+					monthPlan.setNature(plan.getNature());
+					monthPlan.setTaskType("临时性任务");
+					planDao.addPlan(monthPlan);
+				}else if (type.contains(BaseDataConstants.BHJH_TYPE_NDJH)) {
+					Plan monthPlan = new Plan();
+					monthPlan.setId(monthPlanId);
+					BaseData base = new BaseData();
+					base.setId(BaseDataConstants.BHJH_ID_YDJH);
+					monthPlan.setCategory(base);
+					monthPlan.setSeaArea(plan.getSeaArea());
+					monthPlan.setMapNo(plan.getMapNo());
+					monthPlan.setMapName(plan.getMapName());
+					monthPlan.setScale(plan.getScale());
+					monthPlan.setType(plan.getType());
+					monthPlan.setWorkload(plan.getWorkload());
+					monthPlan.setDeliverTime(plan.getDeliverTime());
+					monthPlan.setMeasurementPeriod(plan.getMeasurementPeriod());
+					monthPlan.setPlanMonth(plan.getPlanMonth() == null ? null: plan.getPlanMonth());
+					monthPlan.setRevision(plan.getRevision());
+					monthPlan.setPrintQuantity(plan.getPrintQuantity());
+					monthPlan.setDiscription(plan.getDiscription() == null ? null: plan.getDiscription());
+					monthPlan.setRelationId(plan.getId());
+					// 获取资料汇交时间
+					Date date = plan.getDeliverTime();
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(date);
+					int month = cal.get(Calendar.MONTH)+1;
+					int year = cal.get(Calendar.YEAR);
+					monthPlan.setYear(String.valueOf(year));
+					int day = cal.get(Calendar.DATE);
+					String monthstr = null;
+					if(day>=28){
+						if(month==12){
+							monthstr ="1";
+							year = year + 1;
+						}else{
+							monthstr = String.valueOf(month + 1);
+						}
+					}else{
+						monthstr = String.valueOf(month);
+					}
+					monthPlan.setPlanMonth(monthstr);
+					monthPlan.setTaskSource(plan.getTaskSource());
+					monthPlan.setLastYear(plan.getLastYear());
+					monthPlan.setNature(plan.getNature());
+					monthPlan.setTaskType("指令性任务");
+					planDao.addPlan(monthPlan);
+				}
+			} 
+			else {
+				List<Plan> plans = planDao.getPlanListByMapNo(plan);
+				if (plans != null) {
+					if (plans.size()>0) {
+						for (int i = 0; i < plans.size(); i++) {
+							if (plans.get(i).getId().equals(plan.getId())) {
+								plans.remove(i);
+							}
+						}
+						if (plans.size()>0) {
+							throw new CommonException("本年度 该图号已存在，请返回重新修改。");
+						}
+					}
+				}
+				//planDao.getPlanById(plan);
+				// 执行保存操作
+				// 查出关联计划并修改保存
+				Plan relationPlan = new Plan();
+				relationPlan = getPlanById(plan.getRelationId());
+				if(plan.getRelationId().isEmpty()){
+					throw new CommonException("无法找到关联的计划");
+				}
+				relationPlan.setSeaArea(plan.getSeaArea());
+				relationPlan.setMapNo(plan.getMapNo());
+				relationPlan.setMapName(plan.getMapName());
+				relationPlan.setScale(plan.getScale());
+				relationPlan.setType(plan.getType());
+				relationPlan.setWorkload(plan.getWorkload());
+				relationPlan.setDeliverTime(plan.getDeliverTime());
+				relationPlan.setMeasurementPeriod(plan.getMeasurementPeriod());
+				relationPlan.setPlanMonth(plan.getPlanMonth() == null ? null: plan.getPlanMonth());
+				// 获取资料汇交时间
+				Date date = plan.getDeliverTime();
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(date);
+				int month = cal.get(Calendar.MONTH)+1;
+				int year = cal.get(Calendar.YEAR);
+				int day = cal.get(Calendar.DATE);
+				String monthstr = null;
+				if(day>=28){
+					if(month==12){
+						monthstr ="1";
+						year = year + 1;
+					}else{
+						monthstr = String.valueOf(month + 1);
+					}
+				}else{
+					monthstr = String.valueOf(month);
+				}
+				relationPlan.setYear(String.valueOf(year));
+				relationPlan.setPlanMonth(monthstr);
+				relationPlan.setRevision(plan.getRevision());
+				relationPlan.setPrintQuantity(plan.getPrintQuantity());
+				relationPlan.setDiscription(plan.getDiscription() == null ? null: plan.getDiscription());
+				relationPlan.setTaskSource(plan.getTaskSource());
+				relationPlan.setLastYear(plan.getLastYear());
+				relationPlan.setNature(plan.getNature());
+				planDao.modifyPlan(relationPlan);
+				//  保存计划
+				planDao.modifyPlan(plan);
+			}
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+			throw e;
+		}
+	}
+
+	/**
+	 * 删除计划
+	 * 
+	 * @param String
+	 *            ids
+	 * @return
+	 */
+	@Override
+	public void delPlan(String ids) throws Exception {
+		if (StringUtils.isNotEmpty(ids)) {
+			// 将用户String类型转成Plan对象
+			List<Plan> list = (List<Plan>) DataConverter.convertJson2List(ids,
+					Plan.class);
+			for (int i = 0; i < list.size(); i++) {
+				planDao.delPlan(list.get(i));
+			}
+		}
+	}
+
+	/**
+	 * 导入计划
+	 * 
+	 * @param file
+	 *            文档
+	 * @param type
+	 *            计划类型
+	 * @param categoryId
+	 *            计划类型id
+	 * @return
+	 */
+	@Override
+	public String addPlanByExcel(File file, String type, String categoryId)
+			throws Exception {
+		StringBuffer failMsg = new StringBuffer();
+		try {
+			// 创建文件流
+			FileInputStream is = new FileInputStream(file);
+			// 加载文件流
+			XSSFWorkbook wbs = new XSSFWorkbook(is);
+			// 读取第一个Sheet
+			XSSFSheet firstSheet = wbs.getSheetAt(0);
+			// 遍历行
+			Map<String, Plan> map = new HashMap<String, Plan>();
+			Map<String, CatalogArea> areaMap = new HashMap<String, CatalogArea>();
+			Map<String, Plan> monthMap = new HashMap<String, Plan>();
+			int count = 0;
+			int failNum = 0;
+			for (int i = 1; i < firstSheet.getLastRowNum() + 1; i++) {
+				Plan plan = new Plan();
+				// 获得行对象
+				XSSFRow row = firstSheet.getRow(i);
+				if (null != row) {
+					// 获取计划类型
+					BaseData data = new BaseData();
+					data.setId(categoryId);
+					plan.setCategory(data);
+					if(type.equals("1")){
+						if (CellValueUtil.removePoint(row.getCell(2)).equals("中国海区")) {
+							plan.setSeaArea("中国海区");
+						}else if(CellValueUtil.removePoint(row.getCell(2)).equals("北方海区")){
+							plan.setSeaArea("北方海区");
+						}else if(CellValueUtil.removePoint(row.getCell(2)).equals("东海海区")){
+								plan.setSeaArea("东海海区");
+						}else if(CellValueUtil.removePoint(row.getCell(2)).equals("南海海区")){
+								plan.setSeaArea("南海海区");
+						}else{
+								failMsg.append("<p>第" + (i + 1)
+										+ "行导入失败，失败原因为：请正确填写指令性任务海区（中国海区、北方海区、东海海区、南海海区其中之一）！</p>");
+								failNum = failNum + 1;
+								continue;
+						}
+					}else{
+						plan.setSeaArea(CellValueUtil.removePoint(row.getCell(2)));
+					}
+					if (row.getCell(1) == null) {
+						failMsg.append("<p>第" + (i + 1)
+								+ "行导入失败，失败原因为：图号不能为空！</p>");
+						failNum = failNum + 1;
+						continue;
+					}
+					if (row.getCell(0).getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+						failMsg.append("<p>第" + (i + 1)
+								+ "行导入失败，失败原因为：图号不能为空！</p>");
+						failNum = failNum + 1;
+						continue;
+					}
+					String mapNo = CellValueUtil.removePoint(row.getCell(0));
+					plan.setMapNo(mapNo);
+					// 与数据库数据去重
+					if (planDao.exists(plan)) {
+						failMsg.append("<p>第" + (i + 1)
+								+ "行导入失败，失败原因为：该计划类型下图号" + mapNo + "已经存在！</p>");
+						failNum = failNum + 1;
+						continue;
+					}
+					// 图名
+					plan.setMapName(CellValueUtil.removePoint(row.getCell(1)));
+					// 比例尺
+					plan.setScale(CellValueUtil.removePoint(row.getCell(3)));
+					// 类型
+					plan.setType(CellValueUtil.removePoint(row.getCell(4)));
+					// 工作量
+//					plan.setWorkload(CellValueUtil.removePoint(row.getCell(5)));
+					// 资料汇交时间
+					Date deliverTime = null;
+					if (row.getCell(5) != null) {
+						int cellType = row.getCell(5).getCellType();
+						if (cellType != XSSFCell.CELL_TYPE_BLANK) {
+							if(cellType == 0){
+								deliverTime = row.getCell(5).getDateCellValue();
+							}else{
+								failMsg.append("<p>第" + (i + 1)
+										+ "行导入失败，失败原因为：日期格式错误，请检查日期格式是否正确！</p>");
+								failNum = failNum + 1;
+							}
+						}
+					}
+					plan.setDeliverTime(deliverTime);
+					plan.setYear(CellValueUtil.removePoint(row.getCell(6)));
+					// 年计划少字段
+					if (type.contains(BaseDataConstants.BHJH_TYPE_NDJH)) {
+						plan.setMeasurementPeriod(CellValueUtil.removePoint(row.getCell(7)));
+						if (CellValueUtil.removePoint(row.getCell(8)).equals("部局")) {
+							plan.setTaskSource("02271444478080017");
+						}else if(CellValueUtil.removePoint(row.getCell(8)).equals("东保")){
+								plan.setTaskSource("02271445035110024");
+						}else if(CellValueUtil.removePoint(row.getCell(8)).equals("上海海图中心")){
+								plan.setTaskSource("02271445153240031");
+						}else if(CellValueUtil.removePoint(row.getCell(8)).equals("其他")){
+								plan.setTaskSource("02271445283080038");
+						}else{
+								failMsg.append("<p>第" + (i + 1)
+										+ "行导入失败，失败原因为：请正确填写任务来源（部局、东保、上海海图中心、其它）！</p>");
+								failNum = failNum + 1;
+								continue;
+							}
+						plan.setNature(CellValueUtil.removePoint(row
+								.getCell(9)));
+						plan.setLastYear(CellValueUtil.removePoint(row
+								.getCell(10)));
+						plan.setDiscription(CellValueUtil.removePoint(row
+								.getCell(11)));
+					} else {
+						// 所属月份
+						plan.setPlanMonth(CellValueUtil.removePoint(row
+								.getCell(7)));
+						plan.setMeasurementPeriod(CellValueUtil.removePoint(row
+								.getCell(8)));
+						if (CellValueUtil.removePoint(row.getCell(9)).equals("部局")) {
+								plan.setTaskSource("02271444478080017");
+						}else if(CellValueUtil.removePoint(row.getCell(9)).equals("东保")){
+								plan.setTaskSource("02271445035110024");
+						}else if(CellValueUtil.removePoint(row.getCell(9)).equals("上海海图中心")){
+								plan.setTaskSource("02271445153240031");
+						}else if(CellValueUtil.removePoint(row.getCell(9)).equals("其他")){
+								plan.setTaskSource("02271445283080038");
+						}else{
+								failMsg.append("<p>第" + (i + 1)
+										+ "行导入失败，失败原因为：请正确填写任务来源（部局、东保、上海海图中心、其它）！</p>");
+								failNum = failNum + 1;
+								continue;
+							}
+						plan.setNature(CellValueUtil.removePoint(row
+								.getCell(10)));
+						plan.setLastYear(CellValueUtil.removePoint(row
+								.getCell(11)));
+						plan.setDiscription(CellValueUtil.removePoint(row
+								.getCell(12)));
+					}
+					// 表格去重
+					String planKey = mapNo + categoryId;
+					if (map.containsKey(planKey)) {
+						failMsg.append("<p>第" + (i + 1)
+								+ "行导入失败，失败原因为：该计划类型下图号" + mapNo + "已经存在！</p>");
+						failNum = failNum + 1;
+						continue;
+					} else {
+						map.put(planKey, plan);
+					}
+					// 生成id
+					plan.setId(GenerateSequenceUtil.generateSequenceNo());
+					String monthPlanId = GenerateSequenceUtil.generateSequenceNo();
+					// 执行添加操作
+					plan.setRelationId(monthPlanId);//临时计划/年计划的relationId是月计划Id
+					planDao.addPlan(plan);
+					// 如果是临时计划就自动拆分为月度计划
+					if ("3".equals(type)) {
+						Plan monthPlan = new Plan();
+						monthPlan.setId(monthPlanId);
+						BaseData base = new BaseData();
+						base.setId(BaseDataConstants.BHJH_ID_YDJH);
+						monthPlan.setCategory(base);
+						monthPlan.setSeaArea(plan.getSeaArea());
+						monthPlan.setMapNo(plan.getMapNo());
+						// 判断数据库是否存在
+						if (!planDao.exists(monthPlan)) {
+							monthPlan.setMapName(plan.getMapName() == null ? null: plan.getMapName());
+							monthPlan.setScale(plan.getScale() == null ? null: plan.getScale());
+							monthPlan.setType(plan.getType() == null ? null: plan.getType());
+							monthPlan.setWorkload(plan.getWorkload() == null ? null: plan.getWorkload());
+							monthPlan.setDeliverTime(plan.getDeliverTime() == null ? null: plan.getDeliverTime());
+							monthPlan.setYear(plan.getYear() == null ? null : plan.getYear());
+							monthPlan.setMeasurementPeriod(plan.getMeasurementPeriod() == null ? null: plan.getMeasurementPeriod());
+							monthPlan.setPlanMonth(plan.getPlanMonth() == null ? null: plan.getPlanMonth());
+							monthPlan.setRevision(plan.getRevision() == null ? null: plan.getRevision());
+							monthPlan.setRelationId(plan.getId());//月计划relationId是临时计划/年计划的ID
+							monthPlan.setPrintQuantity(plan.getPrintQuantity() == null ? null: plan.getPrintQuantity());
+							monthPlan.setTaskSource(plan.getTaskSource()== null ? null: plan.getTaskSource());
+							monthPlan.setLastYear(plan.getLastYear()== null ? null: plan.getLastYear());
+							monthPlan.setNature(plan.getNature()== null ? null: plan.getNature());
+							monthPlan.setTaskType("临时性任务");
+							monthPlan.setDiscription(plan.getDiscription() == null ? null: plan.getDiscription());
+							// 获取资料汇交时间
+							if (plan.getDeliverTime() != null) {
+								Date date = plan.getDeliverTime();
+								Calendar cal = Calendar.getInstance();
+								cal.setTime(date);
+								int month = cal.get(Calendar.MONTH)+1;
+								int day = cal.get(Calendar.DATE);
+								int year = cal.get(Calendar.YEAR);
+								String monthstr = null;
+								if(day>=28){
+									if(month==12){
+										monthstr ="1";
+										year = year + 1;
+									}else{
+										monthstr = String.valueOf(month + 1);
+									}
+								}else{
+									monthstr = String.valueOf(month);
+								}
+								monthPlan.setPlanMonth(monthstr);
+							}
+							String monthkey = plan.getMapNo()+ BaseDataConstants.BHJH_ID_YDJH;
+							// 表单去重
+							if (!monthMap.containsKey(monthkey)) {
+								monthMap.put(monthkey, monthPlan);
+							}
+						}
+					}
+					// 如果是年度计划就自动拆分为月度计划
+					if (type.contains(BaseDataConstants.BHJH_TYPE_NDJH)) {
+						Plan monthPlan = new Plan();
+						monthPlan.setId(monthPlanId);
+						BaseData base = new BaseData();
+						base.setId(BaseDataConstants.BHJH_ID_YDJH);
+						monthPlan.setCategory(base);
+						monthPlan.setSeaArea(plan.getSeaArea());
+						monthPlan.setMapNo(plan.getMapNo());
+						// 判断数据库是否存在
+						if (!planDao.exists(monthPlan)) {
+							monthPlan
+									.setMapName(plan.getMapName() == null ? null
+											: plan.getMapName());
+							monthPlan.setScale(plan.getScale() == null ? null
+									: plan.getScale());
+							monthPlan.setType(plan.getType() == null ? null
+									: plan.getType());
+							monthPlan
+									.setWorkload(plan.getWorkload() == null ? null
+											: plan.getWorkload());
+							monthPlan
+									.setDeliverTime(plan.getDeliverTime() == null ? null
+											: plan.getDeliverTime());
+							monthPlan.setYear(plan.getYear() == null ? null 
+									: plan.getYear());
+							monthPlan.setMeasurementPeriod(plan
+									.getMeasurementPeriod() == null ? null
+									: plan.getMeasurementPeriod());
+							monthPlan
+									.setPlanMonth(plan.getPlanMonth() == null ? null
+											: plan.getPlanMonth());
+							monthPlan
+									.setRevision(plan.getRevision() == null ? null
+											: plan.getRevision());
+							monthPlan.setRelationId(plan.getId());//月计划relationId是临时计划/年计划的ID
+							monthPlan
+									.setPrintQuantity(plan.getPrintQuantity() == null ? null
+											: plan.getPrintQuantity());
+							monthPlan.setTaskSource(plan.getTaskSource()== null ? null: plan.getTaskSource());
+							monthPlan.setLastYear(plan.getLastYear()== null ? null: plan.getLastYear());
+							monthPlan.setNature(plan.getNature()== null ? null: plan.getNature());
+							monthPlan.setTaskType("指令性任务");
+							monthPlan
+									.setDiscription(plan.getDiscription() == null ? null
+											: plan.getDiscription());
+							// 获取资料汇交时间
+							if (plan.getDeliverTime() != null) {
+								Date date = plan.getDeliverTime();
+								Calendar cal = Calendar.getInstance();
+								cal.setTime(date);
+								int month = cal.get(Calendar.MONTH)+1;
+								int day = cal.get(Calendar.DATE);
+								int year = cal.get(Calendar.YEAR);
+								String monthstr = null;
+								if(day>=28){
+									if(month==12){
+										monthstr ="1";
+										year = year + 1;
+									}else{
+										monthstr = String.valueOf(month + 1);
+									}
+								}else{
+									monthstr = String.valueOf(month);
+								}
+								monthPlan.setPlanMonth(monthstr);
+							}
+							String monthkey = plan.getMapNo()
+									+ BaseDataConstants.BHJH_ID_YDJH;
+							// 表单去重
+							if (!monthMap.containsKey(monthkey)) {
+								monthMap.put(monthkey, monthPlan);
+							}
+						}
+					}
+				}
+				count++;
+			}
+			// 保存海区
+			for (Entry<String, CatalogArea> area : areaMap.entrySet()) {
+				catalogAreaDao.add(area.getValue());
+			}
+			// 保存月度计划
+			if (!monthMap.isEmpty()) {
+				for (Entry<String, Plan> plan : monthMap.entrySet()) {
+					planDao.addPlan(plan.getValue());
+				}
+			}
+			failMsg.append("<p>共成功导入" + count + "条数据，失败" + failNum + "条！</p>");
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw e;
+
+		}
+		return failMsg.toString();
+	}
+
+	/**
+	 * 下载模板
+	 * 
+	 * @throws IOException
+	 */
+	@Override
+	public InputStream getTemplate(String type, String sheetName)
+			throws Exception {
+		// 第一行标题
+		String[] title;
+		if (type.contains(BaseDataConstants.BHJH_TYPE_NDJH)) {
+			title = new String[] {  "图号", "图名","海区", "比例尺(1:)", "类别",
+					"资料汇交时间", "年份","基测周期","任务来源","上次测量/编绘性质","上次测量年份", "说明" };
+		} else {
+			title = new String[] { "图号", "图名","海区", "比例尺(1:)", "类别",
+					"资料汇交时间", "年份","所属月份", "基测周期","任务来源","上次测量/编绘性质","上次测量年份", "说明" };
+		}
+		InputStream stream = null;
+		try {
+			stream = BuildExcelTemplate.getTemplate(sheetName, title);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return stream;
+	}
+
+	/**
+	 * 导出计划
+	 * 
+	 * @throws IOException
+	 */
+	@Override
+	public InputStream export(String year,String type, String categoryId, String sheetName)
+			throws Exception {
+		InputStream stream = null;
+		try {
+			Plan plan = new Plan();
+			// 第一行标题
+			String[] title;
+			if (type.contains(BaseDataConstants.BHJH_TYPE_NDJH)) {
+				title = new String[] {  "图号", "图名","海区", "比例尺(1:)", "类别",
+						"资料汇交日期", "年份","基测周期","任务来源","上次测量/编绘性质","上次测量年份","说明" };
+			} else if(type.contains(BaseDataConstants.BHJH_TYPE_YDJH)){
+				title = new String[] {  "图号", "图名","海区", "比例尺(1:)", "类别",
+						"资料汇交日期", "年份","所属月份", "基测周期","任务来源","上次测量/编绘性质","上次测量年份","任务类型", "说明" };
+			}else{
+				title = new String[] {  "图号", "图名","海区", "比例尺(1:)", "类别",
+						"资料汇交日期", "年份","所属月份", "基测周期","任务来源","上次测量/编绘性质","上次测量年份", "说明" };
+				
+			}
+			// 获取出的计划类型id
+			BaseData data = new BaseData();
+			data.setId(categoryId);
+			plan.setCategory(data);
+			String month = "";
+			if(StringUtils.isBlank(year)){
+				if (type.contains(BaseDataConstants.BHJH_TYPE_YDJH)) {
+					Calendar cal = Calendar.getInstance();
+					int yearint = cal.get(Calendar.YEAR);
+					int monthInt = cal.get(Calendar.MONTH) + 1;
+					year  = String.valueOf(yearint);
+					month  = String.valueOf(monthInt);
+				} else {
+					Calendar cal = Calendar.getInstance();
+					int yearint = cal.get(Calendar.YEAR);
+					year  = String.valueOf(yearint);
+				}
+			}else{
+				if(type.contains(BaseDataConstants.BHJH_TYPE_YDJH)){
+					Date date = new SimpleDateFormat("yyyy-MM").parse(year);
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(date);
+					int yearint = cal.get(Calendar.YEAR);
+					year  = String.valueOf(yearint);
+					int monthint = cal.get(Calendar.MONTH)+1;
+					month = String.valueOf(monthint);
+				}
+			}
+			// 获取数据
+			List<VPlan> list = null;
+			if (type.contains(BaseDataConstants.BHJH_TYPE_YDJH)) {
+				plan.setYear(year);
+				plan.setPlanMonth(month);
+				list = planDao.getMonthPlanListByTyepId(plan);
+			}else{
+				plan.setYear(year);
+				list = planDao.getPlanListByTyepId(plan);
+			}
+			// 创建excel工作簿
+			XSSFWorkbook workbook = new XSSFWorkbook();
+			// 创建一个工作表
+			XSSFSheet sheet = workbook.createSheet(sheetName);
+			// 给一个工作表名称一个长度
+			sheet.setDefaultColumnWidth(15);
+			// 生成一个样式
+			XSSFCellStyle style = workbook.createCellStyle();
+			// 创建第一行
+			XSSFRow row = sheet.createRow(0);
+			// 设置样式居中
+			style.setAlignment(XSSFCellStyle.ALIGN_CENTER);
+			// 创建字体对象
+			Font font = workbook.createFont();
+			// 字体加粗
+			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			// 添加字体样式
+			style.setFont(font);
+			// 设置行高
+			row.setHeightInPoints(20);
+			// 设置第一行标题
+			XSSFCell cell = null;
+			for (int i = 0; i < title.length; i++) {
+				cell = row.createCell(i);
+				cell.setCellValue(title[i]);
+				sheet.setColumnWidth(i, title[i].getBytes().length * 2 * 256);
+				cell.setCellStyle(style);
+			}
+			for (int i = 1; i < list.size() + 1; i++) {
+				VPlan content = list.get(i - 1);
+				XSSFRow otherrow = sheet.createRow(i);
+				// 图号
+				XSSFCell cell1 = otherrow.createCell(0);
+				cell1.setCellValue(content.getMapNo() == null ? "" : content
+						.getMapNo());
+				// 图名
+				cell1 = otherrow.createCell(1);
+				cell1.setCellValue(content.getMapName() == null ? "" : content
+						.getMapName());
+				cell1 = otherrow.createCell(2);
+				cell1.setCellValue(content.getArea() == null ? "" : content
+						.getArea());
+				// 比例尺
+				cell1 = otherrow.createCell(3);
+				cell1.setCellValue(content.getScale() == null ? "" : content
+						.getScale());
+				// 类别
+				cell1 = otherrow.createCell(4);
+				cell1.setCellValue(content.getType() == null ? "" : content
+						.getType());
+				// 资料汇交时间
+				cell1 = otherrow.createCell(5);
+				if (content.getDeliverTime() == null) {
+					cell1.setCellValue("");
+				} else {
+					cell1.setCellValue(content.getDeliverTime());
+				}
+				XSSFCellStyle cellStyle = workbook.createCellStyle();
+				XSSFDataFormat format = workbook.createDataFormat();
+				cellStyle.setDataFormat(format.getFormat("yyyy-mm-dd"));
+				cell1.setCellStyle(cellStyle);
+				// 年份
+				cell1 = otherrow.createCell(6);
+				cell1.setCellValue(content.getYear() == null ? "" : content.getYear());
+				// 字段分层
+				if (type.contains(BaseDataConstants.BHJH_TYPE_NDJH)) {
+					// 基测周期
+					cell1 = otherrow.createCell(7);
+					cell1.setCellValue(content.getMeasurementPeriod() == null ? ""
+							: content.getMeasurementPeriod());
+					
+					// 任务来源
+					cell1 = otherrow.createCell(8);
+					cell1.setCellValue(content.getTaskSource() == null ? ""
+							: content.getTaskSource());
+					
+					// 上次测量/编绘性质
+					cell1 = otherrow.createCell(9);
+					cell1.setCellValue(content.getNature() == null ? ""
+							: content.getNature());
+					
+					// 上次测量年份
+					cell1 = otherrow.createCell(10);
+					cell1.setCellValue(content.getLastYear() == null ? ""
+							: content.getLastYear());
+					// 说明
+					cell1 = otherrow.createCell(11);
+					cell1.setCellValue(content.getDiscription() == null ? ""
+							: content.getDiscription());
+				} else if(type.contains(BaseDataConstants.BHJH_TYPE_YDJH)){
+					// 所属月份
+					cell1 = otherrow.createCell(7);
+					cell1.setCellValue(content.getPlanMonth() == null ? ""
+							: content.getPlanMonth());
+					// 基测周期
+					cell1 = otherrow.createCell(8);
+					cell1.setCellValue(content.getMeasurementPeriod() == null ? ""
+							: content.getMeasurementPeriod());
+					
+					// 任务来源
+					cell1 = otherrow.createCell(9);
+					cell1.setCellValue(content.getTaskSource() == null ? ""
+							: content.getTaskSource());
+					
+					// 上次测量/编绘性质
+					cell1 = otherrow.createCell(10);
+					cell1.setCellValue(content.getNature() == null ? ""
+							: content.getNature());
+					
+					// 上次测量年份
+					cell1 = otherrow.createCell(11);
+					cell1.setCellValue(content.getLastYear() == null ? ""
+							: content.getLastYear());
+					
+					// 上次测量年份
+					cell1 = otherrow.createCell(12);
+					cell1.setCellValue(content.getTaskType() == null ? ""
+							: content.getTaskType());
+					
+					// 说明
+					cell1 = otherrow.createCell(13);
+					cell1.setCellValue(content.getDiscription() == null ? ""
+							: content.getDiscription());
+				}else{
+					// 所属月份
+					cell1 = otherrow.createCell(7);
+					cell1.setCellValue(content.getPlanMonth() == null ? ""
+							: content.getPlanMonth());
+					// 基测周期
+					cell1 = otherrow.createCell(8);
+					cell1.setCellValue(content.getMeasurementPeriod() == null ? ""
+							: content.getMeasurementPeriod());
+					
+					// 任务来源
+					cell1 = otherrow.createCell(9);
+					cell1.setCellValue(content.getTaskSource() == null ? ""
+							: content.getTaskSource());
+					
+					// 上次测量/编绘性质
+					cell1 = otherrow.createCell(10);
+					cell1.setCellValue(content.getNature() == null ? ""
+							: content.getNature());
+					
+					// 上次测量年份
+					cell1 = otherrow.createCell(11);
+					cell1.setCellValue(content.getLastYear() == null ? ""
+							: content.getLastYear());
+					// 说明
+					cell1 = otherrow.createCell(12);
+					cell1.setCellValue(content.getDiscription() == null ? ""
+							: content.getDiscription());
+				}
+			}
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			workbook.write(outputStream);
+			outputStream.flush();
+			byte[] byteArray = outputStream.toByteArray();
+			stream = new ByteArrayInputStream(byteArray, 0, byteArray.length);
+			outputStream.close();
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+			throw e;
+		}
+		return stream;
+	}
+	
+	/**
+	 * 附件上传
+	 * @throws Exception 
+	 */
+	@Override
+	public void uploadFile(String year, File upload, String uploadFileName) throws Exception {
+		try {
+			// 获取项目在服务器的路径
+	 		String serverPath = FileUtil.ROOT_PATH;
+	 		// 新建一个路径，在最后以当前年月日新建一个文件夹
+	 		String path = "\\upload\\plan\\"+ ConvertUtil.convertDateToString("yyyyMMdd",new Date());
+	 		// 创建文件夹
+	 		FileUtil.CreateFolder(serverPath+path);
+	        InputStream is = new FileInputStream(upload);
+	        InputStream is2 = new FileInputStream(upload);
+	        OutputStream os = new FileOutputStream(new File(serverPath+path, uploadFileName));
+	        // 截取文件后缀名
+	        String suffixName = uploadFileName.substring(uploadFileName.lastIndexOf("."));
+	        String fileName = uploadFileName.substring(0,uploadFileName.lastIndexOf("."));
+	        // 获取文件大小
+	        int size = is.available();
+	        String spaceSize = null;
+	        if(size > 0){
+	        	// 大小除以1024，计算出等于多少kb
+	        	int spacesize = size / 1024;
+	        	if(size!=0&&spacesize==0){
+	        		spacesize=1;
+	        	}
+	        	spaceSize = Integer.toString(spacesize)+"kb";
+	        }else {
+	        	spaceSize = "";
+	        }
+	        String id = GenerateSequenceUtil.generateSequenceNo();
+	        File2PdfUtil.startServer();
+	        File2PdfUtil.toPDF(is2,serverPath + path+"\\"+uploadFileName, serverPath + path+"\\"+id+".pdf");
+	        os.close();
+	        is.close();
+	        is2.close();
+	        PlanFile pf = new PlanFile();
+	        pf.setId(id);
+	        pf.setFileName(uploadFileName);
+	        pf.setFilePath(path);
+	        pf.setSpaceSize(spaceSize);
+	        pf.setSuffixName(suffixName);
+	        pf.setPlanYear(new SimpleDateFormat("yyyy-MM-dd").parse(year));
+	        // 添加文件数据
+	        planDao.addBookFile(pf);
+		}catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 文件下载
+	 * @throws Exception 
+	 */
+	@Override
+	public void downloadFile(String id) throws Exception {
+		try {
+			PlanFile pf = new PlanFile();
+			pf.setId(id);
+			pf = planDao.getPlanFileById(pf);
+			// 获取项目所在服务器路径，将\\替换为/
+			String serverPath = (FileUtil.ROOT_PATH).replaceAll("\\\\", "/");
+			// 获取文件路径
+			String filePath = (pf.getFilePath()).replaceAll("\\\\", "/");
+			// 获取文件名称
+			String fileName = pf.getFileName();
+
+			InputStream is = new FileInputStream(serverPath+filePath+"/"+fileName);
+			//下载到客户端
+			HttpServletResponse response = ServletActionContext.getResponse();
+			OutputStream os = response.getOutputStream();
+			//弹出下载的框filename:提示用户下载的文件名，解决中文乱码
+			response.addHeader("content-disposition", "attachment;fileName="+new String(fileName.getBytes("utf-8"),"iso-8859-1"));
+			byte[] b = new byte[1024];
+			int size = is.read(b);
+			while(size>0){
+				os.write(b,0,size);
+				size = is.read(b);
+			}
+			os.flush();
+			is.close();
+			os.close();
+		}catch (Exception e){
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据id查附件
+	 */
+	@Override
+	public String getUrlById(String id){
+		// 获取项目所在服务器路径，将\\替换为/
+		String serverPath = (FileUtil.ROOT_PATH).replaceAll("\\\\", "/");
+		PlanFile pf = new PlanFile();
+		pf.setId(id);
+		pf = planDao.getPlanFileById(pf);
+		// 获取文件路径
+		String filePath = (pf.getFilePath()).replaceAll("\\\\", "/");
+		 File file = new File(serverPath+filePath+"/"+id+".pdf");
+		 if(file.isFile()){
+			// 获取文件名称
+				return ".."+filePath+"/"+id+".pdf";
+		 }else{
+			 return "";
+		 }
+		
+	}
+	
+	/**
+	 * 删除年计划部局
+	 * 
+	 * @param String
+	 *            ids
+	 * @return
+	 */
+	@Override
+	public void delPlanFilesRemove(String ids) throws Exception {
+		
+		if (StringUtils.isNotEmpty(ids)) {
+			// 将用户String类型转成PlanFile对象
+			List<PlanFile> list = (List<PlanFile>) DataConverter.convertJson2List(ids,
+					PlanFile.class);
+			for (int i = 0; i < list.size(); i++) {
+				deleteFile(list.get(i));
+				planDao.delPlanFilesRemove(list.get(i));
+			}
+		}
+	}
+	
+	/** 
+	 * 删除文件 
+	 * @param   sPath    被删除文件的文件名 
+	 * @return 单个文件删除成功返回true，否则返回false 
+	 */  
+	public void deleteFile(PlanFile pf) {  
+		// 获取项目所在服务器路径，将\\替换为/
+		String serverPath = (FileUtil.ROOT_PATH).replaceAll("\\\\", "/");
+		// 获取文件路径
+		String filePath = (pf.getFilePath()).replaceAll("\\\\", "/");
+		// 获取文件名称
+		String fileName = pf.getFileName();
+	    File file = new File(serverPath+filePath+"/"+fileName);  
+	    // 路径为文件且不为空则进行删除  
+	    if (file.isFile() && file.exists()) {  
+	        file.delete();  
+	    }  
+	    File pdfFile = new File(serverPath+filePath+"/"+pf.getId()+".pdf");  
+	    // 路径为文件且不为空则进行删除  
+	    if (pdfFile.isFile() && pdfFile.exists()) {  
+	    	pdfFile.delete();  
+	    }  
+	}
+
+	@Override
+	public PlanFile getPlanFileById(PlanFile pf) {
+		return planDao.getPlanFileById(pf);
+	}  
+}

@@ -1,0 +1,1211 @@
+package com.ht.workflow.service;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.PersistenceException;
+
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.CallActivity;
+import org.activiti.bpmn.model.FlowElement;
+import org.activiti.bpmn.model.Gateway;
+import org.activiti.bpmn.model.IOParameter;
+import org.activiti.bpmn.model.SequenceFlow;
+import org.activiti.bpmn.model.UserTask;
+import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.task.IdentityLink;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.workflow.common.ITaskInfo;
+import com.ht.workflow.common.IWorkflowEngine;
+import com.ht.workflow.common.ProcessDefinitionInfo;
+import com.ht.workflow.constants.CallActivityConstants;
+import com.ht.workflow.exception.WorkflowException;
+import com.ht.workflow.util.ArgumentList;
+import com.ht.workflow.util.WorkflowEngineFactory;
+
+/**
+ * 工作流Web服务类
+ * @author wyw
+ * @version 1.0 2015/07/05
+ */
+public class WorkflowService implements IWorkflowService
+{
+
+	/** 工作流引擎 */
+	private IWorkflowEngine workflowEngine = null;
+
+	/**
+	 * 工作流Web服务类构造方法
+	 */
+	public WorkflowService()
+	{
+
+		try
+		{
+			// 取得工作流引擎
+			workflowEngine = WorkflowEngineFactory.getInstance().getWorkflowEngine();
+		}
+		// 发生工作流异常
+		catch (WorkflowException e)
+		{
+			// 打印异常日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * 启动工作流处理
+	 * @param processId 工作流ID
+	 * @param launcher 工作流发起人
+	 * @param jsonData 流程JSON数据
+	 * @return 执行结果
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public String start(String processId, String launcher, String jsonData)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<Map<String, String>> result = new WsResult<Map<String, String>>();
+
+		// 声明散列表对象
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		// 将JSON数据转换为散列表对象
+		dataMap = (Map<String, Object>) DataConverter.convertJson2Object(jsonData, dataMap.getClass());
+
+		// 声明工作流结果数据
+		Map<String, String> data = new HashMap<String, String>();
+
+		// 创建参数列表
+		ArgumentList argumentList = new ArgumentList();
+
+		// 如果数据散列表不为空
+		if (dataMap != null && !dataMap.isEmpty())
+		{
+
+			// 声明散列表实体集合
+			Set<Map.Entry<String, Object>> entrySet = dataMap.entrySet();
+			// 声明散列表实体
+			Map.Entry<String, Object> entry = null;
+
+			// 循环处理散列表
+			for (Iterator<Map.Entry<String, Object>> iterator = entrySet.iterator(); iterator.hasNext();)
+			{
+
+				// 取得散列表实体
+				entry = iterator.next();
+				// 将参数对象添加到参数列表中
+				argumentList.add(entry.getKey(), entry.getValue());
+			}
+		}
+
+		// 启动工作流
+		String processInstanceId = workflowEngine.start(processId, launcher, argumentList);
+		// 将工作流实例ID放入散列表中
+		data.put("processInstanceId", processInstanceId);
+
+		// 如果工作流实例ID不为空
+		if (StringUtils.isNotBlank(processInstanceId))
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流实例ID为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(data);
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 取得工作流任务列表
+	 * @param performer 执行者
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public String getTaskList(String performer)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskList(performer);
+
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+	
+	/**
+	 * 取得工作流任务列表
+	 * @param performer 执行者
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public String getAllTaskList(String type)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getAllTaskList(type);
+
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+	
+	
+	@Override
+	public ITaskInfo getOneTaskListByProcessInstId(String processInstId)
+	{
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskListByProcessInstId(processInstId);
+		return  taskInfos.get(0);
+	}
+	
+	@Override
+	public String getTaskListByProcessInstId(String processInstId)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskListByProcessInstId(processInstId);
+
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 根据候选用户组和流程定义Key取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @param processDefKey 流程定义Key
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public String getTaskListByPeformerAndProcessKey(String performer, String processDefKey)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskListByPeformerAndProcessKey(performer, processDefKey);
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 根据候选用户组取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public String getTaskListByCandidateGroup(String groupName)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskListByCandidateGroup(groupName);
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 根据候选用户组和流程定义Key取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @param processDefKey 流程定义Key
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public String getTaskListByCandidateGroupAndProcessKey(String groupName, String processDefKey)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskListByCandidateGroupAndProcessKey(groupName, processDefKey);
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 根据候选用户取得工作流任务列表
+	 * @param userName 用户名称
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public String getTaskListByCandidateUser(String userName)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskListByCandidateUser(userName);
+
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 根据候选指定名称取得工作流任务列表
+	 * @param name 名称
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public String getTaskListByCandidateOrAssignee(String name)
+	{
+
+		// 声明工作流执行结果数据
+		WsResult<List<ITaskInfo>> result = new WsResult<List<ITaskInfo>>();
+
+		// 取得工作流任务列表
+		List<ITaskInfo> taskInfos = workflowEngine.getTaskListByCandidateOrAssignee(name);
+
+		// 如果工作流任务任务列表不为空
+		if (taskInfos != null)
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		}
+		// 如果工作流任务列表为空
+		else
+		{
+
+			// 设置执行结果状态
+			result.setResult(WebServiceConstants.EXECUTION_RESULT_ERROR);
+		}
+
+		// 设置工作流结果数据
+		result.setData(taskInfos);
+
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 领取工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param performer 执行者
+	 * @return 处理结果（1：工作流任务领取成功；2：工作流任务无法找到；3：工作流任务已经被领取）
+	 */
+	@Override
+	public int claim(String taskId, String performer)
+	{
+
+		// 领取工作流任务
+		return workflowEngine.claim(taskId, performer);
+	}
+
+	/**
+	 * 执行工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param argumentList 流程参数列表
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void perform(String taskId, String jsonData)
+	{
+		// 声明散列表对象
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		// 将JSON数据转换为散列表对象
+		dataMap = (Map<String, Object>) DataConverter.convertJson2Object(jsonData, dataMap.getClass());
+
+		// 创建参数列表
+		ArgumentList argumentList = new ArgumentList();
+
+		// 如果数据散列表不为空
+		if (dataMap != null && !dataMap.isEmpty())
+		{
+
+			// 声明散列表实体集合
+			Set<Map.Entry<String, Object>> entrySet = dataMap.entrySet();
+			// 声明散列表实体
+			Map.Entry<String, Object> entry = null;
+
+			// 循环处理散列表
+			for (Iterator<Map.Entry<String, Object>> iterator = entrySet.iterator(); iterator.hasNext();)
+			{
+
+				// 取得散列表实体
+				entry = iterator.next();
+				// 将参数对象添加到参数列表中
+				argumentList.add(entry.getKey(), entry.getValue());
+			}
+		}
+
+		// 执行工作流任务
+		workflowEngine.perform(taskId, argumentList);
+	}
+
+	/**
+	 * 委派工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param performer 执行者
+	 */
+	@Override
+	public void delegate(String taskId, String performer)
+	{
+		// 将工作流任务委派给他人
+		workflowEngine.delegate(taskId, performer);
+	}
+
+	/**
+	 * 部署所有流程模板
+	 */
+	@Override
+	public void deploy()
+	{
+
+		// 部署所有流程模板
+		workflowEngine.deploy();
+	}
+
+	/**
+	 * 获取流程定义
+	 * @return 流程定义列表
+	 */
+	public List<ProcessDefinitionInfo> getProcessDefinition()
+	{
+		// 获取所有流程定义
+		List<ProcessDefinition> list = workflowEngine.getProcessDefinition();
+		/**
+		 * Map<String,ProcessDefinition> map集合的key：流程定义的key map集合的value：流程定义的对象 map集合的特点：当map集合key值相同的情况下，后一次的值将替换前一次的值
+		 */
+		Map<String, ProcessDefinition> map = new LinkedHashMap<String, ProcessDefinition>();
+		if (list != null && list.size() > 0)
+		{
+			for (ProcessDefinition pd : list)
+			{
+				map.put(pd.getKey(), pd);
+			}
+		}
+		List<ProcessDefinition> pdList = new ArrayList<ProcessDefinition>(map.values());
+		// 声明自定义流程定义定义类
+		List<ProcessDefinitionInfo> result = null;
+		// 循环结果集写入自定义流程定义实例
+		if (pdList != null && pdList.size() > 0)
+		{
+			result = new ArrayList<ProcessDefinitionInfo>();
+			for (ProcessDefinition pd : pdList)
+			{
+				ProcessDefinitionInfo p = new ProcessDefinitionInfo();
+				p.setDeploymentId(pd.getDeploymentId());
+				p.setDiagramResourceName(pd.getDiagramResourceName());
+				p.setId(pd.getId());
+				p.setKey(pd.getKey());
+				p.setName(pd.getName());
+				p.setResourceName(pd.getResourceName());
+				p.setVersion(pd.getVersion());
+				result.add(p);
+			}
+		}
+		// 返回结果
+		return result;
+	}
+
+	/**
+	 * 根据获取流程定义
+	 * @return
+	 */
+	public ProcessDefinition getProcessDefinitionId(String flowId)
+	{
+		// 获取所有流程定义
+		ProcessDefinition process = workflowEngine.getProcessDefinitionId(flowId);
+		// 返回结果
+		return process;
+	}
+
+	/**
+	 * 根据key获取流程定义
+	 * @return
+	 */
+	@Override
+	public ProcessDefinition getProcessDefinitionIdByKey(String processDefKey)
+	{
+		// 获取所有流程定义
+		ProcessDefinition process = workflowEngine.getProcessDefinitionIdByKey(processDefKey);
+		// 返回结果
+		return process;
+	}
+
+	/**
+	 * 关闭工作流引擎
+	 */
+	@Override
+	public void close()
+	{
+
+		// 关闭工作流引擎
+		workflowEngine.close();
+	}
+
+	/**
+	 * 创建用户
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void createUser(String userId, String userName)
+	{
+		// 创建用户
+		workflowEngine.createUser(userId, userName);
+	}
+
+	/**
+	 * 删除用户
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void deleteUser(String userId)
+	{
+
+		// 删除用户
+		workflowEngine.deleteUser(userId);
+	}
+
+	/**
+	 * 创建用户组
+	 * @param groupName 用户组名称
+	 */
+	@Override
+	public void createGroup(String groupName)
+	{
+		Map<String, String> group = (Map<String, String>) DataConverter.convertJson2Object(groupName, Map.class);
+		String groupId = group.get("id");
+		String groupNames = group.get("name");
+		if (groupId.equals(""))
+		{
+			// 取得用户组编号
+			String newid = GenerateSequenceUtil.generateSequenceNo();
+			// 创建用户组
+			workflowEngine.createGroup(newid, groupNames);
+		}
+		else
+		{
+			// 修改对象
+			workflowEngine.UpdateGroup(groupId, groupNames);
+		}
+	}
+
+	/**
+	 * 得到所有用户
+	 * @param userName 用户名称
+	 */
+	public List<User> findAllUser()
+	{
+		return workflowEngine.findAllUser();
+	}
+
+	/**
+	 * 删除用户组
+	 * @param groupName 用户组名称
+	 */
+	@Override
+	public List<Map<String, String>> deleteGroup(String groups)
+	{
+		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> groupList = (List<Map<String, String>>) DataConverter.convertJson2List(groups, Map.class);
+		for (int i = 0; i < groupList.size(); i++)
+		{
+			// 删除用户组
+			String gid = groupList.get(i).get("id");
+			String name = is_empty(gid);
+			if (name.equals(""))
+			{
+				workflowEngine.deleteGroup(gid);
+				// 第一次循环重置当前组
+				List<String> uid = new ArrayList<String>(); // 删除用存放UID
+				List<User> lists = workflowEngine.findUsersByGroupId(gid);
+				for (int j = 0; j < lists.size(); j++)
+				{
+					uid.add(lists.get(j).getId());
+				}
+				if (uid.size() > 0)
+				{
+					workflowEngine.deleteUsersFromGroup(gid, uid);
+				}
+			}
+			else
+			{
+				Map<String, String> map = new HashMap<String, String>();
+				List<Group> obj = workflowEngine.getGroup(gid);
+				String gname = "";
+				if (obj.size() > 0)
+				{
+					gname = obj.get(0).getName();
+				}
+				map.put("name", gname);
+				map.put("taskname", name);
+				list.add(map);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 判断是否可删除
+	 * @param groupId
+	 * @return
+	 */
+	public String is_empty(String groupId)
+	{
+		boolean t = true;
+		String name = "";
+		List<List<String>> AllList = new ArrayList<List<String>>();
+		List<ProcessDefinition> idList = workflowEngine.GetAllProcessDefinition();
+		for (int i = 0; i < idList.size(); i++)
+		{
+			if (!t)
+			{
+				break;
+			}
+			String id = idList.get(i).getId();
+			BpmnModel model = workflowEngine.GetModelById(id);
+			if (model != null)
+			{
+				Collection<FlowElement> flowElements = model.getMainProcess().getFlowElements();
+				for (FlowElement e : flowElements)
+				{
+					if (e.getClass().getName().equals(UserTask.class.getName()))
+					{
+						UserTask userTask = (UserTask) e;
+						name = userTask.getName();
+						List<String> list = userTask.getCandidateGroups();
+						AllList.add(list);
+					}
+				}
+			}
+			for (int k = 0; k < AllList.size(); k++)
+			{
+				if (!t)
+				{
+					break;
+				}
+				List<String> lists = AllList.get(k);
+				for (int j = 0; j < lists.size(); j++)
+				{
+					String ids = lists.get(j);
+					if (ids.equals(groupId))
+					{
+						t = false;
+						break;
+					}
+				}
+			}
+		}
+		if (t)
+		{
+			name = "";
+		}
+		return name;
+	}
+
+	/**
+	 * 根据id得到Group
+	 * @param ID
+	 * @return List<Group>
+	 */
+	public List<Group> getGroupById(String Id)
+	{
+		List<Group> list = workflowEngine.getGroup(Id);
+		return list;
+	}
+
+	@Override
+	public List<Group> getGroups()
+	{
+		List<Group> list = workflowEngine.getGroups();
+		return list;
+	}
+
+	@Override
+	public List<User> getUsersByGroup(String groupId)
+	{
+		List<User> list = workflowEngine.getUsersByGroup(groupId);
+		return list;
+	}
+
+	/**
+	 * 将用户添加到用户组中
+	 * @param groupName 用户组名称
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void addUserToGroup(String groupName, String userName)
+	{
+		// 添加用户到用户组
+		workflowEngine.addUserToGroup(groupName, userName);
+	}
+
+	/**
+	 * 批量将用户添加到用户组中
+	 * @param groupName 用户组名称
+	 * @param userNames 用户名称列表
+	 */
+	@Override
+	public void addUsersToGroup(String groupName, List<String> userNames)
+	{
+
+		// 批量将用户添加到用户组中
+		workflowEngine.addUsersToGroup(groupName, userNames);
+	}
+
+	/**
+	 * 将用户从用户组中删除
+	 * @param groupName 用户组名称
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void deleteUserFromGroup(String groupName, String userName)
+	{
+
+		// 将用户从用户组中删除
+		workflowEngine.deleteUserFromGroup(groupName, userName);
+	}
+
+	/**
+	 * 批量将用户从用户组中删除
+	 * @param groupName 用户组名称
+	 * @param userNames 用户名称列表
+	 */
+	@Override
+	public void deleteUsersFromGroup(String groupName, List<String> userNames)
+	{
+
+		// 批量将用户从用户组中删除
+		workflowEngine.deleteUsersFromGroup(groupName, userNames);
+	}
+
+	/**
+	 * 取得工作流结束时间
+	 * @param processId 工作流ID
+	 * @return 工作流结束时间
+	 */
+	@Override
+	public String getProcessEndTime(String processId)
+	{
+
+		WsResult<Date> result = new WsResult<Date>();
+
+		// 取得工作流结束时间
+		Date endTime = workflowEngine.getProcessEndTime(processId);
+
+		// 设置执行结果状态
+		result.setResult(WebServiceConstants.EXECUTION_RESULT_SUCCESS);
+		// 设置工作流结果数据
+		result.setData(endTime);
+
+		// 返回工作流执行结果数据
+		return DataConverter.convertObject2Json(result);
+	}
+
+	/**
+	 * 创建流程
+	 */
+	@Override
+	public String createProcess(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList)
+	{
+		try
+		{
+			return workflowEngine.createProcess(processId, processName, taskList, sequenceFlowList, gatewayList);
+		}
+		catch (IOException e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * 创建流程
+	 */
+	@Override
+	public String createProcess(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList, List<CallActivity> caList, String layoutXml)
+	{
+		try
+		{
+			return workflowEngine.createProcess(processId, processName, taskList, sequenceFlowList, gatewayList, caList, layoutXml);
+		}
+		catch (IOException e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * 获取流程图
+	 */
+	@Override
+	public void getDiagramPng(String deploymentId)
+	{
+		try
+		{
+			workflowEngine.getDiagramPng(deploymentId);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 获取流程图
+	 */
+	@Override
+	public void getDiagramActPng(String deploymentId,String excutionId) throws IOException
+	{
+		try
+		{
+			workflowEngine.getDiagramActPng(deploymentId,excutionId);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void removeProcess(String deploymentId)
+	{
+		workflowEngine.removeProcess(deploymentId);
+	}
+
+	/**
+	 * 创建用户任务
+	 */
+	@Override
+	public UserTask createUserTask(String id, String name, List<String> groups, String assignee)
+	{
+		return workflowEngine.createUserTask(id, name, groups, assignee);
+	}
+
+	/**
+	 * 创建用户任务
+	 */
+	@Override
+	public UserTask createUserTask(String id, String name, String assignee)
+	{
+		return workflowEngine.createUserTask(id, name, assignee);
+	}
+
+	/**
+	 * 创建流向
+	 */
+	@Override
+	public SequenceFlow createSequenceFlow(String from, String to, String conditionExpress)
+	{
+		return workflowEngine.createSequenceFlow(from, to, conditionExpress);
+	}
+
+	/**
+	 * 创建网关
+	 * @param id
+	 * @param incomingFlows
+	 * @param outgoingFlows
+	 * @return
+	 */
+	@Override
+	public Gateway createGateway(String id, Gateway gateway, List<SequenceFlow> incomingFlows, List<SequenceFlow> outgoingFlows)
+	{
+		return workflowEngine.createGateway(id, gateway, incomingFlows, outgoingFlows);
+	}
+
+	/**
+	 * 获取所有组
+	 */
+	@Override
+	public List<Group> findGroups()
+	{
+		return workflowEngine.findGroups();
+	}
+
+	/**
+	 * 获取组内用户
+	 */
+	@Override
+	public List<User> findUsersByGroupId(String groupName)
+	{
+		return workflowEngine.findUsersByGroupId(groupName);
+	}
+
+	/**
+	 * 获取用户所属组列表
+	 */
+	@Override
+	public List<Group> getGroupsByUser(String userName)
+	{
+		return workflowEngine.getGroupsByUser(userName);
+	}
+
+	/**
+	 * 根据流程定义获取任务集合
+	 */
+	@Override
+	public List<UserTask> getUserTasks(String processDefId)
+	{
+		return workflowEngine.getUserTasks(processDefId);
+	}
+
+	@Override
+	public SequenceFlow getSequenceFlow(String processDefId,String id)
+	{
+		return workflowEngine.getSequenceFlow(processDefId,id);
+	}
+	
+	@Override
+	public Gateway getGateway(String processDefId,String id)
+	{
+		return workflowEngine.getGateway(processDefId,id);
+	}
+	
+	@Override
+	/**
+	 * 创建子流程调用
+	 * @param id 键值
+	 * @param calledProcessKey 被调用的流程key
+	 * @param inFlowIds 来源对象ID集合
+	 * @param outFlowIds 去向对象ID集合
+	 * @param inParams 来自主流程的参数集合
+	 * @param outParams 流向主流程的参数集合
+	 * @return 子流程调用对象
+	 */
+	public CallActivity createChildProcess(String id, String calledProcessId, List<SequenceFlow> incomingFlows, List<SequenceFlow> outgoingFlows,
+			ArgumentList inParams, ArgumentList outParams)
+	{
+		// 创建输入参数列表对象
+		List<IOParameter> inAcParams = new ArrayList<IOParameter>();
+		// 创建输出参数列表对象
+		List<IOParameter> outAcParams = new ArrayList<IOParameter>();
+		// 如果来源流程参数列表不为空
+		if (inParams != null)
+		{
+			if (!inParams.isEmpty())
+			{
+				// 创建参数对象
+				IOParameter inParam = new IOParameter();
+				// 设置来源主流程参数
+				inParam.setSource(inParams.getValue(CallActivityConstants.SOURCE_PARAM_KEY).toString());
+				// 设置接收数据的子流程参数
+				inParam.setTarget(inParams.getValue(CallActivityConstants.TARGET_PARAM_KEY).toString());
+				// 追加到集合
+				inAcParams.add(inParam);
+			}
+		}
+		// 如果输出流程参数列表不为空
+		if (outParams != null)
+		{
+			if (!outParams.isEmpty())
+			{
+				// 创建参数对象
+				IOParameter outParam = new IOParameter();
+				// 设置子流程参数
+				outParam.setSource(outParams.getValue(CallActivityConstants.SOURCE_PARAM_KEY).toString());
+				// 设置接收数据的主流程参数
+				outParam.setTarget(outParams.getValue(CallActivityConstants.TARGET_PARAM_KEY).toString());
+				// 追加到集合
+				outAcParams.add(outParam);
+			}
+		}
+		// 返回流程调用实例
+		return workflowEngine.createChildProcess(id, calledProcessId, incomingFlows, outgoingFlows, inAcParams, outAcParams);
+	}
+
+	@Override
+	public String getLayoutXml(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList)
+	{
+		return workflowEngine.getLayoutXml(processId, processName, taskList, sequenceFlowList, gatewayList);
+	}
+
+	@Override
+	public void unlock() throws PersistenceException
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void commit() throws SQLException, PersistenceException
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void rollback() throws SQLException, PersistenceException
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public User getUserById(String Id)
+	{
+		return workflowEngine.getUserById(Id);
+	}
+	
+	@Override
+	public void setProcessArg(String processInstId,String key,String value){
+		workflowEngine.setProcessArg(processInstId, key, value);
+	}
+
+	@Override
+	public Object getProcessArgs(String processInstId, String key)
+	{
+		return workflowEngine.getProcessArgs(processInstId, key);
+	}
+
+	@Override
+	public Object getHistProcessArgs(String processInstId, String key)
+	{
+		return workflowEngine.getHistProcessArgs(processInstId, key);
+	}
+	
+	/**
+	 * 挂起流程实例
+	 * @param processInstId 流程实例ID
+	 */
+	@Override
+	public void suspendProcessInstanceById(String processInstId)
+	{
+		workflowEngine.suspendProcessInstanceById(processInstId);
+	}
+
+	/**
+	 * 激活流程实例
+	 * @param processInstId 流程实例ID
+	 */
+	@Override
+	public void activateProcessInstanceById(String processInstId)
+	{
+		workflowEngine.activateProcessInstanceById(processInstId);
+	}
+	
+	@Override
+	public void deleteProcessInst(String taskId){
+		workflowEngine.deleteProcessInst(taskId);
+	};
+
+	@Override
+	public void deleteHiProcessInst(String taskId){
+		workflowEngine.deleteHiProcessInst(taskId);
+	};
+	
+	@Override
+	public void claimTaskByUserInGroup(String processInstId)
+	{
+		// 指定人领取任务
+		List<ITaskInfo> tasks = workflowEngine.getTaskListByProcessInstId(processInstId);
+		if (tasks != null)
+		{
+			for (int i = 0; i < tasks.size(); i++)
+			{
+				// 任务信息
+				ITaskInfo task = tasks.get(i);
+				// 任务执行人
+				String performer = task.getPerformer();
+				// 如果任务执行人不为空 不做操作
+				if (StringUtils.isEmpty(performer))
+				{
+					// 流程参数
+					Map<String, Object> args = task.getProcessArgumentList();
+					// 组内用户参数
+					Object argGroupUser = args.get("groupUser");
+					// 存在组内用户
+					if (argGroupUser != null)
+					{
+						Map<String, String> groupUser = (Map<String, String>) argGroupUser;
+						// 任务ID
+						String taskId = task.getId();
+						// 获取当前任务候选组
+						List<IdentityLink> identityLinks = workflowEngine.getIdentityLinkByTask(taskId);
+						if (identityLinks != null)
+						{
+							for (int j = 0; j < identityLinks.size(); j++)
+							{
+								IdentityLink identityLink = identityLinks.get(j);
+								String groupId = identityLink.getGroupId();
+								// 如果流程参数包含当前组ID
+								if (groupUser.containsKey(groupId))
+								{
+									// 如果任务组和参数组一致 则说明是同一任务 可以领取
+									String userId = groupUser.get(groupId);
+									// 根据用户ID获取组
+									List<Group> groups = workflowEngine.getGroupsByUser(userId);
+									// 如果当前组包含参数组
+									if (groups != null)
+									{
+										for (int k = 0; k < groups.size(); k++)
+										{
+											if (groups.get(k).getId().equals(groupId))
+											{
+												workflowEngine.claim(task.getId(), userId);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

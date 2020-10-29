@@ -1,0 +1,182 @@
+$(function(){
+	batch_filed_data_borrowing.init();
+})
+
+var batch_filed_data_borrowing = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("batchBorrowing");
+		loading.init();
+		try{
+			batch_filed_data_borrowing.createGrid();
+			batch_filed_data_borrowing.requestData();
+			batch_filed_data_borrowing.bindPageEvent();
+		}
+		catch(err){
+			loading.close();
+		}
+	},
+	
+	/**
+	 * 创建列表
+	 */
+	createGrid : function(){
+		var columns = batch_filed_data_borrowing.createColumns();
+		grid.createGrid(columns);
+	},
+	
+	/**
+	 * 构建列集合
+	 */
+	createColumns : function(){
+		grid.resetColumn;
+		grid.addColumn("100px","picNo","图号");
+		grid.addColumn("100px","seaArea","海区");
+		grid.addColumn("100px","scale","比例尺 1:");
+		grid.addColumn("150px","projectName","项目名称");
+		grid.addColumn("150px","measureCycle","测量周期");
+		grid.addColumn("100px","concurrentTime","汇交时间","#= concurrentTime ? kendo.toString(new Date(concurrentTime), 'yyyy-MM') : '' #");
+		grid.addColumn("150px","dataName","数据名称");
+		grid.addColumn("150px","dataForm","数据形式");
+		grid.addColumn("150px","originalFileName","原始文件名称");
+		grid.addColumn("80px","canBorrowing","可借份数");
+	 return 	grid.addColumn("100px","borrowNo","借阅数量","1");
+	  	
+	//	return grid.addColumn("100px","edit","填写借阅数量",kendo.template("<a style='cursor:pointer;color:black' onclick='batch_filed_data_borrowing.bookinfoEdit.call(this)'>修改</a>"));
+	},
+		
+	/**
+	 * 发送数据请求
+	 */
+	requestData : function(){
+		var ids = $("#ids").val();
+		common.init("../filedData/borrowing_list?ids="+ids,"POST",batch_filed_data_borrowing.bindGrid);
+		common.do_submit();
+	},
+	
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindGrid : function(result){
+		grid.bindData(result);
+	},
+	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		
+		$("#back").on("click",function(){
+			window.history.go(-1);
+		})
+		
+		/**
+		 * 提交申请表
+		 */
+		$("#submit").on("click",function(){
+			//获取选中行数据对象
+			var userNo=$("#userNo").val();
+			var Datas = grid.getAllRowsData();
+			
+			var ids = "";
+			var borrowNo = "";
+			var canBorrowing="";
+			$.each(Datas,function(i,item){
+				ids +=","+item.id;
+			
+			//	borrowNo += ","+item.borrowNo;
+				borrowNo += ","+1;
+				canBorrowing += ","+item.canBorrowing;
+			});
+			ids = ids.substring(1);
+			borrowNo = borrowNo.substring(1);
+			canBorrowing = canBorrowing.substring(1);
+			
+			// 如果存在borrowNo为空，则不能提交
+			/*var array = borrowNo.split(",");
+			var array1 = canBorrowing.split(",");
+			for (var int = 0; int < array.length; int++) {
+				if(array[int] == 'undefined'){
+					layer.msg("请确认填写好借阅数量后再提交！");
+					return;
+				}
+				if(Number(array[int])>0){
+					var size=Number(array[int]);
+					if(Number(array[int])>Number(array1[int])){
+						layer.msg("借阅数量超过库存数量，请重新输入！");
+						return;
+					}else if(!Number.isInteger(size)){
+						layer.msg("借阅数量应为整数，请重新输入！");
+						return;
+					}
+				}else{
+					layer.msg("借阅数量不能小于0，请重新输入！");
+					return;
+				}
+			}*/
+			// 获取是否涉密
+			var secretInvolved = $("#isSecrecy").val();
+			if(secretInvolved == null || secretInvolved == "" || secretInvolved.indexOf("请选择")>-1){
+				layer.msg("请选择资料是否涉密！");
+				return;
+			}
+			common.add_param("ids",ids);
+			common.add_param("userNo",userNo);
+			common.add_param("type","fileddata");
+			common.add_param("secretInvolved",secretInvolved);
+			var param = common.add_param("borrowNos",borrowNo);
+			common.init("../workflow/publishbooks","POST",function(result){
+				if (result.code == 0) {
+					layer.msg(result.value);
+					return;
+				}
+				layer.msg("提交成功");
+				window.history.go(-1);
+			});
+			common.do_submit(param);
+		})
+	},
+	
+	bookinfoEdit : function(obj){
+		var td = $(this).closest("tr").find("td:eq(12)");
+		var gridInst = grid.getGrid().data("kendoGrid");
+		if ($(this).attr('modify')!="1") {
+			
+			$(this).attr('modify','1');
+			$(this).text("保存");
+    		gridInst.editCell(td);
+    		gridInst.table.off("click", "tr");
+    		$(this).closest("tr").siblings().find("td:eq(13)").each(function(){
+    			$(this).find("a").attr('modify','0');
+				$(this).find("a").text("修改");
+    		});
+		} else {
+			var row = $(this).parent().parent();
+			var rowData = gridInst.dataItem(row);
+			var canBorrowing = rowData.canBorrowing;// 可借数量
+			var borrowNo = rowData.borrowNo;// 借阅数量
+			if(Number(borrowNo)>0){
+				var size=Number(borrowNo);
+				if(Number(borrowNo)>Number(canBorrowing)){
+					layer.msg("借阅数量超过可借数量，请重新输入！");
+					return;
+				}else if(!Number.isInteger(size)){
+					layer.msg("借阅数量应为整数，请重新输入！");
+					return;
+				}else{
+					$(this).attr('modify','0');
+					$(this).text("修改");
+					gridInst.saveChanges();
+					gridInst.closeCell();
+				}
+			}else{
+				layer.msg("借阅数量不能小于0，请重新输入！");
+				return;
+			}
+		}
+	}
+	
+}

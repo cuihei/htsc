@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<pages>
+		<!-- 待办 -->
+		<page key="ru_task_map">
+			<tabs>
+				<tab name="源数据"
+					content="/workflow/task_init?processDefKey=SEA_MAP_COMPILATION_SOURCE_DATA"
+					listUrl="/workflow/ru_task_list?processDefKey=SEA_MAP_COMPILATION_SOURCE_DATA*client=1" />
+				<tab name="纸海图"
+					content="/workflow/task_init?processDefKey=SEA_MAP_COMPILATION_PAPER"
+					listUrl="/workflow/ru_task_list?processDefKey=SEA_MAP_COMPILATION_PAPER*client=1" />
+				<tab name="电子海图"
+					content="/workflow/task_init?processDefKey=SEA_MAP_COMPILATION_ELECTRONIC"
+					listUrl="/workflow/ru_task_list?processDefKey=SEA_MAP_COMPILATION_ELECTRONIC*client=1" />
+				<tab name="源数据小改正"
+					content="/workflow/task_init?processDefKey=CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION"
+					listUrl="/workflow/ru_task_list?processDefKey=CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION*client=1" />
+				<tab name="改正通告编辑"
+					content="/workflow/task_init?processDefKey=CORRECTION_NOTICE_TEMPLATE"
+					listUrl="/workflow/ru_task_list?processDefKey=CORRECTION_NOTICE_TEMPLATE*client=1" />
+				<tab name="改正通告模版编辑"
+					content="/workflow/task_init?processDefKey=CORRECTION_NOTICE_TEMPLATE_EDIT"
+					listUrl="/workflow/ru_task_list?processDefKey=CORRECTION_NOTICE_TEMPLATE_EDIT*client=1" />
+				<tab name="纸海图小改正"
+					content="/workflow/task_init?processDefKey=SMALL_CORRECTION_PAPER"
+					listUrl="/workflow/ru_task_list?processDefKey=SMALL_CORRECTION_PAPER*client=1" />
+				<tab name="电子海图小改正"
+					content="/workflow/task_init?processDefKey=SMALL_CORRECTION_ELECTRONIC"
+					listUrl="/workflow/ru_task_list?processDefKey=SMALL_CORRECTION_ELECTRONIC*client=1" />
+				<tab name="工程专题纸海图"
+					content="/workflow/task_init?processDefKey=PROJECT_SPECIAL_PAPER"
+					listUrl="/workflow/ru_task_list?processDefKey=PROJECT_SPECIAL_PAPER*client=1" />
+				<tab name="工程专题电子海图"
+					content="/workflow/task_init?processDefKey=PROJECT_SPECIAL_ELECTRONIC"
+					listUrl="/workflow/ru_task_list?processDefKey=PROJECT_SPECIAL_ELECTRONIC*client=1" />
+				<tab name="其他航海图" content="/workflow/task_init?processDefKey=OTHER_NAVIGATIONAL"
+					listUrl="/workflow/ru_task_list?processDefKey=OTHER_NAVIGATIONAL*client=1" />
+			</tabs>
+		</page>
+		<!-- 资料管理 -->
+		<page key="ru_task_datum">
+			<tabs>
+				<tab name="资料借阅" content="/workflow/task_init?processDefKey=DATA_BORROWING"
+					listUrl="/workflow/ru_task_list?processDefKey=DATA_BORROWING*client=1" />
+				<tab name="资料归还" content="/workflow/task_init?processDefKey=DATA_RETURN"
+					listUrl="/workflow/ru_task_list?processDefKey=DATA_RETURN*client=1" />
+			</tabs>
+		</page>
+		<page key="book_info">
+			<tabs>
+				<tab name="资料管理待办" content="/workflow/task_init?processDefKey=DATA_INPUT"
+					listUrl="/workflow/ru_task_list?processDefKey=DATA_INPUT*client=1" />
+			</tabs>
+		</page>
+		<!-- 资料借阅经办 -->
+		<page key="book_borrowing_info">
+			<tabs>
+				<tab name="资料借阅经办" content="/workflow/hi_task_init?processDefKey=DATA_BORROWING" />
+				<tab name="资料归还经办" content="/workflow/hi_task_init?processDefKey=DATA_RETURN" />
+			</tabs>
+		</page>
+		<!-- 经办 -->
+		<page key="hi_task_map">
+			<tabs>
+				<tab name="源数据"
+					content="/workflow/hi_task_init?processDefKey=SEA_MAP_COMPILATION_SOURCE_DATA" />
+				<tab name="纸海图"
+					content="/workflow/hi_task_init?processDefKey=SEA_MAP_COMPILATION_PAPER" />
+				<tab name="电子海图"
+					content="/workflow/hi_task_init?processDefKey=SEA_MAP_COMPILATION_ELECTRONIC" />
+				<tab name="源数据小改正"
+					content="/workflow/hi_task_init?processDefKey=CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION" />
+				<tab name="改正通告编辑"
+					content="/workflow/hi_task_init?processDefKey=CORRECTION_NOTICE_TEMPLATE" />
+				<tab name="改正通告模版编辑"
+					content="/workflow/hi_task_init?processDefKey=CORRECTION_NOTICE_TEMPLATE_EDIT" />
+				<tab name="纸海图小改正"
+					content="/workflow/hi_task_init?processDefKey=SMALL_CORRECTION_PAPER" />
+				<tab name="电子海图小改正"
+					content="/workflow/hi_task_init?processDefKey=SMALL_CORRECTION_ELECTRONIC" />
+				<tab name="工程专题纸海图"
+					content="/workflow/hi_task_init?processDefKey=PROJECT_SPECIAL_PAPER" />
+				<tab name="工程专题电子海图"
+					content="/workflow/hi_task_init?processDefKey=PROJECT_SPECIAL_ELECTRONIC" />
+				<tab name="其他航海图"
+					content="/workflow/hi_task_init?processDefKey=OTHER_NAVIGATIONAL" />
+			</tabs>
+		</page>
+
+		<!-- 编绘管理 -->
+		<page key="compilation_sea_map_source_data">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=SEA_MAP_COMPILATION_SOURCE_DATA*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=SEA_MAP_COMPILATION_SOURCE_DATA*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_sea_map_paper">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=SEA_MAP_COMPILATION_PAPER*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=SEA_MAP_COMPILATION_PAPER*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_sea_map_electronic">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=SEA_MAP_COMPILATION_ELECTRONIC*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=SEA_MAP_COMPILATION_ELECTRONIC*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_correct_notice_source_data">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_correct_notice_template">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=CORRECTION_NOTICE_TEMPLATE*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=CORRECTION_NOTICE_TEMPLATE*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_correct_notice_template_edit">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=CORRECTION_NOTICE_TEMPLATE_EDIT*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=CORRECTION_NOTICE_TEMPLATE_EDIT*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_small_correct_paper">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=SMALL_CORRECTION_PAPER*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=SMALL_CORRECTION_PAPER*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_small_correct_electronic">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=SMALL_CORRECTION_ELECTRONIC*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=SMALL_CORRECTION_ELECTRONIC*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_project_paper">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=PROJECT_SPECIAL_PAPER*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=PROJECT_SPECIAL_PAPER*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_project_electronic">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=PROJECT_SPECIAL_ELECTRONIC*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=PROJECT_SPECIAL_ELECTRONIC*isComplete=true" />
+			</tabs>
+		</page>
+		<page key="compilation_others">
+			<tabs>
+				<tab name="未完成"
+					content="/chartCompletion/index?processDefKey=OTHER_NAVIGATIONAL*isComplete=false" />
+				<tab name="已完成"
+					content="/chartCompletion/index?processDefKey=OTHER_NAVIGATIONAL*isComplete=true" />
+			</tabs>
+		</page>
+
+		<!-- 编绘任务 -->
+		<page key="child_task">
+			<tabs>
+				<tab name="已下发任务书" content="/createTask/index" />
+				<tab name="编绘任务" content="/createTask/child_task_init" />
+			</tabs>
+		</page>
+		<page key="catalog">
+			<tabs>
+				<tab name="规划图目录" content="/detail/index?type=1*categoryId=10291633305840008" />
+				<tab name="海军图目录" content="/detail/index?type=2*categoryId=10301134291590000" />
+				<tab name="港口航道图目录" content="/detail/index?type=3*categoryId=10301548043560000" />
+			</tabs>
+		</page>
+		<page key="catalog_history">
+			<tabs>
+				<tab name="规划图目录" content="/hcd/planIndex?type=1" />
+				<tab name="海军图目录" content="/hcd/navyIndex?type=2" />
+				<tab name="港口航道图目录" content="/hcd/portChannelIndex?type=3" />
+			</tabs>
+		</page>
+
+		<!-- 海图完成情况 -->
+		<page key="map_completion">
+			<tabs>
+				<tab name="编绘任务完成情况" content="/chartCompletion/index?isComplete=false" />
+				<tab name="编绘计划完成情况" content="/chartCompletion/index?isComplete=true*type=plan" />
+				<tab name="编绘任务分配情况" content="/chartCompletion/index?isComplete=false*type=distribution" />
+			</tabs>
+		</page>
+		<!-- 海图完成情况 -->
+		<page key="qualityAnalysisStatistics">
+			<tabs>
+				<tab name="源数据质量分析统计表" content="/qualityAnalysisStatistics/index?processDefKey=SEA_MAP_COMPILATION_SOURCE_DATA" />
+				<tab name="纸海图质量分析统计表 " content="/qualityAnalysisStatistics/index?processDefKey=SEA_MAP_COMPILATION_PAPER" />
+				<tab name="电子海图质量分析统计表 " content="/qualityAnalysisStatistics/index?processDefKey=SEA_MAP_COMPILATION_ELECTRONIC" />
+			</tabs>
+		</page>
+	</pages>
+</configuration>

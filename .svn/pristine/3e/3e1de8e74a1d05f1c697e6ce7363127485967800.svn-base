@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.dicdata.defectform.DefectForm" table="FORM_DEFECTIVE">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="formId" type="java.lang.String">
+            <column name="form_id" />
+        </property>
+        <property name="splitId" type="java.lang.String">
+            <column name="split_id" />
+        </property>
+        <property name="taskInstId" type="java.lang.String">
+            <column name="task_inst_id" />
+        </property>
+        <property name="processInstId" type="java.lang.String">
+            <column name="process_inst_id" />
+        </property>
+         <property name="layer" type="java.lang.String">
+            <column name="layer" />
+        </property>
+        <property name="charttype" type="java.lang.String">
+            <column name="chart_type" />
+        </property>
+        <property name="defecttype" type="java.lang.String">
+            <column name="defect_type" />
+        </property>
+        <property name="defectitem" type="java.lang.String">
+            <column name="defect_item" />
+        </property>      
+        <property name="discription" type="java.lang.String">
+            <column name="discription" />
+        </property>
+        
+        <property name="deep" type="java.lang.String">
+            <column name="deep" />
+        </property>
+        
+        <property name="number" type="java.lang.String">
+            <column name="num" />
+        </property>
+        
+        <property name="opinion" type="java.lang.String">
+            <column name="opinion" />
+        </property>
+        
+        <property name="score" type="java.lang.String">
+            <column name="score" />
+        </property>
+        
+        <property name="remarks" type="java.lang.String">
+            <column name="remarks" />
+        </property>
+        
+        <property name="total" type="java.lang.String">
+            <column name="total" />
+        </property>
+        
+        <property name="coefficient" type="java.lang.String">
+            <column name="coefficient" />
+        </property>
+        
+        <property name="actual" type="java.lang.String">
+            <column name="actual" />
+        </property>
+        
+        <property name="actualTotal" type="java.lang.String">
+            <column name="actual_total" />
+        </property>
+        
+        <property name="grading" type="java.lang.String">
+            <column name="grading" />
+        </property>
+        <property name="layerName" type="java.lang.String">
+            <column name="layer_name" />
+        </property>
+        <property name="defaultValue" type="java.lang.String">
+            <column name="default_value" />
+        </property>
+        
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        
+    </class>
+    <query name="getDefectFormList">
+    	<![CDATA[ from DefectForm]]>
+    </query>
+    <query name="getDefectFormById">
+    	<![CDATA[ from DefectForm where id = :id]]>
+    </query>
+     <query name="getDefectFormByPt">
+    	<![CDATA[ from DefectForm where processInstId = :processInstId and taskInstId = :taskInstId]]>
+    </query>
+</hibernate-mapping>

@@ -1,0 +1,298 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.ht.common.util.TreeNode"%>
+<%@page import="com.ht.common.util.Tree"%>
+<%@page import="com.ht.common.util.LoginUtil"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../TagLibs.jsp"%>
+<html style="overflow-x: hidden;">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>海图编绘生产管理系统</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="${STYLES_PATH}/admin.css" />
+<link rel="stylesheet" href="${RESOURCE_PATH}/font-awesome/css/font-awesome.min.css"/>
+<link rel="stylesheet" type="text/css" href="${STYLES_PATH}/responsive.css" />
+<link rel="stylesheet" type="text/css" href="${STYLES_PATH}/themes/default.css" id="skin-switcher" />
+<script src="${SCRIPTS_PATH}/common/layer_custom.js"></script>
+<script>   
+/* window.onbeforeunload = function() {
+	common.init("../index/login","POST",null);
+	common.do_submit(null);
+	return true;
+} */
+//页面离开或者浏览器关闭的时候给予提示 防止用户误操作 离开当前页面未保存数据可能丢失  
+window.onbeforeunload = function(e) {  
+    return beforunload(e);  
+};  
+function beforunload(e) {  
+    var event = e ? e : (window.event ? window.event : null);  
+    var myIE = myBrowser();  
+    if (myIE=="IE") { 
+    	// IE  
+        var cy = event.clientY || event.target.event.clientY;  
+        var ak = event.altKey || event.target.event.altKey;  
+        if (cy < 0 || ak) {
+        	common.init("../index/login","POST",null);
+        	common.do_submit(null);
+            //return "确定要离开本页面吗？";  
+        }  
+    }else if (myIE=="FF"){
+    	// Firefox
+        var nodeName = event.currentTarget.document.activeElement.nodeName;  
+        if (nodeName!="A") {
+        	common.init("../index/login","POST",null);
+        	common.do_submit(null);
+            return true;  
+        }  
+    }else {  
+        // 其他浏览器
+       	common.init("../index/login","POST",null);
+       	common.do_submit(null);
+        //return "确定要离开本页面吗？";  
+    }  
+}  
+/*** 
+ * 获取当前浏览器类型 
+ */  
+function myBrowser() {  
+    var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串  
+    var isOpera = userAgent.indexOf("Opera") > -1;  
+    if (isOpera) { //判断是否Opera浏览器  
+        return "Opera"  
+    };  
+    if (userAgent.indexOf("Firefox") > -1) { //判断是否Firefox浏览器  
+        return "FF";  
+    };  
+    if (userAgent.indexOf("Chrome") > -1){  
+        return "Chrome";  
+    };  
+    if (userAgent.indexOf("Safari") > -1) { //判断是否Safari浏览器  
+        return "Safari";  
+    };  
+    if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera) { //判断是否IE浏览器  
+        return "IE";  
+    };  
+}  
+</script> 
+</head>
+<body id="index-body">
+	<header class="navbar clearfix" id="header">
+		<div class="container">
+				<div class="navbar-brand">
+					<!-- COMPANY LOGO -->
+					<a href="javascript:void(0)">
+						<img src="<%=request.getContextPath()%>/ht/resource/images/logo.png" alt="Cloud Admin Logo" class="img-responsive" height="40" width="230">
+					</a>
+					<!-- /COMPANY LOGO -->
+					<!-- SIDEBAR COLLAPSE -->
+					<div id="sidebar-collapse" class="sidebar-collapse btn">
+						<i class="fa fa-bars" 
+							data-icon1="fa fa-bars" 
+							data-icon2="fa fa-bars" ></i>
+					</div>
+					<!-- /SIDEBAR COLLAPSE -->
+				</div>
+				<!-- /NAVBAR LEFT -->
+				<!-- BEGIN TOP NAVIGATION MENU -->					
+				<ul class="nav navbar-nav pull-right">
+				<li class="dropdown" id="header-notification">
+						<a href="#" class="dropdown-toggle" title ="主题皮肤" data-toggle="dropdown" style="padding-top: 40%;">
+							<i class="fa fa-cog"></i>
+						</a>
+						<ul class="dropdown-menu skins">
+							<li class="dropdown-title">
+								<span><i class="fa fa-leaf"></i>主题皮肤</span>
+							</li>
+							<li><a href="#" data-skin="default">默认</a></li>
+							<li><a href="#" data-skin="night">夜间</a></li>
+							<li><a href="#" data-skin="earth">淡黄</a></li>
+							<li><a href="#" data-skin="utopia">对比</a></li>
+							<li><a href="#" data-skin="nature">淡绿</a></li>
+							<li><a href="#" data-skin="graphite">淡黑</a></li>
+						 </ul>
+					</li>
+					<!-- BEGIN NOTIFICATION DROPDOWN -->	
+					<li class="dropdown" id="header-notification">
+						<a id="notice" href="#" title ="我的消息" class="dropdown-toggle" data-toggle="dropdown" style="padding-top: 40%;">
+							<i class="fa fa-bell"></i>
+								<span class="badge">${count}</span>		
+						</a>
+					</li>
+					
+                    <li class="dropdown" id="header-notification">
+                        <a href="#" id="workspace"  title ="个人工作台" class="dropdown-toggle" data-toggle="dropdown" style="padding-top: 40%;">
+                            <i class="fa fa-desktop"></i>
+                        </a>
+                    </li>
+					<!-- BEGIN USER LOGIN DROPDOWN -->
+					<li class="dropdown user" id="header-user">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+							<img alt="" src="${RESOURCE_PATH}/images/User_32px_521411_easyicon.net.png" />
+							<span class="username">${userName}   ${roleName}</span>
+							<i class="fa fa-angle-down"></i>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a id="updatepassword" href="javascript:void(0)" onclick="passwordEdit()"><i class="fa fa-user"></i>更改密码</a></li>
+							<li><a href="../index/loginout" id="loginInit"><i class="fa fa-power-off"></i>注销</a>
+							</li>
+						</ul>
+					</li>
+					<!-- END USER LOGIN DROPDOWN -->
+				</ul>
+				<!-- END TOP NAVIGATION MENU -->
+		</div>
+	</header>
+	<div id="sidebar-top" class="sidebar-overflow-hidden">
+	<div id="sidebar" class="sidebar">
+		<div class="sidebar-menu nav-collapse">
+			<div class="divide-20"></div>
+			<ul>
+				<%
+					Tree tree = (Tree) request.getAttribute("navResult");
+					if (tree != null) {
+						for (TreeNode node : tree.getParentNodes()) {
+							if (node != null) {
+								String[] names = node.getName().split(",");
+								String name = names[0];
+								String fa = names[2];
+								String url = names[1];
+								// 父id为"10181145576270000",说明为一级菜单
+								if (node.getParent().equals("10181145576270000")) {
+				%>
+				<li class="has-sub">
+					<a href="javascript:;" class="">
+						<i class="fa <%=fa%>"></i> 
+						<span class="menu-text"><%=name%></span>
+						<span class="arrow"></span>
+					</a>
+				<ul class="sub">
+					<%
+					// 获取一级菜单下的孩子
+					ArrayList<TreeNode> nodeList = tree.getNodesByParentId(node.getId());
+					if (nodeList != null) {
+						for (int j = 0; j < nodeList.size(); j++) {
+							if (nodeList.get(j).getParent() != null&& nodeList.get(j).getName().split(",")[1].equals("*")) {
+					%>
+					<li class="has-sub-sub">
+						<a href="javascript:;">
+							<span class="sub-menu-text"><%=nodeList.get(j).getName().split(",")[0]%>
+							</span>
+							<span class="arrow"></span>
+						</a>
+						<ul class="sub-sub">
+							<%
+								// 获取二级节点下的子节点	
+								ArrayList<TreeNode> nodeListLevel3 = tree
+										.getNodesByParentId(nodeList
+												.get(j).getId());
+								if (nodeListLevel3 != null) {
+									for (int k = 0; k < nodeListLevel3
+											.size(); k++){
+							%>
+							<li><a class="" href="javascript:void(0)" _href="<%=nodeListLevel3.get(k).getName().split(",")[1]%>">
+									<span class="sub-sub-menu-text">
+										<%=nodeListLevel3.get(k).getName().split(",")[0]%>
+									</span>
+								</a>
+							</li>
+							<%}}%>
+						</ul>
+					</li>
+					<%} else {%>
+						<li>
+							<a class="" href="javascript:void(0)" _href="<%=nodeList.get(j).getName().split(",")[1]%>">
+								<span class="sub-menu-text"><%=nodeList.get(j).getName().split(",")[0]%>
+								</span>
+							</a>
+						</li>
+						<%}}}%>
+					</ul>
+				</li>
+				<%}}}}%>
+
+				
+			</ul>
+		</div>
+	</div>
+	</div>
+	<iframe id="page" src="../workSpace/init">
+			
+	</iframe>
+	<!-- Modal Dialog -->
+		<div class="modal fade" id="myModal">
+			<div class="modal-dialog" style="width:650px">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title bk-fg-primary">修改密码</h4>
+							<form class="form-horizontal" role="form">
+								<div class="form-group">
+									<label class="col-lg-3 col-md-1 col-sm-3 col-xs-3 control-label">登陆名：</label>
+										<div class="row">
+											<div class="col-lg-3 col-md-6 col-sm-3 col-xs-3">
+												<input type="text" id="userName" name="userName"
+													   class="form-control" value="${userName}" style="width:300px" readonly>
+											</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-lg-3 col-md-4 col-sm-3 col-xs-3 control-label">原密码：</label>
+										<div class="row">
+											<div class="col-lg-3 col-md-6 col-sm-3 col-xs-3">
+												<input type="password" id="oldPassword" name="oldPassword"
+													   class="form-control" placeholder="请输入旧密码" style="width:300px">
+											</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-lg-3 col-md-4 col-sm-3 col-xs-3 control-label">新密码：</label>
+										<div class="row">
+											<div class="col-lg-3 col-md-6 col-sm-3 col-xs-3">
+												<input type="password" id="newPassword" name="newPassword"
+													   class="form-control" placeholder="请输入新密码" style="width:300px">
+											</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-lg-3 col-md-4 col-sm-3 col-xs-3 control-label">确认密码：</label>
+										<div class="row">
+											<div class="col-lg-3 col-md-6 col-sm-3 col-xs-3">
+												<input type="password" id="newPassword1" name="newPassword1"
+													   class="form-control" placeholder="请确认密码" style="width:300px">
+											</div>
+									</div>
+								</div>
+								<div class="form-group" style="color:red;">
+									<label class="col-lg-3 col-md-4 col-sm-3 col-xs-3 control-label">温馨提示：</label><span>密码的长度至少有 8 个字符，至少包含大写字母、小写字母、</br>数字、以及特殊字符等</span>
+								</div>
+								<div class="form-group">
+									<label class="col-lg-3 col-md-4 col-sm-3 col-xs-3 control-label">
+										<button type="button" class="btn btn-success" onclick="doSubmit()">确定</button>
+									</label>
+								</div>
+							</form>
+					</div>
+				</div>
+			</div>
+		</div><!-- End Modal Dialog -->	
+		<input id="password" value="${password}" type="hidden">
+</body>
+<script src="${RESOURCE_PATH}/jquery/jquery-2.1.4.min.js"></script>
+<script src="${RESOURCE_PATH}/jquery/jquery.cookie.min.js"></script>
+<script src="${RESOURCE_PATH}/bootstrap/js/bootstrap.min.js"></script>
+<script src="${RESOURCE_PATH}/layer/1.9.3/layer.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/kendo.all.min.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/kendo.web.min.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/cultures/kendo.culture.zh-CN.min.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/messages/kendo.messages.zh-CN.min.js"></script>
+<script src="${SCRIPTS_PATH}/common/script.js"></script>
+<script src="${SCRIPTS_PATH}/common/common.js"></script>
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/index/index_1.js"></script>
+<script>
+	jQuery(document).ready(function() {
+		App.init();
+	});
+
+</script>
+</html>

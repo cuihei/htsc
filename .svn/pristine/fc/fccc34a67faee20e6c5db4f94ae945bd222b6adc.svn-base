@@ -1,0 +1,121 @@
+package com.ht.persistence.model.complication.formprop;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.ht.persistence.model.base.BaseModel;
+import com.ht.persistence.model.complication.form.Form;
+
+/**
+ * FormValue 表单明细表
+ * 
+ * @author houchen
+ */
+@Entity
+@Table(name = "FORM_VALUE")
+public class FormValue extends BaseModel {
+	// 标识
+	@Id
+	@Column(name = "id", length = 64)
+	private String id;
+
+	// formId
+	@Column(name = "form_id", length = 64)
+	private String formId;
+
+	// 属性键
+	@Column(name = "prop_key", length = 64)
+	private String propKey;
+
+	// 流程实例Id
+	@Column(name = "PROCESS_INST_ID", length = 64)
+	private String processInstId;
+
+	// 流程任务ID
+	@Column(name = "TASK_INST_ID", length = 64)
+	private String taskInstId;
+
+	// 行标志 同一个row_flag 为同一行的属性
+	@Column(name = "row_flag")
+	private String rowFlag;
+
+	@Column(name = "prop_value")
+	private String propValue;
+
+	private Form form;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getFormId() {
+		return formId;
+	}
+
+	public void setFormId(String formId) {
+		this.formId = formId;
+	}
+
+	public String getPropKey() {
+		return propKey;
+	}
+
+	public void setPropKey(String propKey) {
+		this.propKey = propKey;
+	}
+
+	public String getPropValue() {
+		return propValue;
+	}
+
+	public void setPropValue(String propValue) {
+		this.propValue = propValue;
+	}
+
+	public String getProcessInstId() {
+		return processInstId;
+	}
+
+	public void setProcessInstId(String processInstId) {
+		this.processInstId = processInstId;
+	}
+
+	public String getTaskInstId() {
+		return taskInstId;
+	}
+
+	public void setTaskInstId(String taskInstId) {
+		this.taskInstId = taskInstId;
+	}
+
+	public Form getForm() {
+		return form;
+	}
+
+	public void setForm(Form form) {
+		this.form = form;
+	}
+
+	public String getRowFlag() {
+		return rowFlag;
+	}
+
+	public void setRowFlag(String rowFlag) {
+		this.rowFlag = rowFlag;
+	}
+
+	@Override
+	public String toString() {
+		return "FormValue [id=" + id + ", formId=" + formId + ", propKey="
+				+ propKey + ", processInstId=" + processInstId
+				+ ", taskInstId=" + taskInstId + ", rowFlag=" + rowFlag
+				+ ", propValue=" + propValue + ", form=" + form + "]";
+	}
+	
+}

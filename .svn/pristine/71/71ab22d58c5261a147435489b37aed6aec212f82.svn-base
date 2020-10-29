@@ -1,0 +1,558 @@
+$(function(){
+	books.init();
+})
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function uploadPage(obj) {
+	var tr = $(obj).parent().parent();
+	// 显示模态框
+	$('#myModal').modal('show');
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	// 获取资料ID
+	var booksId = rowData.id;
+	$("#booksId").val(booksId);
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function editPage(obj) {
+	var tr = $(obj).parent().parent();
+	books.editBooksPage(tr);
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function viewPage(obj) {
+	var tr = $(obj).parent().parent();
+	books.viewFilePage(tr);
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+/*function borrowPage(obj) {
+	var tr = $(obj).parent().parent();
+	books.borrowingBooks(tr);
+}*/
+
+/** 绑定编辑用户窗口按钮的click事件*/
+/*function returnPage(obj) {
+	var tr = $(obj).parent().parent();
+	books.returnBooks(tr);
+}*/
+var books = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("books");
+		loading.init();
+		try{
+			books.createbooksGrid();
+			books.requestbooksData();
+			books.bindPageEvent();
+		}
+		catch(err){
+			loading.close();
+		}
+		
+		/**
+		 * 点击一级子类改变二级子类的值
+		 */
+		$("#oneSubClass").on("change",function(){
+			// 获取一级子类Id
+			var oneSubClassId = $("#oneSubClass").val();
+			// 设置二级子类的值
+			books.twoSubClassSelect(oneSubClassId);
+		});
+		
+		//为keyListener方法注册按键事件
+		document.onkeydown=keyListener;
+		function keyListener(e){
+		 // 当按下回车键，执行我们的代码
+		 if(e.keyCode == 13){
+			 $('#search').click();
+		 }
+		}
+	},
+	
+	/**
+     * 请求二级子类下拉框数据
+     */
+    twoSubClassSelect : function(oneSubClassId){
+    	// 添加参数 @param 参数key；参数value
+		var data = common.add_param();
+		// 初始化common对象 @param 发送地址；访问方式；回调函数
+		common.init("../books/twoSubClass?oneSubClassId="+oneSubClassId,"POST",books.select_twoSubClass_success);
+		// 执行提交操作
+		common.do_submit(data);
+    },
+    
+    /**
+	 * 获取二级子类数据后绑定下拉列表 
+	 */
+    select_twoSubClass_success:function(result) {
+    	$("#twoSubClass").empty();
+    	$.each(result, function(i, item) {
+    		$("#twoSubClass").append("<option value='"+item.id+"'>"+item.categoryName+"</option>");
+    	});
+    },
+	
+	/**
+	 * 创建海图列表
+	 */
+	createbooksGrid : function(){
+		var columns = books.createbooksColumns();
+		grid.createGrid(columns);
+	},
+	
+	/**
+	 * 构建海图集合
+	 */
+	createbooksColumns : function(){
+		grid.resetColumn();
+		grid.addColumn("80px","code","编码");
+		grid.addColumn("80px","chartNo","图号");
+		grid.addColumn("150px","chartName","图名");
+		grid.addColumn("150px","oneSubClass","一级子类");
+		grid.addColumn("150px","twoSubClass","二级子类");
+		grid.addColumn("150px","port","港口/地区");
+		grid.addColumn("100px","scale","比例尺 1:");
+		grid.addColumn("100px","publicationDate","出版年月","#= publicationDate ? kendo.toString(new Date(publicationDate), 'yyyy-MM') : '' #");
+		grid.addColumn("100px","version","版本号");
+		grid.addColumn("100px","savePlace","存储位置");
+		grid.addColumn("150px","total","库存总数");
+		grid.addColumn("130px","stockNo","在库数量");
+		grid.addColumn("130px","canBorrowing","可借数量");
+		grid.addColumn("80px","state","状态");
+		grid.addColumn("100px","entry","录入者");
+		grid.addColumn("100px","status","审核状态");
+		grid.addColumn("100px","reviewers","审核者");
+		return grid.addColumn("300px","handle","操作",kendo.template($("#editTemplate").html()),null,null,true);
+		//grid.addColumn("300px","handle","借阅归还",kendo.template($("#editTemplate1").html()));
+	},
+	
+	/**
+	 * 发送数据请求
+	 */
+	requestbooksData : function(){
+		common.init("../books/list","POST",books.bindbooksGrid);
+		common.do_submit();
+	},
+	
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindbooksGrid : function(result){
+		grid.bindData(result);
+		grid.getGrid().data("kendoGrid").autoFitColumn("handle");
+	},
+	
+	/**
+	 * 跳转到借阅页面
+	 */
+	borrowingBooks : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取图书ID
+		var id = rowData.id;
+		// 跳转到借阅资料页面
+		common.toPage("../books/borrowing_init?id="+id);
+	},
+	
+	/**
+	 * 跳转到归还页面
+	 */
+	returnBooks : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取图书ID
+		var id = rowData.id;
+		// 跳转到借阅资料页面
+		common.toPage("../books/return_init?id="+id);
+	},
+	
+	/**
+	 * 跳转到编辑页面
+	 */
+	editBooksPage : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取资料ID
+		var id = rowData.id;
+		var status = rowData.status;
+		if(status == '待审核'){
+			layer.msg('待审核的资料不能编辑！');
+			return;
+		}else{
+			common.toPage("../books/edit_init?id="+id);
+		}
+	},
+	
+	/**
+	 * 跳转到查看附件页面
+	 */
+	viewFilePage : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取资料ID
+		var id = rowData.id;
+		common.toPage("../books/booksfile_init?mark=2&id="+id);
+	},
+	
+	/**
+	 * 跳转到海图编辑页面
+	 */
+	booksPage : function(){
+		common.toPage("../books/edit_init");
+	},
+	
+	/**
+	 * 删除
+	 */
+	removeBooks : function(){
+		var rowDatas = grid.getSelectRowsData();
+		if (rowDatas.length <= 0) {
+			layer.msg('未选择任何行!', {icon:5,time:1500});
+			return false;
+		}
+		/*删除*/
+		layer.confirm('确认要删除吗？',function(index){
+			// 获取Grid的选中行
+			var rowDatas = grid.getSelectRowsData();
+			var bookss = [];
+			var flag = false;
+			$.each(rowDatas,function(i,item){
+				var id = $("#books").data("kendoGrid").dataItem(item).id;
+				var status = $("#books").data("kendoGrid").dataItem(item).status;
+				if(status == '待审核'){
+					flag = true;
+				}
+				var books = {};
+				books.id = id;
+				bookss.push(books);
+			});
+			if(flag == true){
+				layer.msg('待审核的资料不能删除!', {icon:5,time:1500});
+				return false;
+			}
+			var param = JSON.stringify(bookss);
+			// 添加参数 @param 参数key；参数value
+			var data = common.add_param("books",param);
+			common.init("../books/remove","POST",books.removeSuccess);
+			// 执行提交操作
+			common.do_submit(data);
+		});
+	},
+	
+	/**
+	 * 删除成功
+	 * */
+	removeSuccess : function(result){
+		grid.init("books");
+		layer.msg(result.value);
+		window.location.reload();
+	},
+	
+	/**
+	 * 上传
+	 */
+	uploadFile : function(){
+		var booksId = $("#booksId").val();
+		// 判空
+		var data = $('#uploadFile').val();
+		if(data==""){
+			layer.msg('请选择文件！');
+			return;
+		}
+		loading.init();
+		$("#importForm").ajaxSubmit({  
+            type: 'post',  
+            url: "../books/uploadfile?booksId="+booksId,  
+            beforeSubmit: function() { 
+            	return true;
+            } ,  
+            success: function(result){
+                loading.close();
+                layer.msg("上传成功！",{icon:6,time:10000});
+                var booksId = $("#booksId").val();
+                window.location.reload();
+            },  
+            error: function(XmlHttpRequest, textStatus, errorThrown){
+            	loading.close();
+            	layer.msg("系统错误，请联系管理员！");  
+            }  
+        });  
+	},
+	
+	/**
+	 * 海图导入
+	 */
+	uploadBookFile : function(){
+		// 判空
+		var data = $('#uploadBookFile').val();
+		if(data==""){
+			layer.msg('请选择文件！');
+			return;
+		}
+		loading.init();
+		$("#importBookForm").ajaxSubmit({  
+            type: 'post',  
+            url: "../books/uploadBookFile" ,  
+            beforeSubmit: function() { 
+            	return true;
+            } ,  
+            success: function(result){
+            	result = eval("("+result+")");
+                if(result.code != 1 ){
+                	loading.close();
+                	layer.msg("导入失败，请检查数据无误后再导入！");
+                	return;
+                }
+                loading.close();
+                layer.msg(result.value);
+                books.requestbooksData();
+            },  
+            error: function(XmlHttpRequest, textStatus, errorThrown){
+            	loading.close();
+            	layer.msg("系统错误，请联系管理员！");  
+            }  
+        });  
+		
+	},
+	
+	
+	/**
+	 * 绑定页面点击事件
+	 */
+	bindPageEvent : function(){
+		
+		/**
+		 * 新建按钮点击事件
+		 */
+		$(".fa-angle-double-up").on("click",function(){
+			$(".fa-angle-double-down").parent().show();
+			$("#headerserch").hide();
+			var gridInst = $("#books").data("kendoGrid");
+			var height = $(document.body).height()-120;
+			gridInst.setOptions({
+				height:height,
+			});
+		});
+		
+		/**
+		 * 新建按钮点击事件
+		 */
+		$(".fa-angle-double-down").on("click",function(){
+			$(".fa-angle-double-down").parent().hide();
+			$("#headerserch").show();
+			var gridInst = $("#books").data("kendoGrid");
+			var height = $(document.body).height()-280;
+			gridInst.setOptions({
+				height:height,
+			});
+		});
+		
+		/**
+		 * 新建按钮点击事件
+		 */
+		$("#add").on("click",function(){
+			books.booksPage();
+		});
+		
+		/** 
+		 * 绑定删除按钮的click事件
+		 */
+		$("#remove").on("click",function(){
+			books.removeBooks();
+		});
+		
+		/**
+		 * 刷新按钮点击事件
+		 */
+		$("#refresh").on("click",function(){
+			window.location.reload();
+		});
+		
+		/** 绑定导出通知按钮的click事件*/
+		$("#export").on("click",function(){
+			var rowDatas = grid.getSelectRowsData();
+			// 判断是否选中行
+			if (rowDatas.length<=0) {
+				layer.msg('未选择任何行!', {icon:5,time:1000});
+				return false;
+			}
+			var bookss = [];
+			$.each(rowDatas,function(i,item){
+				var id = $("#books").data("kendoGrid").dataItem(item).id;
+				var books = {};
+				books.id = id;
+				bookss.push(books);
+			});
+			var param = JSON.stringify(bookss);
+			window.location.href = "../books/export?books="+param;
+		});
+		
+		/** 导入按钮点击事件 */
+		$("#importSubmit").on("click",function(){
+			books.uploadFile();
+		});
+		
+		/** 海图导入按钮点击事件 */
+		$("#importBookSubmit").on("click",function(){
+			books.uploadBookFile();
+		});
+		
+
+		/** 绑定导出文件模板的click事件*/
+		$("#exportBookTemplate").on("click",function(){
+			$("#importBookForm").attr("action", "../books/template");
+			$("#importBookForm").submit();
+		});
+		
+		/**
+		 * 查询按钮点击事件
+		 */
+		$("#search").on("click",function(){
+			var book = {};
+			// 获取图名
+			book.chartName = $("#chartName").val();
+			// 获取图号
+			book.chartNo = $("#chartNo").val();
+			// 获取录入者
+			//book.person = $("#person").val();
+			// 获取版本号
+			book.version = $("#version").val();
+			// 获取状态
+			var state = $("#state").find("option:selected").text();
+			if(state == "--请选择--"){
+				book.state = "";
+			}else {
+				book.state = state;
+			}
+			// 获取港口/地区
+			var port = $("#port").find("option:selected").text();
+			if(port == "--请选择--"){
+				book.port = "";
+			}else {
+				book.port = port;
+			}
+			// 获取一级子类
+			var oneSubClass = $("#oneSubClass").find("option:selected").text();
+			if(oneSubClass == "--请选择--"){
+				book.oneSubClass = "";
+			}else {
+				book.oneSubClass = oneSubClass;
+			}
+			// 获取二级子类
+			var twoSubClass = $("#twoSubClass").find("option:selected").text();
+			if(twoSubClass == "--请选择--"){
+				book.twoSubClass = "";
+			}else {
+				book.twoSubClass = twoSubClass;
+			}
+			// 获取库存数量
+			book.stockNo = $("#stockNo").val();
+			var stockNoTwo = $("#stockNoTwo").val();
+			// 获取出版日期
+			book.publicationDate = $("#publicationDate").val();
+			if(book.publicationDate != null && book.publicationDate !=""){
+				book.publicationDate = $("#publicationDate").val()+"-01";
+			}
+			var publicationDateTwo = $("#publicationDateTwo").val();
+			if(publicationDateTwo != null && publicationDateTwo !=""){
+				publicationDateTwo = $("#publicationDateTwo").val()+"-01";
+			}
+			// 获取比例尺
+			book.scale = $("#scale").val();
+			var scaleTwo = $("#scaleTwo").val();
+			// 转成JSON
+			var booksJson = JSON.stringify(book);
+			var param = common.add_param("books",booksJson);
+			
+			books.search(param,stockNoTwo,publicationDateTwo,scaleTwo);
+		});
+		
+		/**
+		 * 点击借阅
+		 */
+		$("#batchBorrowing").on("click",function(){
+			//获取选中行数据对象
+			var rowDatas = grid.getSelectRowsData();
+			if (rowDatas.length<=0) {
+				layer.msg('未选择任何行!', {icon:5,time:1000});
+				return;
+			}
+			var books = [];
+			var ids = "";
+			$.each(rowDatas,function(i,item){
+				var id = $("#books").data("kendoGrid").dataItem(item).id;
+				var num = $("#books").data("kendoGrid").dataItem(item).inventoryNum;
+				var canBorrowing = $("#books").data("kendoGrid").dataItem(item).canBorrowing;
+				var book = {};
+				book.id = id;
+				ids += id+",";
+				book.inventoryNum = num;
+				book.canBorrowing = canBorrowing;
+				books.push(book);
+			});
+			for (var i = 0; i< books.length; i++) {
+				if(books[i].canBorrowing == '0' || books[i].canBorrowing == null){
+					layer.msg("可借库存为0的图书不能借阅,请重新选择！");
+					return;
+				}
+			}
+			layer.confirm('确认要借阅这'+books.length+'种海图资料吗？',function(index){
+				// 添加参数 @param 参数key；参数value
+				var paramJson = JSON.stringify(books);
+				var param = common.add_param("ids",ids);
+				common.toPage("../books/batch_borrowing_init?ids="+ids);
+			});
+		});
+		
+		$("#audit").on("click",function(){
+			//获取选中行数据对象
+			var rowDatas = grid.getSelectRowsData();
+			if (rowDatas.length<=0) {
+				layer.msg('未选择任何行!', {icon:5,time:1000});
+				return;
+			}
+			var bookinfo = [];
+			var ids = "";
+			$.each(rowDatas,function(i,item){
+				var id = $("#books").data("kendoGrid").dataItem(item).id;
+				var status = $("#books").data("kendoGrid").dataItem(item).status;
+				var book = {};
+				book.id = id;
+				ids += id+",";
+				book.status = status;
+				bookinfo.push(book);
+			});
+			for (var i = 0; i< bookinfo.length; i++) {
+				if(bookinfo[i].status == '审核通过'||bookinfo[i].status == '待审核'){
+					layer.msg("只能提交状态为创建或者退回的资料,请重新选择！");
+					return;
+				}
+			}
+			layer.confirm('确认要提交这'+bookinfo.length+'条海图资料吗？',function(index){
+				// 添加参数 @param 参数key；参数value
+				var paramJson = JSON.stringify(bookinfo);
+				common.add_param("type","BOOKS");
+				var param = common.add_param("ids",ids);
+				common.init("../workflow/publishdatainput","POST",function(result){
+					if (result.code == 0) {
+						layer.msg(result.value);
+						return;
+					}
+					layer.msg("提交成功");
+					books.requestbooksData();
+				});
+				common.do_submit(param);
+			});
+		});
+	},
+
+	search : function(param,stockNoTwo,publicationDateTwo,scaleTwo){
+		books.createbooksGrid();
+		common.init("../books/get_list?stockNoTwo="+stockNoTwo+"&publicationDateTwo="+publicationDateTwo+"&scaleTwo="+scaleTwo,"POST",books.bindbooksGrid);
+		common.do_submit(param);
+	}
+}

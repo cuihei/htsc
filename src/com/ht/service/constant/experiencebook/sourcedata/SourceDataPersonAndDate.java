@@ -1,0 +1,1041 @@
+package com.ht.service.constant.experiencebook.sourcedata;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.ht.persistence.model.system.workflow.task.Flows;
+import com.ht.service.constant.experiencebook.PersonAndDateUtil;
+import com.ht.service.constant.experiencebook.constants.SourceDataFlowConstants;
+
+/**
+ * 源数据各节点信息
+ * @author huodesheng
+ *
+ */
+public class SourceDataPersonAndDate extends PersonAndDateUtil{
+	// 签字内容 编绘人
+	String planCompilationPerson = null;
+	// 签字内容 编绘日期
+	String planCompilationDate = null;
+	// 签字内容  质检人
+	String planQualityPerson = null;
+	// 签字内容  质检日期
+	String planQualityDate = null;
+	// 签字内容  生产部门意见
+	String productionAdvice;
+	// 签字内容  生产部门意见时间
+	String productionAdviceDate;
+	// 签字内容  生产部门签名
+	String productionAdvicePerson;
+	// 签字内容  主管部门意见
+	String chargeAdvice;
+	// 签字内容  主管部门意见时间
+	String chargeAdviceDate;
+	// 签字内容  主管部门签名
+	String chargeAdvicePerson;
+	
+	// 问题处理记录表 编绘人
+	String problemCompilationPerson = null;
+	// 问题处理记录表  编绘日期
+	String problemCompilationDate = null;
+	// 问题处理记录表  质检人
+	String problemQualityPerson = null;
+	// 问题处理记录表  质检日期
+	String problemQualityDate = null;
+	// 问题处理记录表  通告改正至
+	String problemNotice= null;
+	
+	// 质检记录表 编绘人
+	String testCompilationPerson = null;
+	// 质检记录表  编绘日期
+	String testCompilationDate = null;
+	// 质检记录表   质检人
+	String testQualityPerson = null;
+	// 质检记录表   质检日期
+	String testQualityDate = null;
+	// 质检记录表   通告改正至
+	String testNotice = null;
+	
+	// 质检结论表 编绘人
+	String testConclusionCompilationPerson = null;
+	// 质检结论表  编绘日期
+	String testConclusionCompilationDate = null;
+	// 质检结论表  质检人
+	String testConclusionQualityPerson = null;
+	// 质检结论表  质检日期
+	String testConclusionQualityDate = null;
+	// 质检结论表  通告改正至
+	String testConclusionNotice = null;
+	
+	//质检结论表 科长
+	String testConclusionApprovePerson;
+	//质检审核人签章图片
+	String testConclusionApproveSignature;
+	//质检结论表 科长意见
+	String testConclusionApproveAdvice = null;
+	//质检结论表 科长意见时间
+	String testConclusionApproveDate = null;
+	
+	// 审定记录表 审定人
+	String valaditionPerson = null;
+	// 审定记录表 审定日期
+	String valaditionDate = null;
+	// 审定记录表 科长
+	String valaditonApprovePerson = null;
+	// 审定记录表 科长审定时间
+	String valaditonApproveDate = null;
+	// 审定记录表 通告改正至
+	String valaditonNotice = null;
+	
+	
+	// 审定结论表 审定人
+	String valaditionConclusionPerson = null;
+	// 审定结论表 审定日期
+	String valaditionConclusionDate = null;
+	// 审定结论表 审定科长
+	String valaditonConclusionApprovePerson = null;
+	// 审定结论表 科长审定时间
+	String valaditonConclusionApproveDate = null;
+	// 审定结论表 部门科长 
+	String valaditonDepartmentApprovePerson = null;
+	// 审定结论表 部门科长审定时间
+	String valaditonDepartmentApproveDate = null;
+	// 审定结论表 科长意见
+	String valaditonDepartmentApproveAdvice = null;
+	//审定结论表 审定审核人签章图片
+	String valaditonDepartmentApproveSignature = null;
+	//审定结论表  质检人
+	String valaditonConclusionQualityPerson = null;
+	//审定结论表   质检日期
+	String valaditonConclusionQualityDate = null;
+	//审定结论表   通告改正至
+	String valaditonConclusionNotice = null;
+	
+	// 总工程师人
+	String enginnerPerson = null;
+	// 总工程师时间
+	String enginnerDate = null;
+	// 总工程师意见
+	String enginnerAdvice = null;
+	// 总工程师签章图片
+	String enginnerSignature = null;
+	// 总工程师 通告改正至
+	String enginnerNotice = null;
+	
+	//工序流程列表
+	List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+	
+	
+	public SourceDataPersonAndDate() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public SourceDataPersonAndDate(List<Flows> flowList) {
+
+		
+		
+		// 编绘作业计划，签字内容 编绘人，编绘时间
+		Flows planCompilation = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.PLANCOMPILATION, flowList);
+		if(null!=planCompilation){
+			String userSignature = getUserSignature(planCompilation.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.planCompilationPerson=userSignature;
+			}else{
+				this.planCompilationPerson=planCompilation.getUserName();
+			}
+			this.planCompilationDate=formatDate(planCompilation.getEndTime());
+		}
+		// 编绘作业计划，签字内容 质检人，质检时间
+		Flows planQuality = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.PLANQUALITY, flowList);
+		if(null!=planQuality){
+			String userSignature = getUserSignature(planQuality.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.planQualityPerson=userSignature;
+			}else{
+				this.planQualityPerson=planQuality.getUserName();
+			}
+			this.planQualityDate=formatDate(planQuality.getEndTime());
+		}
+		// 编绘作业计划，签字内容 生产部门意见｛操作时间｝
+		Flows productionAdviceFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.PRODUCTIONADVICEFLOW, flowList);
+		if(null!=productionAdviceFlow){
+			String userSignature = getUserSignature(productionAdviceFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.productionAdvicePerson=userSignature;
+			}else{
+				this.productionAdvicePerson=productionAdviceFlow.getUserName();
+			}
+			this.productionAdvice=!productionAdviceFlow.getTaskResult().equals("退回") ? "同意" : null;
+			this.productionAdviceDate=formatDate(productionAdviceFlow.getEndTime());
+		}
+		// 编绘作业计划，签字内容  主管部门意见｛操作时间｝ 
+		Flows chargeAdviceFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.CHARGEADVICEFLOW, flowList);
+		if(null!=chargeAdviceFlow){
+			String userSignature = getUserSignature(chargeAdviceFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.chargeAdvicePerson=userSignature;
+			}else{
+				this.chargeAdvicePerson=chargeAdviceFlow.getUserName();
+			}
+			this.chargeAdvice=!chargeAdviceFlow.getTaskResult().equals("退回") ? "同意" : null;
+			this.chargeAdviceDate=formatDate(chargeAdviceFlow.getEndTime());
+		}
+		
+		// 问题处理记录表  编绘人，编绘时间
+		Flows problemCompilationFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.PROBLEMCOMPILATIONFLOW, flowList);
+		if(null!=problemCompilationFlow){
+			String userSignature = getUserSignature(problemCompilationFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.problemCompilationPerson=userSignature;
+			}else{
+				this.problemCompilationPerson=problemCompilationFlow.getUserName();
+			}
+			this.problemCompilationDate=formatDate(problemCompilationFlow.getEndTime());
+		}
+		// 问题处理记录表  质检人，质检时间
+		Flows problemQualityFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.PROBLEMQUALITYFLOW, flowList);
+		if(null!=problemQualityFlow){
+			String userSignature = getUserSignature(problemQualityFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.problemQualityPerson=userSignature;
+			}else{
+				this.problemQualityPerson=problemQualityFlow.getUserName();
+			}
+			this.problemQualityDate=formatDate(problemQualityFlow.getEndTime());
+		}
+		// 问题处理记录表 	通告改正至
+		Flows problemNoticeFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.PROBLEMNOTICEFLOW, flowList);
+		if(null!=problemNoticeFlow){
+			this.problemNotice=problemNoticeFlow.getAdvice();
+		}
+		
+		// 质检记录表  编绘人，编绘时间
+		Flows testCompilationFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTCOMPILATIONFLOW1, flowList);
+		if(testCompilationFlow==null){
+			testCompilationFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTCOMPILATIONFLOW2, flowList);
+		}
+		if(null!=testCompilationFlow){
+			String userSignature = getUserSignature(testCompilationFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.testCompilationPerson=userSignature;
+			}else{
+				this.testCompilationPerson=testCompilationFlow.getUserName();
+			}
+			this.testCompilationDate=formatDate(testCompilationFlow.getEndTime());
+		}
+		// 质检记录表 质检人，质检时间
+		Flows testQualityFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTQUALITYFLOW, flowList);
+		if(null!=testQualityFlow){
+			String userSignature = getUserSignature(testQualityFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.testQualityPerson=userSignature;
+			}else{
+				this.testQualityPerson=testQualityFlow.getUserName();
+			}
+			if(testQualityFlow.getEndTime()!=null){
+				this.testQualityDate=formatDate(testQualityFlow.getEndTime());
+			}
+		}
+		// 质检记录表  	通告改正至
+		Flows testNoticeFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTNOTICEFLOW1,SourceDataFlowConstants.TESTNOTICEFLOW2, flowList);
+		if(null!=testNoticeFlow){
+			this.testNotice=testNoticeFlow.getAdvice();
+		}
+		
+		
+		// 质检结论表  编绘人，编绘时间
+		Flows testConclusionCompilationFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTCONCLUSIONCOMPILATIONFLOW1, flowList);
+		if(testConclusionCompilationFlow==null){
+			testConclusionCompilationFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTCONCLUSIONCOMPILATIONFLOW2, flowList);
+		}
+		if(null!=testConclusionCompilationFlow){
+			String userSignature = getUserSignature(testConclusionCompilationFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.testConclusionCompilationPerson=userSignature;
+			}else{
+				this.testConclusionCompilationPerson=testConclusionCompilationFlow.getUserName();
+			}
+			this.testConclusionCompilationDate=formatDate(testConclusionCompilationFlow.getEndTime());
+		}
+		// 质检结论表	通告改正至
+		Flows testConclusionNoticeFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTCONCLUSIONNOTICEFLOW1, SourceDataFlowConstants.TESTCONCLUSIONNOTICEFLOW2,flowList);
+		if(null!=testConclusionNoticeFlow){
+			this.testConclusionNotice=testConclusionNoticeFlow.getAdvice();
+		}
+		// 质检结论表 质检人，质检时间
+		Flows testConclusionQualityFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTCONCLUSIONQUALITYFLOW, flowList);
+		if(null!=testConclusionQualityFlow){
+			String userSignature = getUserSignature(testConclusionQualityFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.testConclusionQualityPerson=userSignature;
+			}else{
+				this.testConclusionQualityPerson=testConclusionQualityFlow.getUserName();
+			}
+			this.testConclusionQualityDate=formatDate(testConclusionQualityFlow.getEndTime());
+		}
+		
+		// 质检结论表 科长,签章图片,科长意见,科长意见时间
+		Flows testConclusionApproveQualityFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.TESTCONCLUSIONAPPROVEQUALITYFLOW, flowList);
+		if(null!=testConclusionApproveQualityFlow){
+			String userSignature = getUserSignature(testConclusionApproveQualityFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.testConclusionApprovePerson=userSignature;
+			}else{
+				this.testConclusionApprovePerson=testConclusionApproveQualityFlow.getUserName();
+			}
+			this.testConclusionApproveDate=formatDate(testConclusionApproveQualityFlow.getEndTime());
+			this.testConclusionApproveAdvice = !testConclusionApproveQualityFlow.getTaskResult().equals("退回") ? "同意" : null;
+			this.testConclusionApproveSignature=getUserSignature(testConclusionApproveQualityFlow.getUserNo());
+		}
+		
+		
+		// 审定记录表  审定人，审定日期
+		Flows valaditionFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITIONFLOW, flowList);
+		if(null!=valaditionFlow){
+			String userSignature = getUserSignature(valaditionFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.valaditionPerson=userSignature;
+			}else{
+				this.valaditionPerson=valaditionFlow.getUserName();
+			}
+			this.valaditionDate=formatDate(valaditionFlow.getEndTime());
+		}
+		// 审定记录表 科长，科长审定时间
+		Flows valaditonApproveFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONAPPROVEFLOW, flowList);
+		if(null!=valaditonApproveFlow){
+			String userSignature = getUserSignature(valaditonApproveFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.valaditonApprovePerson=userSignature;
+			}else{
+				this.valaditonApprovePerson=valaditonApproveFlow.getUserName();
+			}
+			this.valaditonApproveDate=formatDate(valaditonApproveFlow.getEndTime());
+		}
+		//审定记录表  通告改正至
+		Flows valaditonNoticeFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONNOTICEFLOW1,SourceDataFlowConstants.VALADITONNOTICEFLOW2, flowList);
+		if(null!=valaditonNoticeFlow){
+			this.valaditonNotice=valaditonNoticeFlow.getAdvice();
+		}
+		
+		// 审定结论表 质检人，质检日期
+		Flows valaditonConclusionQualityFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONCONCLUSIONQUALITYFLOW1, flowList);
+		if(valaditonConclusionQualityFlow==null){
+			valaditonConclusionQualityFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONCONCLUSIONQUALITYFLOW2, flowList);
+		}
+		if(null!=valaditonConclusionQualityFlow){
+			String userSignature = getUserSignature(valaditonConclusionQualityFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.valaditonConclusionQualityPerson=userSignature;
+			}else{
+				this.valaditonConclusionQualityPerson=valaditonConclusionQualityFlow.getUserName();
+			}
+			this.valaditonConclusionQualityDate=formatDate(valaditonConclusionQualityFlow.getEndTime());
+		}
+		// 审定结论表 通告改正至
+		Flows valaditonConclusionNoticeFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONCONCLUSIONNOTICEFLOW1,SourceDataFlowConstants.VALADITONCONCLUSIONNOTICEFLOW2, flowList);
+		if(null!=valaditonConclusionNoticeFlow){
+			this.valaditonConclusionNotice=valaditonConclusionNoticeFlow.getAdvice();
+		}
+		// 审定结论表 科长，科长审定时间
+		Flows valaditonConclusionApproveFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONCONCLUSIONAPPROVEFLOW, flowList);
+		if(null!=valaditonConclusionApproveFlow){
+			String userSignature = getUserSignature(valaditonConclusionApproveFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.valaditonConclusionApprovePerson=userSignature;
+			}else{
+				this.valaditonConclusionApprovePerson=valaditonConclusionApproveFlow.getUserName();
+			}
+			this.valaditonConclusionApproveDate=formatDate(valaditonConclusionApproveFlow.getEndTime());
+		}
+		// 审定结论表 审定人，审定时间
+		Flows valaditionConclusionFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITIONCONCLUSIONFLOW, flowList);
+		if(null!=valaditionConclusionFlow){
+			String userSignature = getUserSignature(valaditionConclusionFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.valaditionConclusionPerson=userSignature;
+			}else{
+				this.valaditionConclusionPerson=valaditionConclusionFlow.getUserName();
+			}
+			this.valaditionConclusionDate=formatDate(valaditionConclusionFlow.getEndTime());
+		}
+		
+		// 审定结论表 科长,签章图片,科长意见,科长意见时间
+		Flows valaditonDepartmentApproveFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONDEPARTMENTAPPROVEFLOW, flowList);
+		if(null!=valaditonDepartmentApproveFlow){
+			String userSignature = getUserSignature(valaditonDepartmentApproveFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.valaditonDepartmentApprovePerson=userSignature;
+			}else{
+				this.valaditonDepartmentApprovePerson=valaditonDepartmentApproveFlow.getUserName();
+			}
+			this.valaditonDepartmentApproveDate=formatDate(valaditonDepartmentApproveFlow.getEndTime());
+			this.valaditonDepartmentApproveAdvice = !valaditonDepartmentApproveFlow.getTaskResult().equals("退回") ? "同意" : null;
+			this.valaditonDepartmentApproveSignature=getUserSignature(valaditonDepartmentApproveFlow.getUserNo());
+		}
+		
+		//总工程师
+		Flows enginnerPersonFlow = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.ENGINNERPERSONFLOW, flowList);
+		if(null!=enginnerPersonFlow){
+			String userSignature = getUserSignature(enginnerPersonFlow.getUserNo());
+			if(userSignature!=null&&userSignature!=""){
+				this.enginnerPerson=userSignature;
+			}else{
+				this.enginnerPerson=enginnerPersonFlow.getUserName();
+			}
+			this.enginnerDate=formatDate(enginnerPersonFlow.getEndTime());
+			this.enginnerAdvice = !enginnerPersonFlow.getTaskResult().equals("退回") ? "同意" : null;
+			this.enginnerSignature=getUserSignature(enginnerPersonFlow.getUserNo());
+		}
+		// 总工程师 通告改正至
+		Flows enginnerNoticeFlow  = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.VALADITONCONCLUSIONNOTICEFLOW1,SourceDataFlowConstants.VALADITONCONCLUSIONNOTICEFLOW2, flowList);
+		if(null!=enginnerNoticeFlow){
+			this.enginnerNotice=enginnerNoticeFlow.getAdvice();
+		}
+		
+		this.setListMap(flowList);
+		
+	}
+	
+	public String getPlanCompilationPerson() {
+		return planCompilationPerson;
+	}
+
+	public void setPlanCompilationPerson(String planCompilationPerson) {
+		this.planCompilationPerson = planCompilationPerson;
+	}
+
+	public String getPlanCompilationDate() {
+		return planCompilationDate;
+	}
+
+	public void setPlanCompilationDate(String planCompilationDate) {
+		this.planCompilationDate = planCompilationDate;
+	}
+
+	public String getPlanQualityPerson() {
+		return planQualityPerson;
+	}
+
+	public void setPlanQualityPerson(String planQualityPerson) {
+		this.planQualityPerson = planQualityPerson;
+	}
+
+	public String getPlanQualityDate() {
+		return planQualityDate;
+	}
+
+	public void setPlanQualityDate(String planQualityDate) {
+		this.planQualityDate = planQualityDate;
+	}
+
+	public String getProductionAdvice() {
+		return productionAdvice;
+	}
+
+	public void setProductionAdvice(String productionAdvice) {
+		this.productionAdvice = productionAdvice;
+	}
+
+	public String getProductionAdviceDate() {
+		return productionAdviceDate;
+	}
+
+	public void setProductionAdviceDate(String productionAdviceDate) {
+		this.productionAdviceDate = productionAdviceDate;
+	}
+
+	public String getChargeAdvice() {
+		return chargeAdvice;
+	}
+
+	public void setChargeAdvice(String chargeAdvice) {
+		this.chargeAdvice = chargeAdvice;
+	}
+
+	public String getChargeAdviceDate() {
+		return chargeAdviceDate;
+	}
+
+	public void setChargeAdviceDate(String chargeAdviceDate) {
+		this.chargeAdviceDate = chargeAdviceDate;
+	}
+	
+	public String getProductionAdvicePerson() {
+		return productionAdvicePerson;
+	}
+
+	public void setProductionAdvicePerson(String productionAdvicePerson) {
+		this.productionAdvicePerson = productionAdvicePerson;
+	}
+
+	public String getChargeAdvicePerson() {
+		return chargeAdvicePerson;
+	}
+
+	public void setChargeAdvicePerson(String chargeAdvicePerson) {
+		this.chargeAdvicePerson = chargeAdvicePerson;
+	}
+
+	public String getProblemCompilationPerson() {
+		return problemCompilationPerson;
+	}
+
+	public void setProblemCompilationPerson(String problemCompilationPerson) {
+		this.problemCompilationPerson = problemCompilationPerson;
+	}
+
+	public String getProblemCompilationDate() {
+		return problemCompilationDate;
+	}
+
+	public void setProblemCompilationDate(String problemCompilationDate) {
+		this.problemCompilationDate = problemCompilationDate;
+	}
+
+	public String getProblemQualityPerson() {
+		return problemQualityPerson;
+	}
+
+	public void setProblemQualityPerson(String problemQualityPerson) {
+		this.problemQualityPerson = problemQualityPerson;
+	}
+
+	public String getProblemQualityDate() {
+		return problemQualityDate;
+	}
+
+	public void setProblemQualityDate(String problemQualityDate) {
+		this.problemQualityDate = problemQualityDate;
+	}
+
+	public String getTestCompilationPerson() {
+		return testCompilationPerson;
+	}
+
+	public void setTestCompilationPerson(String testCompilationPerson) {
+		this.testCompilationPerson = testCompilationPerson;
+	}
+
+	public String getTestCompilationDate() {
+		return testCompilationDate;
+	}
+
+	public void setTestCompilationDate(String testCompilationDate) {
+		this.testCompilationDate = testCompilationDate;
+	}
+
+	public String getTestQualityPerson() {
+		return testQualityPerson;
+	}
+
+	public void setTestQualityPerson(String testQualityPerson) {
+		this.testQualityPerson = testQualityPerson;
+	}
+
+	public String getTestQualityDate() {
+		return testQualityDate;
+	}
+
+	public void setTestQualityDate(String testQualityDate) {
+		this.testQualityDate = testQualityDate;
+	}
+
+	public String getTestConclusionCompilationPerson() {
+		return testConclusionCompilationPerson;
+	}
+
+	public void setTestConclusionCompilationPerson(
+			String testConclusionCompilationPerson) {
+		this.testConclusionCompilationPerson = testConclusionCompilationPerson;
+	}
+
+	public String getTestConclusionCompilationDate() {
+		return testConclusionCompilationDate;
+	}
+
+	public void setTestConclusionCompilationDate(
+			String testConclusionCompilationDate) {
+		this.testConclusionCompilationDate = testConclusionCompilationDate;
+	}
+
+	public String getTestConclusionQualityPerson() {
+		return testConclusionQualityPerson;
+	}
+
+	public void setTestConclusionQualityPerson(String testConclusionQualityPerson) {
+		this.testConclusionQualityPerson = testConclusionQualityPerson;
+	}
+
+	public String getTestConclusionQualityDate() {
+		return testConclusionQualityDate;
+	}
+
+	public void setTestConclusionQualityDate(String testConclusionQualityDate) {
+		this.testConclusionQualityDate = testConclusionQualityDate;
+	}
+
+	public String getTestConclusionApprovePerson() {
+		return testConclusionApprovePerson;
+	}
+
+	public void setTestConclusionApprovePerson(String testConclusionApprovePerson) {
+		this.testConclusionApprovePerson = testConclusionApprovePerson;
+	}
+
+	public String getTestConclusionApproveSignature() {
+		return testConclusionApproveSignature;
+	}
+
+	public void setTestConclusionApproveSignature(
+			String testConclusionApproveSignature) {
+		this.testConclusionApproveSignature = testConclusionApproveSignature;
+	}
+
+	public String getTestConclusionApproveAdvice() {
+		return testConclusionApproveAdvice;
+	}
+
+	public void setTestConclusionApproveAdvice(String testConclusionApproveAdvice) {
+		this.testConclusionApproveAdvice = testConclusionApproveAdvice;
+	}
+
+	public String getTestConclusionApproveDate() {
+		return testConclusionApproveDate;
+	}
+
+	public void setTestConclusionApproveDate(String testConclusionApproveDate) {
+		this.testConclusionApproveDate = testConclusionApproveDate;
+	}
+
+	public String getValaditionPerson() {
+		return valaditionPerson;
+	}
+
+	public void setValaditionPerson(String valaditionPerson) {
+		this.valaditionPerson = valaditionPerson;
+	}
+
+	public String getValaditionDate() {
+		return valaditionDate;
+	}
+
+	public void setValaditionDate(String valaditionDate) {
+		this.valaditionDate = valaditionDate;
+	}
+
+	public String getValaditonApprovePerson() {
+		return valaditonApprovePerson;
+	}
+
+	public void setValaditonApprovePerson(String valaditonApprovePerson) {
+		this.valaditonApprovePerson = valaditonApprovePerson;
+	}
+
+	public String getValaditonApproveDate() {
+		return valaditonApproveDate;
+	}
+
+	public void setValaditonApproveDate(String valaditonApproveDate) {
+		this.valaditonApproveDate = valaditonApproveDate;
+	}
+
+	public String getValaditionConclusionPerson() {
+		return valaditionConclusionPerson;
+	}
+
+	public void setValaditionConclusionPerson(String valaditionConclusionPerson) {
+		this.valaditionConclusionPerson = valaditionConclusionPerson;
+	}
+
+	public String getValaditionConclusionDate() {
+		return valaditionConclusionDate;
+	}
+
+	public void setValaditionConclusionDate(String valaditionConclusionDate) {
+		this.valaditionConclusionDate = valaditionConclusionDate;
+	}
+
+	public String getValaditonConclusionApprovePerson() {
+		return valaditonConclusionApprovePerson;
+	}
+
+	public void setValaditonConclusionApprovePerson(
+			String valaditonConclusionApprovePerson) {
+		this.valaditonConclusionApprovePerson = valaditonConclusionApprovePerson;
+	}
+
+	public String getValaditonConclusionApproveDate() {
+		return valaditonConclusionApproveDate;
+	}
+
+	public void setValaditonConclusionApproveDate(
+			String valaditonConclusionApproveDate) {
+		this.valaditonConclusionApproveDate = valaditonConclusionApproveDate;
+	}
+
+	public String getValaditonDepartmentApprovePerson() {
+		return valaditonDepartmentApprovePerson;
+	}
+
+	public void setValaditonDepartmentApprovePerson(
+			String valaditonDepartmentApprovePerson) {
+		this.valaditonDepartmentApprovePerson = valaditonDepartmentApprovePerson;
+	}
+
+	public String getValaditonDepartmentApproveDate() {
+		return valaditonDepartmentApproveDate;
+	}
+
+	public void setValaditonDepartmentApproveDate(
+			String valaditonDepartmentApproveDate) {
+		this.valaditonDepartmentApproveDate = valaditonDepartmentApproveDate;
+	}
+
+	public String getValaditonDepartmentApproveAdvice() {
+		return valaditonDepartmentApproveAdvice;
+	}
+
+	public void setValaditonDepartmentApproveAdvice(
+			String valaditonDepartmentApproveAdvice) {
+		this.valaditonDepartmentApproveAdvice = valaditonDepartmentApproveAdvice;
+	}
+
+	public String getValaditonDepartmentApproveSignature() {
+		return valaditonDepartmentApproveSignature;
+	}
+
+	public void setValaditonDepartmentApproveSignature(
+			String valaditonDepartmentApproveSignature) {
+		this.valaditonDepartmentApproveSignature = valaditonDepartmentApproveSignature;
+	}
+
+	public String getValaditonConclusionQualityPerson() {
+		return valaditonConclusionQualityPerson;
+	}
+
+	public void setValaditonConclusionQualityPerson(
+			String valaditonConclusionQualityPerson) {
+		this.valaditonConclusionQualityPerson = valaditonConclusionQualityPerson;
+	}
+
+	public String getValaditonConclusionQualityDate() {
+		return valaditonConclusionQualityDate;
+	}
+
+	public void setValaditonConclusionQualityDate(
+			String valaditonConclusionQualityDate) {
+		this.valaditonConclusionQualityDate = valaditonConclusionQualityDate;
+	}
+
+	public String getEnginnerPerson() {
+		return enginnerPerson;
+	}
+
+	public void setEnginnerPerson(String enginnerPerson) {
+		this.enginnerPerson = enginnerPerson;
+	}
+
+	public String getEnginnerDate() {
+		return enginnerDate;
+	}
+
+	public void setEnginnerDate(String enginnerDate) {
+		this.enginnerDate = enginnerDate;
+	}
+
+	public String getEnginnerAdvice() {
+		return enginnerAdvice;
+	}
+
+	public void setEnginnerAdvice(String enginnerAdvice) {
+		this.enginnerAdvice = enginnerAdvice;
+	}
+
+	public String getEnginnerSignature() {
+		return enginnerSignature;
+	}
+
+	public void setEnginnerSignature(String enginnerSignature) {
+		this.enginnerSignature = enginnerSignature;
+	}
+
+	public String getProblemNotice() {
+		return problemNotice;
+	}
+
+	public void setProblemNotice(String problemNotice) {
+		this.problemNotice = problemNotice;
+	}
+
+	public String getTestNotice() {
+		return testNotice;
+	}
+
+	public void setTestNotice(String testNotice) {
+		this.testNotice = testNotice;
+	}
+
+	public String getTestConclusionNotice() {
+		return testConclusionNotice;
+	}
+
+	public void setTestConclusionNotice(String testConclusionNotice) {
+		this.testConclusionNotice = testConclusionNotice;
+	}
+
+	public String getValaditonNotice() {
+		return valaditonNotice;
+	}
+
+	public void setValaditonNotice(String valaditonNotice) {
+		this.valaditonNotice = valaditonNotice;
+	}
+
+	public String getValaditonConclusionNotice() {
+		return valaditonConclusionNotice;
+	}
+
+	public void setValaditonConclusionNotice(String valaditonConclusionNotice) {
+		this.valaditonConclusionNotice = valaditonConclusionNotice;
+	}
+
+	public String getEnginnerNotice() {
+		return enginnerNotice;
+	}
+
+	public void setEnginnerNotice(String enginnerNotice) {
+		this.enginnerNotice = enginnerNotice;
+	}
+
+	public List<Map<String, Object>> getListMap() {
+		return listMap;
+	}
+
+	public void setListMap(List<Flows> flowList) {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+		com.ht.service.constant.experiencebook.sourcedata.Flows seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+		//创建
+		Flows createFlows = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.CREATE, flowList);
+		if(null!=createFlows){
+			seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+			seaMapFlow.setORDER("工程创建");
+			seaMapFlow.setPERFOERMER(createFlows.getUserName());
+			String dates = null;
+			if (createFlows.getEndTime() != null)
+			{
+				dates = df.format(createFlows.getEndTime());
+			}
+			seaMapFlow.setDATES(dates);
+			listMap.add(seaMapFlow.getFlowsMap());
+		}
+		//编   绘
+		Flows compilationFlows = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.COMPILATION, flowList);
+		if(null!=compilationFlows){
+			seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+			seaMapFlow.setORDER("编   绘");
+			//设置人员
+			seaMapFlow.setPERFOERMER(compilationFlows.getUserName());
+			String dates = null;
+			if (compilationFlows.getStartTime() != null)
+			{
+				dates = df.format(compilationFlows.getStartTime());
+			}
+			if (dates != null &&  compilationFlows.getEndTime() != null)
+			{
+				dates += "至" + df.format(compilationFlows.getEndTime());
+			}
+			//加入时间
+			seaMapFlow.setDATES(dates);
+			listMap.add(seaMapFlow.getFlowsMap());
+		}
+		//部门质检
+		Flows departmenttesting1Flows = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.DEPARTMENTTESTING1, flowList);
+		if(null!=departmenttesting1Flows){
+			seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+			seaMapFlow.setORDER("部门质检");
+			String dates = null;
+			if (departmenttesting1Flows!=null&&departmenttesting1Flows.getEndTime() != null)
+			{
+				dates =  df.format(departmenttesting1Flows.getEndTime());
+			}
+			Flows departmenttesting2Flows = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.DEPARTMENTTESTING2, flowList);
+			if(departmenttesting2Flows!=null){
+				//设置人员
+				seaMapFlow.setPERFOERMER(departmenttesting2Flows.getUserName());
+				if (dates != null && departmenttesting2Flows.getEndTime() != null)
+				{
+					dates += "至"+ df.format(departmenttesting2Flows.getEndTime());
+				}
+			}
+			//加入时间
+			seaMapFlow.setDATES(dates);
+			listMap.add(seaMapFlow.getFlowsMap());
+		}
+		//质检后改图，质检改后确认
+		//质检后改图
+		List<Flows> testingChangeFlows = getFlowsListByTaskDefIds(SourceDataFlowConstants.TESTINGCHANGE, flowList);
+		//质检改后确认
+		List<Flows> testingConfirmFlows = getFlowsListByTaskDefIds(SourceDataFlowConstants.TESTINGCONFIRM, flowList);
+		if(testingChangeFlows!=null&&testingChangeFlows.size()>0&&testingConfirmFlows!=null&&testingConfirmFlows.size()>0){
+			for (Flows testingChange : testingChangeFlows) {
+				for (Flows testingConfirm : testingConfirmFlows) {
+					if(testingChange!=null&&testingConfirm!=null){
+						String starttime = sdf.format(testingChange.getEndTime());
+						String endtime = sdf.format(testingConfirm.getStartTime());
+						if(starttime.equals(endtime)){
+							//加入质检后改图
+							seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+							seaMapFlow.setORDER("质检后改图");
+							//设置人员
+							seaMapFlow.setPERFOERMER(testingChange.getUserName());
+							String dates = null;
+							if (testingChange.getStartTime() != null)
+							{
+								dates = df.format(testingChange.getStartTime());
+							}
+							if (dates != null &&  testingChange.getEndTime() != null)
+							{
+								dates += "至" + df.format(testingChange.getEndTime());
+							}
+							//加入时间
+							seaMapFlow.setDATES(dates);
+							listMap.add(seaMapFlow.getFlowsMap());
+							//加入质检改后确认
+							seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+							seaMapFlow.setORDER("质检改后确认");
+							//设置人员
+							seaMapFlow.setPERFOERMER(testingConfirm.getUserName());
+							dates = null;
+							if (testingConfirm.getStartTime() != null)
+							{
+								dates = df.format(testingConfirm.getStartTime());
+							}
+							if (dates != null &&  testingConfirm.getEndTime() != null)
+							{
+								dates += "至" + df.format(testingConfirm.getEndTime());
+							}
+							//加入时间
+							seaMapFlow.setDATES(dates);
+						//	listMap.add(seaMapFlow.getFlowsMap());
+						}
+					}
+				}
+			}
+		}
+		if(testingChangeFlows.size()>testingConfirmFlows.size()){
+			seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+			seaMapFlow.setORDER("质检后改图");
+			Flows testingChange = testingChangeFlows.get(testingChangeFlows.size()-1);
+			if(testingChange!=null){
+				//设置人员
+				seaMapFlow.setPERFOERMER(testingChange.getUserName());
+				String dates = null;
+				if (testingChange.getStartTime() != null)
+				{
+					dates = df.format(testingChange.getStartTime())+"至";
+				}
+				//加入时间
+				seaMapFlow.setDATES(dates);
+			//	listMap.add(seaMapFlow.getFlowsMap());
+			}
+		}
+		//中心审定
+		Flows centralValidationFlows = getPersonAndDateByTaskDefIds(SourceDataFlowConstants.CENTRALVALIDATION, flowList);
+		if(null!=centralValidationFlows){
+			seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+			seaMapFlow.setORDER("中心审定");
+			//设置人员
+			seaMapFlow.setPERFOERMER(centralValidationFlows.getUserName());
+			String dates = null;
+			if (centralValidationFlows.getStartTime() != null)
+			{
+				dates = df.format(centralValidationFlows.getStartTime());
+			}
+			if (dates != null &&  centralValidationFlows.getEndTime() != null)
+			{
+				dates += "至" + df.format(centralValidationFlows.getEndTime());
+			}
+			//加入时间
+			seaMapFlow.setDATES(dates);
+			listMap.add(seaMapFlow.getFlowsMap());
+		}
+		//审定后改图
+		List<Flows> valaditondChangeFlows = getFlowsListByTaskDefIds(SourceDataFlowConstants.VALADITONDCHANGE, flowList);
+		//审定改后确认
+		List<Flows> valaditondConfirmFlows = getFlowsListByTaskDefIds(SourceDataFlowConstants.VALADITONDCONFIRM, flowList);
+		//判空
+		if(valaditondChangeFlows!=null&&valaditondChangeFlows.size()>0&&valaditondConfirmFlows!=null&&valaditondConfirmFlows.size()>0){
+			//因为 审定改后确认的次数是小于等于审定后改图的次数的。所以循环的下标使用审定改后确认的次数
+			for (int i = 0; i < valaditondConfirmFlows.size(); i++) {
+				//当前审定后改图节点
+				Flows valaditondChange = valaditondChangeFlows.get(i);
+				//当前审定改后确认节点
+				Flows valaditondConfirm = valaditondConfirmFlows.get(i);
+				if(valaditondChange!=null&&valaditondConfirm!=null){
+					//添加审定后改图工序流程
+					seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+					seaMapFlow.setORDER("审定后改图");
+					//设置人员
+					seaMapFlow.setPERFOERMER(valaditondChange.getUserName());
+					String dates = null;
+					if (valaditondChange.getEndTime() != null)
+					{
+						dates =  df.format(valaditondChange.getEndTime());
+					}
+					if(valaditondConfirm!=null){
+						if (dates != null && valaditondConfirm.getStartTime() != null)
+						{
+							dates += "至"+ df.format(valaditondConfirm.getStartTime());
+						}
+					}
+					//加入时间
+					seaMapFlow.setDATES(dates);
+					listMap.add(seaMapFlow.getFlowsMap());
+					//添加审定改后确认工序流程
+					seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+					seaMapFlow.setORDER("审定改后确认");
+					//设置人员
+					seaMapFlow.setPERFOERMER(valaditondConfirm.getUserName());
+					dates = null;
+					if (valaditondConfirm.getStartTime() != null)
+					{
+						dates = df.format(valaditondConfirm.getStartTime());
+					}
+					if (dates != null &&  valaditondConfirm.getEndTime() != null)
+					{
+						dates += "至" + df.format(valaditondConfirm.getEndTime());
+					}
+					//加入时间
+					seaMapFlow.setDATES(dates);
+			//		listMap.add(seaMapFlow.getFlowsMap());   
+				}
+			}
+			//可能会出现，改图次数多余改后确认次数的情况。
+			if(valaditondChangeFlows.size()>valaditondConfirmFlows.size()){
+				seaMapFlow = new com.ht.service.constant.experiencebook.sourcedata.Flows();
+				seaMapFlow.setORDER("审定后改图");
+				Flows valaditondChange = valaditondChangeFlows.get(valaditondChangeFlows.size()-1);
+				if(valaditondChange!=null){
+					//设置人员
+					seaMapFlow.setPERFOERMER(valaditondChange.getUserName());
+					String dates = null;
+					if (valaditondChange.getStartTime() != null)
+					{
+						dates = df.format(valaditondChange.getStartTime())+"至";
+					}
+					//加入时间
+					seaMapFlow.setDATES(dates);
+				//	listMap.add(seaMapFlow.getFlowsMap());
+				}
+			}
+		}
+		
+		this.listMap=listMap;
+	}
+	
+}

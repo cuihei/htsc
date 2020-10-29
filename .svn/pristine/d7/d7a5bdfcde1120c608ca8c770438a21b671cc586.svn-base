@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class	name="com.ht.persistence.model.drawtask.taskbook.book.TaskPlan"	table="COMPILATION_TASK_PLAN">
+
+		<id name="id" type="java.lang.String">
+			<column name="id"/>
+			<generator class="assigned"/>
+		</id>
+<property name="apprvoeEndTime" type="java.lang.String">
+<column name="apprvoe_end_time"/>
+</property>
+<property name="apprvoeExpectedTime" type="java.lang.String">
+<column name="apprvoe_expected_time"/>
+</property>
+<property name="apprvoePerson" type="java.lang.String">
+<column name="apprvoe_person"/>
+</property>
+<property name="apprvoeStartTime" type="java.lang.String">
+<column name="apprvoe_start_time"/>
+</property>
+<property name="checkWorkdays" type="java.lang.String">
+<column name="check_workdays"/>
+</property>
+<property name="compilationEndTime" type="java.lang.String">
+<column name="compilation_end_time"/>
+</property>
+<property name="compilationExpectedTime" type="java.lang.String">
+<column name="compilation_expected_time"/>
+</property>
+<property name="compilationGroup" type="java.lang.String">
+<column name="compilation_group"/>
+</property>
+<property name="compilationPerson" type="java.lang.String">
+<column name="compilation_person"/>
+</property>
+<property name="compilationStartTime" type="java.lang.String">
+<column name="compilation_start_time"/>
+</property>
+<property name="compilationWorkdays" type="java.lang.String">
+<column name="compilation_workdays"/>
+</property>
+<property name="taskBookTime" type="java.lang.String">
+<column name="create_time"/>
+</property>
+<property name="currUser" type="java.lang.String">
+<column name="curr_user"/>
+</property>
+<property name="endTime" type="java.lang.String">
+<column name="end_time"/>
+</property>
+<property name="examineWorkdays" type="java.lang.String">
+<column name="examine_workdays"/>
+</property>
+<property name="excutionId" type="java.lang.String">
+<column name="excution_id"/>
+</property>
+<property name="group" type="java.lang.String">
+<column name="group_"/>
+</property>
+<property name="lastUpdateUser" type="java.lang.String">
+<column name="last_update_user"/>
+</property>
+<property name="mapName" type="java.lang.String">
+<column name="map_name"/>
+</property>
+<property name="mapNo" type="java.lang.String">
+<column name="map_no"/>
+</property>
+<property name="parentProcessInstId" type="java.lang.String">
+<column name="parent_process_inst_id"/>
+</property>
+<property name="performer" type="java.lang.String">
+<column name="performer"/>
+</property>
+<property name="processDefId" type="java.lang.String">
+<column name="process_def_id"/>
+</property>
+<property name="processDefName" type="java.lang.String">
+<column name="process_def_name"/>
+</property>
+<property name="processInstId" type="java.lang.String">
+<column name="process_inst_id"/>
+</property>
+<property name="qualityEndTime" type="java.lang.String">
+<column name="quality_end_time"/>
+</property>
+<property name="qualityExpectedTime" type="java.lang.String">
+<column name="quality_expected_time"/>
+</property>
+<property name="qualityPerson" type="java.lang.String">
+<column name="quality_person"/>
+</property>
+<property name="qualityScore" type="java.lang.String">
+<column name="quality_score"/>
+</property>
+<property name="qualityStartTime" type="java.lang.String">
+<column name="quality_start_time"/>
+</property>
+<property name="recordId" type="java.lang.String">
+<column name="record_id"/>
+</property>
+<property name="remark" type="java.lang.String">
+<column name="remark"/>
+</property>
+<property name="scale" type="java.lang.String">
+<column name="scale"/>
+</property>
+<property name="score" type="java.lang.String">
+<column name="score"/>
+</property>
+<property name="status" type="java.lang.String">
+<column name="status"/>
+</property>
+<property name="suspendState" type="java.lang.String">
+<column name="suspend_state"/>
+</property>
+<property name="task_bookTime" type="java.lang.String">
+<column name="task_book_time"/>
+</property>
+<property name="taskDefId" type="java.lang.String">
+<column name="task_def_id"/>
+</property>
+<property name="taskInstId" type="java.lang.String">
+<column name="task_inst_id"/>
+</property>
+<property name="taskName" type="java.lang.String">
+<column name="task_name"/>
+</property>
+<property name="taskbookNo" type="java.lang.String">
+<column name="taskbook_no"/>
+</property>
+<property name="zlTime" type="java.lang.String">
+<column name="zl_time"/>
+</property>
+<property name="ztTime" type="java.lang.String">
+<column name="zt_time"/>
+</property>
+<property name="processEndTime" type="java.lang.String">
+<column name="process_end_time"/>
+</property>
+</class>
+	
+
+</hibernate-mapping>

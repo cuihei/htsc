@@ -1,0 +1,928 @@
+/**
+ * 
+ */
+$(function(){
+
+	process_form.init();
+	$.ajaxSettings.traditional=true;
+	$("#data").attr("type","button");
+	 $('#editMoadl').on('hide.bs.modal', function () {
+		 document.getElementById("importFV").reset();
+		  $(":file").each(function () {
+				if(this.id != 'formProps'){
+					$(this).val('');
+					 var title=$(this).parent().prev().children("div:first-child").attr("title");
+					 $(this).next().text(title);
+				}
+		  });
+	 }
+	);
+	/**
+	 * 绑定添加按钮的click事件
+	 */
+	$("#add").on("click",function(){
+		// 重置数据
+		process_form.resetElementValue();
+		// 显示编辑页面
+		
+		
+		
+		$("#editMoadl").modal("show");
+	});
+	/** 绑定返回按钮的click事件*/
+	 $("#back").on("click",function(){
+		 var processDefKey = $("#processDefKey").val();
+		 var from = $("#from").val();
+		 if(processDefKey == "PROBLEM_SUBMIT"){
+			 layer.confirm('确认要提交吗？',function(index){
+				    loading.init();
+					common.add_param("taskId",$("#taskInstId").val());
+					common.add_param("processInstId",$("#processInstId").val());
+					common.add_param("taskDefId",$("#taskDefId").val());
+					common.add_param("processDefId",$("#processDefId").val());
+					///   添加一个退回识别字符  2018.9.12
+					common.add_param("tuihui","th");
+					var data = common.add_param("agreeValue","1");
+					common.init("../workflow/task_perform","POST",function(result){
+						if (result.code == 0) {
+							layer.msg(result.value);
+							loading.close();
+							return;
+						}
+						layer.msg("提交任务成功！");
+						common.toPage("../problem/init");
+						loading.close();
+					});
+					common.do_submit(data);
+			 });
+		 }else{
+			 if (from == "1") {
+				 common.toPage("../workflow/task_init?processDefKey="+processDefKey);
+			 }
+			 else{
+				 common.toPage("../workflow/hi_task_init?processDefKey="+processDefKey);
+			 }
+			 window.event.returnValue = false;
+		 }
+	 });
+	 
+//	 $("#cpid").on("change",function(){
+//		 var cpid=$("#cpid").val();
+//	     if(cpid.length!=0){
+//	    	 $.ajax({
+//	 			type :"POST",
+//	 			url :"../workflow/getHPD",
+//	 			dataType : "json",
+//	 			async : true,
+//	 			data :  "cpid="+cpid,
+//	 			success : function(data){
+//					   $("#chart").text(data.value.chart);
+//					   $("#sheet").text(data.value.sheet);
+//					   $("#panel").text(data.value.panel);
+//				},
+//	 			error : function(err){
+//				}
+//	    	 });
+//	     }
+//	 });
+//	 $("#ecpid").on("change",function(){
+//		 var ecpid=$("#ecpid").val();
+//		 if(ecpid.length!=0){
+//			 $.ajax({
+//				 type :"POST",
+//				 url :"../workflow/getElehpd",
+//				 dataType : "json",
+//				 async : true,
+//				 data :  "ecpid="+ecpid,
+//				 success : function(data){
+//					 $("#eleattributes").text(data.value.eleattributes);
+//				 },
+//				 error : function(err){
+//				 }
+//			 });
+//		 }
+//	 });
+	
+})
+function downLoadFile(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	//获取附件地址
+	var url=rowData.fileName;
+	var id=rowData.fileId;
+	if(url == null || url == ""||id==null||id==""){
+		layer.msg("这个资料没有附件！");
+		return;
+	}else{
+		window.location.href = "../datumFileDownload/filedownload?bookfileId="+id;
+	}
+}
+function handleFile(obj){
+    $("#"+obj.id+"fjs").click();
+}
+
+function getFileName(obj){
+   var filename =  $("#"+obj.id).val();
+   if(filename !=null && filename != ""){
+	   filename = filename.substring(filename.lastIndexOf('\\')+1);
+	   var id = obj.id.replace("fjs","");
+	   $("#"+id).text(filename);
+   }
+}
+
+/** 绑定删除窗口按钮的click事件*/
+function removePage(obj) {
+	////////////////////////////////////////////////
+	var taskInstId = $("#taskInstId").val();
+	var processInstId = $("#processInstId").val();
+	var userno = $("#_userNo").val();
+	var tr = $(obj).parent().parent();
+	var rowData = grid.getSelectRowDataByRow(tr);
+
+	if(rowData.formBb==null||rowData.formBb==""){
+				// 新数据直接后台删除
+				layer.confirm('确认要删除吗？', function (index) {
+					var form = {};
+					form.rowFlag = rowData.rowFlag;
+					var formJson = JSON.stringify(form);
+					var param = common.add_param("formValue", formJson);
+					common.init("../formValue/remove", "POST", process_form.removeSuccess);
+					// 执行提交操作
+					common.do_submit(param);
+				});
+
+	} else {
+	
+layer.msg('退回的表单、不可以有编辑和删除操作！');
+			}
+	///////////////////////////////////////////
+
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function editPage(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取隐藏域的map集合值
+	var mapHidden = $("#mapHidden").val();
+	var rowData = grid.getSelectRowDataByRow(tr);
+	// 将JSON字符串转化为JSON对象
+	$("#rowFlag").val("");
+	var rowFlag = rowData.rowFlag;
+	$("#rowFlag").val(rowFlag);
+	var taskInstId=rowData.taskInstId;
+	process_form._propKeys = JSON.parse(mapHidden); 
+	for (var int = 0; int < process_form._propKeys.length; int++) {
+		var prop = process_form._propKeys[int];
+		var key = prop.key;
+		var val = rowData[key];
+		var type = prop.type;
+		if(type != 'file'){
+			$("#"+key).val(val);
+		}else{
+			if(val != null && val!=''){
+				val = val.substring(val.lastIndexOf('\\')+1);
+				$("#"+key).text(val);
+			}
+		}
+		if(type=="kendoselect"){
+			$("#"+key).data("kendoDropDownList").value(val);
+		}
+		if(type=="imgselect"){
+			$("#"+key).data("kendoDropDownList").value(val);
+		}
+		if(type=="multiselect"){
+		
+			if(val!=null){
+				$("#"+key).data("kendoMultiSelect").value(val.split(","));
+			}
+		}
+	}
+	var tr = $(obj).parent().parent();
+	var rowData = grid.getSelectRowDataByRow(tr);
+	if (rowData.formBb == null || rowData.formBb == "") {
+				$("#editMoadl").modal('show');
+
+	} else {
+		layer.msg('退回的表单、不可以有编辑和删除操作！');
+	}
+}
+
+/** 绑定复制按钮的click事件*/
+function copyPage(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取隐藏域的map集合值
+	var rowData = grid.getSelectRowDataByRow(tr);
+    $("#rowFlag").val("");
+    var mapHidden = $("#mapHidden").val();
+	// 将JSON字符串转化为JSON对象
+	process_form._propKeys = JSON.parse(mapHidden); 
+	for (var int = 0; int < process_form._propKeys.length; int++) {
+		var prop = process_form._propKeys[int];
+		var key = prop.key;
+		var val = rowData[key];
+		$("#"+key).val(val);
+	}
+	// 显示编辑页面
+	$("#editMoadl").modal("show");
+}
+
+function onclic(obj){
+	if (obj != null) {
+		var formImgUpload = getFirstNode(obj,"formImgUpload");
+		$(formImgUpload).click();
+	}
+};
+
+function changeImg(obj) {
+	for (var i = 0; i < event.target.files.length; i++) {
+		var file = event.target.files.item(i);
+		if (!(/^image\/.*$/i.test(file.type))) {
+			//不是图片 就跳出这一次循环
+			continue;  
+		}
+		//实例化FileReader API  
+		var freader = new FileReader();
+		freader.readAsDataURL(file);
+		var myImg = getFirstNode(obj,"myImg");
+		var upload = getFirstNode(obj,"upload");
+		freader.onload = function() {
+			$(myImg).attr("src", event.target.result);
+			$(myImg).attr("height", "130px");
+			$(myImg).attr("width", "300px");
+			$(upload).attr("style","display:none");
+		}
+	}
+};
+
+function getFirstNode(obj,name){
+	var nexts = $(obj).siblings();
+	for (var int = 0; int < nexts.length; int++) {
+		var next = nexts[int];
+		if (next.name == name) {
+			return next;
+		}
+	}
+}
+
+var process_form = {
+		_propKeys : [],
+		
+		_taskInstId : null,
+		
+		_processInstId : null,
+		
+		_formId : null,
+		
+		_notices : null,
+		/**
+		 * 初始化
+		 */
+		init : function(){
+			grid.init("formPropValue");
+			loading.init();
+			try{
+				process_form._taskInstId = $("#taskInstId").val();
+				process_form._processInstId = $("#processInstId").val();
+				process_form._formId = $("#formId").val();
+				process_form._notices = $("#listHidden").val();
+				//创建列表
+				process_form.createformValueGrid();
+				//请求列表数据
+				process_form.requestformValueData("1");
+				process_form.bindPageEvent();
+			}
+			catch(err){
+				loading.close();
+			}
+		},
+		
+		
+		/**
+		 * 构建表单列表列集合
+		 */
+		createformValueColumns : function(){
+			// 获取隐藏域的map集合值
+			var mapHidden = $("#mapHidden").val();
+			// 将JSON字符串转化为JSON对象
+			process_form._propKeys = JSON.parse(mapHidden); 
+			// 遍历JSON对象取得表头
+			var colmuns = null;
+			for (var int = 0; int < process_form._propKeys.length; int++) {
+				var prop = process_form._propKeys[int];
+				var key = prop.key;
+				var name = prop.name;
+				var type = prop.type;
+
+				if (type == "img") {
+					colmuns = grid.addColumn("150px",key,name,kendo.template($("#formImgTemplate").html()));
+				}
+				else if(type == "file"){
+					colmuns = grid.addColumn("150px",key,name,kendo.template($("#formFileTemplate").html()));
+				}
+				else{
+					colmuns = grid.addColumn("150px",key,name);
+				}
+				}
+				colmuns = grid.addColumn("120px", "formBb", "历史版本");;
+				colmuns = grid.addColumn("300px", "handle", "操作", kendo.template($("#editTemplate").html()));
+				return colmuns;
+				},
+								
+								/**
+								 * 创建列表
+								 */
+	    	createformValueGrid : function(){
+			grid.init("formPropValue");
+			var columns = process_form.createformValueColumns();
+			grid.createGrid(columns);
+
+/////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////////////////////
+		},
+		
+		/**
+		 * 删除成功
+		 * */
+		removeSuccess : function(result){
+			grid.init("formPropValue");
+			if(result.code == 1){
+				layer.close(1);
+				layer.msg('删除成功');
+				process_form.requestformValueData();
+				$("#rowFlag").val("");
+			}
+		},
+		
+		/**
+		 * 发送数据请求
+		 */
+		requestformValueData : function(type){
+			grid.init("formPropValue");
+			var url="../formValue/list";
+			if(type!=null){
+				url=url+"?hisNotice=1";
+			}
+			common.init(url,"POST",process_form.bindformValueGrid);
+			common.add_param("taskInstId",process_form._taskInstId);
+			common.add_param("processInstId",process_form._processInstId);
+			var data = common.add_param("formId",process_form._formId);
+			common.do_submit(data);
+		},
+		
+
+		/**
+		 * 接收服务器响应数据,绑定表格
+		 * 这是一个回调函数，不用手动调用
+		 */
+		bindformValueGrid : function(result){
+			grid.init("formPropValue");
+			grid.bindData(result);
+			var gridInst = $("#formPropValue").data("kendoGrid");
+			var height = $(document.body).height()-130;
+			gridInst.setOptions({
+				height:height,
+				filterable:false,
+				sortable:false,
+				pageable : {
+					pageSizes : true,
+					buttonCount : 5,
+					pageSize : 200
+				},
+				dataSource: result.value
+			});
+			var pager = $("#formPropValue").find("div[data-role='pager']");
+			$(pager).hide();
+
+			
+			/** 绑定查看签章窗口按钮的click事件*/
+			var imgBtns = $("button[name='editImg']");
+			$.each(imgBtns,function(i,item){
+				$(item).on("click",function(){
+					var td = $(item).parent();
+					var tr = $(item).parent().parent();
+					var propIndex = td.index()-2;
+					if (propIndex >=0) {
+						process_form.toFormValueFormImgPage(tr,propIndex);
+					}
+				});
+			});
+			
+			/** 绑定查看文件窗口按钮的click事件*/
+			var imgBtns = $("button[name='editFile']");
+			$.each(imgBtns,function(i,item){
+				$(item).on("click",function(){
+					var td = $(item).parent();
+					var tr = $(item).parent().parent();
+					var propIndex = td.index()-2;
+					if (propIndex >=0) {
+						process_form.toFormValueFormFilePage(tr,propIndex);
+					}
+				});
+			});
+		},
+
+		/**
+		 * 跳转到查看图片页面
+		 */
+		toFormValueFormImgPage : function(tr,propIndex){
+			grid.init("formPropValue");
+			// 获取选中行数据对象
+			var rowData = grid.getSelectRowDataByRow(tr);
+			// 获取url的值
+			var url = rowData[process_form._propKeys[propIndex].key];
+			if(url == null || url == ""){
+				layer.msg("该表单没有上传图片！");
+				return;
+			}else{
+				// 跳转到表单查看页面
+				common.toPage("../formValue/form_img?url="+url);
+			}
+		},
+		
+		/**
+		 * 下载文件
+		 */
+		toFormValueFormFilePage : function(tr,propIndex){
+			grid.init("formPropValue");
+			// 获取选中行数据对象
+			var rowData = grid.getSelectRowDataByRow(tr);
+			// 获取用户ID
+			var url = rowData[process_form._propKeys[propIndex].key];
+			if(url == null || url == ""){
+				layer.msg("该表单没有上传文件！");
+				return;
+			}else{
+				// 下载
+				window.location.href = "../formValue/form_file?url="+url;
+			}
+		},
+		
+	/**
+	 * 上传文件
+	 */
+	importExcel : function(){
+		grid.init("formPropValue");
+		// 判空
+		var data = $('#uploadFile').val();
+		if(data==""){
+			layer.msg('请选择文件！');
+			return;
+		}
+		var fileType=data.substr(data.lastIndexOf(".")).toLowerCase();
+	    if(fileType != '.xls'&&fileType != '.xlsx'){
+	    	layer.msg('请导入xls或xlsx格式的文件');
+			return;
+	    }
+		loading.init();
+		var props;
+		var jsonProp = $("#props").val();
+		var props = $("#props").val();
+		if(typeof jsonProp == 'object'){
+		    props = jsonProp;
+		}
+		else{
+			props = eval("("+jsonProp+")");
+		}
+		var taskInstId = $("#taskInstId").val();
+		var processInstId = $("#processInstId").val();
+		common.add_param("taskInstId",taskInstId);
+		common.add_param("processInstId",processInstId);
+		var param = common.add_param("props",props);
+		$("#importFormValue").ajaxSubmit({  
+            type: 'post',  
+            url: "../taskform/importform",  
+            data:param,
+            beforeSubmit: function() { 
+            	return true;
+            } ,  
+            success: function(result){  
+            	result = eval("("+result+")");
+                if(result.code != 1 ){
+                	loading.close();
+                	layer.msg("导入数据失败，请检查数据无误后再导入！");
+                	return;
+                }
+                layer.msg(result.value);
+                process_form.requestformValueData();
+            },  
+            error: function(XmlHttpRequest, textStatus, errorThrown){
+            	loading.close();
+            	layer.msg("系统错误，请联系管理员！");
+            }  
+        }); 
+	},	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		 /** 绑定确定添加按钮的click事件*/
+		grid.init("formPropValue");
+		$("#submit").on("click",function(){
+			
+			
+			var stop=false;
+			var props;
+			var taskInstId = $("#taskInstId").val();
+			var processInstId = $("#processInstId").val();
+			var jsonProp = $("#formProps").val();
+			common.add_param("formId",$("#formId").val());
+			common.add_param("taskInstId",taskInstId);
+			common.add_param("processInstId",processInstId);
+			var rowFlag = $("#rowFlag").val();
+			var map = {};
+			var i = 0;
+			///////////////////比例尺只允许填写数字
+			var fromid_=$("#formId").val();
+		    //alert(fromid_);
+			
+			
+		    //源数据     资料采用表 FROMID=11031809162880000
+			if(fromid_=="11031809162880000"){
+				var blc_=$("#blc").val();
+				if(/[^\d]/.test(blc_) || blc_=="0"||blc_=="" ){layer.msg("比例尺格式错误 ，如：2500  请填写正整数");	return false;
+				}else{
+					$("#blc").val("1:"+blc_)
+				}
+			}
+			//电子海图  数学基础及元物标 11051521066850010
+			if(fromid_=="11051521066850010"){
+			var bjblc_=$("#bjblc").val();
+			var bzbjblc_=$("#bzbjblc").val();
+			if((/[^\d]/.test(bjblc_) || bjblc_=="0"||bjblc_=="")&&bjblc_.indexOf("1:")<0){layer.msg("编辑比例尺格式如：2500  请填写正整数");	return false;}else if(bjblc_.indexOf("1:")<0){$("#bjblc").val("1:"+bjblc_)};
+			
+			if((/[^\d]/.test(bzbjblc_) || bzbjblc_=="0"||bzbjblc_=="")&&bzbjblc_.indexOf("1:")<0){layer.msg("标准编辑比例尺格如：5000  请填写正整数");	return false;}else if(bzbjblc_.indexOf("1:")<0){$("#bzbjblc").val("1:"+bzbjblc_)};
+			}
+			//电子海图 最小比例尺赋值 11222212069950014
+			if(fromid_=="11222212069950014"){
+				var zxblc_=$("#zxblc").val();
+				if(/[^\d]/.test(zxblc_) || zxblc_=="0"||zxblc_=="" ){layer.msg("比例尺格式错误 ，如：2500  请填写正整数");	return false;
+				}else{
+					$("#zxblc").val("1:"+zxblc_)
+				}
+			}
+			//纸海图比例尺 11051543039820064
+			if(fromid_=="11051543039820064"){
+				var blc_=$("#blc").val();
+				if(/[^\d]/.test(blc_) || blc_=="0" ||blc_==""){layer.msg("比例尺格式错误 ，如：2500  请填写正整数");	return false;
+				}else{
+					$("#blc").val("1:"+blc_)
+				}
+			}
+			///////////////////////
+			
+			
+			
+			
+			$("input[name='formImgUpload']").each(function(){ 
+				if($(this).val()!="") { 
+					// 已经选择了图片
+					map[i] = "true";
+				}else{
+					// 没有选择图片
+					map[i] = "false";
+				}
+				i++;
+			});
+			var mapJson = JSON.stringify(map);
+			common.add_param("map",mapJson);
+			
+			var map1 = {};
+			var k = 0;
+			$("input[name='files']").each(function(){ 
+				if($(this).val()!="") { 
+					// 已经选择了图片
+					map1[k] = "true";
+				}else{
+					// 没有选择图片
+					map1[k] = "false";
+				}
+				k++;
+			});
+			var mapJson1 = JSON.stringify(map1);
+			common.add_param("mapfile",mapJson1);
+			common.add_param("rowFlag",rowFlag);
+			if(typeof jsonProp == 'object'){
+			    props = jsonProp;
+			}
+			else{
+				props = eval("("+jsonProp+")");
+			}
+			var j = 0;
+			for(var item in props){
+				if(props[item]!=null){
+					if(props[item].propKey=='tgqh'||props[item].propKey=='gzqh'){
+						var fromValue = {};
+						fromValue.formId=$("#formId").val();
+						fromValue.propValue=$("#"+props[item].propKey).val();
+						fromValue.propKey=props[item].propKey;
+						fromValue.rowFlag=rowFlag;
+						var fromValueJson = JSON.stringify(fromValue);
+						$.ajax({
+							type : "POST",
+							url :"../formValue/verificationpropvalue",
+							async : false,
+							dataType : "json",
+							data : {"fromValue":fromValueJson},
+							success : function(result){
+								//调回用户列表显示页面
+								if (result.code == 1) {
+									if(result.value !="success"){
+										layer.msg("期号已存在");
+										stop=true;
+									}
+								}
+							}
+						});
+					}
+					if(stop){
+						return false;
+					}
+
+
+				if(props[item].editAble == '是' ){
+					if(props[item].required == "是"){
+						if(props[item].propType != 'file' && props[item].propType != 'img'){
+							if(props[item].propType=='multiselect'){
+								var multiseValue=$("#"+props[item].propKey).data("kendoMultiSelect").value();
+								if(multiseValue==""||multiseValue==null){
+									layer.msg(props[item].propName+"为必填项");
+									$("#"+props[item].propKey).focus();
+									return false;
+								}else{
+									$("#"+props[item].propKey).val(multiseValue);
+								}
+							}else if($("#"+props[item].propKey).val() == "" || $("#"+props[item].propKey).val() == null){
+								layer.msg(props[item].propName+"为必填项");
+								$("#"+props[item].propKey).focus();
+								return false;
+							}
+						}else{
+							if($("#"+props[item].propKey).text() == props[item].propName){
+								layer.msg(props[item].propName+"为必填项");
+								return false;
+							}
+						}
+					}
+				}
+				}
+			}
+			
+			// 总工程师打分等级判断
+			var pfdj = $("#pfdj").val();
+			if(pfdj != null){
+				pfdj = pfdj.replace(/[^0-9]./ig,"");
+				while(/[\u4E00-\u9FA5]+/.test(pfdj)){//去除中文
+					pfdj=pfdj.replace(/[\u4E00-\u9FA5]+/,""); 
+				}
+				if(Number(pfdj)<Number(90)){
+					layer.msg("当前评分已低于90分！");
+					return false;
+				}
+			}
+			if(!stop){
+
+				var param = common.add_param("props",props);
+				var ajax_option={
+					 type:"post",
+					 url:"../areaImgUpload/uploadForm",
+					 data:param,
+					 success:function(data){
+						if (data.code == 0) {
+							layer.msg(data.value);
+							return;
+						}
+						layer.msg("保存成功！");
+						process_form.requestformValueData();
+		        		var mapHidden = $("#mapHidden").val();
+		        		process_form.resetElementValue();
+		        		$("#editMoadl").modal("hide");
+					 }
+				};
+				$('#importFV').ajaxSubmit(ajax_option);
+
+			}
+			return false; 
+		 });
+		
+		/** 绑定导出文件模板的click事件*/
+		$("#exportTemplate").on("click",function(){
+			$("#importFormValue").attr("action", "../detaildownload/formtemplate");
+			$("#importFormValue").submit();
+		});
+		
+		/** 绑定上传文件的click事件*/
+		$("#importDownSubmit").on("click",function(){
+			process_form.importExcel();
+		});
+		
+		$("#data").unbind("click").click(function(){
+			 taskDiv.init();
+			$("#myModal1").show();
+		});
+	},
+	
+	resetElementValue:function(){
+		grid.init("formPropValue");
+		// 重置控件
+    	$(".k-upload-files").remove();
+		$("#editMoadl :input").each(function () {
+			if(this.id != 'formProps'){
+				 $(this).val("");  
+			}
+	    });
+		$("#rowFlag").val("");
+//		$("img").each(function () {
+//		if($(this).attr("src")!="../../ht/ht/upload/images/uploadpic.png" && $(this).attr("src")!=undefined){
+//			$(this).attr("src","../../ht/ht/upload/images/uploadpic.png");
+//		}
+//    });
+		 document.getElementById("importFV").reset();
+	},
+}
+
+var taskDiv={
+		/**
+		 * 初始化
+		 */
+		init : function(){
+			grid.init("datalist");
+//			$("#datalist .k-grid-content").css("overflow-y", "scroll");
+			loading.init();
+			try{
+				taskDiv.createtaskDivGrid();
+				taskDiv.bindtaskDivGrid();
+				taskDiv.bindPageEvent();
+			}catch(err){
+				loading.close();
+			}
+			loading.close();
+		},
+		/**
+		 * 构建改正通知公告表格。 ,kendo.template($("#stateTemplate").html())
+		 */
+		createtaskDivColumns : function(){
+			grid.resetColumn();
+			grid.addColumn("150px","source","资料来源");
+			grid.addColumn("150px","titanic","文号");
+			grid.addColumn("150px","receiveDate","收到日期");
+			grid.addColumn("100px","fileName","附件","<a style='color:blue;cursor:pointer;' onclick='downLoadFile(this)'> #= fileName?fileName:''# </a>");
+			grid.addColumn('200px','state','资料采用情况',null,null,null,null,function(container, options){
+			     var input = $("<input/>");
+			     input.attr("name",  options.field);
+			     input.appendTo(container);
+			     input.kendoDropDownList({
+			       optionLabel:'--请选择--',
+			       dataSource:stateValues
+			     });
+			});
+			return grid.addColumn("100px","edit","修改",kendo.template("<a style='cursor:pointer;color:black' onclick='taskDiv.revisionEdit.call(this)'>修改</a>"));
+		},
+		/**
+		 * 创建改正通知公告列表
+		 */
+		createtaskDivGrid : function(){
+			var columns = taskDiv.createtaskDivColumns();
+			grid.createGrid(columns);
+			
+		},
+		/**
+		 * 接收服务器响应数据,绑定表格 这是一个回调函数，不用手动调用
+		 */
+		bindtaskDivGrid : function(){
+			var list = process_form._notices;
+			var data = JSON.parse(list); 
+			var grid1 = $("#datalist").data("kendoGrid");
+			grid1.setOptions({
+				dataSource: data,
+				scrollable: true,
+				pageable : {
+					pageSizes : true,
+					buttonCount : 5,
+					pageSize : 10
+				},
+			});
+		},
+		/**
+		 * 绑定页面事件
+		 */
+		bindPageEvent : function(){
+		
+			$("#listSubmit").unbind("click").click(function(){
+				var rowDatas = grid.getSelectRowsData();
+				if(rowDatas.length == 0){
+					layer.msg("请选择数据");
+					return false;
+				}else{
+					var props;
+					var taskInstId = $("#taskInstId").val();
+					var processInstId = $("#processInstId").val();
+					var jsonProp = $("#formProps").val();
+					common.add_param("formId",$("#formId").val());
+					common.add_param("taskInstId",taskInstId);
+					common.add_param("processInstId",processInstId);
+					if(typeof jsonProp == 'object'){
+					    props = jsonProp;
+					}else{
+						props = eval("("+jsonProp+")");
+					}
+					var formvalues = [];
+					var flag=false;
+					$.each(rowDatas,function(i,item){
+						var id = $("#datalist").data("kendoGrid").dataItem(item).id;
+						var source = $("#datalist").data("kendoGrid").dataItem(item).source;
+						var titanic = $("#datalist").data("kendoGrid").dataItem(item).titanic;
+						var receiveDate = $("#datalist").data("kendoGrid").dataItem(item).receiveDate;
+						var content = $("#datalist").data("kendoGrid").dataItem(item).content;
+						var state = $("#datalist").data("kendoGrid").dataItem(item).state;
+						if(state==null||state==""||state=="--请选择--"||state=="暂未采用"){
+							flag=true;
+						}
+						var formvalue = {};
+						formvalue.id = id;
+						formvalue.source = source;
+						formvalue.titanic = titanic;
+						formvalue.receiveDate = receiveDate;
+						formvalue.content = content;
+						formvalue.state = state;
+						formvalues.push(formvalue);
+					});
+					if(!flag){
+						var param = JSON.stringify(formvalues);
+						common.add_param("formvalue",param);
+						var data = 	common.add_param("props",JSON.stringify(props));
+						common.init("../formValue/addcnb","POST",function(result){
+							if (result.code == 0) {
+								layer.msg(result.value);
+								return;
+							}
+							layer.msg("保存成功！",{icon:6,time:2000});
+//							taskDiv.bindtaskDivGrid();
+//							process_form.requestformValueData();
+//							$("#hiddenModal1").click();
+//			        		loading.close();
+							window.location.reload();
+						});
+						common.do_submit(data);
+					}else{
+						layer.msg("请选择资料采用情况");
+						return;
+					}
+					
+				}
+			});
+			$("#hiddenModal1").unbind("click").click(function(){
+				$("#myModal1").hide();
+			});
+			$("#closeModel1").on("click",function(){
+				$("#myModal1").hide();
+			});
+			
+		},
+		revisionEdit : function(obj){
+			var td = $(this).closest("tr").find("td:eq(6)");
+			var gridInst = $("#datalist").data("kendoGrid");
+			grid.init("datalist");
+			if (!this.modify) {
+				this.modify = true;
+				$(this).text("保存");
+	    		gridInst.editCell(td);
+	    		gridInst.table.off("click", "td");
+			} else {
+				this.modify = false;
+				$(this).text("修改");
+				gridInst.saveChanges();
+				gridInst.closeCell();
+				var tr = $(this).parent().parent();
+				// 获取选中行数据对象
+				var rowData = grid.getSelectRowDataByRow(tr);
+				var correctionNoticeBooks={};
+				correctionNoticeBooks.id=rowData.id;
+				correctionNoticeBooks.state=rowData.state;
+				var param = JSON.stringify(correctionNoticeBooks);
+				common.add_param("processInstId",process_form._processInstId);
+				var data = 	common.add_param("correctionNoticeBooks",param);
+				common.init("../cnba/changeState","POST",function(result){
+					var list=result.value;
+					console.log(list);
+					var data = JSON.parse(list); 
+					var grid1 = $("#datalist").data("kendoGrid");
+					grid1.setOptions({
+						dataSource: data,
+						scrollable: true,
+						pageable : {
+							pageSizes : true,
+							buttonCount : 5,
+							pageSize : 10
+						},
+					});
+				});
+				common.do_submit(data);
+			}
+		}
+			
+}

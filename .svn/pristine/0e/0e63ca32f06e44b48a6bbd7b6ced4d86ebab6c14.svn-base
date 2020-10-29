@@ -1,0 +1,41 @@
+$(function(){
+	login.index();
+})
+
+var login = {
+	
+	index : function(){
+		//为keyListener方法注册按键事件
+		document.onkeydown=keyListener;
+		function keyListener(e){
+		 // 当按下回车键，执行我们的代码
+		 if(e.keyCode == 13){
+			 $('#login').click();
+		 }
+		}
+			
+		$("#login").on("click",function(){
+			var userNo = $("#userNo").val();
+			var password = $("#pwd").val();
+			if (userNo == null || userNo == "") {
+				layer.msg(messageHelper.readMsgByTypeAndCode("login",false,"2"));
+				return;
+			}
+			if (password == null || password == "") {
+				layer.msg(messageHelper.readMsgByTypeAndCode("login",false,"3"));
+				return;
+			}
+			common.init("../index/validation","POST",function(result){
+				if (result.code == 0) {
+					layer.msg(result.value);
+					return;
+				}
+				layer.msg(messageHelper.readMsgByTypeAndCode("login",false,"1"));
+				common.toPage("../index/init");
+			});
+			common.add_param("userNo",userNo);
+			var data = common.add_param("password",password);
+			common.do_submit(data);
+		});
+	},
+}

@@ -1,0 +1,335 @@
+$(function(){
+	notice.init();
+})
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function editPage(obj) {
+	var tr = $(obj).parent().parent();
+	var rowData = grid.getSelectRowDataByRow(tr);
+	
+	// 获取资料ID
+	var entry = rowData.entry;
+	var creator=rowData.creator;
+		
+	///如果是金忠伟  只能编辑自己创建的。
+	var u=$("#_userNo").val();
+	if(u=='029643'&&(entry=="金忠伟"||creator=='029643')){
+		notice.toNoticeEditPage(tr);
+	}else if(u=='029643'&&(entry!="金忠伟"||creator!='029643')){
+		layer.msg('对不起！权限不足。');
+		return false;
+     }else if(u!='029643'){
+    	notice.toNoticeEditPage(tr);
+	}
+	
+}
+/** 绑定编辑用户窗口按钮的click事件*/
+function uploadPage(obj) {
+	var tr = $(obj).parent().parent();
+	// 显示模态框
+	$('#myModal').modal('show');
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	// 获取资料ID
+	var booksId = rowData.id;
+	$("#booksId").val(booksId);
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function viewPage(obj) {
+	var tr = $(obj).parent().parent();
+	notice.viewFilePage(tr);
+}
+
+function downLoadFile(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	//获取附件地址
+	var url=rowData.fileName;
+	var id=rowData.fileId;
+	if(url == null || url == ""||id==null||id==""){
+		layer.msg("这个资料没有附件！");
+		return;
+	}else{
+		window.location.href = "../datumFileDownload/filedownload?bookfileId="+id;
+	}
+}
+function removeFile(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	//获取附件地址
+	var url=rowData.fileName;
+	var id=rowData.fileId;
+	
+	if(url == null || url == ""||id==null||id==""){
+		layer.msg("这个资料没有附件！");
+		return;
+	}else{
+		/*删除*/
+		layer.confirm('确认要删除'+url+'吗？',function(index){
+			var param = common.add_param("id",id);
+			common.init("../books/delete","POST",function(result){
+				if (result.code == 0) {
+					layer.msg(result.value);
+					return;
+				}
+				layer.msg("删除成功！");
+				window.location.reload() ;
+			});
+			common.do_submit(param);
+		});
+	}
+}
+var notice = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("notice");
+		loading.init();
+		try{
+			notice.createNoticeGrid();
+			notice.requestNoticeData();
+			//绑定页面事件
+			notice.bindPageEvent();
+		}
+		catch(err){
+			loading.close();
+		}
+	},
+	
+	/**
+	 * 构建用户列表列集合
+	 */
+	createNoticeColumns : function(){
+		grid.resetColumn();
+		grid.addColumn("100px","source","资料来源");
+		grid.addColumn("100px","titanic","文号");
+		grid.addColumn("200px","receiveDate","收到日期");
+		grid.addColumn("200px","creationDate","创建日期");
+		grid.addColumn("100px","fileName","附件","<a style='color:blue;cursor:pointer;' onclick='downLoadFile(this)'> #= fileName?fileName:''# </a>       <a style='color:red;cursor:pointer;' onclick='removeFile(this)'> #= fileName?'删除附件':''# </a>");
+		
+		return grid.addColumn("200px","handle","操作",kendo.template($("#editTemplate").html()));
+		
+	},
+	/**
+	 * 上传
+	 */
+	uploadFile : function(){
+		var booksId = $("#booksId").val();
+		// 判空
+		var data = $('#uploadFile').val();
+		if(data==""){
+			layer.msg('请选择文件！');
+			return;
+		}
+		loading.init();
+		$("#importForm").ajaxSubmit({  
+            type: 'post',  
+            url: "../cnba/uploadfile?booksId="+booksId,  
+            beforeSubmit: function() { 
+            	return true;
+            } ,  
+            success: function(result){
+                loading.close();
+                layer.msg("上传成功！",{icon:6,time:10000});
+                var booksId = $("#booksId").val();
+                window.location.reload();
+            },  
+            error: function(XmlHttpRequest, textStatus, errorThrown){
+            	loading.close();
+            	layer.msg("系统错误，请联系管理员！");  
+            }  
+        });  
+	},
+	/**
+	 * 海图导入
+	 */
+	uploadInfoFile : function(){
+		// 判空
+		var data = $('#uploadInfoFile').val();
+		if(data==""){
+			layer.msg('请选择文件！');
+			return;
+		}
+		loading.init();
+		$("#importInfoForm").ajaxSubmit({  
+            type: 'post',  
+            url: "../cnba/uploadInfoFile" ,  
+            beforeSubmit: function() { 
+            	return true;
+            } ,  
+            success: function(result){
+            	result = eval("("+result+")");
+                if(result.code != 1 ){
+                	loading.close();
+                	layer.msg("导入失败，请检查数据无误后再导入！");
+                	return;
+                }
+                loading.close();
+                layer.msg(result.value);
+                notice.requestNoticeData();
+            },  
+            error: function(XmlHttpRequest, textStatus, errorThrown){
+            	loading.close();
+            	layer.msg("系统错误，请联系管理员！");  
+            }  
+        });  
+	},
+	/**
+	 * 创建用户列表
+	 */
+	createNoticeGrid : function(){
+		var columns = notice.createNoticeColumns();
+		grid.createGrid(columns);
+	},
+	
+	/**
+	 * 发送数据请求
+	 */
+	requestNoticeData : function(){
+		common.init("../cnba/list","POST",notice.bindNoticeGrid);
+		common.do_submit();
+	},
+	
+	/**
+	 * 删除成功
+	 * */
+	removeSuccess : function(result){
+		layer.close(1);
+		layer.msg('删除成功');
+		notice.requestNoticeData();
+	},
+	
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindNoticeGrid : function(result){
+		grid.bindData(result);
+	},
+	
+	/**
+	 * 跳转到用户增加页面
+	 */
+	toNoticeAddPage : function(){
+		common.toPage("../cnba/edit_init");
+	},
+	
+	/**
+	 * 删除用户
+	 */
+	removeNotices : function(){
+		var u=$("#_userNo").val();
+		var rowDatas = grid.getSelectRowsData();
+		if (rowDatas.length<=0) {
+			layer.msg('未选择任何行!', {icon:5,time:1000});
+			return;
+		}
+		/*删除*/
+		layer.confirm('确认要删除吗？',function(index){
+			// 获取Grid的选中行
+			var rowDatas = grid.getSelectRowsData();
+			var correctionNoticeBooks = [];
+			
+			var jzw=false;
+			var u=$("#_userNo").val();
+					
+			$.each(rowDatas,function(i,item){
+				var id = $("#notice").data("kendoGrid").dataItem(item).id;
+				
+				var entry = $("#notice").data("kendoGrid").dataItem(item).entry;
+				var creator = $("#notice").data("kendoGrid").dataItem(item).creator;
+				///如果是金忠伟  只能编辑自己创建的。
+		        if(u=='029643'&&(entry!="金忠伟"||creator!='029643')){
+		        	jzw = true;
+			     }
+								
+				var correctionNoticeBook = {};
+				correctionNoticeBook.id = id;
+				correctionNoticeBooks.push(correctionNoticeBook);
+			});
+			
+			if(jzw == true){
+				layer.msg(' 不可删除不是自己创建的资料!', {icon:5,time:1500});
+				return false;
+			}
+				
+			var param = JSON.stringify(correctionNoticeBooks);
+			// 添加参数 @param 参数key；参数value
+			var data = common.add_param("correctionNoticeBooks",param);
+			common.init("../cnba/remove","POST",notice.removeSuccess);
+			// 执行提交操作
+			common.do_submit(data);
+		});
+	},
+	
+	
+	/**
+	 * 跳转到用户编辑页面
+	 */
+	toNoticeEditPage : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取用户ID
+		var id = rowData.id;
+		// 跳转到用户编辑页面
+		common.toPage("../cnba/edit_init?id="+id);
+	},
+	/**
+	 * 跳转到查看附件页面
+	 */
+	viewFilePage : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取资料ID
+		var id = rowData.id;
+		common.toPage("../cnba/booksfile_init?mark=3&id="+id);
+	},
+	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		/** 
+		 * 绑定增加用户窗口按钮的click事件
+		 */
+		$("#add").on("click",function(){
+			notice.toNoticeAddPage();
+		});
+		
+		/** 
+		 * 绑定删除用户窗口按钮的click事件
+		 */
+		$("#remove").on("click",function(){
+			notice.removeNotices();
+		});
+		
+		/** 绑定刷新用户列表窗口按钮的click事件*/
+		$("#refresh").on("click",function(){
+			window.location.reload();
+		});
+		
+		/** 导入按钮点击事件 */
+		$("#importSubmit").on("click",function(){
+			notice.uploadFile();
+		});
+		
+		/** 绑定导出用户窗口按钮的click事件*/
+		$("#export").on("click",function(){
+			window.location.href="../detaildownload/excelnotice";
+		});
+		
+		/** 绑定导出文件模板的click事件*/
+		$("#exportInfoTemplate").on("click",function(){
+			$("#importInfoForm").attr("action", "../cnba/template");
+			$("#importInfoForm").submit();
+		});
+		/** 图书导入按钮点击事件 */
+		$("#importInfoSubmit").on("click",function(){
+			notice.uploadInfoFile();
+		});
+	}
+}

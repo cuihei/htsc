@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.application.Application" table="APPLICATION">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="appCode" type="java.lang.String">
+            <column name="app_code" />
+        </property>
+        <property name="appName" type="java.lang.String">
+            <column name="app_name" />
+        </property>
+        <property name="appUrl" type="java.lang.String">
+            <column name="app_url" />
+        </property>
+        <property name="appType" type="java.lang.String">
+            <column name="app_type" />
+        </property>
+        <property name="appParentId" type="java.lang.String">
+            <column name="app_pid" />
+        </property>
+        <property name="appContent" type="java.lang.String">
+            <column name="app_content" />
+        </property>
+        <property name="appImg" type="java.lang.String">
+            <column name="app_img" />
+        </property>
+       <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getApplication">
+    	<![CDATA[ from Application order by appCode]]>
+    </query>
+    <query name="getApplicationById">
+    	<![CDATA[ from Application where id= :id]]> 
+    </query>
+</hibernate-mapping>

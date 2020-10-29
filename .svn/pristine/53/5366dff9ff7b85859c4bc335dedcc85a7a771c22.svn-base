@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.drawtask.taskbook.book.TaskBookEditHis" table="COMPILATION_TASK_BOOK_EIDT_HIS">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="taskbookId"  type="java.lang.String">
+            <column name="taskbook_id"/>
+        </property>
+        <property name="taskbookNo"  type="java.lang.String">
+            <column name="taskbook_no" />
+        </property>
+        <property name="editContent" type="java.lang.String">
+            <column name="edit_content" />
+        </property>
+        <property name="revision" type="java.lang.Long">
+            <column name="revision" />
+        </property>
+         <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+          </class>
+ 
+    <query name="findEditListById">
+    	<![CDATA[ from TaskBookEditHis where taskbookId= :id]]> 
+    </query>
+    
+</hibernate-mapping>

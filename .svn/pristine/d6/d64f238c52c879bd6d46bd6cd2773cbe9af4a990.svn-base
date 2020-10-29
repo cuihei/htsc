@@ -1,0 +1,245 @@
+var childTask ={
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("compilation_child_task");
+		loading.init();
+		try{
+			childTask.createGrid();
+			childTask.requestData();
+			childTask.bindPageEvent();
+		}catch(err){
+			loading.close();
+		}
+	},
+
+	createColumns : function(){
+		grid.resetColumn();
+		grid.addColumn("40%","taskbookName","任务书名称");
+		grid.addColumn("35%","taskName","图名");
+		grid.addColumn("20%","mapNo","图号");
+		grid.addColumn("20%","childTaskTypeName","任务类型");
+		grid.addColumn("25%","creationDate","创建日期","#=creationDate?kendo.toString(new Date(creationDate),'yyyy-MM-dd'):'' #");
+		if($("#jurisdiction").val()=="true"){
+			grid.addColumn("35%","publishTimes","发布次数","#=publishTimes?publishTimes:0 #");
+			return grid.addColumn("20%","handle","任务发布",kendo.template($("#publishTempelate").html()));
+		}else{
+			return grid.addColumn("35%","publishTimes","发布次数","#=publishTimes?publishTimes:0 #");
+		}
+	},
+	
+	createGrid : function(){
+		var columns = childTask.createColumns();
+		grid.createGrid(columns);
+	},
+	/**
+	 * 发送数据请求
+	 */
+	requestData : function(){
+		common.init("../createTask/child_task_list","POST",childTask.bindGrid);
+		common.do_submit();
+	},
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindGrid : function(result){
+		grid.bindData(result);
+	},
+	
+	/**
+	 * 发布单个任务
+	 */
+	publish : function(obj){
+		var row = $(obj).parent().parent();
+		var publishTimes = grid.getGrid().data("kendoGrid").dataItem(row).publishTimes;
+		var msg= '';
+		if(Number(publishTimes)>0){
+			msg = '该任务已发布一次，确认再次发布吗？';
+		}else{
+			msg = '确认发布吗？';
+		}
+		layer.confirm(msg,function(index){
+			var row = $(obj).parent().parent();
+			var id = grid.getGrid().data("kendoGrid").dataItem(row).id;
+			var taskIds = [];
+			var id = grid.getGrid().data("kendoGrid").dataItem(row).id;
+			var processDefKey = grid.getGrid().data("kendoGrid").dataItem(row).childTaskType;
+			var task = {};
+			task.id = id;
+			task.processDefKey = processDefKey;
+			var tasks = [];
+			tasks.push(task);
+			if(processDefKey=='PROJECT_SPECIAL_PAPER'||processDefKey=='PROJECT_SPECIAL_ELECTRONIC'){
+				layer.confirm("是否有质检",{btn:["是","否"]},function(index){
+				     layer.confirm("是否有审定",{btn:["是","否"]},function(index){
+				    	 childTask.publishTask(tasks,"1","1");
+				     },function(index){
+				    	 childTask.publishTask(tasks,"1","0");
+				     });
+				},function(index){
+					childTask.publishTask(tasks,"0","0");
+				});
+			}else{
+				childTask.publishTask(tasks);
+			}
+			
+		});
+	},
+	
+	/**
+	 * 绑定事件
+	 */
+	bindPageEvent : function(){
+		$("#publish").on("click",function(){
+			var rowDatas = grid.getSelectRowsData();
+	        if (rowDatas.length<1) {
+	             layer.msg('请选择需要发布的记录');
+	             return;
+	        }
+	        var tasks = [];
+	        var publishTimes = '';
+	        for (var int = 0; int < rowDatas.length; int++) {
+	        	publishTimes += ',' +grid.getGrid().data("kendoGrid").dataItem(rowDatas[int]).publishTimes;
+	        }
+	        publishTimes = publishTimes.substring(1);
+	        var msg= '确认发布吗？';
+	        for(var i = 0; i < publishTimes.split(",").length; i++){
+	        	if(Number(publishTimes.split(",")[i])>0){
+	        		msg = '您选择的数据中有任务已发布一次，确认再次发布吗？';
+	        	}
+	        }
+			layer.confirm(msg,function(index){
+				var flag=true;
+				for (var int = 0; int < rowDatas.length; int++) {
+					var task = {};
+					var id = grid.getGrid().data("kendoGrid").dataItem(rowDatas[int]).id;
+					var processDefKey = grid.getGrid().data("kendoGrid").dataItem(rowDatas[int]).childTaskType;
+					task.id = id;
+					task.processDefKey = processDefKey;
+					if(processDefKey=='PROJECT_SPECIAL_PAPER'||processDefKey=='PROJECT_SPECIAL_ELECTRONIC'){
+						layer.msg('您选择的数据中有工程专题图的数据，请重新选择!', {icon:5,time:1500});
+						flag=false;
+						break;
+					}
+					tasks.push(task);
+				}
+				if(flag){
+					childTask.publishTask(tasks);
+				}
+			});
+		});
+		
+		$("#refresh").on("click",function(){
+			childTask.requestData();
+		});
+		$("#delete").on("click",function(){
+			//获取选中行
+			var rowDatas = grid.getSelectRowsData();
+			// 判断是否选中行
+			if (rowDatas.length<=0) {
+				layer.msg('未选择任何行!', {icon:5,time:1000});
+				return false;
+			}
+			//是否已发布标识
+			var flag=false;
+			var ids=null;
+			$.each(rowDatas,function(i,item){
+				var id = $("#compilation_child_task").data("kendoGrid").dataItem(item).id;
+				var publishTimes = $("#compilation_child_task").data("kendoGrid").dataItem(item).publishTimes;
+				// if(publishTimes>0){
+				// 	//如果已发布，则不可删除
+				// 	flag=true;
+				// }
+				if(ids!=null){
+					ids=ids+","+id;
+				}else{
+					ids=id;
+				}
+			});
+			var param=JSON.stringify(ids);
+			var data = common.add_param("id",param);
+			if(flag){
+				layer.msg('已发布的任务不可删除!', {icon:5,time:1000});
+				return false;
+			}else{
+				layer.confirm('确认要删除吗？',function(index){
+					common.init("../createTask/delete","POST",childTask.removeSuccess);
+					// 执行提交操作
+					common.do_submit(data);
+				});
+			}
+		});
+		
+		
+		$("#edit").on("click",function(){
+			//获取选中行
+			var rowDatas = grid.getSelectRowsData();
+			if (rowDatas.length<=0) {
+				layer.msg('未选择任何行!', {icon:5,time:1000});
+				return false;
+			}else if(rowDatas.length>1){
+				layer.msg('请选择一行数据!', {icon:5,time:1000});
+				return false;
+			}
+			//是否已发布标识
+			var flag=false;
+			var id=null;
+			var taskBookName=null
+			var parentTaskbookId=null
+			$.each(rowDatas,function(i,item){
+				id = $("#compilation_child_task").data("kendoGrid").dataItem(item).id;
+				parentTaskbookId = $("#compilation_child_task").data("kendoGrid").dataItem(item).parentTaskbookId;
+				taskBookName = $("#compilation_child_task").data("kendoGrid").dataItem(item).taskbookName;
+				var publishTimes = $("#compilation_child_task").data("kendoGrid").dataItem(item).publishTimes;
+				if(publishTimes>0){
+					//如果已发布，则不可删除
+					flag=true;
+				}
+			});
+			if(flag){
+				layer.msg('已发布的任务不可修改!', {icon:5,time:1000});
+				return false;
+			}else{
+				
+				common.toPage("../createTask/child_task_edit?id="+id+"&taskBookName="+taskBookName+"&parentTaskbookId="+parentTaskbookId);
+			}
+		});
+		
+		
+	},
+	/**
+	 * 删除成功
+	 * */
+	removeSuccess : function(data){
+		grid.init("compilation_child_task");
+		if(Number(data.code)==1){
+			layer.msg("删除成功");
+		}
+		setTimeout(function(){
+			common.init("../createTask/child_task_list","POST",childTask.bindGrid)
+			common.do_submit();
+		},500);
+	},
+	publishTask : function(tasks,zj,sd){
+		var param = JSON.stringify(tasks);
+		// 添加参数 @param 参数key；参数value
+		common.add_param("zj",zj);
+		common.add_param("sd",sd);
+		var data = common.add_param("tasks",param);
+		common.init("../workflow/publish_task","POST",function(result){
+			//提交报错
+			if (result.code != 1) {
+				//提交报错
+				layer.msg(result.value);
+				return;
+			};
+			//提交成功
+			layer.msg("发布成功");
+			$("#refresh").click();
+		});
+		// 执行提交操作
+		common.do_submit(data);
+	}
+}

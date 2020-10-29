@@ -1,0 +1,560 @@
+package com.ht.front.model;
+
+import java.util.List;
+import java.util.Map;
+
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+import com.ht.persistence.model.base.BaseModel;
+
+/**
+ * Input组
+ * @author 王有为
+ * @date 2016/10/13
+ */
+public class InputGroup extends Base{
+
+	protected InputGroup(String nodeType, String nodeId, CssClass cssClass) {
+		super(nodeType, nodeId, cssClass);
+	}
+	
+	public static InputGroup getInstance(Base span){
+		CssClass css = new CssClass("input-group");
+		InputGroup ig = new InputGroup("div",null,css);
+		ig.addChildNode(span);
+		ig.addChildNode(Span.getDefault());
+		return ig;
+	};
+	
+	
+	public static InputGroup getInstance(Base span,Base text){
+		CssClass css = new CssClass("input-group");
+		InputGroup ig = new InputGroup("div",null,css);
+		ig.addChildNode(span);
+		ig.addChildNode(text);
+		return ig;
+	};
+	
+	public static InputGroup getDatePickerInstance(Base text){
+		InputGroup ig = new InputGroup("div",null,null);
+		ig.addChildNode(text);
+		return ig;
+	};
+	
+	public static InputGroup getInstance(Base span,Base spanI,Base text){
+		CssClass css = new CssClass("input-group");
+		InputGroup ig = new InputGroup("div",null,css);
+		ig.addChildNode(span);
+		ig.addChildNode(spanI);
+		ig.addChildNode(text);
+		return ig;
+	};
+	
+	public static InputGroup getInstance(Base spanPre,Base formControlPre,Base spanNext,Base formControlNext){
+		CssClass css = new CssClass("input-group");
+		InputGroup ig = new InputGroup("div",null,css);
+		ig.addChildNode(spanPre);
+		ig.addChildNode(formControlPre);
+		ig.addChildNode(spanNext);
+		ig.addChildNode(formControlNext);
+		return ig;
+	};
+	
+	
+	/**
+	 * 获取一组span和text的组件
+	 * @param spanText 显示描述
+	 * @param textId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @return 输入组件
+	 */
+	public static InputGroup getInGroup(String spanText,String textId,String textValue,String textPlaceholder){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		TextBox text = TextBox.getDefault(textId, textValue, textPlaceholder);
+		return getInstance(span,text);
+	};
+	
+	/**
+	 * 获取一组span和text的组件
+	 * @param spanText 显示描述
+	 * @param textId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @param flag text是否为只读
+	 * @return 输入组件
+	 */
+	public static InputGroup getInGroup(boolean flag,String spanText,String textId,String textValue,String textPlaceholder){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		TextBox text = TextBox.getDefault(textId, textValue, textPlaceholder);
+		if(flag){
+			Prop prop = new Prop();
+			prop.setPropKey("readonly");
+			prop.setPropValue("readonly");
+			text.addProp(prop);
+		}
+		return getInstance(span,text);
+	};
+	
+	/**
+	 * 获取一组span和text的组件
+	 * @param spanText 显示描述
+	 * @param textId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @param flag span是否为透明
+	 * @return 输入组件
+	 */
+	public static InputGroup getInGroup(String spanText,String textId,String textValue,String textPlaceholder,boolean flag){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		if(flag){
+			Prop prop = new Prop();
+			prop.setPropKey("style");
+			prop.setPropValue("background-color:white;border:0px;");
+			span.addProp(prop);
+		}
+		TextBox text = TextBox.getDefault(textId, textValue, textPlaceholder);
+		return getInstance(span,text);
+	};
+	
+	/**
+	 * 获取一组搜索组件
+	 * @param searchId 搜索按钮的ID
+	 * @param searchText 搜索按钮的文本
+	 * @param textId 搜索文本框的ID
+	 * @param textPlaceholder 搜索文本框的提示文字
+	 * @return 搜索组件
+	 */
+	public static InputGroup getSearchGroup(String searchId,String searchText,String textId,String textPlaceholder){
+		CssClass css = new CssClass("input-group-btn");
+		Span span = Span.getInstance(css, null);
+		css = new CssClass("btn btn-success search");
+		Button button = Button.getInstance(searchId, css, searchText);
+		span.addChildNode(button);
+		TextBox text = TextBox.getDefault(textId, null, textPlaceholder);
+		return getInstance(span,text);
+	}
+	
+	/**
+	 * 获取一组span和密码text的组件
+	 * @param spanText 显示描述
+	 * @param textId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @return 输入组件
+	 */
+	public static InputGroup getPassWordInGroup(String spanText,String textId,String textValue,String textPlaceholder){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		TextBox text = TextBox.getPassWordDefault(textId, textValue, textPlaceholder);
+		return getInstance(span,text);
+	};
+	
+	/**
+	 * 创建一个日期组件
+	 * @param datePickerId 日期控件ID
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePicker(String datePickerId){
+		CssClass css = new CssClass("input-group-addon");
+		Span span = Span.getInstance(css, null);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, null, null);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		return getInstance(span,text);
+	}
+	
+	/**
+	 * 创建一个日期组件
+	 * @param datePickerId 日期控件ID
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePicker(String datePickerId,String placeholder){
+		CssClass css = new CssClass("input-group-addon");
+		Span span = Span.getInstance(css, null);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, null, placeholder);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		return getDatePickerInstance(text);
+	}
+	/**
+	 * 创建一个日期组件
+	 * @param datePickerId 日期控件ID
+	 * @param 
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePicker(String datePickerId,String placeholder,String format){
+		CssClass css = new CssClass("input-group-addon");
+		Span span = Span.getInstance(css, null);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, null, placeholder);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		prop.setPropKey("data-date-format");
+		prop.setPropValue(format);
+		text.addProp(prop);
+		prop.setPropKey("data-date-min-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-max-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-start-view");
+		prop.setPropValue("1");
+		return getDatePickerInstance(text);
+	}
+	/**
+	 * 创建一个日期组件
+	 * @param datePickerId 日期控件ID
+	 * @param 
+	 * @return 日期组件
+	 */
+	public static InputGroup getFormatDatePicker(String datePickerId,String dateValue,String placeholder,String format){
+		CssClass css = new CssClass("input-group-addon");
+		Span span = Span.getInstance(css, null);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, dateValue, placeholder);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		prop.setPropKey("data-date-format");
+		prop.setPropValue(format);
+		text.addProp(prop);
+//		prop.setPropKey("data-date-min-view-mode");
+//		prop.setPropValue("1");
+//		text.addProp(prop);
+//		prop.setPropKey("data-date-max-view-mode");
+//		prop.setPropValue("1");
+//		text.addProp(prop);
+//		prop.setPropKey("data-date-start-view");
+//		prop.setPropValue("1");
+		return getDatePickerInstance(text);
+	}
+	
+	/**
+	 * 获取一组span和日期的组件
+	 * @param spanText 显示描述
+	 * @param datePickerId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePicker(String spanText,String datePickerId,String textValue,String placeholder){
+		spanText = spanText + "：";
+		CssClass css = new CssClass("input-group-addon");
+		Span span = Span.getInstance(css, spanText);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, textValue, placeholder);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("data-date-auto-close");
+		prop.setPropValue("true");
+		text.addProp(prop);
+		return getInstance(span,text);
+	}
+	
+	/**
+	 * 获取一组span和日期的组件
+	 * @param spanText 显示描述
+	 * @param datePickerId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @param flag span是否为透明
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePicker(String spanText,String datePickerId,String textValue,String placeholder,boolean flag){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		if(flag){
+			Prop prop = new Prop();
+			prop.setPropKey("style");
+			prop.setPropValue("background-color:white;border:0px;");
+			span.addProp(prop);
+		}
+		CssClass css = new CssClass("input-group-addon");
+		Span spanI = Span.getInstance(css, null);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		spanI.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, textValue, placeholder);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("data-date-auto-close");
+		prop.setPropValue("true");
+		text.addProp(prop);
+		return getInstance(span,spanI,text);
+	}
+	
+	/**
+	 * @param spanText 选择框ID
+	 * @param selectId 选择框ID
+	 * @param modelList 实体集合
+	 * @param value 选择框绑定key的属性
+	 * @param content 选择框显示值的属性
+	 * @param isBlank 是否有初始值
+	 * @param selectedValue 当前绑定值
+	 * @return 选择框实例
+	 */
+	public static InputGroup getSelectGroup(String spanText,String selectId,List<? extends BaseModel> modelList,String value,String content,String selectedValue){
+		spanText = spanText + "：";
+		Div row = Div.getBlankDiv(null);
+		CssClass css = new CssClass("col-md-2 col-xs-1");
+		Div col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Span span = Span.getDefault(spanText);
+		col.addChildNode(span);
+		css = new CssClass("col-md-10 col-xs-11");
+		col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Select select = Select.getDefaultWithOption(selectId, modelList, value,content,selectedValue);
+		col.addChildNode(select);
+		return getInstance(span,select);
+	}
+	
+	/**
+	 * @param spanText 选择框ID
+	 * @param selectId 选择框ID
+	 * @param modelList 实体集合
+	 * @param value 选择框绑定key的属性
+	 * @param content 选择框显示值的属性
+	 * @param selectedValue 当前绑定值
+	 * @param isBlank 是否有初始值
+	 * @return 选择框实例
+	 */
+	public static InputGroup getSelectGroup(String spanText,String selectId,List<? extends BaseModel> modelList,String value,String content,String selectedValue,Boolean isBlank){
+		spanText = spanText + "：";
+		Div row = Div.getBlankDiv(null);
+		CssClass css = new CssClass("col-md-2 col-xs-1");
+		Div col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Span span = Span.getDefault(spanText);
+		col.addChildNode(span);
+		css = new CssClass("col-md-10 col-xs-11");
+		col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Select select = Select.getDefaultWithOption(selectId, modelList, value,content,selectedValue,isBlank);
+		col.addChildNode(select);
+		return getInstance(span,select);
+	}
+	
+	/**
+	 * @param spanText 选择框ID
+	 * @param selectId 选择框ID
+	 * @param modelList 实体集合
+	 * @param value 选择框绑定key的属性
+	 * @param content 选择框显示值的属性
+	 * @param isBlank 是否有初始值
+	 * @return 选择框实例
+	 */
+	public static InputGroup getSelectGroup(String spanText,String selectId,List<? extends BaseModel> modelList,String value,String content,Boolean isBlank){
+		spanText = spanText + "：";
+		Div row = Div.getBlankDiv(null);
+		CssClass css = new CssClass("col-md-2 col-xs-1");
+		Div col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Span span = Span.getDefault(spanText);
+		col.addChildNode(span);
+		css = new CssClass("col-md-10 col-xs-11");
+		col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Select select = Select.getDefaultWithOption(selectId, modelList, value,content,isBlank);
+		col.addChildNode(select);
+		return getInstance(span,select);
+	}
+	
+	/**
+	 * @param spanText 选择框ID
+	 * @param selectId 选择框ID
+	 * @param dataList 数据集合
+	 * @param value 选择框绑定key的属性
+	 * @param content 选择框显示值的属性
+	 * @param isBlank 是否有初始值
+	 * @return 选择框实例
+	 */
+	public static InputGroup getSelectGroupWithDefaultOption(String spanText,String selectId,List<Map<String,String>> dataList,String value,String content,Boolean isBlank){
+		spanText = spanText + "：";
+		Div row = Div.getBlankDiv(null);
+		CssClass css = new CssClass("col-md-2 col-xs-1");
+		Div col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Span span = Span.getDefault(spanText);
+		col.addChildNode(span);
+		css = new CssClass("col-md-10 col-xs-11");
+		col = Div.getInstance(null, css, null);
+		row.addChildNode(col);
+		Select select = Select.getSelectWithDefaultOption(selectId, dataList, value,content,isBlank);
+		col.addChildNode(select);
+		return getInstance(span,select);
+	}
+	
+	/**
+	 * 获取一组span和日期的组件只显示年月
+	 * @param spanText 显示描述
+	 * @param datePickerId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePickerYearMonth(String spanText,String datePickerId,String textValue,String placeholder){
+		spanText = spanText + "：";
+		CssClass css = new CssClass("input-group-addon");
+		Span span = Span.getInstance(css, spanText);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, textValue, placeholder);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("data-date-auto-close");
+		prop.setPropValue("true");
+		text.addProp(prop);
+		prop.setPropKey("data-date-format");
+		prop.setPropValue("yyyy-mm");
+		text.addProp(prop);
+		prop.setPropKey("data-date-min-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-max-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-start-view");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		return getInstance(span,text);
+	}
+	
+	/**
+	 * 获取一组span和日期的组件只显示年月
+	 * @param spanText 显示描述
+	 * @param datePickerId text的ID
+	 * @param textValue text的value
+	 * @param textPlaceholder text的placeholder
+	 * @param flag span是否为透明
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePickerYearMonth(String spanText,String datePickerId,String textValue,String placeholder,boolean flag){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		if(flag){
+			Prop prop = new Prop();
+			prop.setPropKey("style");
+			prop.setPropValue("background-color:white;border:0px;");
+			span.addProp(prop);
+		}
+		CssClass css = new CssClass("input-group-addon");
+		Span spanI = Span.getInstance(css, null);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		spanI.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, textValue, placeholder);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("data-date-auto-close");
+		prop.setPropValue("true");
+		text.addProp(prop);
+		prop.setPropKey("data-date-format");
+		prop.setPropValue("yyyy-mm");
+		text.addProp(prop);
+		prop.setPropKey("data-date-min-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-max-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-start-view");
+		prop.setPropValue("1");
+		return getInstance(span,spanI,text);
+	}
+	
+	/**
+	 * 创建一个日期组件只显示年月
+	 * @param datePickerId 日期控件ID
+	 * @return 日期组件
+	 */
+	public static InputGroup getDatePickerYearMonth(String datePickerId){
+		CssClass css = new CssClass("input-group-addon");
+		Span span = Span.getInstance(css, null);
+		/*css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);*/
+		TextBox text = TextBox.getDefault(datePickerId, null, null);
+		Prop prop = new Prop();
+		prop.setPropKey("data-plugin-datepicker");
+		text.addProp(prop);
+		prop.setPropKey("data-date-format");
+		prop.setPropValue("yyyy-mm");
+		text.addProp(prop);
+		prop.setPropKey("data-date-min-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-max-view-mode");
+		prop.setPropValue("1");
+		text.addProp(prop);
+		prop.setPropKey("data-date-start-view");
+		prop.setPropValue("1");
+		return getInstance(span,text);
+	}
+	
+	/**
+	 * 获取span组件
+	 */
+	public static InputGroup getSpan(String spanText){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		return getInstance(span);
+	};
+	
+	/**
+	 * 获取一组span和textArea的组件
+	 * @param spanText 显示描述
+	 * @param textId textArea的ID
+	 * @param rowNum textArea的行
+	 * @return 输入组件
+	 */
+	public static InputGroup getTextAreaGroup(String spanText,String textId,String rowNum,String content){
+		spanText = spanText + "：";
+		Span span = Span.getDefault(spanText);
+		CssClass spancss = new CssClass("input-group-span");
+		TextArea text = TextArea.getInstance(textId,spancss,rowNum,content);
+		return getInstance(span,text);
+	};
+	
+	/**
+	 * 获取一组textArea的组件
+	 * @param spanText 显示描述
+	 * @param textId textArea的ID
+	 * @param rowNum textArea的行
+	 * @return 输入组件
+	 */
+	public static InputGroup getTextAreaGroup(String textId,String rowNum,String placeholder){
+		CssClass spancss = new CssClass("input-group-span");
+		TextArea text = TextArea.getInstance(textId,spancss,rowNum,placeholder);
+		return getInstance(text);
+	};
+}

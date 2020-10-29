@@ -1,0 +1,207 @@
+package com.ht.persistence.model.system.workflow.publish;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import com.ht.persistence.model.base.BaseModel;
+
+/**
+ * 工作流转日志视图Model
+ * @author huodesheng
+ * @date 2016/10/28
+ */
+@Entity
+@Table(name = "V_PROCESS_DETAIL")
+public class VProcessDetail extends BaseModel
+{
+	// 工作流转日志Id
+	private String processInstId;
+	// 表名
+	private String tableName;
+	// 主键字段名称
+	private String tableKeyName;
+	// 业务表状态字段
+	private String tableStatusName;
+	// 操作的记录主键
+	private String detailRecordId;
+	// 流程定义ID
+	private String processDefId;
+	// 流程定义KEY
+	private String processDefKey;
+	// 流程定义名称
+	private String processDefName;
+	// 任务定义ID
+	private String taskDefId;
+	// 任务实例ID
+	private String taskInstId;
+	// 任务名称
+	private String taskName;
+	// 用户编号
+	private String userNo;
+	// 父流程ID
+	private String parentProcessInstId;
+	
+	///2020.4.8 添加书名 编号  发布时间
+	private String taskbookName;
+	private String taskbookNo;
+	private Date issueTime;
+	
+	
+	
+
+	public String getTaskbookName() {
+		return taskbookName;
+	}
+
+	public void setTaskbookName(String taskbookName) {
+		this.taskbookName = taskbookName;
+	}
+
+	public String getTaskbookNo() {
+		return taskbookNo;
+	}
+
+	public void setTaskbookNo(String taskbookNo) {
+		this.taskbookNo = taskbookNo;
+	}
+
+	public Date getIssueTime() {
+		return issueTime;
+	}
+
+	public void setIssueTime(Date issueTime) {
+		this.issueTime = issueTime;
+	}
+
+	public String getProcessInstId()
+	{
+		return processInstId;
+	}
+
+	public void setProcessInstId(String processInstId)
+	{
+		this.processInstId = processInstId;
+	}
+
+	public String getTableName()
+	{
+		return tableName;
+	}
+
+	public void setTableName(String tableName)
+	{
+		this.tableName = tableName;
+	}
+
+	public String getTableKeyName()
+	{
+		return tableKeyName;
+	}
+
+	public void setTableKeyName(String tableKeyName)
+	{
+		this.tableKeyName = tableKeyName;
+	}
+
+	public String getTableStatusName()
+	{
+		return tableStatusName;
+	}
+
+	public void setTableStatusName(String tableStatusName)
+	{
+		this.tableStatusName = tableStatusName;
+	}
+
+	public String getDetailRecordId()
+	{
+		return detailRecordId;
+	}
+
+	public void setDetailRecordId(String detailRecordId)
+	{
+		this.detailRecordId = detailRecordId;
+	}
+
+	public String getProcessDefId()
+	{
+		return processDefId;
+	}
+
+	public void setProcessDefId(String processDefId)
+	{
+		this.processDefId = processDefId;
+	}
+
+	public String getUserNo()
+	{
+		return userNo;
+	}
+
+	public void setUserNo(String userNo)
+	{
+		this.userNo = userNo;
+	}
+
+	public String getProcessDefName()
+	{
+		return processDefName;
+	}
+
+	public void setProcessDefName(String processDefName)
+	{
+		this.processDefName = processDefName;
+	}
+
+	public String getTaskDefId()
+	{
+		return taskDefId;
+	}
+
+	public void setTaskDefId(String taskDefId)
+	{
+		this.taskDefId = taskDefId;
+	}
+
+	public String getTaskInstId()
+	{
+		return taskInstId;
+	}
+
+	public void setTaskInstId(String taskInstId)
+	{
+		this.taskInstId = taskInstId;
+	}
+
+	public String getTaskName()
+	{
+		return taskName;
+	}
+
+	public void setTaskName(String taskName)
+	{
+		this.taskName = taskName;
+	}
+
+	public String getProcessDefKey()
+	{
+		return processDefKey;
+	}
+
+	public void setProcessDefKey(String processDefKey)
+	{
+		this.processDefKey = processDefKey;
+	}
+
+	public String getParentProcessInstId()
+	{
+		return parentProcessInstId;
+	}
+
+	public void setParentProcessInstId(String parentProcessInstId)
+	{
+		this.parentProcessInstId = parentProcessInstId;
+	}
+}

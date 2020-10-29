@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.ht.persistence.model.system.workflow.task.RuTask"
+		table="V_RU_TASK">
+		<id name="processInstId" type="java.lang.String">
+			<column name="process_inst_id" />
+		</id>
+		<property name="processDefId" type="java.lang.String">
+			<column name="process_def_id" />
+		</property>
+		<property name="processDefKey" type="java.lang.String">
+			<column name="process_def_key" />
+		</property>
+		<property name="assignee" type="java.lang.String">
+			<column name="assignee" />
+		</property>
+		<property name="assigneeName" type="java.lang.String">
+			<column name="assignee_name" />
+		</property>
+		<property name="groupId" type="java.lang.String">
+			<column name="group_id" />
+		</property>
+		<property name="groupName" type="java.lang.String">
+			<column name="group_name" />
+		</property>
+		<property name="taskInstId" type="java.lang.String">
+			<column name="task_id" />
+		</property>
+		<property name="taskDefId" type="java.lang.String">
+			<column name="task_def_id" />
+		</property>
+		<property name="processDefName" type="java.lang.String">
+			<column name="process_def_name" />
+		</property>
+		<property name="taskName" type="java.lang.String">
+			<column name="task_name" />
+		</property>
+		<property name="createTime" type="timestamp">
+			<column name="creation_date" />
+		</property>
+		<property name="mainProcessInstId" type="java.lang.String">
+			<column name="main_process_inst_id" />
+		</property>
+		<property name="parentProcessInstId" type="java.lang.String">
+			<column name="parent_process_inst_id" />
+		</property>
+		<property name="suspendState" type="java.lang.Integer">
+			<column name="suspend_state" />
+		</property>
+		<property name="endTime" type="timestamp">
+			<column name="end_time" />
+		</property>
+		<property name="excutionId" type="java.lang.String">
+			<column name="excution_id" />
+		</property>
+	</class>
+
+	<query name="getAllRuTask">
+    	<![CDATA[ from RuTask]]>
+	</query>
+
+	<query name="getRuTaskByProcessDefKey">
+    	<![CDATA[ from RuTask where processDefKey =:processDefKey order by createTime]]>
+	</query>
+
+	<query name="getRuTaskByGroupId">
+    	<![CDATA[ from RuTask where groupId= :groupId]]>
+	</query>
+
+	<query name="getRuTaskByParentProcessInstId">
+    	<![CDATA[ from RuTask where parentProcessInstId= :parentProcessInstId]]>
+	</query>
+	
+	<query name="getRtByParentProcessInstId">
+    	<![CDATA[ from RuTask where parentProcessInstId= :parentProcessInstId]]>
+	</query>
+
+	<query name="getRuTaskByGroupIdAndProcessDefId">
+    	<![CDATA[ from RuTask where groupId= :groupId and processDefId =:processDefId]]>
+	</query>
+
+	<query name="getRuTaskByProcessInstId">
+    	<![CDATA[ from RuTask where processInstId= :processInstId]]>
+	</query>
+	
+	<query name="getRuTaskByAssigneeList">
+    	<![CDATA[ from RuTask where assignee in (:assigneeList)]]>
+	</query>
+	
+	<query name="getRuTaskInProcessDefKey">
+    	<![CDATA[ from RuTask where processDefKey in (:processDefKey) order by createTime desc]]>
+	</query>
+</hibernate-mapping>

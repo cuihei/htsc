@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<constant name="struts.i18n.encoding" value="UTF-8"/>
+	<!-- 访问时，不需要加.action,无须任何后缀名 -->
+	<constant name="struts.action.extension" value=","></constant>
+	<constant name="struts.multipart.maxSize" value="409715222"></constant>
+	<constant name="struts.multipart.saveDir" value="/tmp"></constant>
+	
+	<!-- 告诉struts2，action的创建交给spring -->
+	<constant name="struts.ObjectFactory" value="spring"></constant>
+</struts>

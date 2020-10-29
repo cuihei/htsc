@@ -1,0 +1,64 @@
+package com.ht.front.pages.system.workflow.task;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.activiti.engine.identity.User;
+import org.apache.commons.lang.StringUtils;
+
+import com.ht.front.model.Base;
+import com.ht.front.model.InputGroup;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.TextArea;
+import com.ht.front.template.EditPage;
+import com.ht.front.util.FrontUtil;
+
+/** 
+* @ClassName: TaskPage 
+* @Description: 流程任务的页面
+* @author penghao
+* @date 2016年10月28日 下午3:11:27 
+*  
+*/
+public class TaskFormPage {
+	
+	/**
+	 * 页面实例
+	 */
+	private static TaskFormPage page = null;
+	
+	/**
+	 * 获取页面实例
+	 * @return
+	 */
+	public static TaskFormPage getInstance(){
+		if (page == null) {
+			page = new TaskFormPage();
+		}
+		return page;
+	}
+	
+	/**
+	 * 创建提交任务候选组页面
+	 */
+	public String getPerformGroupPage(List<User> users) {
+		FrontUtil util = FrontUtil.getInstance();
+		Base root = util.createRoot();
+		Base row = util.createRow(root);
+		Base column = util.createColumn(row, "3", "3", "2", null);
+		List<Map<String,String>> list = new ArrayList<Map<String,String>>();
+		for (int i = 0; i < users.size(); i++) {
+			Map<String,String> map = new HashMap<String, String>();
+			map.put("id", users.get(i).getId());
+			map.put("name", users.get(i).getFirstName());
+			list.add(map);
+		}
+		Base userSelect = util.creatMapSelectGroup("分配给", "users", list, "id", "name", true);
+		column.addChildNode(userSelect);
+		util.createRowSpace(root);
+		util.createSubmitButtonGroup(root, "");
+		return root.getNode();
+	}
+}

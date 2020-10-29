@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.complication.formprop.ProcessPlan" table="PROCESS_PLAN">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+       <property name="processInstId" type="java.lang.String">
+            <column name="PROCESS_INST_ID" />
+        </property>
+        <property name="taskId" type="java.lang.String">
+            <column name="TASK_ID" />
+        </property>
+         <property name="parentProcessInstId" type="java.lang.String">
+            <column name="PARENT_PROCESS_INST_ID" />
+        </property>
+         <property name="taskDefId" type="java.lang.String">
+            <column name="TASK_DEF_ID" />
+        </property>
+        <property name="remark" type="java.lang.String">
+            <column name="REMARK" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        <property name="processBb" type="java.lang.String">
+            <column name="PROCESS_BB" />
+        </property>
+    </class>
+    <query name="getById">
+    	<![CDATA[ from ProcessPlan where id= :id]]> 
+    </query>
+     <query name="getByProcess">
+    	<![CDATA[ from ProcessPlan where taskDefId= :taskDefId and parentProcessInstId= :parentProcessInstId  order by creationDate desc]]> 
+    </query>
+</hibernate-mapping>

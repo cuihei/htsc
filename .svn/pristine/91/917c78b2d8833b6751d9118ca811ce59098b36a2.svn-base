@@ -1,0 +1,546 @@
+$(function(){
+	var id=$("#taskBookId").val();
+	tbedit.init();
+	if(null!=id&&""!=id){
+		taskShow.editInit();
+		//获取历史修订记录
+		edit.editInit();
+	}
+	
+	  //设置DIV高度与修订表格高度相同
+	$("#edithightId").css("height",$("#xdtbl").height()+20);
+	$(".edithight").css("height",$("#xdtbl").height()+20);
+	
+	//alert("#edithightId:"+$("#edithightId").height()+"      .edithight"+$(".edithight").height()+"       #xdtbl"+$("#xdtbl").height())
+	/* 	获取当前年月日赋值给新增 */
+	var myDate = new Date;
+	$("#data_1").html(myDate.getFullYear()+"-"+((myDate.getMonth()+1)<10?"0"+(myDate.getMonth()+1):(myDate.getMonth()+1))+"-"+(myDate.getDate()<10?"0"+myDate.getDate():myDate.getDate())
+/*			+"      "+(myDate.getHours()<10?"0"+myDate.getHours():myDate.getHours())
+			+":"+(myDate.getMinutes()<10?"0"+myDate.getMinutes():myDate.getMinutes())
+			+":"+(myDate.getSeconds()<10?"0"+myDate.getSeconds():myDate.getSeconds())*/
+		)
+	//把修订表格追加到DIV中
+	$("#edithightId").append($("#xdtbl"));
+	
+	
+});
+/**
+ *时间比较的方法，如果d1时间比d2时间大，则返回true   
+ * @param d1
+ * @param d2
+ * @returns {Boolean}
+ */
+function compareDate(d1, d2) {  
+    return Date.parse(d1.replace(/-/g, "/"))==Date.parse(d2.replace(/-/g, "/"))|| Date.parse(d1.replace(/-/g, "/"))>Date.parse(d2.replace(/-/g, "/"))  
+}   
+var tbedit={
+		/**
+		 * 初始化操作 1.将提交按钮改为保存按钮 2.删除日期框的图标 3.绑定按钮事件
+		 */
+		init:function(){
+			$("#submit").val("保存");
+			$("#submit").text("保存");
+			$("#executeTime").prev().children().remove();
+			$("#endTime").prev().children().remove();
+			$("#taskSelect").append("<option value="+""+">"+"请选择"+"</option>");
+			$("#taskSelect").append("<option value="+"year"+">"+"指令性任务"+"</option>");
+			$("#taskSelect").append("<option value="+"temp"+">"+"临时性任务"+"</option>");
+			var id=$("#taskBookId").val();
+			tbedit.bindPageEvent();
+			$("#typeId").attr("disabled","disabled");  
+			// 初始化多选控件
+			tbedit.initMultiselect();
+			tbedit.setMultiSeleteData();
+			var flag = $("#flag").val();
+			if(flag == '2'){
+				$("#submit").hide();
+				$(" :input").each(function () {
+						$(this).attr("readonly","readonly");//设为只读 
+				});
+			}
+		},
+		
+		/**
+		 * 初始化多选控件
+		 */
+		initMultiselect : function(){
+			// 图层多选
+			$("#executeDeptId").kendoMultiSelect({
+		        placeholder: "请选择执行部门",
+		        dataTextField: "orgName",
+		        dataValueField: "id",
+		    });
+		},
+		
+		/**
+		 * 设置多选框的数据，并刷新
+		 */
+		setMultiSeleteData : function(){
+			var deptId = $("#deptId").val();
+			groupIds = [];
+			for (var int = 0; int < deptId.split(",").length; int++) {
+				groupIds.push(deptId.split(",")[int]);
+			}
+			var multiselect = $("#executeDeptId").data("kendoMultiSelect");
+			multiselect.value(groupIds);
+			multiselect.refresh();
+		},
+		
+		/**
+		 * 绑定页面事件
+		 */
+		bindPageEvent : function(){
+			// 绑定保存事件
+			$("#submit").on("click",function(){
+				//任务书编号 取年份 判断  1、是否可以转换为数字  2、前二位等于20    2018.6.6
+				var yearNo=$.trim($("#taskbookNo").val());
+				var year4=yearNo.substring(0,4);
+				var year2=yearNo.substring(0,2);
+				if(year2 !='20' || isNaN( parseInt(year4))){ layer.msg("任务书编号格式不正确"); return;  }
+				
+				
+				var stop=false;
+				// 计划信息
+				var datas = common.get_all_row_data($("#taskShow"));
+				var planId="";
+				var revision = "";
+				if (datas != null) {
+					for (var int = 0; int < datas.length; int++) {
+						if(datas[int].id!=null){
+							if(planId!=""){
+								planId=planId+","+datas[int].id;
+								if(datas[int].revision!=null){
+									revision=revision+","+datas[int].revision;
+								}
+							}else{
+								planId=datas[int].id;
+								if(datas[int].revision!=null){
+									revision=datas[int].revision;
+								}
+							}
+						}
+					}
+				}
+				if (planId == null || planId=="") {
+					layer.msg("请选择任务");
+					return;
+				}
+				if(revision == null || revision=="") {
+					layer.msg("请填写版次后再提交！");
+					return;
+				}
+				//选择执行部门
+				groupIds = "";
+				groupNames = "";
+				var dataItem = $("#executeDeptId").data("kendoMultiSelect").dataItems();
+				$.each(dataItem,function(i,item){
+					groupIds += ','+item.id;
+					groupNames += ','+item.orgName;
+					//groupIds.push(item.id);
+					//groupNames.push(item.orgName);
+				});
+				var taskbookName=$("#taskbookName").val();
+				var taskFrom=$("#taskFrom").val();
+				var executeDeptId=groupIds.substring(1);
+				var executeTime=$("#executeTime").val();
+				var endTime=$("#endTime").val();
+				var technologyStandard=$("#technologyStandard").val();
+				var technologyDemand=$("#technologyDemand").val();
+				var otherDemand=$("#otherDemand").val();
+				var taskbookNo=$("#taskbookNo").val();
+				var taskBookId=$("#taskBookId").val();
+				if(taskbookNo == null || taskbookNo=="") {
+					layer.msg("请填写任务书编号后再提交！");
+					return;
+				}
+				var pattern= /[0-9]{4}沪印(绘|临)[0-9]{3,}号/;
+				var test=pattern.test(taskbookNo);
+				if(!test){
+					layer.msg("任务书编号格式不正确");
+					return;
+				}
+				$.ajax({
+					type : "POST",
+					url :"../taskbook/verificationNo",
+					async : false,
+					dataType : "json",
+					data : {"taskbookNo":taskbookNo,"id":taskBookId},
+					success : function(result){
+						//调回用户列表显示页面
+						if (result.code == 1) {
+							if(result.value !="success"){
+								layer.msg("任务书编号已存在");
+								stop=true;
+							}
+						}
+					}
+				});
+				if(stop){
+					return false;
+				}
+				var taskBookType=$("#taskBookType").val();
+				var currentItemNo=$("#currentItemNo").val();
+				var projectName=$("#projectName").val();
+				var noticeNo=$("#noticeNo").val();
+				var correctNo=$("#correctNo").val();
+				var correctItemNo=$("#correctItemNo").val();
+				var correctNoticeNo=$("#correctNoticeNo").val();
+				var itemName=$("#itemName").val();
+				var processInstId = $("#processInstId").val();
+				var taskId = $("#taskId").val();
+				if(taskbookName!=null&&taskbookName!=""){
+					if(taskFrom!=null&&taskFrom!=""){
+						if(executeDeptId!=null&&executeDeptId!=""){
+							if(executeTime!=null&&executeTime!=""){
+								if(endTime!=null&&endTime!=""){
+									if(compareDate(executeTime,endTime)){
+										layer.msg("结束日期不能早于执行日期");
+										return;
+									}
+								}
+								$.ajax({
+									type :"POST",
+									url :"../taskbook/edit",
+									dataType : "json",
+									data : {
+										"taskBook.taskbookName":taskbookName,
+										"taskBook.taskFrom":taskFrom,
+										"taskBook.executeDeptId":executeDeptId,
+										"taskBook.technologyStandard":technologyStandard,
+										"taskBook.executeTime":executeTime,
+										"taskBook.endTime":endTime,
+										"taskBook.technologyDemand":technologyDemand,
+										"taskBook.otherDemand":otherDemand,
+										"taskBook.taskbookNo":taskbookNo,
+										"taskBook.id":taskBookId,
+										"taskBook.taskBookType":taskBookType,
+										"taskBook.currentItemNo":currentItemNo,
+										"taskBook.projectName":projectName,
+										"taskBook.noticeNo":noticeNo,
+										"taskBook.correctItemNo":correctItemNo,
+										"taskBook.correctNo":correctNo,
+										"taskBook.correctNoticeNo":correctNoticeNo,
+										"taskBook.itemName":itemName,
+										"planId":planId,
+										"revision":revision,
+										"processInstId" : processInstId,
+										taskId : taskId
+									},
+									success : function(data){
+										if(data.code == 0){
+											layer.msg(data.value);
+										}
+										else{
+											layer.msg("保存成功");
+											common.toPage("../taskbook/index");
+										}
+									},
+									error : function(data){
+										layer.msg("保存失败");
+									}
+								});
+							}else{
+								layer.msg("请选择执行日期");
+							}
+						}else{
+							layer.msg("请选择执行部门");
+						}
+					}else{
+						layer.msg("任务来源");
+					}
+				}else{
+					layer.msg("任务名称不可为空");
+				}
+			});
+			// 绑定返回事件
+			$("#backPage").unbind("click").click(function(){
+				history.go(-1);
+			});
+			$("#taskFrom").unbind("blur").blur(function(){
+				if(tbedit.isHyh()){
+					$("#taskbookNo").val($("#hyhNo").val());
+				}else{
+					$("#taskbookNo").val($("#hylNo").val());
+				}
+			});
+			$("#chooseTask").unbind("click").click(function(){
+				taskDiv.init();
+				$("#taskSelect").val("");
+				$("#taskDiv").empty();
+				$("#myModal").show();
+			});
+		},
+		isHyh:function(){
+			var str=$("#taskFrom").val();
+			if(str.indexOf("东保")>=0||str.indexOf("中心")>=0||str.indexOf("部局")>=0){
+				return true;
+			}else{
+				return false;
+			}
+		}	
+}
+
+var taskDiv={
+		/**
+		 * 初始化
+		 */
+		init : function(){
+			grid.init("taskDiv");
+			loading.init();
+			try{
+				taskDiv.createtaskDivGrid();
+				// taskDiv.requesttaskDivData();
+				taskDiv.bindPageEvent();
+				var grid1 = $("#taskDiv").data("kendoGrid");
+				grid1.setOptions({
+					pageable:false,
+				});
+			}catch(err){
+				loading.close();
+			}
+		},
+		/**
+		 * 构建改正通知公告表格。
+		 */
+		createtaskDivColumns : function(){
+			grid.resetColumn();
+			grid.addColumn("300px","area","海区");
+			grid.addColumn("150px","mapNo","图号");
+			grid.addColumn("150px","mapName","图名");
+			grid.addColumn("150px","scale","比例尺 1:");
+			grid.addColumn("150px","taskSource","任务来源");
+			grid.addColumn("150px","type","类别");
+			grid.addColumn("150px","workload","测绘工作量");
+			grid.addColumn("150px","printQuantity","印刷数量");
+			grid.addColumn("150px","deliverTime","资料汇交时间");
+			grid.addColumn("150px","measurementPeriod","基测周期");
+			return grid.addColumn("150px","discription","说明");
+		},
+		/**
+		 * 创建改正通知公告列表
+		 */
+		createtaskDivGrid : function(){
+			var columns = taskDiv.createtaskDivColumns();
+			grid.createGrid(columns);
+			
+		},
+		/**
+		 * 发送数据请求
+		 */
+		requesttaskDivData : function(){
+			common.init("../taskbook/list","POST",taskDiv.bindtaskDivGrid);
+			common.do_submit();
+		},
+		/**
+		 * 接收服务器响应数据,绑定表格 这是一个回调函数，不用手动调用
+		 */
+		bindtaskDivGrid : function(result){
+			var data = result.value;
+			if(data != null){
+				for(var i=0;i<data.length;i++){
+					// 区域判断
+					var area = data[i].area;
+					if(area != null &&　area.areaName != null){
+						data[i]["areaName"] = area.areaName;
+					}
+				}
+			}
+			grid.bindData(result);
+			// 设置高度
+			var grid1 = $("#taskDiv").data("kendoGrid");
+			var height =$(document.body).height()-($("#otherDemand").height()*2);
+			grid1.setOptions({
+				height:height,
+				pageable:false,
+			});
+		},
+		/**
+		 * 绑定页面事件
+		 */
+		bindPageEvent : function(){
+			$("#addTaskBook").click(function(){
+				common.toPage("../taskbook/edit_page");
+			});
+			$("#taskSelect").unbind("change").change(function(){
+				$("#taskDiv").empty();
+				taskDiv.init();
+				loading.init();
+				try{
+					var option=$("#taskSelect").val();
+					var url="";
+					if(option=="year"){
+						var url="../plan/list?type=1&categoryId=10250957411500057";	
+					}else if(option=="month"){
+						var url="../plan/list?type=2&categoryId=10250957569190070";	
+					}else if(option=="temp"){
+						var url="../plan/list?type=3&categoryId=10250958275470083";
+					}
+					common.init(url,"POST",taskDiv.bindtaskDivGrid);
+					common.do_submit();
+				}catch(err){
+					loading.close();
+				}
+			});
+			$("#taskSubmit").unbind("click").click(function(){
+				var tr = grid.getSelectRowsData();
+				var dataObj = taskDiv.getPlan(tr);
+				if(dataObj.length != 1){
+					layer.msg("请选择一条任务");
+					return false;
+				}else{
+					var dataSource = new kendo.data.DataSource({
+						  data: dataObj
+					});
+					taskShow.init();
+					$("#taskShow").data("kendoGrid").setDataSource(dataSource);
+					$("#myModal").hide();
+				}
+			});
+			$("#hiddenModal").unbind("click").click(function(){
+				$("#myModal").hide();
+			});
+			$("#closeModel").on("click",function(){
+				$("#myModal").hide();
+			});
+			loading.close();	
+		},
+		
+		getPlan : function(rows){
+			var datas=[];
+			for ( var int = 0; int < rows.length; int++) {
+				datas.push(grid.getSelectRowDataByRow(rows[int]));
+			}
+			if(rows.length>0){
+				if(rows.length==1){
+					var mapName = datas[0].mapName;
+					$("#taskbookName").val(mapName+"编绘任务书");
+					
+					var taskSource = datas[0].taskSource;
+					var mydate = new Date();
+					var curYear = mydate.getFullYear();
+					var categroryId = datas[0].category.id;
+					if(categroryId == '10250957411500057'){//指令性
+						var taskFrom = taskSource + curYear + "计划";
+					}else if(categroryId == '10250958275470083'){//临时性
+						var taskFrom = taskSource + curYear;
+					}
+					$("#taskFrom").val(taskFrom);
+				}else{
+					var mapName = datas[0].mapName;
+					$("#taskbookName").val(mapName+"等"+rows.length+"幅图的编绘任务书");
+				}
+			}
+			
+			var dataObj=[];
+			for ( var int = 0; int < datas.length; int++) {
+				dataObj.push({id:datas[int].id,revision:datas[int].revision,mapNo:datas[int].mapNo,mapName:datas[int].mapName,scale:datas[int].scale});
+			}
+			
+			return dataObj;
+		}
+}
+
+
+var edit={	editInit:function(){
+				$.ajax({
+			type : "GET",
+			url :"../taskbook/editHisList?id="+$("#taskBookId").val(),
+			async : false,
+		    dataType:"json",
+             success:function(data){
+            	   var str;
+            	   for (i in data) {
+                  	        str += "<tr>" +
+            	        "<td align='center' style='font-size: 13px;padding:3px;'>" + data[i].creationDate.substring(0,10)+"</td>" +
+            	        "<td  style='font-size: 13px;padding:3px;'>" + data[i].editContent+"</td>" +
+            	        "<td align='center' style='font-size: 13px;padding:3px;'>" + data[i].creator + "</td>" +
+            	        "<td align='center'><input type='button'  style='font-size: 13px;' onclick=\"layer.msg(\'功能建设中..'\)\" value='删除' /></td>" +         
+            	        "</tr>";
+            	    }
+            	    $("#xdtbl tbody").append(str);
+           	   }			
+			});
+			
+		}}
+
+
+var taskShow={
+	/**
+	 * 初始化
+	 */
+		init:function(){
+			grid.init("taskShow");
+			taskShow.createtaskShowColumns();
+			var columns = taskShow.createtaskShowColumns();
+			grid.createGrid(columns);
+			var grid1 = $("#taskShow").data("kendoGrid");
+			grid1.setOptions({
+				pageable:false,
+			});
+		},
+		/**
+		 * 当进入编辑页面时，初始化;
+		 */
+		editInit:function(){
+			grid.init("taskShow");
+	
+			taskShow.createtaskShowColumns();
+			var columns = taskShow.createtaskShowColumns();
+			grid.createGrid(columns);
+			var taskBookId=$("#taskBookId").val();
+			var data={
+					"taskBookId":taskBookId
+			}
+			taskShow.requesttaskShowData(data);
+			var grid1 = $("#taskShow").data("kendoGrid");
+			grid1.setOptions({
+				pageable:false,
+			});
+					},
+	/**
+	 * 创建表格
+	 */
+		createtaskShowColumns : function(){
+			grid.resetColumn();
+			grid.addColumn("150px","mapName","图名");
+			grid.addColumn("150px","mapNo","图号");
+			grid.addColumn("300px","scale","比例尺 1:");
+			grid.addColumn("100px","revision","版次");
+			return	grid.addColumn("100px","edit","修改",kendo.template("<a style='cursor:pointer;color:black' onclick='taskShow.revisionEdit.call(this)'>修改</a>"));
+		},
+		/**
+		 * 发送数据请求
+		 */
+		requesttaskShowData : function(data){
+			common.init("../taskbook/planlist","POST",taskShow.bindtaskShowGrid);
+			common.do_submit(data);
+		},
+		/**
+		 * 接收服务器响应数据,绑定表格 这是一个回调函数，不用手动调用
+		 */
+		bindtaskShowGrid : function(result){
+			grid.bindData(result);
+			// 设置高度
+			var grid1 = $("#taskShow").data("kendoGrid");
+			grid1.setOptions({
+				height:150,
+				pageable:false,
+			});
+		},
+		
+		revisionEdit : function(obj){
+			var td = $(this).closest("tr").find("td:eq(5)");
+			var gridInst = $("#taskShow").data("kendoGrid");
+			if (!this.modify) {
+				this.modify = true;
+				$(this).text("保存");
+	    		gridInst.editCell(td);
+	    		gridInst.table.off("click", "tr");
+			} else {
+				this.modify = false;
+				$(this).text("修改");
+				gridInst.saveChanges();
+				gridInst.closeCell();
+			}
+		}
+}

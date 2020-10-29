@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+		<class	name="com.ht.persistence.model.drawtask.taskbook.book.Taskinfo"	table="ACT_HI_TASKINST">
+
+		<id name="ID"   type="java.lang.String">
+			<column name="ID_"/>
+			<generator class="assigned"/>
+		</id>
+
+<property name="PROCDEFID"  type="java.lang.String"><column name="PROC_DEF_ID_"/></property>
+<property name="TASKDEFKEY"  type="java.lang.String"><column name="TASK_DEF_KEY_"/></property>
+<property name="PROCINSTID"  type="java.lang.String"><column name="PROC_INST_ID_"/></property>
+<property name="EXECUTIONID"  type="java.lang.String"><column name="EXECUTION_ID_"/></property>
+<property name="PARENTTASKID"  type="java.lang.String"><column name="PARENT_TASK_ID_"/></property>
+<property name="NAME"  type="java.lang.String"><column name="NAME_"/></property>
+<property name="DESCRIPTION"  type="java.lang.String"><column name="DESCRIPTION_"/></property>
+<property name="OWNER"  type="java.lang.String"><column name="OWNER_"/></property>
+<property name="ASSIGNEE"  type="java.lang.String"><column name="ASSIGNEE_"/></property>
+<property name="STARTTIME"  type="timestamp"><column name="START_TIME_"/></property>
+<property name="CLAIMTIME"  type="timestamp"><column name="CLAIM_TIME_"/></property>
+<property name="ENDTIME"  type="timestamp"><column name="END_TIME_"/></property>
+<property name="DURATION"  type="java.lang.Double"><column name="DURATION_"/></property>
+<property name="DELETEREASON"  type="java.lang.String"><column name="DELETE_REASON_"/></property>
+<property name="PRIORITY"  type="java.lang.Double"><column name="PRIORITY_"/></property>
+<property name="DUEDATE"  type="timestamp"><column name="DUE_DATE_"/></property>
+<property name="FORMKEY"  type="java.lang.String"><column name="FORM_KEY_"/></property>
+<property name="CATEGORY"  type="java.lang.String"><column name="CATEGORY_"/></property>
+<property name="TENANTID"  type="java.lang.String"><column name="TENANT_ID_"/></property>
+
+
+
+
+
+
+
+
+</class>
+	
+
+</hibernate-mapping>

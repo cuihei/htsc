@@ -1,0 +1,956 @@
+package com.ht.service.impl.system.workflow.publish;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.activiti.bpmn.model.UserTask;
+import org.activiti.engine.identity.User;
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.common.util.ConvertUtil;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.exception.DBException;
+import com.ht.persistence.dao.inter.catalog.detail.CatalogDetailDao;
+import com.ht.persistence.dao.inter.datum.bookinfo.BookInfoDao;
+import com.ht.persistence.dao.inter.datum.bookinfo.ReturnBookDao;
+import com.ht.persistence.dao.inter.datum.books.BooksDao;
+import com.ht.persistence.dao.inter.datum.datum.BorrowingDao;
+import com.ht.persistence.dao.inter.datum.fileddata.FiledDataDao;
+import com.ht.persistence.dao.inter.drawtask.taskbook.book.TaskBookDao;
+import com.ht.persistence.dao.inter.drawtask.taskbook.create.CreateTaskDao;
+import com.ht.persistence.dao.inter.system.notice.NoticeDao;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessFlowDao;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessLogDao;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessLogDetailDao;
+import com.ht.persistence.dao.inter.system.workflow.task.TaskDao;
+import com.ht.persistence.model.catalog.detail.CatalogDetail;
+import com.ht.persistence.model.datum.bookinfo.BookInfo;
+import com.ht.persistence.model.datum.bookinfo.ReturnBook;
+import com.ht.persistence.model.datum.books.Books;
+import com.ht.persistence.model.datum.datum.Borrowing;
+import com.ht.persistence.model.datum.fileddata.FiledData;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBook;
+import com.ht.persistence.model.drawtask.taskbook.create.CreateTask;
+import com.ht.persistence.model.system.workflow.process.ProcessFlow;
+import com.ht.persistence.model.system.workflow.process.ProcessLog;
+import com.ht.persistence.model.system.workflow.process.ProcessLogDetail;
+import com.ht.persistence.model.system.workflow.task.RuTask;
+import com.ht.service.impl.background.dicdata.constants.BaseDataConstants;
+import com.ht.service.impl.system.workflow.task.ProcessTypeEnum;
+import com.ht.service.impl.system.workflow.util.BusinessUtil;
+import com.ht.service.inter.background.organization.employee.UserService;
+import com.ht.service.inter.system.notice.UserNoticeService;
+import com.ht.service.inter.system.workflow.publish.PublishService;
+import com.ht.workflow.service.IWorkflowService;
+import com.ht.workflow.service.WsResult;
+
+/**
+ * 流程发布业务处理类
+ * @author 王有为
+ * @date 2016/10/30
+ */
+public class PublishServiceImpl implements PublishService
+{
+
+	@Resource(name = "service")
+	IWorkflowService workflowService;
+
+	@Resource
+	ProcessFlowDao processFlowDao;
+
+	@Resource
+	ProcessLogDao processLogDao;
+
+	@Resource
+	ProcessLogDetailDao processLogDetailDao;
+
+	@Resource
+	UserService userService;
+
+	/**
+	 * 注入图书资料Dao
+	 */
+	@Resource(name = "bookInfoDao")
+	BookInfoDao bookInfoDao;
+
+	/**
+	 * 注入海图Dao
+	 */
+	@Resource(name = "booksDao")
+	BooksDao booksDao;
+
+	/**
+	 * 注入借阅记录Dao
+	 */
+	@Resource(name = "BorrowingDao")
+	private BorrowingDao BorrowingDao;
+
+	/**
+	 * 注入外业汇交Dao
+	 */
+	@Resource(name = "filedDataDao")
+	FiledDataDao filedDataDao;
+
+	/**
+	 * 注入借阅记录Dao
+	 */
+	@Resource(name = "returnBookDao")
+	private ReturnBookDao returnBookDao;
+
+	/**
+	 * 注入目录Dao
+	 */
+	@Resource(name = "catalogDetailDao")
+	private CatalogDetailDao catalogDetailDao;
+
+	@Resource
+	NoticeDao noticeDao;
+
+	@Resource
+	UserNoticeService userNoticeService;
+
+	@Resource
+	TaskDao taskDao;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	/**
+	 * 发布流程
+	 * @param processDefId 流程定义ID
+	 */
+	public void publishProcess(String launcher, String processKey) throws Exception
+	{
+		try
+		{
+			// 定义流程变量
+			Map<String, Object> v = BusinessUtil.getInstance().getProcessNextTaskArgs(processKey,"start");
+			String startResult = workflowService.start(processKey, launcher, DataConverter.convertObject2Json(v));
+			WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+			wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+			String success = wsResult.getResult();
+			Map<String, String> processData = wsResult.getData();
+			// 如果流程启动成功则进行业务操作
+			if (success.equals("success"))
+			{
+				String processInstId = (String) processData.get("processInstanceId");
+				String taskResult = "开启流程";
+				String type = "开始";
+				ProcessFlow processFlow = new ProcessFlow();
+				processFlow.setCreator(ConvertUtil.convertDateToString("yyyy-MM-dd HH:mm::s", new Date()));
+				processFlow.setProcessInstId(processInstId);
+				processFlow.setTaskResult(taskResult);
+				processFlow.setType(type);
+				processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+				processFlow.setModifyDate(new Date());
+				processFlow.setModifier(launcher);
+				processFlow.setUserNo(launcher);
+				processFlowDao.addProcessFlow(processFlow);
+				// 发布通知
+				pulishNotice(processInstId);
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+	}
+
+	/**
+	 * 发布流程
+	 * @param processDefId 流程定义ID
+	 */
+	@Override
+	public void publishCatalogProcess(String launcher, String processKey, String ids) throws Exception
+	{
+		try
+		{
+			// 定义流程变量
+			List<CatalogDetail> detailList = (List<CatalogDetail>) DataConverter.convertJson2List(ids, CatalogDetail.class);
+			if (detailList != null)
+			{
+				if (detailList.size() > 0)
+				{
+					for (int k = 0; k < detailList.size(); k++)
+					{
+						// 将数据库表中的状态改为“待审核”
+						CatalogDetail cd = new CatalogDetail();
+						cd.setId(detailList.get(k).getId());
+						cd = catalogDetailDao.getDetail(cd);
+						cd.setStatus("待审核");
+						catalogDetailDao.modifyDetail(cd);
+
+						Map<String, Object> v = new HashMap<String, Object>();
+						// 为流程设置用户变量
+						String flowId = workflowService.getProcessDefinitionIdByKey(processKey).getId();
+						List<UserTask> userTasks = workflowService.getUserTasks(flowId);
+						for (int i = 0; i < userTasks.size(); i++)
+						{
+							v.put(userTasks.get(i).getId(), null);
+						}
+						String startResult = workflowService.start(processKey, launcher, DataConverter.convertObject2Json(v));
+						WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+						wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+						String success = wsResult.getResult();
+						Map processData = wsResult.getData();
+						// 如果流程启动成功则进行业务操作
+						if (success.equals("success"))
+						{
+							String processInstId = (String) processData.get("processInstanceId");
+							String taskResult = "开启流程";
+							String type = "开始";
+							ProcessFlow processFlow = new ProcessFlow();
+							processFlow.setCreator(ConvertUtil.convertDateToString("yyyy-MM-dd HH:mm::s", new Date()));
+							processFlow.setProcessInstId(processInstId);
+							processFlow.setTaskResult(taskResult);
+							processFlow.setType(type);
+							processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+							processFlow.setModifyDate(new Date());
+							processFlow.setModifier(launcher);
+							processFlow.setUserNo(launcher);
+							processFlowDao.addProcessFlow(processFlow);
+							// 发布通知
+							pulishNotice(processInstId);
+							RuTask task = new RuTask();
+							task.setProcessInstId(processInstId);
+							List<RuTask> ruTasks = taskDao.getRuTaskByProcessInstId(task);
+							if (ruTasks != null)
+							{
+								for (int i = 0; i < ruTasks.size(); i++)
+								{
+									RuTask ruTask = ruTasks.get(i);
+									ProcessLog log = new ProcessLog();
+									String logId = GenerateSequenceUtil.generateSequenceNo();
+									log.setId(logId);
+									log.setOperationType("操作");
+									log.setProcessInstId(processInstId);
+									log.setTableKeyName("id");
+									log.setTableName(BusinessUtil.getInstance().getTableNameByProcess(ruTask.getProcessDefId().split(":")[0]));
+									log.setTableStatusName("status");
+									log.setUserNo(launcher);
+									processLogDao.addProcessLog(log);
+									ProcessLogDetail processLogDetail = new ProcessLogDetail();
+									processLogDetail.setId(GenerateSequenceUtil.generateSequenceNo());
+									processLogDetail.setDetailRecordId(detailList.get(k).getId());
+									processLogDetail.setProcessInstId(processInstId);
+									processLogDetail.setProcessLogId(logId);
+									processLogDetail.setTableName(BusinessUtil.getInstance().getTableNameByProcess(
+											ruTask.getProcessDefId().split(":")[0]));
+									processLogDetailDao.addProcessLogDetail(processLogDetail);
+								}
+							}
+						}
+					}
+				}
+			}
+
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+	}
+
+	/**
+	 * 发布图书借阅流程
+	 * @param processDefId 流程定义ID
+	 */
+	@Override
+	public void publishBooksProcess(String launcher, String processKey, String ids, String borrowNos, String bookType, String secretInvolved)
+			throws Exception
+	{
+		try
+		{
+			// 定义流程变量
+			if (ids != null)
+			{
+				String[] id = ids.split(",");
+				String[] borrowNo = borrowNos.split(",");
+				if (id != null)
+				{
+					if (id.length > 0)
+					{
+						for (int k = 0; k < id.length; k++)
+						{
+							// 根据用户登录账号获取借阅人名称
+							String userName = "";
+							List<com.ht.persistence.model.background.organization.employee.User> userList = userService.getUserByNo(launcher);
+							if (userList != null)
+							{
+								if (userList.size() > 0)
+								{
+									userName = userList.get(0).getUserName();
+								}
+							}
+							// 插入借阅记录，状态为“待审核”
+							String borrowId = "";
+							if (bookType.equals("bookinfo"))
+							{// 图书资料
+								BookInfo bi = new BookInfo();
+								bi.setId(id[k]);
+								bi = bookInfoDao.getBookInfo(bi);
+								Borrowing b = new Borrowing();
+								borrowId = GenerateSequenceUtil.generateSequenceNo();
+								b.setId(borrowId);
+								b.setBorrowCode(bi.getCode());
+								b.setBorrowBookName(bi.getBookName());
+								//汇交时间
+								b.setConcurrentTime(bi.getPublishDate());
+								b.setType(bookType);
+								b.setBorrowPerson(userName);
+								b.setBorrowNo(borrowNo[k]);
+								b.setBorrowDate(new Date());
+								b.setSecretInvolved(secretInvolved);
+								b.setStatus(BaseDataConstants.CATALOG_STATUS_WAIT);
+								BorrowingDao.addBorrowing(b);
+
+								// 获取当前资料的可用数量，修改可借数量
+								int total = Integer.valueOf(bi.getCanBorrowing());
+								int borrowNumber = Integer.valueOf(borrowNo[k]);
+								String canBorrowing = String.valueOf(total - borrowNumber);
+								bi.setCanBorrowing(canBorrowing);
+								bookInfoDao.modifyBookInfo(bi);
+							}
+							else if (bookType.equals("books"))
+							{// 海图资料
+								Books bs = new Books();
+								bs.setId(id[k]);
+								bs = booksDao.getBooks(bs);
+								Borrowing b = new Borrowing();
+								borrowId = GenerateSequenceUtil.generateSequenceNo();
+								b.setId(borrowId);
+								b.setBorrowCode(bs.getCode());
+								b.setBorrowBookName(bs.getChartName());
+								//汇交时间
+								b.setConcurrentTime(bs.getPublicationDate());
+								b.setType(bookType);
+								b.setBorrowPerson(userName);
+								b.setBorrowNo(borrowNo[k]);
+								b.setBorrowDate(new Date());
+								b.setSecretInvolved(secretInvolved);
+								b.setStatus(BaseDataConstants.CATALOG_STATUS_WAIT);
+								BorrowingDao.addBorrowing(b);
+
+								// 获取当前资料的可用数量，修改可借数量
+								int total = Integer.valueOf(bs.getCanBorrowing());
+								int borrowNumber = Integer.valueOf(borrowNo[k]);
+								String canBorrowing = String.valueOf(total - borrowNumber);
+								bs.setCanBorrowing(canBorrowing);
+								booksDao.modifyBooks(bs);
+							}
+							else if (bookType.equals("fileddata"))
+							{// 外业汇交资料
+								FiledData fd = new FiledData();
+								fd.setId(id[k]);
+								fd = filedDataDao.getFiledData(fd);
+								Borrowing b = new Borrowing();
+								borrowId = GenerateSequenceUtil.generateSequenceNo();
+								b.setId(borrowId);
+								b.setBorrowCode(fd.getPicNo());
+								b.setBorrowBookName(fd.getProjectName());
+								b.setType(bookType);
+								//汇交时间
+								b.setConcurrentTime(fd.getConcurrentTime());
+								b.setBorrowPerson(userName);
+								b.setBorrowNo(borrowNo[k]);
+								b.setBorrowDate(new Date());
+								b.setSecretInvolved(secretInvolved);
+								b.setStatus(BaseDataConstants.CATALOG_STATUS_WAIT);
+								BorrowingDao.addBorrowing(b);
+
+								// 获取当前资料的可用数量，修改可借数量
+								int total = Integer.valueOf(fd.getCanBorrowing());
+								int borrowNumber = Integer.valueOf(borrowNo[k]);
+								String canBorrowing = String.valueOf(total - borrowNumber);
+								fd.setCanBorrowing(canBorrowing);
+								filedDataDao.modifyFiledData(fd);
+							}
+							Map<String, Object> v = new HashMap<String, Object>();
+							// 为流程设置用户变量
+							String flowId = workflowService.getProcessDefinitionIdByKey(processKey).getId();
+							List<UserTask> userTasks = workflowService.getUserTasks(flowId);
+							for (int i = 0; i < userTasks.size(); i++)
+							{
+								v.put(userTasks.get(i).getId(), null);
+							}
+							String startResult = workflowService.start(processKey, launcher, DataConverter.convertObject2Json(v));
+							WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+							wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+							String success = wsResult.getResult();
+							Map processData = wsResult.getData();
+							// 如果流程启动成功则进行业务操作
+							if (success.equals("success"))
+							{
+								String processInstId = (String) processData.get("processInstanceId");
+								String taskResult = "开启流程";
+								String type = "开始";
+								ProcessFlow processFlow = new ProcessFlow();
+								processFlow.setProcessInstId(processInstId);
+								processFlow.setTaskResult(taskResult);
+								processFlow.setType(type);
+								processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+								processFlow.setUserNo(launcher);
+								processFlowDao.addProcessFlow(processFlow);
+								// 发布通知
+								pulishNotice(processInstId);
+
+								RuTask task = new RuTask();
+								task.setProcessInstId(processInstId);
+								List<RuTask> ruTasks = taskDao.getRuTaskByProcessInstId(task);
+								if (ruTasks != null)
+								{
+									for (int i = 0; i < ruTasks.size(); i++)
+									{
+										RuTask ruTask = ruTasks.get(i);
+										ProcessLog log = new ProcessLog();
+										String logId = GenerateSequenceUtil.generateSequenceNo();
+										log.setId(logId);
+										log.setOperationType("操作");
+										log.setProcessInstId(processInstId);
+										log.setTableKeyName("id");
+										log.setTableName(BusinessUtil.getInstance().getTableNameByProcess(ruTask.getProcessDefId().split(":")[0]));
+										log.setTableStatusName("status");
+										log.setUserNo(launcher);
+										processLogDao.addProcessLog(log);
+										ProcessLogDetail processLogDetail = new ProcessLogDetail();
+										processLogDetail.setId(GenerateSequenceUtil.generateSequenceNo());
+										processLogDetail.setDetailRecordId(borrowId);
+										processLogDetail.setProcessInstId(processInstId);
+										processLogDetail.setProcessLogId(logId);
+										processLogDetail.setTableName(BusinessUtil.getInstance().getTableNameByProcess(
+												ruTask.getProcessDefId().split(":")[0]));
+										processLogDetailDao.addProcessLogDetail(processLogDetail);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+	}
+
+	/**
+	 * 发布图书归还流程
+	 * @param processDefId 流程定义ID
+	 */
+	@Override
+	public void publishReturnBooksProcess(String launcher, String processKey, String ids, String returnNos) throws Exception
+	{
+		try
+		{
+			// 定义流程变量
+			if (ids != null)
+			{
+				String[] id = ids.split(",");
+				String[] returnNo = returnNos.split(",");
+				if (id != null)
+				{
+					if (id.length > 0)
+					{
+						for (int k = 0; k < id.length; k++)
+						{
+							// 根据用户登录账号获取归还人名称
+							String userName = "";
+							List<com.ht.persistence.model.background.organization.employee.User> userList = userService.getUserByNo(launcher);
+							if (userList != null)
+							{
+								if (userList.size() > 0)
+								{
+									userName = userList.get(0).getUserName();
+								}
+							}
+							// 插入归还数据，状态为“待审核”
+							Borrowing b = new Borrowing();
+							b.setId(id[k]);
+							// 得到借阅数据
+							b = BorrowingDao.getBorrowing(b);
+							ReturnBook rb = new ReturnBook();
+							String rId = GenerateSequenceUtil.generateSequenceNo();
+							rb.setId(rId);
+							rb.setBorrowId(id[k]);
+							rb.setBookName(b.getBorrowBookName());
+							rb.setBookNo(b.getBorrowCode());
+							//汇交时间
+							rb.setConcurrentTime(b.getConcurrentTime());
+							rb.setType(b.getType());
+							rb.setReturnPerson(userName);
+							rb.setReturnDate(new Date());
+							rb.setReturnNo(returnNo[k]);
+							rb.setCurReturnNo(returnNo[k]);
+							rb.setStatus(BaseDataConstants.CATALOG_STATUS_WAIT);
+							returnBookDao.addReturnBook(rb);
+
+							Map<String, Object> v = new HashMap<String, Object>();
+							// 为流程设置用户变量
+							String flowId = workflowService.getProcessDefinitionIdByKey(processKey).getId();
+							List<UserTask> userTasks = workflowService.getUserTasks(flowId);
+							for (int i = 0; i < userTasks.size(); i++)
+							{
+								v.put(userTasks.get(i).getId(), null);
+							}
+							String startResult = workflowService.start(processKey, launcher, DataConverter.convertObject2Json(v));
+							WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+							wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+							String success = wsResult.getResult();
+							Map processData = wsResult.getData();
+							// 如果流程启动成功则进行业务操作
+							if (success.equals("success"))
+							{
+								String processInstId = (String) processData.get("processInstanceId");
+								String taskResult = "开启流程";
+								String type = "开始";
+								ProcessFlow processFlow = new ProcessFlow();
+								processFlow.setCreator(ConvertUtil.convertDateToString("yyyy-MM-dd HH:mm::s", new Date()));
+								processFlow.setProcessInstId(processInstId);
+								processFlow.setTaskResult(taskResult);
+								processFlow.setType(type);
+								processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+								processFlow.setModifyDate(new Date());
+								processFlow.setModifier(launcher);
+								processFlow.setUserNo(launcher);
+								processFlowDao.addProcessFlow(processFlow);
+								// 发布通知
+								pulishNotice(processInstId);
+								RuTask task = new RuTask();
+								task.setProcessInstId(processInstId);
+								List<RuTask> ruTasks = taskDao.getRuTaskByProcessInstId(task);
+								if (ruTasks != null)
+								{
+									for (int i = 0; i < ruTasks.size(); i++)
+									{
+										RuTask ruTask = ruTasks.get(i);
+										ProcessLog log = new ProcessLog();
+										String logId = GenerateSequenceUtil.generateSequenceNo();
+										log.setId(logId);
+										log.setOperationType("操作");
+										log.setProcessInstId(processInstId);
+										log.setTableKeyName("id");
+										log.setTableName(BusinessUtil.getInstance().getTableNameByProcess(ruTask.getProcessDefId().split(":")[0]));
+										log.setTableStatusName("status");
+										log.setUserNo(launcher);
+										processLogDao.addProcessLog(log);
+										ProcessLogDetail processLogDetail = new ProcessLogDetail();
+										processLogDetail.setId(GenerateSequenceUtil.generateSequenceNo());
+										processLogDetail.setDetailRecordId(rId);
+										processLogDetail.setProcessInstId(processInstId);
+										processLogDetail.setProcessLogId(logId);
+										processLogDetail.setTableName(BusinessUtil.getInstance().getTableNameByProcess(
+												ruTask.getProcessDefId().split(":")[0]));
+										processLogDetailDao.addProcessLogDetail(processLogDetail);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+	}
+
+	private void pulishNotice(String processInstId)
+	{
+		// 发送通知
+		RuTask task = new RuTask();
+		task.setProcessInstId(processInstId);
+		List<RuTask> ruTasks = taskDao.getRuTaskByProcessInstId(task);
+		List<com.ht.persistence.model.background.organization.employee.User> users = new ArrayList<com.ht.persistence.model.background.organization.employee.User>();
+		if (ruTasks != null)
+		{
+			for (int i = 0; i < ruTasks.size(); i++)
+			{
+				RuTask ruTask = ruTasks.get(i);
+				String userId = ruTask.getAssignee();
+				if (StringUtils.isNotEmpty(userId))
+				{
+					com.ht.persistence.model.background.organization.employee.User user = new com.ht.persistence.model.background.organization.employee.User();
+					user.setId(userId);
+					users.add(user);
+				}
+				else
+				{
+					String groupId = ruTask.getGroupId();
+					if (StringUtils.isNotEmpty(groupId))
+					{
+						List<User> userList = workflowService.getUsersByGroup(groupId);
+						if (users != null)
+						{
+							for (int j = 0; j < userList.size(); j++)
+							{
+								com.ht.persistence.model.background.organization.employee.User user = new com.ht.persistence.model.background.organization.employee.User();
+								user.setId(userList.get(j).getId());
+								users.add(user);
+							}
+						}
+					}
+				}
+			}
+			String noticeDescription = "您有一条" + ruTasks.get(0).getProcessDefName() + "的任务";
+			userNoticeService.publishNotice("10301416596850001", "系统通知", noticeDescription, users);
+		}
+	}
+
+	
+	
+	
+	private void pulishNotice1(String processInstId,String taskName)
+	{
+		// 发送通知
+		RuTask task = new RuTask();
+		task.setProcessInstId(processInstId);
+		List<RuTask> ruTasks = taskDao.getRuTaskByProcessInstId(task);
+		List<com.ht.persistence.model.background.organization.employee.User> users = new ArrayList<com.ht.persistence.model.background.organization.employee.User>();
+		if (ruTasks != null)
+		{
+			for (int i = 0; i < ruTasks.size(); i++)
+			{
+				RuTask ruTask = ruTasks.get(i);
+				String userId = ruTask.getAssignee();
+				if (StringUtils.isNotEmpty(userId))
+				{
+					com.ht.persistence.model.background.organization.employee.User user = new com.ht.persistence.model.background.organization.employee.User();
+					user.setId(userId);
+					users.add(user);
+				}
+				else
+				{
+					String groupId = ruTask.getGroupId();
+					if (StringUtils.isNotEmpty(groupId))
+					{
+						List<User> userList = workflowService.getUsersByGroup(groupId);
+						if (users != null)
+						{
+							for (int j = 0; j < userList.size(); j++)
+							{
+								com.ht.persistence.model.background.organization.employee.User user = new com.ht.persistence.model.background.organization.employee.User();
+								user.setId(userList.get(j).getId());
+								users.add(user);
+							}
+						}
+					}
+				}
+			}
+			String noticeDescription = "您有一条" + ruTasks.get(0).getProcessDefName()+":"+taskName + "的任务，发布时间为："+ruTasks.get(0).getCreateTime();
+			userNoticeService.publishNotice("10301416596850001", "系统通知", noticeDescription, users);
+		}
+	}
+	
+	@Override
+	public void publishDataInputProcess(String launcher, String processKey, String ids, String bookType) throws Exception
+	{
+		try
+		{
+			// 定义流程变量
+			if (ids != null)
+			{
+				String[] id = ids.split(",");
+				if (id != null)
+				{
+					if (id.length > 0)
+					{
+						for (int k = 0; k < id.length; k++)
+						{
+							// 将数据库表中的状态改为“待审核”
+							if(bookType.equals("BOOK_INFO")){
+								BookInfo bi =  new BookInfo();
+								bi.setId(id[k]);
+								bi = bookInfoDao.getBookInfo(bi);
+								bi.setStatus(BaseDataConstants.CATALOG_STATUS_WAIT);
+								bookInfoDao.modifyBookInfo(bi);
+							}else if(bookType.equals("BOOKS")){
+								Books b = new Books();
+								b.setId(id[k]);
+								b = booksDao.getBooks(b);
+								b.setStatus(BaseDataConstants.CATALOG_STATUS_WAIT);
+								booksDao.modifyBooks(b);
+							}else if(bookType.equals("FILED_DATA")){
+								FiledData f = new FiledData();
+								f.setId(id[k]);
+								f = filedDataDao.getFiledData(f);
+								f.setStatus(BaseDataConstants.CATALOG_STATUS_WAIT);
+								filedDataDao.modifyFiledData(f);
+							}
+
+							Map<String, Object> v = new HashMap<String, Object>();
+							// 为流程设置用户变量
+							String flowId = workflowService.getProcessDefinitionIdByKey(processKey).getId();
+							List<UserTask> userTasks = workflowService.getUserTasks(flowId);
+							for (int i = 0; i < userTasks.size(); i++)
+							{
+								v.put(userTasks.get(i).getId(), null);
+							}
+							String startResult = workflowService.start(processKey, launcher, DataConverter.convertObject2Json(v));
+							WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+							wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+							String success = wsResult.getResult();
+							Map processData = wsResult.getData();
+							// 如果流程启动成功则进行业务操作
+							if (success.equals("success"))
+							{
+								String processInstId = (String) processData.get("processInstanceId");
+								String taskResult = "开启流程";
+								String type = "开始";
+								ProcessFlow processFlow = new ProcessFlow();
+								processFlow.setCreator(ConvertUtil.convertDateToString("yyyy-MM-dd HH:mm::s", new Date()));
+								processFlow.setProcessInstId(processInstId);
+								processFlow.setTaskResult(taskResult);
+								processFlow.setType(type);
+								processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+								processFlow.setModifyDate(new Date());
+								processFlow.setModifier(launcher);
+								processFlow.setUserNo(launcher);
+								processFlowDao.addProcessFlow(processFlow);
+								// 发布通知
+								pulishNotice(processInstId);
+								RuTask task = new RuTask();
+								task.setProcessInstId(processInstId);
+								List<RuTask> ruTasks = taskDao.getRuTaskByProcessInstId(task);
+								if (ruTasks != null)
+								{
+									for (int i = 0; i < ruTasks.size(); i++)
+									{
+										RuTask ruTask = ruTasks.get(i);
+										ProcessLog log = new ProcessLog();
+										String logId = GenerateSequenceUtil.generateSequenceNo();
+										log.setId(logId);
+										log.setOperationType("操作");
+										log.setProcessInstId(processInstId);
+										log.setTableKeyName("id");
+										log.setTableName(BusinessUtil.getInstance().getTableNameByProcess(ruTask.getProcessDefId().split(":")[0]));
+										log.setTableStatusName("status");
+										log.setUserNo(launcher);
+										processLogDao.addProcessLog(log);
+										ProcessLogDetail processLogDetail = new ProcessLogDetail();
+										processLogDetail.setId(GenerateSequenceUtil.generateSequenceNo());
+										processLogDetail.setDetailRecordId(id[k]);
+										processLogDetail.setProcessInstId(processInstId);
+										processLogDetail.setProcessLogId(logId);
+										processLogDetail.setTableName(BusinessUtil.getInstance().getTableNameByProcess(ruTask.getProcessDefId().split(":")[0]));
+										processLogDetailDao.addProcessLogDetail(processLogDetail);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+	}
+	
+	private void addProcessLog(String userNo,String tableStatusName,String tableKeyName,String recordId,String processDefKey,String processInstId) throws Exception{
+		ProcessLog log = new ProcessLog();
+		String logId = GenerateSequenceUtil.generateSequenceNo();
+		log.setId(logId);
+		log.setOperationType("操作");
+		log.setProcessInstId(processInstId);
+		log.setTableKeyName("id");
+		log.setTableName(BusinessUtil.getInstance().getTableNameByProcess(processDefKey));
+		log.setTableStatusName(tableStatusName);
+		log.setUserNo(userNo);
+		processLogDao.addProcessLog(log);
+		ProcessLogDetail processLogDetail = new ProcessLogDetail();
+		processLogDetail.setId(GenerateSequenceUtil.generateSequenceNo());
+		processLogDetail.setDetailRecordId(recordId);
+		processLogDetail.setProcessInstId(processInstId);
+		processLogDetail.setProcessLogId(logId);
+		processLogDetail.setTableName(BusinessUtil.getInstance().getTableNameByProcess(processDefKey));
+		processLogDetailDao.addProcessLogDetail(processLogDetail);
+	}
+
+	@Resource
+	TaskBookDao taskBookDao;
+	
+	@Override
+	public void publishTaskBookProcess(String launcher, String processDefKey,List<String> taskBookIds) throws Exception {
+		try
+		{
+			for (int k = 0; k < taskBookIds.size(); k++)
+			{
+				// 为流程设置用户变量
+				// 设置审批组
+				Map<String, Object> v = BusinessUtil.getInstance().getProcessNextTaskArgs("TASK_BOOK","start");
+				String startResult = workflowService.start(processDefKey, launcher, DataConverter.convertObject2Json(v));
+				WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+				wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+				String success = wsResult.getResult();
+				Map processData = wsResult.getData();
+				// 如果流程启动成功则进行业务操作
+				if (success.equals("success"))
+				{
+					// 将数据库表中的状态改为“待审核”
+					TaskBook taskBook = taskBookDao.findById(taskBookIds.get(k));
+					taskBook.setState("待审核");
+					taskBookDao.modifyTaskBook(taskBook);
+					//流转状态 
+					String processInstId = (String) processData.get("processInstanceId");
+					String taskResult = "开启流程";
+					String type = "开始";
+					ProcessFlow processFlow = new ProcessFlow();
+					processFlow.setProcessInstId(processInstId);
+					processFlow.setTaskResult(taskResult);
+					processFlow.setType(type);
+					processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+					processFlow.setUserNo(launcher);
+					processFlowDao.addProcessFlow(processFlow);
+					// 发布通知
+					pulishNotice(processInstId);
+					// 存流程日志
+					addProcessLog(launcher, "state", "id", taskBookIds.get(k), processDefKey, processInstId);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+	}
+
+	@Resource
+	CreateTaskDao createTaskDao;
+	
+	@Override
+	public void publishTaskProcess(String launcher,List<Map<String,String>> tasks,String zj,String sd) throws Exception {
+		try
+		{
+			for (int k = 0; k < tasks.size(); k++)
+			{
+				Map<String,String> taskMap = tasks.get(k);
+				String taskId = taskMap.get("id");
+				String processDefKey = taskMap.get("processDefKey");
+				// 为流程设置用户变量
+				Map<String, Object> v = BusinessUtil.getInstance().getProcessNextTaskArgs(processDefKey,"start");
+				if(processDefKey.equals("PROJECT_SPECIAL_ELECTRONIC")||processDefKey.equals("PROJECT_SPECIAL_PAPER")){
+					if("1".equals(zj)){
+						v.put("zj", true);
+						if("1".equals(sd)){
+							v.put("sd", true);
+						}else{
+							v.put("sd", false);
+						}
+					}else{
+						v.put("zj", false);
+						v.put("sd", false);
+					}
+				}
+				String startResult = workflowService.start(processDefKey, launcher, DataConverter.convertObject2Json(v));
+				WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+				wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+				String success = wsResult.getResult();
+				Map processData = wsResult.getData();
+				// 如果流程启动成功则进行业务操作
+				if (success.equals("success"))
+				{
+					// 将数据库表中的状态改为“待审核” 增加发布次数
+					CreateTask task = createTaskDao.getTaskById(taskId);
+					Integer publishTimes = task.getPublishTimes();
+					if (publishTimes == null)
+					{
+						publishTimes = 0;
+					}
+					publishTimes = publishTimes + 1;
+					task.setStatus("待分配");
+					task.setPublishTimes(publishTimes);
+					createTaskDao.modify(task);
+					//流转状态 
+					String processInstId = (String) processData.get("processInstanceId");
+					String taskResult = "开启流程";
+					String type = "开始";
+					ProcessFlow processFlow = new ProcessFlow();
+					processFlow.setProcessInstId(processInstId);
+					processFlow.setTaskResult(taskResult);
+					processFlow.setType(type);
+					processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+					processFlow.setUserNo(launcher);
+					processFlowDao.addProcessFlow(processFlow);
+					// 发布通知
+					pulishNotice1(processInstId,task.getTaskName());
+					// 存流程日志
+					addProcessLog(launcher, "status", "id", taskId, processDefKey, processInstId);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+	}
+
+	@Override
+	public String publishProblemProcess(String launcher, String processKey, String quality, String approval) throws Exception
+	{
+		try
+		{
+			// 定义流程变量
+			Map<String, Object> v = BusinessUtil.getInstance().getProcessNextTaskArgs(processKey,"start");
+			List<com.ht.persistence.model.background.organization.employee.User> userList = userService.getUserByNo(launcher);
+			String uId = "";
+			if (userList != null)
+			{
+				if (userList.size() > 0)
+				{
+					uId = userList.get(0).getId();
+				}
+			}
+			v.put("user_bhy", uId);
+			v.put("user_sdy", approval);
+			v.put("user_zjy", quality);
+			String startResult = workflowService.start(processKey, launcher, DataConverter.convertObject2Json(v));
+			WsResult<Map<String, String>> wsResult = new WsResult<Map<String, String>>();
+			wsResult = (WsResult<Map<String, String>>) DataConverter.convertJson2Object(startResult, wsResult.getClass());
+			String success = wsResult.getResult();
+			Map<String, String> processData = wsResult.getData();
+			// 如果流程启动成功则进行业务操作
+			if (success.equals("success"))
+			{
+				String processInstId = (String) processData.get("processInstanceId");
+				String taskResult = "开启流程";
+				String type = "开始";
+				ProcessFlow processFlow = new ProcessFlow();
+				processFlow.setCreator(ConvertUtil.convertDateToString("yyyy-MM-dd HH:mm::s", new Date()));
+				processFlow.setProcessInstId(processInstId);
+				processFlow.setTaskResult(taskResult);
+				processFlow.setType(type);
+				processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+				processFlow.setModifyDate(new Date());
+				processFlow.setModifier(launcher);
+				processFlow.setUserNo(launcher);
+				processFlowDao.addProcessFlow(processFlow);
+				// 发布通知
+				pulishNotice(processInstId);
+				return processInstId;
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("数据库操作错误");
+		}
+		return null;
+	}
+
+}

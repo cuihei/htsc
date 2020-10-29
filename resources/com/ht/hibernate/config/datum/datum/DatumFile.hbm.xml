@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.datum.datum.DatumFile" table="DATUM_FILE">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="categoryId" type="java.lang.String">
+            <column name="category_id" />
+        </property>
+        <property name="fileName" type="java.lang.String">
+            <column name="file_name" />
+        </property>
+        <property name="suffixName" type="java.lang.String">
+            <column name="suffix_name" />
+        </property>
+        <property name="spaceSize" type="java.lang.String">
+            <column name="space_size" />
+        </property>
+        <property name="filePath" type="java.lang.String">
+            <column name="file_path" />
+        </property>
+        <property name="remarks" type="java.lang.String">
+            <column name="remarks" />
+        </property>
+		<property name="entityFileName" type="java.lang.String">
+            <column name="entity_file_name" />
+        </property>
+        <property name="entityFileNum" type="java.lang.String">
+            <column name="entity_file_num" />
+        </property>
+        <property name="fileType" type="java.lang.String">
+            <column name="file_type" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getDatumFile">
+    	<![CDATA[ from DatumFile]]>
+    </query>
+    <query name="getDatumFileById">
+    	<![CDATA[ from DatumFile where id= :id]]> 
+    </query>
+    <query name="getIsFile">
+    	<![CDATA[ from DatumFile where categoryId= :datumCategoryId]]> 
+    </query>
+</hibernate-mapping>

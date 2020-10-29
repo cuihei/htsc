@@ -1,0 +1,208 @@
+package com.ht.front.pages.system.workflow.process;
+
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+import com.ht.front.model.Base;
+import com.ht.front.model.Button;
+import com.ht.front.model.Div;
+import com.ht.front.model.I;
+import com.ht.front.model.Img;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.Script;
+import com.ht.front.util.FrontUtil;
+
+/**
+ * 界面初始化类
+ */
+public class FlowChartPage {
+	/**
+	 * 初始化应用资源数据页面
+	 * 
+	 * @return 节点字符串
+	 * */
+	public String getListNode() {
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "工作流管理");
+		util.createRowSpace(root);
+		/** 创建按钮组行  开始*/
+		// 创建行
+		Base rowBg = util.createRow(root);
+		// 创建按钮组
+		Base column = util.createColumn(rowBg, "12", "12", "12", null);
+		// 构建创建div
+		CssClass css = new CssClass("fa fa-plus");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-success btn-setting search");
+		Button button = Button.getButtonWithIcon("add", css, "创建", i);
+		column.addChildNode(button);
+		// 构建编辑div
+		css = new CssClass("fa fa-hand-o-up");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info bk-margin-5 search");
+		button = Button.getButtonWithIcon("edit", css, "分配用户", i);
+		column.addChildNode(button);
+		/** 创建按钮组行  结束*/
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行  开始*/
+		// 创建Grid
+		Base rowGrid = util.createGrid(root,"flowchart");
+		/** 创建Grid行  结束*/
+		// 添加查看流程图按钮
+		css = new CssClass("fa fa-eye");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-warning");
+		Button tempelate = Button.getButtonWithIcon(null, css, null, i);
+		Prop prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("editFlowChart");
+		tempelate.addProp(prop); 
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("flowchart.editFlowChart.call(this)");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("查看流程图");
+		tempelate.addProp(prop);
+		Script script = Script.getInstance("editTemplate");
+		script.addChildNode(tempelate);
+		String tempalteNode = script.getNode();
+		// 添加任务配置template
+		css = new CssClass("fa fa-legal");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("taskConfig");
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("flowchart.taskConfig.call(this)");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("配置");
+		tempelate.addProp(prop);
+		script = Script.getInstance("taskConfig");
+		script.addChildNode(tempelate);
+		tempalteNode += script.getNode();
+		// 添加流程发布template
+		css = new CssClass("fa fa-send-o");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-success");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("publish");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("flowchart.publish.call(this)");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("发布");
+		tempelate.addProp(prop);
+		script = Script.getInstance("publish");
+		script.addChildNode(tempelate);
+		tempalteNode += script.getNode();
+		return root.getNode() + tempalteNode;
+	}
+
+	/**
+	 * 初始化分配用户页面
+	 * @retrun 节点字符串
+	 */
+	public String getEditNode(String flowId) throws Exception {
+		try {
+			FrontUtil util = FrontUtil.getInstance();
+			Base root = util.createRoot();
+			util.createHeaderBar(root, "流程编辑");
+			// 创建行
+			Base rowBg = util.createRow(root);
+			// 创建列
+			Base column = util.createColumn(rowBg, "12","12");
+			// 创建图片
+			Img img = Img.getInstance(null, null, null);
+			Prop prop = new Prop();
+			prop.setPropKey("src");
+			String src = System.getProperty("ht.root");
+			src = "../ht/workflow/png/"+flowId.split(":")[0]+".png";
+			prop.setPropValue(src);
+			img.addProp(prop);
+			column.addChildNode(img);
+			CssClass cssbtn = new CssClass("btn btn-default img-top");
+			CssClass divCss = new CssClass("col-lg-12 col-md-12 col-sm-12 col-xs-12");
+			Div div2 = Div.getInstance("content", divCss, null);
+			Button btn = Button.getInstance("back", cssbtn, "返回");
+			div2.addChildNode(btn);
+			root.addChildNode(div2);
+			return root.getNode();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
+	
+	/**
+	 * 初始化分配用户页面
+	 * @retrun 节点字符串
+	 */
+	public String getActPngNode(String flowId,String excutionId) throws Exception {
+		try {
+			FrontUtil util = FrontUtil.getInstance();
+			Base root = util.createRoot();
+			util.createHeaderBar(root, "任务进度");
+			// 创建行
+			Base rowBg = util.createRow(root);
+			// 创建列
+			Base column = util.createColumn(rowBg, "12","12");
+			// 创建图片
+			Img img = Img.getInstance(null, null, null);
+			Prop prop = new Prop();
+			prop.setPropKey("src");
+			String src = System.getProperty("ht.root");
+			src = "../ht/workflow/png/"+flowId.split(":")[0]+excutionId+".png";
+			prop.setPropValue(src);
+			img.addProp(prop);
+			column.addChildNode(img);
+			util.createCancelButton(root);
+			return root.getNode();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
+	
+	/**
+	 * 初始化分配用户页面
+	 * @retrun 节点字符串
+	 */
+	public String getImageEditPage(String path) throws Exception {
+		try {
+			FrontUtil util = FrontUtil.getInstance();
+			Base root = util.createRoot();
+			util.createHeaderBar(root, "流程图");
+			// 创建行
+			Base row = util.createRow(root);
+			// 创建列
+			Base column = util.createColumn(row, "12","12");
+			Base div = Div.getBlankDiv("main");
+			column.addChildNode(div);
+			// 创建行
+			row = util.createRow(root);
+			// 创建列
+			column = util.createColumn(row, "3","2","2",null);
+			util.createSubmitButton(column);
+			column = util.createColumn(row, "3","2","2","1");
+			util.createCancelButton(column);
+			InputHidden hidden  = InputHidden.getInstance("xml", path);
+			root.addChildNode(hidden);
+			return root.getNode();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
+}

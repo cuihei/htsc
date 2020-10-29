@@ -1,0 +1,1863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<tables>
+		<table name="COMPILATION_TASK_BOOK" process="TASK_BOOK" decription="编绘任务书" index="0">
+			<columns>
+				<column prop="taskbookName" width="200px">任务书名称</column>
+				<column prop="filename" width="200px">附件名称</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_SOURCE_DATA_ALL" decription="源数据" index="0">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺2 1:</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_SOURCE_DATA_PLAN" decription="源数据编绘计划" index="0">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_SOURCE_DATA" charttype="SOURCE_DATA" decription="源数据编绘" index="1">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_PAPER_ALL" decription="纸海图" index="0">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_PAPER_PLAN" decription="纸海图编绘计划" index="2">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_PAPER" charttype="SEA_MAP_PAPER" decription="纸海图编绘" index="3">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_ELECTRONIC_ALL" decription="电子海图" index="0">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_ELECTRONIC_PLAN" decription="电子海图编绘计划" index="4">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SEA_MAP_COMPILATION_ELECTRONIC" charttype="SEA_MAP_ELECTRONIC" decription="电子海图编绘" index="5">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION" charttype="SOURCE_DATA" decription="源数据小改正编绘" index="0">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">任务名</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="CORRECTION_NOTICE_TEMPLATE" charttype="CORRECTION_NOTICE" decription="改正通告编辑" index="1"> 
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">任务名</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="CORRECTION_NOTICE_TEMPLATE_EDIT" charttype="CORRECTION_NOTICE" decription="改正通告模版编辑" index="2">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">任务名</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SMALL_CORRECTION_PAPER" charttype="SEA_MAP_PAPER" decription="纸海图小改正" index="0">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">任务名</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="SMALL_CORRECTION_ELECTRONIC" charttype="SEA_MAP_ELECTRONIC" decription="电子海图小改正" index="1">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="200px">任务名</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="PROJECT_SPECIAL_PAPER" charttype="SEA_MAP_PAPER" decription="工程/专题纸海图" index="0">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="100px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="revision" width="50px">版次</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="PROJECT_SPECIAL_ELECTRONIC" charttype="SEA_MAP_ELECTRONIC" decription="工程/专题电子海图" index="1">
+			<columns>
+				<column prop="taskbookNo" width="200px">任务书编号</column>
+				<column prop="mapName" width="100px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="revision" width="50px">版次</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+				<column prop="expectedTime" width="150px">预期时间</column>
+			</columns>
+		</table>
+		<table name="CATALOG_DETAIL" process="CATALOG_MANAGEMENT" decription="目录审核" index="0">
+			<columns>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+				<!-- <column prop="type.value" width="100px">目录类型</column> -->
+			</columns>
+		</table>
+		<table name="BORROWING" process="DATA_BORROWING" decription="资料借阅" index="0">
+			<columns>
+				<column prop="bookName" width="200px">图书名称</column>
+				<column prop="code" width="100px">图书编号</column>
+				<column prop="concurrentTime" width="100px">出版年月</column>
+				<column prop="borrowNo" width="100px">借阅数量</column>
+				<column prop="borrowPerson" width="100px">借阅人</column>
+				<column prop="type" width="100px">资料类型</column>
+				<column prop="secretInvolved" width="100px">是否涉密</column>
+			</columns>
+		</table>
+		<table name="RETURN_BOOK" process="DATA_RETURN" decription="资料归还" index="0">
+			<columns>
+				<column prop="bookName" width="200px">图书名称</column>
+				<column prop="code" width="100px">图书编号</column>
+				<column prop="concurrentTime" width="100px">出版年月</column>
+				<column prop="returnNo" width="100px">归还数量</column>
+				<column prop="returnPerson" width="100px">归还人</column>
+				<column prop="type" width="100px">资料类型</column>
+			</columns>
+		</table>
+		<table name="BOOK_INFO" process="DATA_INPUT" decription="资料录入" index="0">
+			<columns>
+				<column prop="bookName" width="200px">图书名称</column>
+				<column prop="code" width="100px">图书编号</column>
+				<column prop="type" width="100px">资料类型</column>
+			</columns>
+		</table>
+		<table name="COMPILATION_CHILD_TASK" process="OTHER_NAVIGATIONAL" decription="其他航海图书" index="0">
+			<columns>
+				<column prop="mapName" width="200px">图名</column>
+				<column prop="mapNo" width="100px">图号</column>
+				<column prop="scale" width="100px">比例尺 1:</column>
+			</columns>
+		</table>
+		<table name="FORM_DEFECTIVE" decription="缺陷">
+			<columns>
+<!-- 				<column prop="layer" width="13%">图层</column> -->
+<!-- 				<column prop="charttype" width="13%">海图类型</column> -->
+				<column prop="opinion" width="13%">存在问题及处理意见</column>
+				<column prop="defecttype" width="13%">缺陷类别</column>
+				<column prop="defectitem" width="13%">缺陷项目</column>
+				<column prop="discription" width="13%">描述</column>
+				<column prop="number" width="13%">缺陷个数</column>
+				<column prop="deep" width="13%">缺陷级别</column>
+				<column prop="score" width="13%">扣分</column>
+				<column prop="total" width="13%">累计扣分</column>
+				<column prop="coefficient" width="13%">难度系数</column>
+				<column prop="actualTotal" width="13%">实际总扣分</column>
+				<column prop="grading" width="13%">质量评分</column>
+				<column prop="remarks" width="12%">备注</column>
+			</columns>
+		</table>
+		<table name="SOURCE_DEFECTIVE" decription="缺陷">
+			<columns>
+				<column prop="layerName" width="13%">涉及图层</column>
+<!-- 				<column prop="charttype" width="13%">海图类型</column> -->
+				<column prop="opinion" width="13%">存在问题及处理意见</column>
+				<column prop="defecttype" width="13%">类别</column>
+				<column prop="defectitem" width="13%">检查项目</column>
+				<column prop="discription" width="13%">缺陷内容</column>
+				<column prop="number" width="13%">缺陷个数</column>
+				<column prop="deep" width="13%">缺陷类别</column>
+				<column prop="score" width="13%">扣分</column>
+				<column prop="total" width="13%">累计扣分</column>
+				<column prop="coefficient" width="13%">难度系数</column>
+				<column prop="actualTotal" width="13%">实际总扣分</column>
+				<column prop="grading" width="13%">质量评分</column>
+				<column prop="remarks" width="12%">备注</column>
+			</columns>
+		</table>
+		<table name="CORRECTION_NOTICE_DEFECTIVE" decription="缺陷">
+			<columns>
+				<column prop="opinion" width="13%">存在问题及处理意见</column>
+				<column prop="discription" width="13%">缺陷描述</column>
+				<column prop="number" width="13%">缺陷个数</column>
+				<column prop="deep" width="13%">缺陷级别</column>
+				<column prop="score" width="13%">扣分</column>
+				<column prop="total" width="13%">累计扣分</column>
+				<column prop="coefficient" width="13%">难度系数</column>
+				<column prop="actualTotal" width="13%">实际总扣分</column>
+				<column prop="grading" width="13%">质量评分</column>
+				<column prop="remarks" width="12%">备注</column>
+			</columns>
+		</table>
+		<table name="PAPER_NOTICE_DEFECTIVE" decription="缺陷">
+			<columns>
+				<column prop="opinion" width="13%">存在问题及处理意见</column>
+				<column prop="defecttype" width="13%">检查内容</column>
+				<column prop="defectitem" width="13%">扣分项目</column>
+				<column prop="number" width="13%">缺陷个数</column>
+				<column prop="score" width="13%">扣分</column>
+				<column prop="total"  width="13%" >累计扣分</column>
+				<column prop="coefficient" width="13%">难度系数</column>
+				<column prop="actualTotal" width="13%">实际总扣分</column>
+				<column prop="grading" width="13%">质量评分</column>
+				<column prop="remarks" width="12%">备注</column>
+			</columns>
+		</table>
+		<table name="ELECTRONIC_NOTICE_DEFECTIVE" decription="缺陷">
+			<columns>
+				<column prop="opinion" width="13%">存在问题及处理意见</column>
+					<column prop="defecttype" width="13%">类别</column>
+				<column prop="defectitem" width="13%">检查项目</column>
+				<column prop="discription" width="13%">缺陷内容</column>
+				<column prop="number" width="13%">缺陷个数</column>
+				<column prop="deep" width="13%">缺陷类别</column>
+				<column prop="score" width="13%">扣分</column>
+				<column prop="total"  width="13%" >累计扣分</column>
+				<column prop="coefficient" width="13%">难度系数</column>
+				<column prop="actualTotal" width="13%">实际总扣分</column>
+				<column prop="grading" width="13%">质量评分</column>
+				<column prop="remarks" width="12%">备注</column>
+			</columns>
+		</table>
+	</tables>
+	<processes>
+		<process key="TASK_BOOK">
+			<tasks>
+				<task id = "start" targets="u_task_rwsshenhe">
+				</task>
+				<task id="u_task_rwsshenhe">
+					<args>
+						<arg key="group_bhkz" value="11031647502120000"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_SOURCE_DATA_ALL">
+			<tasks>
+				<task id = "start" targets="u_task_distribution_group">
+					
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="c_task_ysjbhjh,c_task_ysjbhzy">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="c_task_ysjbhjh">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="c_task_ysjbhzy">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_SOURCE_DATA">
+			<tasks>
+				<task id="u_task_work" targets="u_task_distribution_zhijian" valid="true" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian_bhwtcljl">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_bhwtcljl" targets="u_task_zhijian_zjjilub">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zjjilub" targets="u_task_bianhui_tgclqk,u_task_bianhui_thclqk" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bianhui_tgclqk" targets = "u_task_zjjielunb" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bianhui_thclqk" targets="u_task_zhijian_xgzjjilub" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_xgzjjilub" targets="u_task_bhy_queren,u_task_bianhui_thclqk" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhy_queren" targets="u_task_zjjielunb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjjielunb" targets="u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_distribution_shending,u_task_zhijian_xgzjjilub">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending_sdjilub">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjilub" targets="u_task_tgzjclqk,u_task_thzjclqk" notice="true">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_tgzjclqk" targets="u_task_ztkz_queren" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_queren" targets="u_task_shending_sdjielunb">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjielunb" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_zonggong_shenhe,u_task_shending_sdjilub">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zonggong_shenhe" targets="u_task_zlkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_chuli" targets="u_task_zonggong_shenhe">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_thzjclqk" targets="u_task_bhgaitu" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhgaitu" targets="u_task_gaituzj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_gaituzj" targets="u_task_xgsdjilub,u_task_bhgaitu">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xgsdjilub" targets="u_task_zjy_queren,u_task_thzjclqk" notice="true">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_ztkz_queren">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_SOURCE_DATA_PLAN">
+			<tasks>
+				<task id="u_task_plan_work" targets="u_task_plan_zldjb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zldjb" targets="u_task_plan_tfsyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_tfsyt" targets="u_task_plan_zlcysyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zlcysyt" targets="u_task_plan_distribution_zhijian,u_task_plan_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_distribution_zhijian" targets="u_task_plan_zhijian">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zhijian" targets="u_task_plan_work,u_task_plan_zhijian_shenhe,u_task_plan_shending">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+						<arg key="zj_time" value="2"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zhijian_shenhe" targets="u_task_plan_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_plan_distribution_shending" targets = "u_task_plan_shending">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_shending">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+						<arg key="sd_time" value="2"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_PAPER_ALL">
+			<tasks>
+				<task id = "start" targets="u_task_distribution_group">
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="c_task_zhtbhjh,c_task_zhtbhzy">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="c_task_zhtbhjh">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="c_task_zhtbhzy">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_PAPER">
+			<tasks>
+				<task id="u_task_btcxbxbcsb" targets="u_task_pzsyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_pzsyt" targets="u_task_fwqwzjcpcxx">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_fwqwzjcpcxx" targets="u_task_ztqysyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztqysyt" targets="u_task_wtcljlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_wtcljlb" targets="u_task_distribution_zhijian" valid="true" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian_clyj">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_clyj" targets="u_task_zhijian_zjjilub">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zjjilub" targets="u_task_bianhui_tgclqk,u_task_xgbtcxbxbcsb" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bianhui_tgclqk" targets = "u_task_zhijian_zjjielunb" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xgbtcxbxbcsb" targets="u_task_xgpzsyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xgpzsyt" targets="u_task_xgfwqwzjcpcxx">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xgfwqwzjcpcxx" targets="u_task_xgztqysyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xgztqysyt" targets="u_task_thbhclqk">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_thbhclqk" targets="u_task_zhijian_xgzjjilub" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_xgzjjilub" targets="u_task_bianhui_queren,u_task_xgbtcxbxbcsb" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bianhui_queren" targets="u_task_zhijian_zjjielunb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zjjielunb" targets="u_task_zhijian_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_shenhe" targets="u_task_distribution_shending,u_task_zhijian_xgzjjilub">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending_sdjilub">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjilub" targets="u_task_zhijian_tgclqk,u_task_zhijian_thclqk" notice="true">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_tgclqk" targets="u_task_ztkz_queren" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_queren" targets="u_task_shending_sdjielunb">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjielunb" targets="u_task_shending_shenhe">
+					<args>
+						<arg key="user_sd" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_shenhe" targets="u_task_zonggong_shenhe,u_task_shending_sdjilub">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zonggong_shenhe" targets="u_task_zlkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_chuli" targets="u_task_zonggong_shenhe">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_thclqk" targets="u_task_sdxgbtcxbxbcsb" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdxgbtcxbxbcsb" targets="u_task_sdxgfwqwz">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdxgfwqwz" targets="u_task_sdxgpzsyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdxgpzsyt" targets="u_task_sdxgztqysyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdxgztqysyt" targets="u_task_gaitu_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zhijian" targets="u_task_sdy_xgsdjilub,u_task_sdxgbtcxbxbcsb">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdy_xgsdjilub" targets="u_task_zhijian_queren,u_task_zhijian_thclqk" notice="true">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_queren" targets="u_task_ztkz_queren">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_PAPER_PLAN">
+			<tasks>
+				<task id="u_task_plan_work" targets="u_task_plan_zlcydj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zlcydj" targets="u_task_plan_ztjbxxb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_ztjbxxb" targets="u_task_plan_distribution_zhijian,u_task_plan_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_distribution_zhijian" targets="u_task_plan_zhijian">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zhijian" targets="u_task_plan_work,u_task_plan_zhijian_shenhe,u_task_plan_shending">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+						<arg key="zj_time" value="2"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zhijian_shenhe" targets="u_task_plan_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_plan_distribution_shending" targets = "u_task_plan_shending">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_shending">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+						<arg key="sd_time" value="2"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_ELECTRONIC_ALL">
+			<tasks>
+				<task id = "start" targets="u_task_distribution_group">
+					
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="c_task_dzhtbhjh,c_task_dzhtbhzy">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="c_task_dzhtbhjh">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="c_task_dzhtbhzy">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_ELECTRONIC">
+			<tasks>
+				<task id="u_task_zxblc" targets="u_task_zxblc_zjshenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zxblc_zjshenhe" targets="u_task_zxblc_sdshenhe,u_task_zxblc">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+					</args>
+				</task>
+				<task id="u_task_zxblc_sdshenhe" targets="u_task_work,u_task_zxblc_zjshenhe">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+					</args>
+				</task>
+				<task id="u_task_work" targets="u_task_distribution_zhijian" valid="true" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian_bhwtcljl">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_bhwtcljl" targets="u_task_zhijian_zjjilub">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zjjilub" targets="u_task_bianhui_tgclqk,u_task_bianhui_thclqk" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bianhui_tgclqk" targets = "u_task_zhijian_zjjielunb" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bianhui_thclqk" targets="u_task_zhijian_xgzjjilub" notice="true">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_xgzjjilub" targets="u_task_bhy_queren,u_task_bianhui_thclqk" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhy_queren" targets="u_task_zhijian_zjjielunb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zjjielunb" targets="u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_distribution_shending,u_task_zhijian_xgzjjilub">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending_sdjilub">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjilub" targets="u_task_zj_tgclqk,u_task_zj_thclqk" notice="true">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zj_tgclqk" targets="u_task_ztkz_queren" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_queren" targets="u_task_shending_sdjielunb">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjielunb" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_zonggong_shenhe,u_task_shending_sdjilub">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zonggong_shenhe" targets="u_task_zlkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_chuli" targets="u_task_zonggong_shenhe">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zj_thclqk" targets="u_task_gaitu" notice="true">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_shending_xgsdjilub,u_task_gaitu">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_xgsdjilub" targets="u_task_zjy_queren,u_task_zj_thclqk" notice="true">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_ztkz_queren">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SEA_MAP_COMPILATION_ELECTRONIC_PLAN">
+			<tasks>
+				<task id="u_task_plan_work" targets="u_task_plan_sxjc">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_sxjc" targets="u_task_plan_dyfgfw">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_dyfgfw" targets="u_task_plan_dyqysyt">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_dyqysyt" targets="u_task_plan_distribution_zhijian,u_task_plan_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_distribution_zhijian" targets="u_task_plan_zhijian">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zhijian" targets="u_task_plan_work,u_task_plan_zhijian_shenhe,u_task_plan_shending">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+						<arg key="zj_time" value="2"/>
+					</args>
+				</task>
+				<task id="u_task_plan_zhijian_shenhe" targets="u_task_plan_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_plan_distribution_shending" targets = "u_task_plan_shending">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_plan_shending">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+						<arg key="sd_time" value="2"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION">
+			<tasks>
+				<task id="start" targets="u_task_fenpei_bjy">
+				</task>
+				<task id="u_task_fenpei_bjy" targets="u_task_gcmc">
+					<args>
+						<arg key="group_tgbjzz" value="11231237562610256"/>
+						<arg key="group_allot" value="11231238145320271" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_gcmc" targets="u_task_zldjb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zldjb" targets="u_task_nrjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_nrjlb" targets="u_task_wtcljlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_wtcljlb" targets="u_task_clyj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_clyj" targets="u_task_zjjilub">
+					<args>
+						<arg key="user_zjy" value="1103184345470066"/>
+					</args>
+				</task>
+				<task id="u_task_zjjilub" targets="u_task_bjy_queren,u_task_xgzldjb">
+					<args>
+						<arg key="user_zjy" value=""/>
+					</args>
+				</task>
+				<task id="u_task_xgzldjb" targets="u_task_xgnrjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xgnrjlb" targets="u_task_zjjilub">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bjy_queren" targets = "u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_fenpei_shending,u_task_zjjilub">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_fenpei_shending" targets="u_task_sdjilub">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdjilub" targets="u_task_zjy_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value=""/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_zgcs_shenhe,u_task_sdjilub">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zgcs_shenhe" targets="u_task_zlkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_chuli" targets="u_task_zgcs_shenhe">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_sdxgzldjb,u_task_sdjilub">
+					<args>
+						<arg key="user_zjy" value=""/>
+					</args>
+				</task>
+				<task id="u_task_sdxgzldjb" targets="u_task_sdxgnrjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdxgnrjlb" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="CORRECTION_NOTICE_TEMPLATE_EDIT">
+			<tasks>
+				<task id="start" targets="u_task_fenpei_bjy">
+				</task>
+				<task id="u_task_fenpei_bjy" targets="u_task_bqxh">
+					<args>
+						<arg key="group_tgbjzz" value="11231237562610256"/>
+						<arg key="group_allot" value="11231238145320271" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_bqxh" targets="u_task_qkjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_qkjlb" targets="u_task_zljcjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zljcjlb" targets="u_task_bjy_queren,u_task_gaitu">
+					<args>
+						<arg key="user_zjy" value="1103184345470066"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu" targets="u_task_zljcjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bjy_queren" targets = "u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_fenpei_shending,u_task_zljcjlb">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_fenpei_shending" targets="u_task_zxzljcjlb">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zxzljcjlb" targets="u_task_zjy_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value=""/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_zgcszlysjl,u_task_zxzljcjlb">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zgcszlysjl" targets="u_task_zlkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_chuli" targets="u_task_zgcszlysjl">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_sdgaitu,u_task_zxzljcjlb">
+					<args>
+						<arg key="user_zjy" value=""/>
+					</args>
+				</task>
+				<task id="u_task_sdgaitu" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="CORRECTION_NOTICE_TEMPLATE">
+			<tasks>
+				<task id="start" targets="u_task_fenpei_bjy">
+				</task>
+				<task id="u_task_fenpei_bjy" targets="u_task_bqxh">
+					<args>
+						<arg key="group_tgbjzz" value="11231237562610256"/>
+						<arg key="group_allot" value="11231238145320271" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_bqxh" targets="u_task_bjzldjb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bjzldjb" targets="u_task_zxgzxhjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zxgzxhjlb" targets="u_task_bjqkjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bjqkjlb" targets="u_task_bmzljcjl">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bmzljcjl" targets="u_task_bjy_queren,u_task_xgzldjb">
+					<args>
+						<arg key="user_zjy" value="1103184345470066"/>
+					</args>
+				</task>
+				<task id="u_task_xgzldjb" targets="u_task_xggzxhjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xggzxhjlb" targets="u_task_bmzljcjl">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bjy_queren" targets = "u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_fenpei_shending,u_task_bmzljcjl">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_fenpei_shending" targets="u_task_zxzljcjl">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zxzljcjl" targets="u_task_zj_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zj_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value=""/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_zgcs_zlysjl,u_task_zxzljcjl">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zgcs_zlysjl" targets="u_task_zjkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zjkz_chuli" targets="u_task_zgcs_zlysjl">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_zxzljcjl,u_task_sdxgzldjb">
+					<args>
+						<arg key="user_zjy" value=""/>
+					</args>
+				</task>
+				<task id="u_task_sdxgzldjb" targets="u_task_sdxggzxhjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdxggzxhjlb" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SMALL_CORRECTION_PAPER">
+			<tasks>
+				<task id="start" targets="u_task_distribution_group">
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_bhkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="u_task_gztgqh">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_gztgqh" targets="u_task_bhjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhjlb" targets="u_task_distribution_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zljcjlb" targets = "u_task_bhy_queren,u_task_zjgaitu">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjgaitu" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhy_queren" targets="u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_zhijian_zljcjlb,u_task_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending_sdjlb">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjlb" targets="u_task_zjy_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_zonggong_shenhe,u_task_shending_sdjlb">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zonggong_shenhe" targets="u_task_zlkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_chuli" targets="u_task_zonggong_shenhe">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_sdgaitu,u_task_shending_sdjlb">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdgaitu" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="SMALL_CORRECTION_ELECTRONIC">
+			<tasks>
+				<task id="start" targets="u_task_distribution_group">
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_bhkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="u_task_gzqh">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_gzqh" targets="u_task_sjtf">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sjtf" targets="u_task_distribution_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhjlb" targets="u_task_distribution_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zljcjlb" targets = "u_task_bhy_queren,u_task_zjgaitu">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjgaitu" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhy_queren" targets="u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_zhijian_zljcjlb,u_task_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending_sdjlb">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjlb" targets="u_task_zjy_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_shending_sdjlb">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_sdgaitu,u_task_shending_sdjlb">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdgaitu" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="PROJECT_SPECIAL_PAPER">
+			<tasks>
+				<task id="start" targets="u_task_distribution_group">
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_bhkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="u_task_xmmc">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xmmc" targets="u_task_bhjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhjlb" targets="u_task_distribution_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zljcjlb" targets = "u_task_bhy_queren,u_task_zjgaitu">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjgaitu" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhy_queren" targets="u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_zhijian_zljcjlb,u_task_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending_sdjlb">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjlb" targets="u_task_zjy_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_shending_sdjlb">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_sdgaitu,u_task_shending_sdjlb">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdgaitu" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="PROJECT_SPECIAL_ELECTRONIC">
+			<tasks>
+				<task id="start" targets="u_task_distribution_group">
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_bhkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="u_task_xmmc">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_xmmc" targets="u_task_bhjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhjlb" targets="u_task_distribution_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian_zljcjlb" targets = "u_task_bhy_queren,u_task_zjgaitu">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjgaitu" targets="u_task_zhijian_zljcjlb">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhy_queren" targets="u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_zhijian_zljcjlb,u_task_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending_sdjlb">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending_sdjlb" targets="u_task_zjy_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_shending_sdjlb">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_sdgaitu,u_task_shending_sdjlb">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdgaitu" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="OTHER_NAVIGATIONAL">
+			<tasks>
+				<task id="start" targets="u_task_distribution_group">
+				</task>
+				<task id="u_task_distribution_group" targets="u_task_distribution_worker">
+					<args>
+						<arg key="group_bhkz" value="11051508427890000"/>
+						<arg key="group_allot" value="11211642408650154" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_worker" targets="u_task_bh">
+					<args>
+						<arg key="user_bhzz" value="" allot="true" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bh" targets="u_task_distribution_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_zhijian" targets="u_task_zhijian">
+					<args>
+						<arg key="group_zjzz" value="11051508498970001"/>
+						<arg key="group_allot" value="11051509218230003" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_zhijian" targets = "u_task_bhy_queren,u_task_zjgaitu">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjgaitu" targets="u_task_zhijian">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_bhy_queren" targets="u_task_ztkz_shenhe">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_ztkz_shenhe" targets="u_task_zhijian,u_task_distribution_shending">
+					<args>
+						<arg key="group_ztkz" value="11051508427890000"/>
+					</args>
+				</task>
+				<task id="u_task_distribution_shending" targets="u_task_shending">
+					<args>
+						<arg key="group_sdzz" value="11051509089910002"/>
+						<arg key="group_allot" value="11051509305680004" allot="true"/>
+					</args>
+				</task>
+				<task id="u_task_shending" targets="u_task_zjy_queren,u_task_gaitu_zj">
+					<args>
+						<arg key="user_sdy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zjy_queren" targets="u_task_zlkz_shenhe">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_shenhe" targets="u_task_zgcs_shenhe,u_task_shending">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_zgcs_shenhe" targets="u_task_zlkz_chuli">
+					<args>
+						<arg key="group_zgcs" value="11051509451130005"/>
+					</args>
+				</task>
+				<task id="u_task_zlkz_chuli" targets="u_task_zgcs_shenhe">
+					<args>
+						<arg key="group_zlkz" value="11222115036170020"/>
+					</args>
+				</task>
+				<task id="u_task_gaitu_zj" targets="u_task_sdgaitu,u_task_shending">
+					<args>
+						<arg key="user_zjy" value="" alloted="true"/>
+					</args>
+				</task>
+				<task id="u_task_sdgaitu" targets="u_task_gaitu_zj">
+					<args>
+						<arg key="user_bhy" value="" alloted="true"/>
+					</args>
+				</task>
+			</tasks>
+		</process>
+		<process key="PROBLEM_SUBMIT">
+			<tasks>
+				<task id="start" targets="u_task_bhy">
+				</task>
+				<task id="u_task_bhy" targets="u_task_bhgly">
+					<args>
+					</args>
+				</task>
+				<task id="u_task_bhgly" targets="u_task_bh">
+					<args>
+						<arg key="group_bhgly" value="11041451112980003"/>
+					</args>
+				</task>
+				<task id="u_task_sdy">
+					<args>
+					</args>
+				</task>
+			</tasks>
+		</process>
+	</processes>	
+	<opration>
+	
+		<!-- 源数据流程时间 -->
+		<process key="SEA_MAP_COMPILATION_SOURCE_DATA">
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_work" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_zjjielunb" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_shending_sdjielunb" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zonggong_shenhe" perform="false"/>
+		</process>
+		<process key="SEA_MAP_COMPILATION_SOURCE_DATA_ALL">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+		</process>
+		<!-- 源数据计划流程时间 -->
+		<process key="SEA_MAP_COMPILATION_SOURCE_DATA_PLAN">
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_plan_zlcysyt" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_plan_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_plan_zhijian_shenhe" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_plan_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_plan_shending" perform="true"/>
+		</process>
+		<process key="SEA_MAP_COMPILATION_SOURCE_DATA_PLAN_ALL">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+		</process>
+		<!-- 纸海图流程时间 -->
+		<process key="SEA_MAP_COMPILATION_PAPER">
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_wtcljlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_zhijian_zjjielunb" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_shending_sdjielunb" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zonggong_shenhe" perform="false"/>
+		</process>
+		<process key="SEA_MAP_COMPILATION_PAPER_ALL">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+		</process>
+		<!-- 纸海图计划流程时间 -->
+		<process key="SEA_MAP_COMPILATION_PAPER_PLAN">
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_plan_ztjbxxb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_plan_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_plan_zhijian_shenhe" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_plan_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_plan_shending" perform="true"/>
+		</process>
+		<process key="SEA_MAP_COMPILATION_PAPER_PLAN_ALL">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+		</process>
+		<!-- 电子海图流程时间 -->
+		<process key="SEA_MAP_COMPILATION_ELECTRONIC_ALL">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+		</process>
+		<process key="SEA_MAP_COMPILATION_ELECTRONIC">
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_work" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_zhijian_zjjielunb" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_shending_sdjielunb" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zonggong_shenhe" perform="false"/>
+		</process>
+		<!-- 电子海图计划流程时间 -->
+		<process key="SEA_MAP_COMPILATION_ELECTRONIC_PLAN_ALL">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+		</process>
+		<process key="SEA_MAP_COMPILATION_ELECTRONIC_PLAN">
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_plan_dyqysyt" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_plan_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_plan_zhijian_shenhe" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_plan_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_plan_shending" perform="true"/>
+		</process>
+		<!-- 源数据小改正流程时间 -->
+		<process key="CORRECTION_NOTICE_SOURCE_DATA_SMALL_CORRECTION">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_fenpei_bjy" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_wtcljlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_wtcljlb" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bjy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_fenpei_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zjy_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_fenpei_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zgcs_shenhe" perform="false"/>
+		</process>
+		<!-- 改正通告编辑流程时间 -->
+		<process key="CORRECTION_NOTICE_TEMPLATE">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_fenpei_bjy" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_bjqkjlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_bjqkjlb" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bjy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_fenpei_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zj_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_fenpei_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zgcs_zlysjl" perform="false"/>
+		</process>
+		<!-- 改正通告模板编辑流程时间 -->
+		<process key="CORRECTION_NOTICE_TEMPLATE_EDIT">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_fenpei_bjy" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_qkjlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_qkjlb" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bjy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_fenpei_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zjy_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_fenpei_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zgcszlysjl" perform="false"/>
+		</process>
+		<!-- 纸海图小改正流程时间 -->
+		<process key="SMALL_CORRECTION_PAPER">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_bhjlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bhy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zjy_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zonggong_shenhe" perform="false"/>
+		</process>
+		<!-- 电子海图小改正流程时间 -->
+		<process key="SMALL_CORRECTION_ELECTRONIC">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_bhjlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bhy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zjy_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zlkz_shenhe" perform="true"/>
+		</process>
+		<!-- 工程&专题纸海图流程时间 -->
+		<process key="PROJECT_SPECIAL_PAPER">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_bhjlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bhy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zjy_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zlkz_shenhe" perform="true"/>
+		</process>
+		<!-- 工程&专题电子海图流程时间 -->
+		<process key="PROJECT_SPECIAL_ELECTRONIC">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_bhjlb" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bhy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zjy_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zlkz_shenhe" perform="true"/>
+		</process>
+		<!-- 其他航海图书流程时间 -->
+		<process key="OTHER_NAVIGATIONAL">
+			<type key="complicationStartTime" name="编绘开始时间" taskDefId="u_task_distribution_worker" perform="true"/>
+			<type key="complicationEndTime" name="编绘结束时间" taskDefId="u_task_bh" perform="true"/>
+			<type key="qualityStartTime" name="质检开始时间" taskDefId="u_task_distribution_zhijian" perform="true"/>
+			<type key="qualityEndTime" name="质检结束时间" taskDefId="u_task_bhy_queren" perform="true"/>
+			<type key="apprvoeStartTime" name="审定开始时间" taskDefId="u_task_distribution_shending" perform="true"/>
+			<type key="apprvoeEndTime" name="审定结束时间" taskDefId="u_task_zjy_queren" perform="true"/>
+			<type key="ztTime" name="制图事业部科长审核时间" taskDefId="u_task_distribution_shending" perform="false"/>
+			<type key="zlTime" name="质量检验科科长审核时间" taskDefId="u_task_zgcs_shenhe" perform="false"/>
+		</process>
+	</opration>
+</configuration>

@@ -1,0 +1,113 @@
+package com.ht.action.base;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.struts2.interceptor.ServletRequestAware;
+import org.apache.struts2.interceptor.ServletResponseAware;
+
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.LoginUtil;
+import com.ht.persistence.model.background.authority.role.RoleUsers;
+import com.ht.persistence.model.background.organization.employee.User;
+import com.opensymphony.xwork2.ActionSupport;
+
+public class BaseAction extends ActionSupport implements ServletRequestAware,ServletResponseAware{
+	
+	/**
+	 * 生明request对象
+	 */
+	protected HttpServletRequest request;
+	
+	/**
+	 * 生明respose对象
+	 */
+	protected HttpServletResponse respose;
+
+	@Override
+	public void setServletRequest(HttpServletRequest request) { 
+		this.request = request;
+		LoginUtil util = LoginUtil.getInstance();
+		util.setLoginUser(util.getLoginNo(request));
+	}
+
+	@Override
+	public void setServletResponse(HttpServletResponse respose) {
+		this.respose = respose;
+		this.respose.setCharacterEncoding("UTF-8");
+	}
+	
+	/**
+	 * 获取参数
+	 * @param paramName
+	 * @return
+	 */
+	protected String getParam(String paramName){
+		return this.request.getParameter(paramName);
+	}
+	
+	/**
+	 * 写回客户端消息
+	 */
+	private void writeResult(Boolean isSuccess,Object resultValue){
+		try {
+			if (isSuccess) {
+				String result = ResposeResult.getSucessResult(resultValue);
+				this.respose.getWriter().write(result);
+			}
+			else{
+				String value = (String)resultValue; 
+				String result = ResposeResult.getFailResult(value);
+				this.respose.getWriter().write(result);
+			}
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+		}
+	}
+	
+	/**
+	 * 成功消息
+	 * @param resultValue 返回客户端的信息
+	 */
+	protected void writeSuccessResult(Object resultValue){
+		writeResult(true,resultValue);
+	}
+	/**
+	 * 成功消息
+	 */
+	protected void writeSuccessResult(){
+		writeResult(true,null);
+	}
+	
+	/**
+	 * 失败消息
+	 * @param errorMsg 返回客户端的异常信息
+	 */
+	protected void writeFailResult(String errorMsg){
+		if(errorMsg.contains("SQL state [72000]")){
+			errorMsg = "您输入的字符过长，请重新输入！";
+		}
+		writeResult(false,errorMsg);
+	}
+	/**
+	 * 根据指定的权限列表，判断该角色是否有制定权限
+	 * @param roleList
+	 * @param JurisList
+	 * @return
+	 */
+	public boolean getUserJurisdiction(List<RoleUsers> roleList,List<String> JurisList){
+		boolean flag=false;
+		if(roleList.size()>0){
+			for (RoleUsers role : roleList) {
+				if(JurisList.contains(role.getRoleId())){
+					flag=true;
+					break;
+				}
+			}
+		}
+		return flag;
+	}
+	
+}

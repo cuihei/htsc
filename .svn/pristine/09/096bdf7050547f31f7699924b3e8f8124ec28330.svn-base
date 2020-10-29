@@ -1,0 +1,1158 @@
+package com.ht.action.complication.form;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.action.base.BaseAction;
+import com.ht.common.util.BeanUtil;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.exception.DBException;
+import com.ht.front.pages.complication.form.FormValuePage;
+import com.ht.front.util.PropType;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.background.dicdata.defectform.DefectForm;
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.formprop.FormProp;
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.persistence.model.complication.formprop.ProcessPlan;
+import com.ht.persistence.model.datum.correctionnoticebook.CorrectionNoticeBook;
+import com.ht.persistence.model.datum.correctionnoticebook.CorrectionNoticeBookView;
+import com.ht.persistence.model.system.issue.YearIssue;
+import com.ht.persistence.model.system.workflow.process.ProcessForm;
+import com.ht.persistence.model.system.workflow.process.ProcessTaskRelation;
+import com.ht.persistence.model.system.workflow.task.RuTask;
+import com.ht.service.impl.system.workflow.task.ProcessTypeEnum;
+import com.ht.service.impl.system.workflow.util.BusinessUtil;
+import com.ht.service.inter.background.dicdata.basedata.BaseDataService;
+import com.ht.service.inter.background.dicdata.defectform.DefectFormService;
+import com.ht.service.inter.complication.form.FormContentService;
+import com.ht.service.inter.complication.form.FormService;
+import com.ht.service.inter.complication.formprop.FormPropService;
+import com.ht.service.inter.complication.formprop.FormValueService;
+import com.ht.service.inter.complication.formprop.ProcessPlanService;
+import com.ht.service.inter.datum.correctionnoticebook.CorrectionNoticeBookService;
+import com.ht.service.inter.system.issue.YearIssueService;
+import com.ht.service.inter.system.symbol.SymbolService;
+import com.ht.service.inter.system.workflow.process.ProcessFormService;
+import com.ht.service.inter.system.workflow.process.ProcessTaskRelationService;
+import com.ht.service.inter.system.workflow.task.TaskService;
+
+/**
+ * 表单明细表类控制器
+ * @author zqy
+ */
+@SuppressWarnings("serial")
+public class FormValueAction extends BaseAction
+{
+
+	// 注入表单值Service
+	@Resource
+	private FormValueService formValueService;
+	/**
+	 * 改正通告期号时间段
+	 */
+	@Resource
+	BaseDataService baseDataService;
+	/**
+	 * 源数据小改正 符号管理
+	 */
+	@Resource
+	private SymbolService symbolService;
+	// 注入表单属性Service
+	@Resource
+	private FormPropService formPropService;
+
+	// 注入表单内容Service
+	@Resource
+	private FormContentService formContentService;
+
+	@Resource
+	private ProcessFormService processFormService;
+	@Resource
+	private CorrectionNoticeBookService correctionNoticeBookService;
+
+	// 注入formService
+	@Resource
+	private FormService formService;
+	@Resource
+	private YearIssueService yearIssueService;
+	
+	@Resource
+	private ProcessPlanService processPlanService;
+
+	String[] formIdArry ={"01161032213290058","0116104143110089","01161050123140100"};
+	
+	// 上传的文件,struts2会把文件封装为File对象
+	private File[] files;
+	// 文件名,struts2会把文件名称设置到该变量
+	private String[] filesFileName;
+	// 文件类型,struts2会把文件类型设置到该变量
+	private String[] filesContentType;
+
+	public File[] getFiles()
+	{
+		return files;
+	}
+
+	public void setFiles(File[] files)
+	{
+		this.files = files;
+	}
+
+	public String[] getFilesFileName()
+	{
+		return filesFileName;
+	}
+
+	public void setFilesFileName(String[] filesFileName)
+	{
+		this.filesFileName = filesFileName;
+	}
+
+	public String[] getFilesContentType()
+	{
+		return filesContentType;
+	}
+
+	public void setFilesContentType(String[] filesContentType)
+	{
+		this.filesContentType = filesContentType;
+	}
+
+	// 必须的参数，参数名与表单名相同
+	private List<File> formImgUpload = new ArrayList<File>();
+	// 必须的参数，格式：表单名+FileName，表示上传的文件名
+	private List<String> formImgUploadFileName = new ArrayList<String>();
+	// 必须的参数，格式：表单名+ContentType，表示上传文件类型
+	private List<String> formImgUploadContentType = new ArrayList<String>();
+
+	public List<File> getFormImgUpload()
+	{
+		return formImgUpload;
+	}
+
+	public void setFormImgUpload(List<File> formImgUpload)
+	{
+		this.formImgUpload = formImgUpload;
+	}
+
+	public List<String> getFormImgUploadFileName()
+	{
+		return formImgUploadFileName;
+	}
+
+	public void setFormImgUploadFileName(List<String> formImgUploadFileName)
+	{
+		this.formImgUploadFileName = formImgUploadFileName;
+	}
+
+	public List<String> getFormImgUploadContentType()
+	{
+		return formImgUploadContentType;
+	}
+
+	public void setFormImgUploadContentType(List<String> formImgUploadContentType)
+	{
+		this.formImgUploadContentType = formImgUploadContentType;
+	}
+
+	/**
+	 * 初始化表单明细编辑页面，返回成功的编辑页面
+	 * @throws Exception
+	 */
+	public String editFormValue() throws Exception
+	{
+
+		// 获取页面返回的参数，资源ID
+		String formId = getParam("formId");
+		// 创建应用资源界面初始化类ApplicationView
+		FormValuePage formValuePage = new FormValuePage();
+		// 获取基础类对象的List集合
+		List<FormProp> formPropList = null;
+		String forPage = null;
+		try
+		{
+			formPropList = formPropService.getFormPropByFormId(formId);
+			// 根据FormId获取Form
+			Form form = formService.getForm(formId);
+			String formName = form.getName();
+			forPage = formValuePage.getInitForm(formPropList, formName, symbolService,baseDataService);
+
+			// 将生成的编辑页面添加到form表单内容表中
+			formContentService.addFormContent(forPage, formId);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw e;
+		}
+		// 将获取的节点字符串返回到前台页面
+		request.setAttribute("html", forPage);
+		return SUCCESS;
+	}
+
+	/**
+	 * 編輯FormValue数据
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	public void addFormValue() throws Exception
+	{
+		// 获取前台传入FormPorp对象
+		String props = getParam("props");
+		// 获取前台传入的任务ID
+		String taskInstId = getParam("taskInstId");
+		// 获取前台传入的流程ID
+		String processInstId = getParam("processInstId");
+		// 获取前台传入的表单ID
+		String formId = getParam("formId");
+		// 获取前台传入的图片是否选择集合
+		String map = getParam("map");
+		Map<String, String> m = (Map<String, String>) DataConverter.convertJson2Object(map, Map.class);
+
+		// 获取前台传入的图片是否选择集合
+		String mapfile = getParam("mapfile");
+		Map<String, String> mf = (Map<String, String>) DataConverter.convertJson2Object(mapfile, Map.class);
+		String rowFlag = getParam("rowFlag") == null ? "" : getParam("rowFlag");
+		if (rowFlag.equals("") || rowFlag == null)
+		{
+			rowFlag = GenerateSequenceUtil.generateSequenceNo();
+		}
+		try
+		{
+			@SuppressWarnings("unchecked")
+			List<Map<String, String>> formPropList = (List<Map<String, String>>) DataConverter.convertJson2List(props, Map.class);
+			String param = null;
+			FormValue formValue = new FormValue();
+			// 行标志 同一个row_flag 为同一行的属性
+			// 定义图片循环个数
+			int k = 0;
+			int j = 0;
+
+			int z = 0;
+			int x = 0;
+			for (int i = 0; i < formPropList.size(); i++)
+			{
+				String key = formPropList.get(i).get("propKey");
+				String type = formPropList.get(i).get("propType");
+				// 给FormValue对象设置属性值
+				formValue.setFormId(formId);
+				formValue.setPropKey(key);
+				formValue.setTaskInstId(taskInstId);
+				formValue.setProcessInstId(processInstId);
+				// 判断是否是文本，并通过属性name获属性的取值
+				if (PropType.TEXT.toString().equals(type.toUpperCase()))
+				{
+					param = getParam(key);
+					formValue.setPropValue(param);
+				}
+				// 判断是否是文本域，并通过属性name获属性的取值
+				if (PropType.TEXTAREA.toString().equals(type.toUpperCase()))
+				{
+					param = getParam(key);
+					formValue.setPropValue(param);
+				}
+				// 判断是否是下拉列表，并通过属性name获属性的取值
+				if (PropType.SELECT.toString().equals(type.toUpperCase()))
+				{
+					param = getParam(key);
+					formValue.setPropValue(param);
+				}
+				// 判断是否是可查询的下拉列表，并通过属性name获属性的取值
+				if (PropType.KENDOSELECT.toString().equals(type.toUpperCase()))
+				{
+					param = getParam(key);
+					formValue.setPropValue(param);
+				}
+				// 判断是否是可查询的下拉列表，并通过属性name获属性的取值
+				if (PropType.IMGSELECT.toString().equals(type.toUpperCase()))
+				{
+					param = getParam(key);
+					formValue.setPropValue(param);
+				}
+				// 判断是否是可查询的下拉列表，并通过属性name获属性的取值
+				if (PropType.MULTISELECT.toString().equals(type.toUpperCase()))
+				{
+					param = getParam(key);
+					formValue.setPropValue(param);
+				}
+				// 判断是否是文件
+				if (PropType.FILE.toString().equals(type.toUpperCase()))
+				{
+					if (mf.get(String.valueOf(z)).equals("true"))
+					{
+						String formFile = formValueService.uploadFile(files[x], filesFileName[x]);
+						formValue.setPropValue(formFile);
+						x++;
+					}
+					z++;
+				}
+				if (PropType.IMG.toString().equals(type.toUpperCase()))
+				{
+					if (m.get(String.valueOf(k)).equals("true"))
+					{
+						String imgFile = formValueService.uploadImg(formImgUpload.get(j), formImgUploadFileName.get(j));
+						formValue.setPropValue(imgFile);
+						j++;
+					}
+					k++;
+				}
+				// 将FormValue对象转化为JSON类型
+				if (getParam("rowFlag").equals(""))
+				{
+					formValue.setRowFlag(rowFlag);
+					String formValueJson = DataConverter.convertObject2Json(formValue);
+					formValueService.addFormValue(formValueJson);
+					formValue = new FormValue();
+				}
+				else
+				{
+					// 获取要修改的key值的id
+					FormValue fv = formValueService.getFormValueByRowFlag(key, rowFlag);
+					if(key.equals("WTFJ")||key.equals("FH")||key.equals("HH")){
+						if(fv.getPropValue() == null){
+							String id = fv.getId();
+							formValue.setId(id);
+							formValue.setRowFlag(rowFlag);
+							String formValueJson = DataConverter.convertObject2Json(formValue);
+							formValueService.modifyFormValue(formValueJson);
+							formValue = new FormValue();
+						}else{
+							if(formValue.getPropValue()!=null){
+								String curFileName = formValue.getPropValue().substring(formValue.getPropValue().lastIndexOf("\\")+1);
+								String purFileName = fv.getPropValue().substring(fv.getPropValue().lastIndexOf("\\")+1);
+								if(!curFileName.equals(purFileName)){
+									String id = fv.getId();
+									formValue.setId(id);
+									formValue.setRowFlag(rowFlag);
+									String formValueJson = DataConverter.convertObject2Json(formValue);
+									formValueService.modifyFormValue(formValueJson);
+									formValue = new FormValue();
+								}
+							}
+						}
+					}else{
+						String id = fv.getId();
+						formValue.setId(id);
+						formValue.setRowFlag(rowFlag);
+						String formValueJson = DataConverter.convertObject2Json(formValue);
+						formValueService.modifyFormValue(formValueJson);
+						formValue = new FormValue();
+					}
+				}
+				writeSuccessResult();
+			}
+		}
+		catch (Exception e)
+		{
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	/**
+	 * 删除formValue数据
+	 * @param user 包含员工标识的user对象
+	 * @throws Exception
+	 */
+	public void removeForm()
+	{
+		// 获取User标识
+		String formValue = getParam("formValue");
+		try
+		{
+			// 执行删除操作,返回前台判断标识
+			formValueService.delFormValue(formValue);
+			// 返回客户端消息
+			writeSuccessResult();
+		}
+		catch (Exception e)
+		{
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	/**
+	 * 初始化表单列表
+	 * @throws Exception
+	 */
+	@SuppressWarnings(
+	{ "rawtypes", "unchecked" })
+	public String initFormValue() throws Exception
+	{
+		// 流程定义ID
+		String processDefId = getParam("processDefId");
+		// 流程定义ID
+		String taskDefId = getParam("taskDefId");
+		// 流程定义ID
+		String processInstId = getParam("processInstId");
+		// 流程定义ID
+		String taskInstId = getParam("taskInstId");
+		// 验证表单是否已填写
+		String formId = null;
+		ProcessForm pfs = null;
+		try
+		{
+			// 查询当前任务所属表单
+			pfs = processFormService.getProcessFormByProAndTask(processDefId, taskDefId);
+			if (pfs != null)
+			{
+				formId = pfs.getFormId();
+			}
+		}
+		catch (Exception e)
+		{
+			return ERROR;
+		}
+		if (StringUtils.isEmpty(formId))
+		{
+			request.setAttribute("error", "当前任务没有表单需要填写");
+			return ERROR;
+		}
+
+		// 有跳转URL 进入URL页面
+		Form form = formService.getForm(formId);
+		String url = form.getUrl();
+		if (StringUtils.isNotEmpty(url))
+		{
+			request.setAttribute("url", url + "?processInstId=" + processInstId + "&taskId=" + taskInstId + "&processDefId=" + processDefId
+					+ "&taskDefId=" + taskDefId);
+			return "url";
+		}
+
+		List<Map<String, String>> props = new ArrayList<Map<String, String>>();
+		try
+		{
+			List<FormProp> formProp = formPropService.getFormPropByFormId(formId);
+			for (FormProp fp : formProp)
+			{
+				String propKey = fp.getPropKey();
+				String propName = fp.getPropName();
+				String propType = fp.getPropType();
+				Map map = new HashMap();
+				map.put("key", propKey);
+				map.put("formId", formId);
+				map.put("name", propName);
+				map.put("type", propType);
+				props.add(map);
+			}
+
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+		FormValuePage fpv = new FormValuePage();
+		String formValuepage = fpv.getListNode(props,form.getName(),pfs.getDelegate(),null);
+		request.setAttribute("html", formValuepage);
+		request.setAttribute("taskInstId", taskInstId);
+		request.setAttribute("processInstId", processInstId);
+		request.setAttribute("formId", formId);
+		return SUCCESS;
+	}
+
+	/**
+	 * 初始化显示页面
+	 * @throws Exception
+	 */
+	@SuppressWarnings(
+	{ "unchecked", "rawtypes" })
+	public void FormValueList() throws Exception
+	{
+		// 获取前台传入的任务ID
+		String taskInstId = getParam("taskInstId");
+		// 获取前台传入的流程ID
+		String processInstId = getParam("processInstId");
+		String formId = getParam("formId");
+		String hisNotice = getParam("hisNotice");
+		List<FormValue> list = new ArrayList<FormValue>();
+		try
+		{
+			// 当前表单属性个数
+			List<FormProp> formProp = formPropService.getFormPropByFormId(formId);
+			int propNum = formProp.size();
+		
+			if(StringUtils.isNotEmpty(hisNotice)){// 数据
+				list = formValueService.getFormValueByProcessInstId(processInstId, formId);
+				
+				List<CorrectionNoticeBookView> noticeList = getNoticeList(processInstId,"his");
+				boolean flag=false;
+				if(noticeList!=null&&noticeList.size()>0){
+				 outer1:for (CorrectionNoticeBookView correctionNoticeBookView : noticeList) {
+					 			for (FormValue formValue : list) {
+					 				if(formValue!=null&&formValue.getPropValue()!=null&&formValue.getPropValue().equals(correctionNoticeBookView.getTitanic())){
+					 					continue outer1;
+					 				}
+								}
+					 			for (FormProp prop : formProp) {
+									if(prop.getPropKey()!=null&&"wh".equals(prop.getPropKey())){
+										flag=true;
+									}
+								}
+					 			if(flag){
+					 				String rowFlag = GenerateSequenceUtil.generateSequenceNo();
+								
+					 				FormValue f= new FormValue();
+									// 给FormValue对象设置属性值
+									f.setFormId(formId);
+									f.setPropKey("zlly");
+									f.setTaskInstId(taskInstId);
+									f.setProcessInstId(processInstId);
+									f.setPropValue(correctionNoticeBookView.getSource());
+									f.setRowFlag(rowFlag);
+									String formValueJson = DataConverter.convertObject2Json(f);
+									formValueService.addFormValue(formValueJson);
+									
+									
+									f= new FormValue();
+									// 给FormValue对象设置属性值
+									f.setFormId(formId);
+									f.setPropKey("wh");
+									f.setTaskInstId(taskInstId);
+									f.setProcessInstId(processInstId);
+									f.setPropValue(correctionNoticeBookView.getTitanic());
+									f.setRowFlag(rowFlag);
+									formValueJson = DataConverter.convertObject2Json(f);
+									formValueService.addFormValue(formValueJson);
+									 f= new FormValue();
+									// 给FormValue对象设置属性值
+									f.setFormId(formId);
+									f.setPropKey("sdrq");
+									f.setTaskInstId(taskInstId);
+									f.setProcessInstId(processInstId);
+									SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+									f.setPropValue(sdf.format(correctionNoticeBookView.getReceiveDate()));
+									f.setRowFlag(rowFlag);
+									formValueJson = DataConverter.convertObject2Json(f);
+									formValueService.addFormValue(formValueJson);
+									 f= new FormValue();
+									// 给FormValue对象设置属性值
+									f.setFormId(formId);
+									f.setPropKey("zynr");
+									f.setTaskInstId(taskInstId);
+									f.setProcessInstId(processInstId);
+									f.setPropValue(correctionNoticeBookView.getContent());
+									f.setRowFlag(rowFlag);
+									formValueJson = DataConverter.convertObject2Json(f);
+									formValueService.addFormValue(formValueJson);
+									f= new FormValue();
+									// 给FormValue对象设置属性值
+									f.setFormId(formId);
+									f.setPropKey("bz");
+									f.setTaskInstId(taskInstId);
+									f.setProcessInstId(processInstId);
+									f.setPropValue(null);
+									f.setRowFlag(rowFlag);
+									formValueJson = DataConverter.convertObject2Json(f);
+									formValueService.addFormValue(formValueJson);
+									f= new FormValue();
+									// 给FormValue对象设置属性值
+									f.setFormId(formId);
+									f.setPropKey("kdqh");
+									f.setTaskInstId(taskInstId);
+									f.setProcessInstId(processInstId);
+									f.setPropValue(null);
+									f.setRowFlag(rowFlag);
+									formValueJson = DataConverter.convertObject2Json(f);
+									formValueService.addFormValue(formValueJson);
+					 			}
+					 			
+					}
+					
+				}
+			}
+			// 数据
+			list = formValueService.getFormValueByProcessInstId(processInstId, formId);
+			// 查询的数据个数
+			List<Map> mapList = new ArrayList<Map>();
+			
+			if (list.size() > 0)
+			{
+				int length = list.size();
+				// 当前循环到第几个
+				int index = 0;
+
+				Map map = new HashMap();
+				for (int i = 0; i < length / propNum; i++)
+				{
+					index = i + 1;
+					String rowFlag = list.get(index * propNum - 1).getRowFlag();
+					String formBb = list.get(index * propNum - 1).getFormBb();
+					 map.put("rowFlag", rowFlag);
+					 map.put("taskInstId", taskInstId);
+					 map.put("formBb", formBb);
+					 map.put("isold", "否");
+								for (int j = 0; j < list.size(); j++)
+					{
+						if (list.get(j).getRowFlag().equals(rowFlag))
+						{
+							// 取值
+							map.put(list.get(j).getPropKey(), list.get(j).getPropValue());
+						}
+					}
+					mapList.add(map);
+					map = new HashMap();
+				}
+			}
+			writeSuccessResult(mapList);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 初始化照片页面，返回成功页面
+	 * @throws DBException
+	 */
+	public String initFormImg() throws Exception
+	{
+		// 接收图片链接地址
+		String url = getParam("url");
+		url = new String(url.getBytes("iso-8859-1"), "utf-8");
+		FormValuePage fvp = new FormValuePage();
+		// 初始化图片页面返回到前台页面
+		request.setAttribute("html", fvp.getViewPage(url));
+		return SUCCESS;
+	}
+
+	/**
+	 * 文件下载
+	 */
+	public String downLoadFile() throws Exception
+	{
+		try
+		{
+			// 获取文件Id
+			String url = getParam("url");
+			if(url.equals(new String(url.getBytes("iso-8859-1"), "iso-8859-1"))){
+				url = new String(url.getBytes("iso-8859-1"), "utf-8");
+			}
+			// 编码乱码
+			if (url != null)
+			{
+				if (url.split(",").length > 1)
+				{
+					formValueService.downloadFiles(formValueService, url);
+				}
+				else
+				{
+					formValueService.downloadFile(formValueService, url);
+				}
+			}
+			return null;
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			return ERROR;
+		}
+	}
+	
+	
+	/**
+	 * 文件是否存在
+	 */
+	public void fileIsExist() throws Exception
+	{
+		try
+		{
+			// 获取文件Id
+			String url = getParam("url");
+			if(url.equals(new String(url.getBytes("iso-8859-1"), "iso-8859-1"))){
+				url = new String(url.getBytes("iso-8859-1"), "utf-8");
+			}
+			if (url != null)
+			{
+				String flag= formValueService.fileIsExist(formValueService, url);
+				writeSuccessResult(flag);
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			writeFailResult(e.getMessage());
+		}
+	}
+
+
+	/**
+	 * 初始化查看所有表单页面
+	 * @return
+	 */
+	public String initProcessForms()
+	{
+		String html = FormValuePage.getInstance().createProcessForms();
+		// 获取前台传入的流程ID
+		String processInstId = getParam("processInstId");
+		// 流程定义ID
+		String processDefId = getParam("processDefId");
+		request.setAttribute("processInstId", processInstId);
+		request.setAttribute("processDefId", processDefId);
+		request.setAttribute("html", html);
+		return SUCCESS;
+	}
+
+	// 缺陷
+	@Resource
+	DefectFormService defectFormService;
+
+	@Resource
+	ProcessTaskRelationService processTaskRelationService;
+
+	@Resource
+	TaskService taskService;
+
+	/**
+	 * 查看所有表单
+	 * @return
+	 */
+	public void getProcessForms()
+	{
+		// 获取前台传入的流程ID
+		String processInstId = getParam("processInstId");
+		// 流程定义ID
+		String processDefId = getParam("processDefId");
+		String type = null;
+		if (StringUtils.isNotEmpty(processDefId))
+		{
+			type = processDefId.split(":")[0];
+		}
+		// 定义结果map
+		Map<String, Object> result = new HashMap<String, Object>();
+		try
+		{
+			String parentProcessInstId = null;
+			List<String> formIdList = new ArrayList<String>();
+			// 获取当前执行的任务
+			List<RuTask> ruTaskLsit = taskService.getRuTaskByProcessInstId(processInstId);
+			if (ruTaskLsit != null)
+			{
+				for (int i = 0; i < ruTaskLsit.size(); i++)
+				{
+					// 任务定义ID
+					String taskDefId = ruTaskLsit.get(i).getTaskDefId();
+					// 流程父实例ID
+					parentProcessInstId = ruTaskLsit.get(i).getParentProcessInstId();;
+					// 查询当前任务关联的任务
+					List<ProcessTaskRelation> ptRelList = processTaskRelationService.findByTaskDefId(taskDefId, processDefId);
+					// 获取关联任务关联的表单
+					if (ptRelList != null)
+					{
+						for (int j = 0; j < ptRelList.size(); j++)
+						{
+							ProcessTaskRelation ptRel = ptRelList.get(j);
+							ProcessForm processForm = processFormService.getProcessFormByProAndTask(ptRel.getProcessDefId(), ptRel.getRelationId());
+							if (processForm != null)
+							{
+								formIdList.add(processForm.getFormId());
+							}
+						}
+					}
+				}
+			}
+			Map<String, Map<String, Object>> datas = new LinkedHashMap<String, Map<String, Object>>();
+			// 根据流程定义ID查询表单
+			List<ProcessForm> processForms = processFormService.getProcessFormByProcessDefId(processDefId);
+			// 编辑流程表单
+			for (int k = 0; k < processForms.size(); k++)
+			{
+				ProcessForm processForm = processForms.get(k);
+				// 表单ID
+				String formId = processForm.getFormId();
+				// 任务定义ID
+				String taskDefId = processForm.getTaskDefId();
+				// 任务实例ID
+				String taskInstId = null;
+				Map<String, Object> map = new HashMap<String, Object>();
+				if (StringUtils.isNotEmpty(formId)&&!formId.contains("请选择"))
+				{
+					// 取得表单
+					Form form = formService.getForm(formId);
+					// 查看表单是否有url
+					String url = form.getUrl();
+					// 存在则 添加页面
+					if (StringUtils.isNotEmpty(url))
+					{
+						// 缺陷评分表
+						if (url.equals("/defect/form"))
+						{
+							List<DefectForm> defectList = defectFormService.getDefectFormListByProcessInstIdAndFormId(processInstId, formId);
+							if (defectList != null)
+							{
+								List<FormProp> propList = new ArrayList<FormProp>();
+								List<Map<String, String>> propMapList = BusinessUtil.getInstance().getBusinessColumnsByTableName("FORM_DEFECTIVE");
+								// 纸海图编绘、纸海图小改正、工程/专题图（纸海图）
+								if (type!=null&&type.equals(ProcessTypeEnum.SEA_MAP_COMPILATION_PAPER.name()) || type.equals(ProcessTypeEnum.SMALL_CORRECTION_PAPER.name())
+										|| type.equals(ProcessTypeEnum.PROJECT_SPECIAL_PAPER.name()))
+								{
+									propMapList = BusinessUtil.getInstance().getBusinessColumnsByTableName("PAPER_NOTICE_DEFECTIVE");
+								}
+								else
+								// 电子海图编绘、电子海图小改正、工程/专题图（电子）
+								if (type!=null&&type.equals(ProcessTypeEnum.SEA_MAP_COMPILATION_ELECTRONIC.name()) || type.equals(ProcessTypeEnum.SMALL_CORRECTION_ELECTRONIC.name())
+										|| type.equals(ProcessTypeEnum.PROJECT_SPECIAL_ELECTRONIC.name()))
+								{
+									propMapList = BusinessUtil.getInstance().getBusinessColumnsByTableName("ELECTRONIC_NOTICE_DEFECTIVE");
+								}
+								else
+								// 改正通告编辑、改正通告模板编辑
+								if (type!=null&&type.equals(ProcessTypeEnum.CORRECTION_NOTICE_TEMPLATE.name()) || type.equals(ProcessTypeEnum.CORRECTION_NOTICE_TEMPLATE_EDIT.name()))
+								{
+									propMapList = BusinessUtil.getInstance().getBusinessColumnsByTableName("CORRECTION_NOTICE_DEFECTIVE");
+								}
+								else
+								{
+									propMapList = BusinessUtil.getInstance().getBusinessColumnsByTableName("SOURCE_DEFECTIVE");
+								}
+								for (int i = 0; i < propMapList.size(); i++)
+								{
+									Map<String, String> propMap = propMapList.get(i);
+									FormProp prop = new FormProp();
+									prop.setFormId(formId);
+									prop.setPropKey(propMap.get("prop").toString());
+									prop.setPropName(propMap.get("value").toString());
+									prop.setPropType("text");
+									propList.add(prop);
+								}
+								List<FormValue> formValueList = new ArrayList<FormValue>();
+								for (int i = 0; i < defectList.size(); i++)
+								{
+									DefectForm df = defectList.get(i);
+									taskInstId = df.getTaskInstId();
+									Map<String, Object> defectListMap = BeanUtil.getInstance().getProperty(df, false);
+									for (String propKey : defectListMap.keySet())
+									{
+										FormValue formValue = new FormValue();
+										formValue.setPropKey(propKey);
+										if (defectListMap.get(propKey) != null)
+										{
+											formValue.setFormId(formId);
+											formValue.setProcessInstId(processInstId);
+											formValue.setRowFlag("row" + i);
+											formValue.setPropValue(defectListMap.get(propKey).toString());
+											formValueList.add(formValue);
+										}
+									}
+								}
+
+								map.put("prop", propList);
+								map.put("data", formValueList);
+								map.put("formName", form.getName());
+								map.put("formId",formId);
+								datas.put("formId"+formId, map);
+							}
+						}
+					}
+					// 不存在则添加动态页面
+					else
+					{
+						// 当前表单属性个数
+						List<FormProp> formProp = formPropService.getFormPropByFormId(formId);
+						// 数据
+						List<FormValue> list = formValueService.getFormValueByProcessInstId(processInstId, formId);
+						if (list != null)
+						{
+							if (list.size() > 0)
+							{
+								taskInstId = list.get(0).getTaskInstId();
+							}
+						}
+						String formBb=list.get(0).getFormBb();
+						map.put("prop", formProp);
+						map.put("data", list);
+						map.put("taskInstId", taskInstId);
+						map.put("taskDefId", taskDefId);
+						map.put("parentProcessInstId", parentProcessInstId);
+						map.put("formName", form.getName());
+						map.put("formId",formId);
+						map.put("formBb",formBb);
+						datas.put("formId"+formId, map);
+					}
+				}
+			}
+			result.put("editableFormIds", formIdList);
+			result.put("datas", datas);
+			writeSuccessResult(result);
+		}
+		catch (Exception e)
+		{
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 編輯FormValue数据
+	 * @throws Exception
+	 */
+	public void addCnb() throws Exception
+	{
+		// 获取前台传入FormPorp对象
+		String props = getParam("props");
+		// 获取前台传入的任务ID
+		String taskInstId = getParam("taskInstId");
+		// 获取前台传入的流程ID
+		String processInstId = getParam("processInstId");
+		// 获取前台传入的表单ID
+		String formId = getParam("formId");
+		// 获取前台传入的图片是否选择集合
+		String rowFlag = null;
+		String formvalue = getParam("formvalue");
+		List<Map<String, String>> formPropList = (List<Map<String, String>>) DataConverter.convertJson2List(props, Map.class);
+		List<CorrectionNoticeBook> list = (List<CorrectionNoticeBook>)  DataConverter.convertJson2List(formvalue, CorrectionNoticeBook.class);
+		try
+		{
+			if(list != null){
+				if(list.size()>0){
+					for (int i = 0; i < list.size(); i++) {
+						rowFlag = GenerateSequenceUtil.generateSequenceNo();
+						for (int j = 0; j < formPropList.size(); j++)
+						{
+							FormValue f= new FormValue();
+							String key = formPropList.get(j).get("propKey");
+							// 给FormValue对象设置属性值
+							f.setFormId(formId);
+							f.setPropKey(key);
+							f.setTaskInstId(taskInstId);
+							f.setProcessInstId(processInstId);
+							if(key.equals("zlly")){
+								f.setPropValue(list.get(i).getSource());
+							}else if(key.equals("wh")){
+								f.setPropValue(list.get(i).getTitanic());
+							}else if(key.equals("sdrq")){
+								SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+								f.setPropValue(sdf.format(list.get(i).getReceiveDate()));
+							}else if(key.equals("zynr")){
+								f.setPropValue(list.get(i).getContent());
+							}
+							f.setRowFlag(rowFlag);
+							String formValueJson = DataConverter.convertObject2Json(f);
+							formValueService.addFormValue(formValueJson);
+							f = new FormValue();
+						}
+						CorrectionNoticeBook correctionNoticeBook = correctionNoticeBookService.getCorrectionNoticeBook(list.get(i).getId());
+						correctionNoticeBook.setState(list.get(i).getState());
+						correctionNoticeBookService.modifyCorrectionNotice(correctionNoticeBook);
+					}
+				}
+			}
+			writeSuccessResult();
+		}
+		catch (Exception e)
+		{
+			writeFailResult(e.getMessage());
+		}
+	}
+	/**
+	 * 根据表单id和propValue验证数据是否存在
+	 */
+	public void verificationPropValue(){
+		String fromValue = getParam("fromValue");
+		FormValue from = (FormValue) DataConverter.convertJson2Object(fromValue, FormValue.class);
+		try {
+			// 获取要修改的key值的id
+			FormValue fv = formValueService.getFormValueByRowFlag(from.getPropKey(), from.getRowFlag());
+			List<FormValue> list = formValueService.getFormValueByFromIdAndPropValue(from.getFormId(), from.getPropValue());
+			if(list!=null&&list.size()>0){
+				if(fv!=null&&list.size()==1&&list.get(0).getId().equals(fv.getId())){
+					writeSuccessResult("success");
+				}else{
+					writeSuccessResult("error");
+				}
+			}else{
+				writeSuccessResult("success");
+			}
+		} catch (Exception e) {
+			writeFailResult(e.getMessage());
+		}
+	}
+		
+	public List<CorrectionNoticeBookView> getNoticeList(String processInstId,String type){
+		List<FormValue> formValueList=new ArrayList<>();
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		List<CorrectionNoticeBookView> list = new ArrayList<CorrectionNoticeBookView>();
+		try {
+			if(formIdArry!=null&&formIdArry.length>0){
+				for (String formId : formIdArry) {
+					formValueList = formValueService.getFormValueByProcessInstId(processInstId, formId);
+					if(formValueList!=null&&formValueList.size()>0){
+						break;
+					}
+				}
+			}
+			String regx = "^[0-9]{4}年第（[0-9]+）期";
+			Pattern pattern = Pattern.compile(regx);
+			String value="";
+			FormValue formValue=null;
+			for (FormValue fV : formValueList) {
+				value=fV.getPropValue()==null?"":fV.getPropValue();
+				Matcher m = pattern.matcher(value);
+				if(m.matches()){
+					 value = value.substring(value.lastIndexOf("（")+1,value.lastIndexOf("）")).trim();
+					 formValue=fV;
+					 break;
+				}
+			}
+			if("now".equals(type)){
+				if(formValue!=null){
+					List<YearIssue> yearIssueByIssue = yearIssueService.getYearIssueByIssue(formValue.getPropValue());
+					if(yearIssueByIssue!=null&&yearIssueByIssue.size()>0){
+						list = correctionNoticeBookService.getCorrectionNoticeBooksByCreateDate(yearIssueByIssue.get(0).getBeginDate(), yearIssueByIssue.get(0).getEndDate());
+					}
+					String propValue = formValue.getPropValue();
+					if(Integer.parseInt(value)!=1){
+						propValue = propValue.replace("（"+value+"）", "（"+(Integer.parseInt(value)-1)+"）");
+						List<YearIssue> yearIssueByIssue2 = yearIssueService.getYearIssueByIssue(propValue);
+						if(yearIssueByIssue2!=null&&yearIssueByIssue2.size()>0){
+							List<CorrectionNoticeBookView> lastList1 = correctionNoticeBookService.getCorrectionNoticeBooksByCreateDate(yearIssueByIssue2.get(0).getBeginDate(), yearIssueByIssue2.get(0).getEndDate());
+							if(lastList1!=null&&lastList1.size()>0){
+								list.addAll(lastList1);
+							}
+						}
+					}
+				}
+			}
+			if("his".equals(type)){
+				if(formValue!=null){
+					String propValue = formValue.getPropValue();
+					if(Integer.parseInt(value)!=1){
+						propValue = propValue.replace("（"+value+"）", "（"+(Integer.parseInt(value)-1)+"）");
+						List<YearIssue> yearIssueByIssue2 = yearIssueService.getYearIssueByIssue(propValue);
+						if(yearIssueByIssue2!=null&&yearIssueByIssue2.size()>0){
+							List<CorrectionNoticeBookView> lastList1 = correctionNoticeBookService.getCorrectionNoticeBooksByCreateDateAndState(yearIssueByIssue2.get(0).getBeginDate(), yearIssueByIssue2.get(0).getEndDate(),"部分采用");
+							if(lastList1!=null&&lastList1.size()>0){
+								list.addAll(lastList1);
+							}
+							List<CorrectionNoticeBookView> lastList2 = correctionNoticeBookService.getCorrectionNoticeBooksByCreateDateAndState(yearIssueByIssue2.get(0).getBeginDate(), yearIssueByIssue2.get(0).getEndDate(),"暂未采用");
+							if(lastList2!=null&&lastList2.size()>0){
+								list.addAll(lastList2);
+							}
+						}
+					}
+				}
+			}
+			return list;
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	
+	/**
+	 * 初始化人员数据页面，返回成功列表页面
+	 * */
+	public String planInit() {
+		String taskDefId = getParam("taskDefId");
+		String taskInstId = getParam("taskInstId");
+		String processInstId = getParam("processInstId");
+		String parentProcessInstId = getParam("parentProcessInstId");
+		String isRuTask = getParam("isRuTask");
+		String taskid = getParam("taskid");
+		FormValuePage page = new FormValuePage();
+		//将获取的列表页面返回到前台页面
+		request.setAttribute("html", page.getPlanPage(taskid,taskDefId,taskInstId,processInstId,parentProcessInstId,isRuTask));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 新增基
+	 */
+	public void addProcessPlan(){
+		try {
+			String processPlan = getParam("processPlan");
+			//执行新增方法
+			processPlanService.addProcessPlan(processPlan);
+			writeSuccessResult();
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			//返回错误信息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	public void removeProcessPlan(){
+		try {
+			String processPlan = getParam("processPlan");
+			processPlanService.delProcessPlan(processPlan);
+			writeSuccessResult();
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			//返回错误信息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	public void getProcessPlanByKey(){
+		try {
+			String id = getParam("id");
+			//执行查询方法
+			ProcessPlan processPlan = processPlanService.getProcessPlan(id);
+			writeSuccessResult(processPlan);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			//返回错误信息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	public void getByProcess(){
+		try {
+			String parentProcessInstId = getParam("parentProcessInstId");
+			String taskDefId = getParam("taskDefId");
+			ProcessPlan processPlan = new ProcessPlan(); 
+			processPlan.setParentProcessInstId(parentProcessInstId);
+			processPlan.setTaskDefId(taskDefId);
+			String processPlanParam = DataConverter.convertObject2Json(processPlan);
+			//执行查询方法
+			List<ProcessPlan> list = processPlanService.getByProcess(processPlanParam);
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			//返回错误信息
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	//判断是否有退回的流程 2018.9.10 	
+	public void getProcessByBack(){
+		try {
+			String parentProcessInstId = getParam("processInstId");
+			String taskInstId = getParam("taskInstId");
+			String userno = getParam("userno");
+			String taskidMax = processPlanService.getProcessByBack(parentProcessInstId,taskInstId,userno);
+			writeSuccessResult(taskidMax);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			//返回错误信息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+}

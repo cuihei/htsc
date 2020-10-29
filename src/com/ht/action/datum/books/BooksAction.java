@@ -1,0 +1,787 @@
+package com.ht.action.datum.books;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.ht.action.base.BaseAction;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.ExcelFileUtil;
+import com.ht.common.util.ExportExcel;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.LoginUtil;
+import com.ht.front.pages.datum.books.BooksPage;
+import com.ht.persistence.dao.inter.datum.books.BooksDao;
+import com.ht.persistence.model.background.authority.role.RoleUsers;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.background.organization.employee.User;
+import com.ht.persistence.model.background.organization.organization.Organization;
+import com.ht.persistence.model.background.organization.organization.OrganizationUsersRelation;
+import com.ht.persistence.model.datum.ExportModel;
+import com.ht.persistence.model.datum.bookinfo.BookFile;
+import com.ht.persistence.model.datum.books.Books;
+import com.ht.persistence.model.datum.books.BooksView;
+import com.ht.persistence.model.datum.type.DatumCategory;
+import com.ht.service.inter.background.authority.role.RoleUsersService;
+import com.ht.service.inter.background.dicdata.basedata.BaseDataService;
+import com.ht.service.inter.background.organization.employee.UserService;
+import com.ht.service.inter.background.organization.organization.OrganizationService;
+import com.ht.service.inter.background.organization.organization.OrganizationUsersRelationService;
+import com.ht.service.inter.datum.bookinfo.BookFileService;
+import com.ht.service.inter.datum.books.BooksService;
+import com.ht.service.inter.datum.type.DatumCategoryService;
+
+/**
+ * 海图action
+ * @author houchen
+ *
+ */
+@SuppressWarnings("serial")
+public class BooksAction extends BaseAction {
+	
+	/**
+	 * 注入海图service
+	 */
+	@Resource(name="booksService")
+	BooksService booksService;
+	
+	/**
+	 * 注入资料类别Service
+	 */
+	@Resource(name="datumcategoryService")
+	DatumCategoryService datumcategoryService;
+	
+	/**
+	 * 注入基础数据baseDataService
+	 */
+	@Resource(name="baseDataService")
+	BaseDataService baseDataService;
+	
+	/**
+	 * 注入图书文件service
+	 */
+	@Resource(name="bookFileService")
+	BookFileService bookFileService;
+	
+	/**
+	 * 注入roleUsersService
+	 */
+	@Resource(name = "roleUsersService")
+	RoleUsersService roleUsersService;
+	
+	/**
+	 * 注入用户service
+	 * */
+	@Resource(name = "userService")
+	UserService userService;
+	
+	
+	/**
+	 * 注入机构service
+	 * */
+	@Resource(name = "organizationUsersRelationService")
+	OrganizationUsersRelationService organizationUsersRelationService;
+	
+	
+	//必须的参数，参数名与表单名相同
+    private File upload;
+    //必须的参数，格式：表单名+FileName，表示上传的文件名  
+    private String uploadFileName;
+    //必须的参数，格式：表单名+ContentType，表示上传文件类型
+    private String uploadContentType;
+    //必须的参数，参数名与表单名相同
+    private File uploadBook;
+    //必须的参数，格式：表单名+FileName，表示上传的文件名  
+    private String uploadBookFileName;
+    //必须的参数，格式：表单名+ContentType，表示上传文件类型
+    private String uploadBookContentType;
+	public File getUpload() {
+		return upload;
+	}
+
+	public void setUpload(File upload) {
+		this.upload = upload;
+	}
+
+	public String getUploadFileName() {
+		return uploadFileName;
+	}
+
+	public void setUploadFileName(String uploadFileName) {
+		this.uploadFileName = uploadFileName;
+	}
+
+	public String getUploadContentType() {
+		return uploadContentType;
+	}
+
+	public void setUploadContentType(String uploadContentType) {
+		this.uploadContentType = uploadContentType;
+	}
+	
+	public File getUploadBook() {
+		return uploadBook;
+	}
+
+	public void setUploadBook(File uploadBook) {
+		this.uploadBook = uploadBook;
+	}
+
+	public String getUploadBookFileName() {
+		return uploadBookFileName;
+	}
+
+	public void setUploadBookFileName(String uploadBookFileName) {
+		this.uploadBookFileName = uploadBookFileName;
+	}
+
+	public String getUploadBookContentType() {
+		return uploadBookContentType;
+	}
+
+	public void setUploadBookContentType(String uploadBookContentType) {
+		this.uploadBookContentType = uploadBookContentType;
+	}
+
+	/**
+	 * 初始化海图页面，返回成功列表页面
+	 * @return
+	 * @throws Exception 
+	 */
+	public String init() throws Exception{
+		// 创建图书资料页面初始化类
+		BooksPage page = new BooksPage();
+		String userNo = LoginUtil.getInstance().getLoginNo(request);
+		List<User> users = userService.getUserByNo(userNo);
+		String userId = null;
+		if (users != null)
+		{
+			userId = users.get(0).getId();
+		}
+		
+		
+		//获取指定机构人员的列表 2018.6.11
+		List<OrganizationUsersRelation> result = new ArrayList<OrganizationUsersRelation>();
+		List<OrganizationUsersRelation> list1 =organizationUsersRelationService.getUsersByOrgId("11031944208210186");
+		List<OrganizationUsersRelation> list2 =organizationUsersRelationService.getUsersByOrgId("11031942356660184");
+		List<OrganizationUsersRelation> list3 =organizationUsersRelationService.getUsersByOrgId("11031934398610176");
+
+		//总工程师（中心领导） 11031944208210186
+		//出版管理科   				11031942356660184
+		//编绘管理科  				11031934398610176
+		result.addAll(list1);
+		result.addAll(list2);
+		result.addAll(list3);
+		// 根据当前登录人获取拥有的角色列表
+		List<RoleUsers> roleList = roleUsersService.getRoleUsersByUserId(userId);
+		List<String> ids =  new ArrayList<String>();
+		if (roleList.size()>0)
+		{
+			for (int i = 0; i < roleList.size(); i++)
+			{
+				ids.add(roleList.get(i).getRoleId());
+			}
+		}
+		
+	    Integer flag=1;
+		if(ids != null&& ids.size()>0) {
+			if(ids.contains("11031915039750121")) {
+				/////1、表示不是资料管理员   0当前登陆为资料管理员
+				flag = 0;
+			}
+		}
+	    ///当前用户是否为资料管理员
+		request.setAttribute("flag", flag);
+		//当前登陆帐号的用户ID
+		//request.setAttribute("userId", userId);
+		// 将获取的节点字符串返回给前台页面
+		request.setAttribute("html", page.getListNode(baseDataService,datumcategoryService,ids,result,userService));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 初始化查看附件页面，返回成功列表页面
+	 * @return
+	 */
+	public String booksFileInit() throws Exception{
+		String booksId = getParam("id");
+		String mark = getParam("mark");
+		// 创建图书资料页面初始化类
+		BooksPage ddata = new BooksPage();
+		// 将获取的节点字符串返回给前台页面
+		// 获取一级子类
+		String parentId = "201610301150";
+
+		String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+		List<User> loginUsers;
+		try
+		{
+			loginUsers = userService.getUserByNo(LoginUser);
+			String userId = null;
+			if (loginUsers != null)
+			{
+				if (loginUsers.size() > 0)
+				{
+					userId = loginUsers.get(0).getId();
+				}
+			}
+			// 判断用户是否是资料管理员
+			boolean flag = false;
+			List<RoleUsers> role = roleUsersService.getRoleUsersByUserId(userId);
+			if (role != null)
+			{
+				if (role.size() > 0)
+				{
+					for (int i = 0; i < role.size(); i++)
+					{
+						String roleId = role.get(i).getRoleId();
+						if (roleId.equals("11031915039750121")||roleId.equals("11031912049230118"))
+						{
+							flag = true;
+						}
+					}
+				}
+
+			}
+			List<DatumCategory> list = datumcategoryService.getDatumCategory();
+			request.setAttribute("html", ddata.getFileListNode(userService,baseDataService,bookFileService,booksService,booksId,list,mark,flag));
+			return SUCCESS;
+		}catch (Exception e)
+		{
+			return ERROR;
+		}
+	}
+	
+	/**
+	 * 初始化海图编辑页面
+	 * @return 
+	 */
+	public String editInit(){
+		// 接收前台传来的id
+		String id = getParam("id");
+		// 创建海图页面初始化类
+		BooksPage page = new BooksPage();
+		// 获取一级子类
+		String parentId = "201610301150";
+		List<DatumCategory> list = datumcategoryService.getDatumCategoryByParentId(parentId);
+		// 将获取的节点字符串返回给前台页面
+		request.setAttribute("html", page.getEditNode(id,booksService,baseDataService,list,userService,datumcategoryService));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 删除User数据 如果已经被组织或者流程使用，则不能被删除
+	 * @param user 包含员工标识的user对象
+	 * @throws Exception
+	 */
+	public void removeBookFile() {
+		// 获取User标识
+		String id = getParam("id");
+		try {
+			bookFileService.removeBookFile(id);
+			// 返回客户端消息
+			writeSuccessResult();
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+
+	public void getBooksByCode(){
+		// 获取bookInfo标识
+		String chartNo = getParam("chartNo");
+		try {
+			Books b = booksService.getBooksByCode(chartNo);
+		
+			writeSuccessResult(b);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 文件下载
+	 */
+	public String execute() throws Exception{
+		try{
+			// 获取文件Id
+			String bookfileId = getParam("bookfileId");
+			bookFileService.downloadFile(bookFileService,bookfileId);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * 获取所有图书文件
+	 * @return
+	 */
+	public void getBooksFile(){
+		String bookFile = getParam("bookFile");
+		try {
+			// 执行查询操作
+			List<BookFile> list = bookFileService.getFileByBookId(bookFile);
+			// 返回客户端消息
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取所有海图
+	 * @return
+	 */
+	public void getBooks(){
+		try {
+			// 执行查询操作
+			String userNo = LoginUtil.getInstance().getLoginNo(request);
+			List<BooksView> list = new ArrayList<BooksView>();
+			// 执行查询操作
+			List<User> users = userService.getUserByNo(userNo);
+			String userId = null;
+			if (users != null)
+			{
+				userId = users.get(0).getId();
+			}
+			// 根据当前登录人获取拥有的角色列表
+			List<RoleUsers> roleList = roleUsersService.getRoleUsersByUserId(userId);
+			List<String> ids =  new ArrayList<String>();
+			if (roleList.size()>0)
+			{
+				for (int i = 0; i < roleList.size(); i++)
+				{
+					ids.add(roleList.get(i).getRoleId());
+				}
+			}
+			
+			if(ids.contains("11031915039750121")){
+				list = booksService.getBooksView();
+			}else{
+				list = booksService.getBooksByStatus();
+			}
+			
+			// 返回客户端消息
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 添加海图
+	 * @return
+	 */
+	public void addBooks(){
+		try {
+			// 获取参数
+			String books = getParam("books");
+			String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+			 List<User> userList = userService.getUserByNo(LoginUser);
+			if(userList!=null&&userList.size()>0){
+				User user =userList.get(0);
+				if(user!=null){
+					LoginUser=user.getUserName();
+				}
+			}
+			// 执行添加
+			booksService.addBooks(books,LoginUser);
+			// 成功返回消息
+			writeSuccessResult(books);
+		} catch (Exception e) {
+			// 错误返回消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 删除海图
+	 */
+	public void remove(){
+		// 获取bookInfo标识
+		String books = getParam("books");
+		try {
+			String deleteBooks = booksService.deleteBooks(books);
+			writeSuccessResult(deleteBooks);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取所有一级子类
+	 * @return
+	 */
+	public List<DatumCategory> getOneSubClass(){
+		try {
+			String parentId = "201610301150";
+			List<DatumCategory> result = datumcategoryService.getDatumCategoryByParentId(parentId);
+			respose.getWriter().write(DataConverter.convertObject2Json(result));
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return null;
+	}
+
+	/**
+	 * 获取所有一级子类下的二级子类
+	 * @return
+	 */
+	public List<DatumCategory> getTwoSubClass(){
+		try {
+			String oneSubClassId = getParam("oneSubClassId");
+			List<DatumCategory> result = datumcategoryService.getDatumCategoryByParentId(oneSubClassId);
+			respose.getWriter().write(DataConverter.convertObject2Json(result));
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return null;
+	}
+	
+	
+	
+	/**
+	 * 导出
+	 * @throws Exception 
+	 */
+	public void export() throws Exception{
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM");
+		// 获取图书资料标识
+		String bookss = getParam("books");
+		// 获取路径
+		String folderPath = FileUtil.ROOT_PATH + "dzy\\export\\" + "books";
+		// 判断文件夹是否存在，不存在则创建
+		if(!FileUtil.exists(folderPath)){
+			FileUtil.CreateFolder(folderPath);
+		}
+		String path = folderPath + "\\" + ("海图资料") +".xls";
+		// 将Json转换为list
+		List<BooksView> list = (List<BooksView>) DataConverter.convertJson2List(bookss,BooksView.class);
+		// 数组的形式创建表格标题行
+		String[] col = {"编码","图号","图名","一级子类","二级子类","港口","比例尺(1:)","出版年月","版本号","存储位置","库存数量","状态"};
+		// 数组的形式创建表格值（对应实体类的字段）
+		String[] zd = {"fild1","fild2","fild3","fild4","fild5","fild6","fild7","fild8","fild9","fild10",
+						"fild11","fild12"};
+		//创建导出模具列表
+		List<ExportModel> exportModelList=new ArrayList<ExportModel>();
+		List<BaseData> baseDataList = new ArrayList<BaseData>();
+		for (int i = 0; i < list.size(); i++) {
+			BooksView books = booksService.getBooksView(list.get(i).getId());
+			String id = books.getState();
+			// 根据类型ID获取基础数据值
+			baseDataList = baseDataService.getBaseDataById(id);
+			if(baseDataList!=null){
+				for(int j=0;j < baseDataList.size();j++){
+					String state = baseDataList.get(j).getValue();
+					books.setState(state);
+				}
+			}
+			//创建导出模具
+			ExportModel exportModel=new ExportModel();
+			exportModel.setFild1(books.getCode());
+			exportModel.setFild2(books.getChartNo());
+			exportModel.setFild3(books.getChartName());
+			exportModel.setFild4(books.getOneSubClass());
+			exportModel.setFild5(books.getTwoSubClass());
+			exportModel.setFild6(books.getPort());
+			exportModel.setFild7(books.getScale());
+			if(books.getPublicationDate()!=null){
+				exportModel.setFild8(sdf.format(books.getPublicationDate()));
+			}else{
+				exportModel.setFild8("");
+			}
+			exportModel.setFild9(books.getVersion());
+			exportModel.setFild10(books.getSavePlace());
+			exportModel.setFild11(books.getStockNo());
+			exportModel.setFild12(books.getState());
+			exportModelList.add(exportModel);
+		}
+		if(exportModelList.size() > 0){
+			ExportExcel<ExportModel> ee = new ExportExcel<ExportModel>();
+			boolean exportResult = ee.exportExcel("海图", col, zd, exportModelList,path);
+			if(exportResult){
+				ExcelFileUtil.download(path, respose); 
+			}
+		}
+	}
+	
+	/**
+	 * 资料上传
+	 */
+	public void uploadFile() throws Exception {
+		try{
+			// 获取文件夹Id
+			String booksId = getParam("booksId");
+			booksService.uploadFile(booksId,upload,uploadFileName);
+			writeSuccessResult();
+		}catch (Exception e){
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 初始化图书借阅页面
+	 * @return
+	 * @throws Exception
+	 */
+	public String borrowingInit() throws Exception{
+		// 获取文件Id
+		String bookId = getParam("id");
+		// 获取一条图书信息
+		Books books = booksService.getBooks(bookId);
+		BooksPage booksPage = new BooksPage();
+		//将获取的节点字符串返回到前台页面
+		request.setAttribute("html", booksPage.getBorrowing(books));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 初始化图书批量借阅页面
+	 * @return
+	 * @throws Exception
+	 */
+	public String batchBorrowingInit() throws Exception{
+		// 获取图书Id
+		String ids = getParam("ids");
+		//获取人员id
+		String userNo=getParam("userNo");
+		BooksPage booksPage = new BooksPage();
+		//将获取的节点字符串返回到前台页面
+		request.setAttribute("html", booksPage.getBatchBorrowing(ids,userNo));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 新增借阅
+	 * @throws Exception
+	 */
+	public void addBorrowing() throws Exception {
+		// 获取前台传入参数
+		String borrowing = getParam("borrowing");
+		// 获取图书编号
+		String borrowBookNo = getParam("borrowBookNo");
+		// 获取剩余数量
+		String surplus = getParam("surplus");
+		// 获取图书信息
+		Books books = booksService.getBooksByChartNo(borrowBookNo);
+		// 执行保存操作
+		try {
+			booksService.addBorrowing(borrowing,books,surplus);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 返回客户端消息
+		writeSuccessResult(borrowing);
+	}
+	
+	/**
+	 * 初始化图书归还页面
+	 * @return
+	 * @throws Exception
+	 */
+	public String returnInit() throws Exception{
+		// 获取前台传入参数
+		String id = getParam("id");
+		// 根据id获取books对象
+		Books books = booksService.getBooks(id);
+		BooksPage booksPage = new BooksPage();
+		//将获取的节点字符串返回到前台页面
+		request.setAttribute("html", booksPage.getReturn(books));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 图书归还
+	 */
+	public void returnBook() throws Exception{
+		// 获取前台传入参数
+		String borrowing = getParam("bookReturn");
+		// 获取图书编号
+		String bookNo = getParam("bookNo");
+		// 获取归还数量
+		String returnNo = getParam("returnNo");
+		// 获取图书信息
+		Books books = booksService.getBooksByChartNo(bookNo);
+		// 执行保存操作
+		try {
+			booksService.returnBook(borrowing,books,returnNo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 返回客户端消息
+		writeSuccessResult(borrowing);
+	}
+	
+	/**
+	 * 根据条件模糊查询
+	 */
+	public void getList(){
+		try {
+			// 获取参数
+			String books = getParam("books");
+			// 获取库存数量结束
+			String stockNoTwo = getParam("stockNoTwo");
+			// 获取出版年月结束日期
+			String publishDateTwo = getParam("publicationDateTwo");
+			// 获取比例尺结束
+			String scaleTwo = getParam("scaleTwo");
+			// 执行查询
+			List<BooksView> list = booksService.getList(books,stockNoTwo,publishDateTwo,scaleTwo);
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取借阅列表
+	 */
+	public void getBorrowingList(){
+		try {
+			// 获取参数
+			String ids = getParam("ids");
+			// 执行查询
+			List<BooksView> list = booksService.getBooksViewList(ids);
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 导出模板
+	 * @throws Exception 
+	 */
+	public void exportBookTemplate() throws Exception{
+		booksService.exportBookTemplate();
+	}
+	
+	/**
+	 * 海图导入
+	 */
+	public void uploadBookFile() throws Exception {
+		try{
+			String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+			List<User> userByNo = userService.getUserByNo(LoginUser);
+			String username ="";
+			if(userByNo!=null&&userByNo.size()>0){
+				username=userByNo.get(0).getUserName();
+			}
+			String result = booksService.uploadBookFile(uploadBook,uploadBookFileName,username);
+			writeSuccessResult(result);
+		}catch (Exception e){
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	public static String changeDegree(String degree){
+		if(StringUtils.isEmpty(degree)){
+			return degree;
+		}
+		//判断是否有分和秒
+		String[] splits = degree.split("°");
+		//获取度
+		String du = splits[0];
+		String fen="";
+		String miao="";
+		//增加度数，方便计算。
+		Integer parseInt = Integer.parseInt(du);
+		du=parseInt.toString()+"°";
+		if(splits.length>1){
+			//获取分和秒
+			String[] fenmiao = splits[1].split("′");
+			if(fenmiao.length>1){
+				fen=fenmiao[0]+"′";
+				miao=fenmiao[1].replace("″", "");
+				Long m = Long.parseLong(miao);
+				if(m>60){
+					m=m*60;
+					miao=m.toString();
+					if(miao.length()>0){
+						if(miao.length()>1){
+							miao=miao.substring(0,2)+"″";
+						}else{
+							miao=miao.substring(0,miao.length()-1)+"″";
+						}
+					}
+					System.out.println(degree+"##changeto##"+du+fen+miao);
+				}
+			}else{
+				fen=fenmiao[0];
+				Long f = Long.parseLong(fen);
+				if(f>60){
+					f=f*60;
+					fen = f.toString();	
+					miao=fen.substring(2,fen.length()-1);
+					fen = fen.substring(0,2)+"′";
+					if(miao!=""&&!"0".equals(miao)){
+						Long m = Long.parseLong(miao);
+						m=m*60;
+						miao=m.toString();
+						if(miao.length()>0){
+							if(miao.length()>1){
+								miao=miao.substring(0,2)+"″";
+							}else{
+								miao=miao.substring(0,miao.length()-1)+"″";
+							}
+						}
+					}else{
+						miao="";
+					}
+					System.out.println(degree+"##changeto##"+du+fen+miao);
+				}
+			}
+		}
+		return du+fen+miao;
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 获取指定的机构列表人员 
+	 * @return 
+	 */
+	public String getGroupUsers(){
+		
+	/*	String LoginUser = LoginUtil.getInstance().getLoginNo(request);*/
+
+		return "2";
+		
+	}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}

@@ -1,0 +1,413 @@
+$(function(){
+	taskBooks.init();
+	$("#uploadFile").css("width","300px");
+})
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function editPage(obj) {
+	var tr = $(obj).parent().parent();
+	taskBooks.toEditPage(tr);
+}
+/** 绑定编辑用户窗口按钮的click事件*/
+function operation(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	// 获取任务书ID
+	var id = rowData.id;
+	//获取任务书类型
+	var taskBookType = rowData.taskBookType;
+	// 跳转到用户编辑页面
+	common.toPage("../taskbook/edit_page?id="+id+"&taskBookType="+taskBookType);
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function downPage(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	//获取附件地址
+	var enclosure=rowData.enclosure;
+	if(enclosure == null || enclosure == ""){
+		layer.msg("这个任务书没有上传文件！");
+		return;
+	}else{
+		// 下载
+		window.location.href = "../formValue/form_file?url="+enclosure;
+	}
+}
+
+/** 绑定删除附件按钮的click事件*/
+function removeFile(obj) {
+	var tr = $(obj).parent().parent();
+	// 获取选中行数据对象
+	var rowData = grid.getSelectRowDataByRow(tr);
+	//获取附件地址
+	var enclosure=rowData.enclosure;
+	var id=rowData.id;
+	if(enclosure == null || enclosure == ""){
+		layer.msg("这个任务书没有上传文件！");
+		return;
+	}else{
+		layer.confirm('确认要删除该任务书的附件吗？',function(index){
+			// 添加参数 @param 参数key；参数value
+		    common.add_param("id",id);
+			var data = common.add_param("enclosure",enclosure);
+			common.init("../taskbook/remove_file","POST",taskBooks.removeSuccess);
+			// 执行提交操作
+			common.do_submit(data);
+		});
+	}
+}
+
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function uploadPage(obj) {
+	var tr = $(obj).parent().parent();
+	taskBooks.showModel(tr);
+}
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function histroyPage(obj) {
+	var tr = $(obj).parent().parent();
+	taskBooks.toHistoryPage(tr);
+}
+
+/**导出**/
+function exportTaskbook(obj){
+	var tr = $(obj).parent().parent();
+	taskBooks.toexportTaskbook(tr);
+}
+
+
+var taskBooks ={
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("taskBooks");
+		loading.init();
+		try{
+			taskBooks.createtaskBooksGrid();
+			taskBooks.requesttaskBooksData();
+			taskBooks.bindPageEvent();
+			$("#typeId").attr("style","width:200px;");  
+		}catch(err){
+			loading.close();
+		}
+		//初始化时间控件
+		$("#year").datepicker({
+			startView: 2, 
+			maxViewMode: 2,
+			minViewMode:2,
+			 format: 'yyyy',
+			 autoclose: true
+		}).on('changeDate',gotoDate);
+		function gotoDate(){
+			var year = $("#year").val();
+			loading.init();
+			common.init("../taskbook/list?year="+year,"POST",taskBooks.bindtaskBooksGrid);
+			common.do_submit();
+		}
+	},
+	/**
+	 * 构建改正通知公告表格。
+	 */
+	createtaskBooksColumns : function(){
+		grid.resetColumn();
+		grid.addColumn("120px","taskbookNo","编号");
+		grid.addColumn("220px","taskbookName","名称");
+		//grid.addColumn("180px","creationDate","创建时间","#=creationDate?kendo.toString(new Date(creationDate),'yyyy-MM-dd'):'' #");
+
+		grid.addColumn("80px","state","状态");
+		grid.addColumn("120px","issueTime","下发时间","#=issueTime?kendo.toString(new Date(issueTime),'yyyy-MM-dd'):'' #");
+		grid.addColumn("70px","ehRevision","修订版次");
+		grid.addColumn("100px","ehCreationDate","修订时间","#=ehCreationDate?kendo.toString(new Date(ehCreationDate),'yyyy-MM-dd'):'' #");
+    	grid.addColumn("140px","handle","操作",kendo.template($("#editTemplate").html()));
+		grid.addColumn("120px","upload_options","附件操作",kendo.template($("#uploadTemplate").html()))
+
+		if($("#jurisdiction").val()=="true"){
+			grid.addColumn("120px","enclosure","附件","<a style='color:blue;cursor:pointer;' onclick='downPage(this)'> #= enclosure?enclosure.substring(enclosure.lastIndexOf('\\\\')+1):''# </a>");
+		}else{
+			grid.addColumn("120px","enclosure","附件","<a style='color:blue;cursor:pointer;' onclick='downPage(this)'> #= enclosure?enclosure.substring(enclosure.lastIndexOf('\\\\')+1):''# </a>");
+		}
+		return grid.addColumn("80px","history_version","历史版本",kendo.template($("#hisTemplate").html()));;
+	},
+	
+
+	/**
+	 *
+	 */
+	createtaskBooksGrid : function(){
+		var columns = taskBooks.createtaskBooksColumns();
+		grid.createGrid(columns);
+	},
+	/**
+	 * 发送数据请求
+	 */
+	requesttaskBooksData : function(){
+		var year = $("#year").val();
+		common.init("../taskbook/list?year="+year,"POST",taskBooks.bindtaskBooksGrid);
+		common.do_submit();
+	},
+	
+	/**
+	 * 删除成功
+	 * */
+	removeSuccess : function(result){
+		if(result.value == 'success'){
+			layer.close(1);
+			layer.msg('删除附件成功！');
+			taskBooks.requesttaskBooksData();
+		}
+		
+	},
+	
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindtaskBooksGrid : function(result){
+		grid.bindData(result);
+		/** 绑定编辑用户窗口按钮的click事件*/
+		var download = $("button[name='download']");
+		$.each(download,function(i,item){
+			var tr = $(item).parent().parent();
+			var rowData = grid.getSelectRowDataByRow(tr);
+			//获取附件地址
+			var enclosure=rowData.enclosure;
+			if(enclosure == null || enclosure == ""){
+				$(item).attr("disabled", true);
+				$(item).removeClass("btn-info");
+				$(item).addClass("btn-default");
+			}
+		})
+	},
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		$("#submit").click(function(){
+			common.toPage("../taskbook/edit_page?taskBookType=TASK_BOOK_SEA_MAP"+"&flag=1");
+		});
+		$("#taskSubmit").click(function(){
+			$("#importForm").ajaxSubmit({  
+	            type: 'post',  
+	            url: "../taskbook/upload_file" ,  
+	            beforeSubmit: function() { 
+	            	return true;
+	            } ,  
+	            success: function(result){
+	            	layer.msg("上传成功"); 
+	            	setTimeout(function() {
+	            		common.toPage("../taskbook/index");
+					},1500); 
+	            },  
+	            error: function(XmlHttpRequest, textStatus, errorThrown){
+	            	layer.msg("上传失败");  
+	            }  
+	        });  
+		});
+		
+		$("#audit").click(function(){
+			var flag =0;
+			var rowDatas = grid.getSelectRowsData();
+	        if (rowDatas.length<1) {
+	             layer.msg('请选择需要提交审核的记录');
+	             return;
+	        }
+	        var taskBooksArray = [];
+			layer.confirm('确认要提交审核吗？',function(index){
+				$.each(rowDatas,function(i,item){
+					var id = $("#taskBooks").data("kendoGrid").dataItem(item).id;
+					//状态判断
+					var state = $("#taskBooks").data("kendoGrid").dataItem(item).state;
+					if(state == "待审核" || state == "审核通过" || state == "已下发"){
+						flag=1;
+						return;
+					}
+					taskBooksArray.push(id);
+				});
+				if(flag == 1) {
+					layer.msg("您选择的记录中存在不符合提交审核条件的状态");
+					return;
+				}
+				var param = JSON.stringify(taskBooksArray);
+				// 添加参数 @param 参数key；参数value
+				var data = common.add_param("taskBookIds",param);
+				common.init("../workflow/publish_task_book","POST",function(result){
+					//提交报错
+					if (result.code != 1) {
+						//提交报错
+						layer.msg(result.value);
+						return;
+					};
+					//提交成功
+					layer.msg("提交审核成功");
+					taskBooks.requesttaskBooksData();
+				});
+				// 执行提交操作
+				common.do_submit(data);
+			});
+		});
+		
+		$("#issue").click(function(){
+			var flag =0;
+			var rowDatas = grid.getSelectRowsData();
+	        if (rowDatas.length<1) {
+	             layer.msg('请选择需要下发的任务书');
+	             return;
+	        }
+	        var taskBooksArray = [];
+			layer.confirm('确认要下发任务书吗？',function(index){
+				$.each(rowDatas,function(i,item){
+					var id = $("#taskBooks").data("kendoGrid").dataItem(item).id;
+					//状态判断
+					var state = $("#taskBooks").data("kendoGrid").dataItem(item).state;
+					if(state != "审核通过"){
+						flag=1;
+						return;
+					}
+					var taskBook = {};
+					taskBook.id = id;
+					taskBooksArray.push(taskBook);
+				});
+				if(flag == 1) {
+					layer.msg("您选择的记录中存在不符合下发条件的状态");
+					return;
+				}
+				var param = JSON.stringify(taskBooksArray);
+				// 添加参数 @param 参数key；参数value
+				var data = common.add_param("taskBookIds",param);
+				common.init("../taskbook/issue","POST",function(result){
+					//提交报错
+					if (result.code != 1) {
+						//提交报错
+						layer.msg(result.value);
+						return;
+					};
+					//提交成功
+					layer.msg("下发成功");
+					taskBooks.requesttaskBooksData();
+				});
+				// 执行提交操作
+				common.do_submit(data);
+			});
+		});
+		
+		$("#delete").click(function(){
+			//获取选中行数据对象
+			var flag=0;
+			var rowDatas = grid.getSelectRowsData();
+			if (rowDatas.length<=0) {
+				layer.msg('未选择任何行!', {icon:5,time:1000});
+				return;
+			}
+			/*删除*/
+			layer.confirm('确认要删除吗？',function(index){
+				// 获取Grid的选中行
+				var rowDatas = grid.getSelectRowsData();
+				var details = [];
+				$.each(rowDatas,function(i,item){
+					var id = $("#taskBooks").data("kendoGrid").dataItem(item).id;
+					//状态判断
+					var state = $("#taskBooks").data("kendoGrid").dataItem(item).state;
+					if(state != "创建"&&state != "审核未通过"){
+						layer.msg("当前状态不允许删除！");
+						flag=1;
+						return;
+					}
+					var detail = {};
+					detail.id = id;
+					details.push(detail);
+				});
+				if(flag==1) return;
+				var res = [details[0]];
+				for (var i = 1; i < details.length; i++) {
+	                var repeat = false;
+	                for (var j = 0; j < res.length; j++) {
+	                    if (details[i].id== res[j].id) {
+	                        repeat = true;
+	                        break;
+	                    }
+	                }
+	                if (!repeat) {
+	                	res.push(details[i]);
+	                }
+	            }
+				var paramJson = JSON.stringify(res);
+				// 添加参数 @param 参数key；参数value
+				var param = common.add_param("id",paramJson);
+				common.init("../taskbook/remove","POST",taskBooks.removeSuccess);
+				// 执行提交操作
+				common.do_submit(param);
+			});
+		});
+	},
+	
+	/**
+	 * 跳转到历史版本页面
+	 */
+	toHistoryPage : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取任务书ID
+		var id = rowData.id;
+		//获取任务书类型
+		var taskBookType= rowData.taskBookType;
+		// 跳转到历史版本页面
+		common.toPage("../historyTaskBook/index?taskBookId="+id+"&taskBookType="+taskBookType);
+	},
+	/**
+	 * 跳转到编辑页面
+	 */
+	toEditPage : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		if(rowData.state == "待审核"){
+			layer.msg("待审核状态无法编辑");
+			return;
+		}
+		// 获取任务书ID
+		var id = rowData.id;
+		//获取任务书类型
+		var taskBookType = rowData.taskBookType;
+		// 跳转到用户编辑页面
+		common.toPage("../taskbook/edit_page?id="+id+"&taskBookType="+taskBookType+"&flag=1");
+	},
+	/**
+	 * 跳转到编辑页面
+	 */
+	showModel : function(tr){
+		$("#myModal").modal('show');
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取任务书ID
+		var id = rowData.id;
+		$("#taskBookId").val(id);
+	},
+	/**
+	 * 跳转到编辑页面
+	 */
+	toexportTaskbook : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取任务书ID
+		var id = rowData.id;
+		// 跳转到用户编辑页面
+		common.toPage("../taskbook/export_taskbook?id="+id);
+	},
+	/**
+	 * 删除成功
+	 * */
+	removeSuccess : function(result){
+		grid.init("taskBooks");
+		layer.close(1);
+		if(result.code == 0){
+			layer.msg(msg.REMOVE_FAIL);
+			return;
+		}
+		layer.msg(msg.REMOVE_SUCCESS);
+		taskBooks.requesttaskBooksData();
+	}
+}

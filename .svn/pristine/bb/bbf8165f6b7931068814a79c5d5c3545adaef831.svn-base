@@ -1,0 +1,81 @@
+package com.ht.persistence.dao.inter.background.dicdata.defectform;
+
+import java.util.List;
+
+import com.ht.persistence.model.background.dicdata.defectform.DefectForm;
+
+/** 
+* @ClassName: DefectDao 
+* @Description: TODO(缺陷表单数据操作接口) 
+* @author penghao
+* @date 2016年11月6日 下午2:41:05 
+*  
+*/
+public interface DefectFormDao {
+	
+	/**
+	 * 获取缺陷表单集合
+	 * @param
+	 * @return
+	 */
+	List<DefectForm> getDefectFormList(DefectForm defectForm);
+	
+	/**
+	 * 保存数据
+	 * @param params json字符串
+	 * @return
+	 */
+	void add(DefectForm defectForm);
+	
+	/**
+	 * 修改数据
+	 * @param params json字符串
+	 * @return
+	 */
+	void modifyDefectForm(DefectForm defectForm);
+	
+	/**
+	 * 计算得分
+	 * @param params json字符串
+	 * @return
+	 */
+	void modifyCount(DefectForm defectForm,String taskInstId,String processInstId);
+	
+	/**
+	 * 删除数据
+	 * @param ids
+	 * @return
+	 */
+	void delDefectForm(DefectForm defectForm);
+	
+	/**
+	 * 根据id获取缺陷表单
+	 * @param defect实体
+	 * @return
+	 */
+	DefectForm getDefectFormById(DefectForm defectForm);
+
+	List<DefectForm> getDefectFormListByProcessInstIdAndFormId(DefectForm defectForm);
+
+	List<DefectForm> getDefectFormListByProcessInstId(String processInstId, String type);
+
+	List<DefectForm> getDefectFormListByProcessInstIdAndTaskId(DefectForm defectForm);
+
+	void updateGrading(DefectForm defectForm,String taskInstId,String processInstId);
+
+	List<DefectForm> getDefectFormListByTaskInstIds(String processInstId,
+			String taskInstId);
+
+	/**
+	 * @author huodesheng
+	 * @date 2017-9-1
+	 * @company DaoEasy
+	 * @param processInstId
+	 * @param type
+	 * @param type2
+	 * @return
+	 */
+	List<DefectForm> getDefectFormListByProcessInstId(String processInstId,
+			String type, String type2);
+
+}

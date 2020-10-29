@@ -1,0 +1,345 @@
+package com.ht.service.inter.system.workflow.task;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.transaction.jta.WebLogicJtaTransactionManager;
+
+import com.ht.persistence.model.drawtask.taskbook.book.TaskAnalysis;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBookUpTime;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationResultSummaryView;
+import com.ht.persistence.model.system.workflow.process.ProcessTypeCount;
+import com.ht.persistence.model.system.workflow.publish.VProcessDetail;
+import com.ht.persistence.model.system.workflow.task.HiTask;
+import com.ht.persistence.model.system.workflow.task.RuTask;
+import com.ht.service.impl.system.workflow.task.ProcessTypeEnum;
+import com.ht.service.impl.system.workflow.task.ProcessTypeEnumAll;
+import com.ht.service.impl.system.workflow.task.SeaMapEnum;
+import com.ht.service.impl.system.workflow.task.SeaMapPlanEnum;
+
+/**
+ * 流程任务业务处理类
+ * @author 王有为
+ * @date 2016/11/1
+ */
+public interface TaskService {
+
+	/**
+	 * 提交任务
+	 * @param taskId 任务实例ID
+	 * @param agreeValue 是否同意 同意1 退回0
+	 */
+	public void performTask_a(String userNo, String processInstId,String parentProcessInstId, String taskId,
+			String agreeValue, String advice, String advice1,String remark,String processDefId,String taskDefId,String mapName,String myfiles1,String errtxt1,String myfiles2,String errtxt2,String myfiles3,String errtxt3,String taskName) throws Exception;;
+			/**
+			 * 提交任务
+			 * @param taskId 任务实例ID
+			 * @param agreeValue 是否同意 同意1 退回0
+			 */
+    public void performTask(String userNo, String processInstId,String parentProcessInstId, String taskId,
+					String agreeValue, String advice, String advice1,String remark,String processDefId,String taskDefId,String mapName) throws Exception;;
+			
+	/**
+	 * 提交任务
+	 * @param taskId 任务实例ID
+	 * @param cliamUser 领取人
+	 */
+	public void performTaskWithcliamUser(String taskId,String cliamUser) throws Exception;
+	
+	/**
+	 * 提交任务
+	 * @param taskId 任务实例ID
+	 * @param callActivityIds 子流程ID列表
+	 */
+	public void performTaskWithCallActivity(String taskId,List<String> callActivityIds) throws Exception;
+
+	/**
+	 * 获取待办
+	 * @param userNo 用户
+	 * @param processDefId 流程定义ID
+	 * @throws Exception 
+	 */
+	public List<Map<String, Object>> getRuTask(String userNo,String loginNo,ProcessTypeEnum type,String year) throws Exception;
+	
+	/**
+	 * 获取所有待办
+	 * @throws Exception 
+	 */
+	public List<Map<String, Object>> getRuTask() throws Exception;
+	
+	/**
+	 * 获取所有待办
+	 * @throws Exception 
+	 */
+	public List<Map<String, Object>> getRuTask1() throws Exception;
+	
+	/**
+	 * 获取所有待办总数
+	 * @throws Exception 
+	 */
+	public int getRuTaskCnt() throws Exception;
+	/**
+	 * 获取计划待办
+	 * @author huodesheng
+	 * @date 2017-5-23
+	 * @company DaoEasy
+	 * @param type
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String, Object>> getPlanRuTask(String page,String pageSize,String year) throws Exception;
+	
+	/**
+	 * 获取目录待办
+	 * @param userNo 用户
+	 * @param processDefId 流程定义ID
+	 * @throws Exception 
+	 */
+	public List<Map<String, Object>> getCatalogRuTask(String userNo,String loginNo,ProcessTypeEnum type) throws Exception;
+
+	/**
+	 * 获取编绘管理待办任务
+	 * @param type
+	 * @return 
+	 * @throws Exception 
+	 */
+	List<Map<String, Object>> getDrawRuTask(String userId, ProcessTypeEnum type,String year) throws Exception;
+
+	/**
+	 * 获取任务书待办任务
+	 * @param userNo 用户登录号
+	 * @param type 类型
+	 * @return 任务书待办任务
+	 * @throws Exception
+	 */
+
+	List<Map<String, Object>> getTaskBookRuTask(String userId, ProcessTypeEnum processDefKey) throws Exception;
+
+	/**
+	 * 根据流程实例获取流程任务
+	 * @param processInstId 流程实例Id
+	 * @return 任务集合
+	 * @throws Exception
+	 */
+	public List<RuTask> getRuTaskByProcessInstId(String processInstId) throws Exception;
+	
+	/**
+	 * 挂起流程实例
+	 * @param processInstId 流程实例ID
+	 * @param userNo 用户编号
+	 * @param advice 意见
+	 */
+	public void suspendProcessInstance(String processInstId,String userNo,String advice) throws Exception;
+	
+	/**
+	 * 激活流程实例
+	 * @param processInstId 流程实例ID
+	 * @param userNo 用户编号
+	 * @param advice 意见
+	 */
+	public void activateProcessInstance(String processInstId,String userNo,String advice) throws Exception;
+	
+	/**
+	 * 委托受理人
+	 * @param processInstId 流程实例ID
+	 * @param taskId 任务实例ID
+	 * @param userNo 操作人
+	 * @param delegateUserId 委托人ID
+	 * @throws Exception
+	 */
+	public void delegateTask(String processInstId, String taskId, String userNo,
+			String delegateUserId,String taskDefId) throws Exception;
+	
+	/**
+	 * 获取所有海图编绘待办
+	 */
+	public List<Map<String, Object>> getAllDrawRuTask(SeaMapEnum type)
+			throws Exception;
+	/**
+	 * 获取所有海图计划编绘待办
+	 */
+	public List<Map<String, Object>> getAllDrawRuTask(SeaMapPlanEnum type)
+			throws Exception;
+
+	public List<Map<String, Object>> getBookInfoRuTask(String userNo, String loginNo, ProcessTypeEnum type) throws Exception;
+
+	public List<Map<String, Object>> getReturnBookRuTask(String userNo,
+			String loginNo, ProcessTypeEnum type) throws Exception;
+	
+	/**
+	 * 获取经办
+	 * @param loginNo 登录号 工号
+	 * @param type 流程类型
+	 * @return 经办列表
+	 * @throws Exception 
+	 */
+	public List<Map<String, Object>> getHiTask(String loginNo,ProcessTypeEnum type,String processInstId,String year) throws Exception;
+	public List<Map<String, Object>> getHiTaskGroupByProcessInstId(String loginNo,ProcessTypeEnum type,String year) throws Exception;
+
+	public List<Map<String, Object>> getDataInputRuTask(String userNo, String loginNo, ProcessTypeEnum type) throws Exception;
+
+	/**
+	 * 根据key获取待办
+	 */
+	List<Map<String, Object>> getRuTaskByKey(String key,String page,String pageSize,String year) throws Exception;
+
+	/**
+	 * 获取所有经办
+	 * @return
+	 * @throws Exception
+	 */
+
+	List<Map<String, Object>> getCompleteTaskByYear(String page,String pageSize,String year) throws Exception;
+
+	List<Map<String, Object>> getCompleteTask(String page,String pageSize,String year) throws Exception;
+
+	/**
+	 * 获取计划经办
+	 * @author huodesheng
+	 * @date 2017-5-23
+	 * @company DaoEasy
+	 * @param type
+	 * @return
+	 * @throws Exception
+	 */
+	List<Map<String, Object>> getPlanCompleteTask(String page,String pageSize,String year) throws Exception;
+
+	List<Map<String, Object>> getCompleteTaskByKey(String processDefKey,String page,String pageSize,String year) throws Exception;
+
+	List<HiTask> getHiTaskByProcessInstIdAndTaskDefId(String processInstId, String taskDefId);
+
+	List<Map<String, Object>> getProblemRuTask(String userNo, String loginNo, ProcessTypeEnum type) throws Exception;
+
+	/**
+	 * 获取用户可以进行委托的任务
+	 * @param loginNo
+	 * @return 
+	 * @throws Exception
+	 */
+	List<Map<String, Object>> getDelegateTask(String loginNo) throws Exception;
+
+	/**
+	 * 计划流程是否走完
+	 * @return
+	 */
+	List<HiTask> validQuality(String processInstId, String parentProcessInstId);
+	
+	List<ProcessTypeCount> getRuTaskCountGroupByKey(String userId) throws Exception;
+
+	List<Map<String, Object>> getHiTaskProcessInstId(String loginNo,
+			ProcessTypeEnum type, String processInstId,String year) throws Exception;
+
+
+	List<Map<String, Object>> getAllDrawRuTask(List<String> name) throws Exception;
+
+	int getAllDrawRuTaskCnt(List<String> name) throws Exception;
+
+	List<Map<String, Object>> getAllDrawRuTaskAll(List<String> name) throws Exception;
+
+	public List<Map<String, Object>> getRuTaskAll(String page, String pageSize,String year) throws Exception;
+	
+	public List<Map<String, Object>> getRuTaskAllByYear(String page, String pageSize,String year) throws Exception;
+	
+	public List<Map<String, Object>> getRuTaskAllDis(String year) throws Exception;
+
+	String updateBusinessStatus(VProcessDetail detail, String processDefId, String taskDefId, Boolean agree)
+			throws Exception;
+
+	List<Map<String, Object>> getAllDrawRuTaskDis(String year,ProcessTypeEnumAll type) throws Exception;
+	
+	List<HiTask> getTaskByParentProcessInstId(String parentProcessInstId);
+
+	public int getCompleteTaskCount() throws Exception;
+
+	public List<Map<String, Object>> getAllDrawRuTask(List<String> name, String page, String pageSize,String year) throws Exception;
+
+	public int getAllDrawRuTaskCount(List<String> name) throws Exception;
+
+	public int getRuTaskAllCount() throws Exception;
+
+	public int getPlanCompleteTaskCount() throws Exception;
+
+	public int getPlanRuTaskCount()throws Exception;
+
+	public List<Map<String, Object>> getAllDrawRuTask(SeaMapEnum type, String page, String pageSize,String year) throws Exception;
+
+	public int getAllDrawRuTaskCount(SeaMapEnum type) throws Exception;
+
+	public int getRuTaskByKeyCount(String key) throws Exception;
+
+	public int getCompleteTaskByKeyCount(String key) throws Exception;
+
+	public List<String> getAllTaskYear();
+	
+	public void delAllTempTask();
+	
+	/*添加所有任务书到临时表*/
+	public void addTaslAllList(List<Map<String, Object>> listAll);
+	/*添加所有 计划到临时表*/
+	public void addTaslAllListPlan(List<Map<String, Object>> listAll);
+
+
+	List<Map<String, Object>> getAllDrawRuTaskByYear(List<String> name, String page, String pageSize, String year)
+			throws Exception;
+	/*获取临时表的任务*/
+	public List<Map<String, Object>> allTasklist() throws Exception;
+	
+	/*	 编绘任务完成情况 全部任务  新任务完成情况	*/
+	public List<Map<String, Object>> getTaskAll(String year,String compType);
+	/*	 编绘任务完成情况 全部任务  新任务完成情况	*/
+	public List<Map<String, Object>> getTaskAllPlan(String year,String compType);
+	
+	/*	 编绘任务完成情况 全部任务 中间表	*/
+	public List<Map<String, Object>> zjb_getTaskAll(String year,String compType);
+	
+	/*	编印工作量完成情况 */
+	public   List<Map<String, Object>>  getCompletionFinish(String id,String startTime,String endTime,String year,String type) throws Exception;
+//	public   List<TaskAnalysis>  getCompletionFinish(String startTime,String endTime,String year) throws Exception;
+	
+	
+	/**
+	 * 导出
+	 * @param submissionSummarys
+	 * @param respose
+	 */
+	public void export(String chartCompletions, HttpServletResponse respose) throws Exception ;
+	public void exportsum(HttpServletResponse respose)throws Exception  ;
+	public void processingExport(String chartCompletions, String year,HttpServletResponse respose) throws Exception ;
+	public TaskAnalysis getSubmissionSummaryById(String id);
+	
+	/*	 编绘任务完成情况 全部任务  中间表	*/
+	public List<Map<String, Object>> zjb_getTaskAllPlan(String year,String compType);
+	
+	
+	//编绘计划已完成带年份 新
+	List<Map<String, Object>> getPlanCompleteTaskByYear(String page,String pageSize,String year) throws Exception;
+	//编绘计划未完成带年份 新
+	List<Map<String, Object>> getPlanRuTaskByYear(String page,String pageSize,String year) throws Exception;
+
+	void delAllTempTaskPlan();
+	 List<String> taskupTimeStr(String type);
+
+	 int updateTaskUpTime(String type, String sta);
+
+/*	public void addProcessBackHisByTaskId(String taskId);*/
+	  /**
+	   * 上传图片
+	   * @param File upload 上传图片
+	   * @param String uploadFileName 图片名称
+	   * @return 返回上传图片的路径
+	   */
+	String uploadFile(String myfiles1) throws IOException;
+	
+	///提交任务时更新 COMPILATION_TASK_PLAN 相关内容
+	void taskTaskPlan(String userNo, String processInstId, String parentProcessInstId, String taskId, String agreeValue,
+			String advice, String advice1, String remark, String processDefId, String taskDefId, String mapName,
+			String myfiles1, String errtxt1, String myfiles2, String errtxt2, String myfiles3, String errtxt3,
+			String taskName) throws Exception;
+
+
+
+}

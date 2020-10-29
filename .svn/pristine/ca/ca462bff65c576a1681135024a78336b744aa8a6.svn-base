@@ -1,0 +1,504 @@
+$(function(){
+	catalog_detail_edit.init();
+	//初始化时间控件
+	$('#publicationDate').datepicker({
+		startView: 1, 
+		maxViewMode: 1,
+		minViewMode:1,
+		format: 'yyyy-mm',
+		autoclose: true
+		});
+	$("#mapNo").attr("onkeyup","value=value.replace(/[^\\w]/ig,'')");
+	$("#mapNo").attr("onafterpaste","value=value.replace(/[^\\w]/ig,'')");
+	
+	$("#scale").attr("onkeyup","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	$("#scale").attr("onafterpaste","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+	
+	
+	/*$('#publicationYear').datepicker({
+			startView: 2, 
+			maxViewMode: 2,
+			minViewMode:2,
+			format: 'yyyy',
+			autoclose: true
+			});*/
+})
+
+var catalog_detail_edit = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		 var flag = $("#flag").val();
+		 if(flag == "1"){
+			 $("#submit").hide();
+			 $(" :input").each(function () {
+					$(this).attr("readonly","readonly");//设为只读 
+			 });
+		 }
+		catalog_detail_edit.bindPageEvent();
+		
+	},
+	
+	//保存回调函数
+	editSuccess : function(result){
+		if(result.code != 1){
+			if(result.value !="" && result.value != null){
+				layer.msg(result.value);
+				return;
+			}
+			layer.msg("保存失败！");
+			return;
+		}
+		layer.msg("保存成功！");
+		var type = $("#type").val();
+		var categoryId = $("#categoryId").val();
+		 //返回目录主页面
+		common.toPage("../detail/index?type="+type+"&categoryId="+categoryId);
+		 //执行刷新用户列表按钮
+		 parent.$("#refresh").click();
+	},
+	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		/** 绑定提交按钮的click事件*/
+		$("#submit").on("click",function(){
+			var regex1 = /[0-9]|E|W/;
+			var regex2 = /[0-9]|N|S/;
+			// 匹配纬度度
+			var regex3 = /^(\d*)?([N]|[S])?$/;
+			// 匹配纬度度分
+			var regex4 = /^(\d*)?((-(\d*){1}))([N]|[S]){0,1}$/;
+			// 匹配纬度度分秒
+			var regex5 = /^(\d*)?((-(\d*){1}))((-(\d*){1}))([N]|[S]){0,1}$/;
+			// 匹配经度度
+			var regex6 = /^(\d*)?([E]|[W])?$/;
+			// 匹配经度度分
+			var regex7 = /^(\d*)?((-(\d*){1}))([E]|[W]){0,1}$/;
+			// 匹配经度度度分秒
+			var regex8 = /^(\d*)?((-(\d*){1}))((-(\d*){1}))([E]|[W]){0,1}$/;
+			var category = $("#type").val();
+			// 获取登陆账号参数
+			var detail = {};
+			var type = {};
+			var area = {};
+			detail.id = $("#detailId").val();
+			type.id = $("#catalogTypeId").val();
+			detail.type = type;
+			area.id = $("#catalogAreaId").val();
+			if(area.id == null || area.id == ""){
+				layer.msg("请选择目录区域！");
+				return;
+			}
+			detail.area = area;
+			detail.mapNo = $("#mapNo").val();
+			if(detail.mapNo == null || detail.mapNo == ""){
+				layer.msg("请填写图号！");
+				return;
+			}
+			detail.mapName = $("#mapName").val();
+			if(detail.mapName == null || detail.mapName == ""){
+				layer.msg("请填写图名！");
+				return;
+			}
+			detail.scale = $("#scale").val();
+			if(detail.scale == null || detail.scale == ""){
+				layer.msg("请填写比例尺！");
+				return;
+			}
+			var starLatitude = $("#starLatitude").val();
+			if(starLatitude == null || starLatitude == ""){
+				layer.msg("请填写起始纬度！");
+				return;
+			}
+			if(!regex3.test(starLatitude)){
+				if(!regex4.test(starLatitude)){
+					if(!regex5.test(starLatitude)){
+						layer.msg("您输入的起始纬度数据有误,请改正！");
+						return;
+					}
+				}
+			}
+			var lastword1  = starLatitude.charAt(starLatitude.length-1);
+			if(!regex2.test(lastword1)){
+				layer.msg("起始纬度单位错误，纬度不填单位表示北纬！");
+				return;
+			}
+			var star1 = starLatitude.substring(0,starLatitude.length-1);
+			var array;
+			if(lastword1 == "N"){
+				array = star1.split("-");
+				if(array.length==1){
+					star1 = (Number(array[0])+90)+"°";
+				}else if(array.length==2){
+					star1 = (Number(array[0])+90)+"°"+array[1]+"′";
+				}else{
+					star1 = (Number(array[0])+90)+"°"+array[1]+"′"+array[2]+"″";
+				}
+				star1 = star1;
+			}else if(lastword1 == "S"){
+				array = star1.split("-");
+				if(array.length==1){
+					star1 = (-(Number(array[0]))+90)+"°";
+				}else if(array.length==2){
+					star1 = (-(Number(array[0]))+90)+"°"+array[1]+"′";
+				}else{
+					star1 = (-(Number(array[0]))+90)+"°"+array[1]+"′"+array[2]+"″";
+				}
+				star1 = star1;
+			}else{
+				array = starLatitude.split("-");
+				if(array.length==1){
+					starLatitude = (Number(array[0])+90)+"°";
+				}else if(array.length==2){
+					starLatitude = (Number(array[0])+90)+"°"+array[1]+"′";
+				}else{
+					starLatitude = (Number(array[0])+90)+"°"+array[1]+"′"+array[2]+"″";
+				}
+				star1 = starLatitude;
+			}
+			if(array.length==1){
+				if(Number(array[0])>90){
+					layer.msg("纬度不能大于90°");
+					return ;
+				}
+			}else if(array.length==2){
+				if(Number(array[0])==90 &&　Number(array[1])>0){
+					layer.msg("纬度不能大于90°");
+					return ;
+				}
+				if(Number(array[1])>60){
+					layer.msg("纬度的秒不能大于60′");
+					return ;
+				}
+			}else{
+				if(Number(array[0])== 90 && Number(array[1])+Number(array[2])>0){
+					layer.msg("纬度不能大于90°");
+					return ;
+				}
+				if(Number(array[1])>60){
+					layer.msg("纬度的分不能大于60′");
+					return ;
+				}
+				if(Number(array[2])>60){
+					layer.msg("纬度的秒不能大于60″");
+					return ;
+				}
+			}
+			detail.starLatitude = star1;
+			//获取南纬
+			var endLatitude = $("#endLatitude").val();
+			if(endLatitude == null || endLatitude == ""){
+				layer.msg("请填写终止纬度！");
+				return;
+			}
+			if(!regex3.test(endLatitude)){
+				if(!regex4.test(endLatitude)){
+					if(!regex5.test(endLatitude)){
+						layer.msg("您输入的终止纬度数据有误,请改正！");
+						return;
+					}
+				}
+			}
+			var lastword2 = endLatitude.charAt(endLatitude.length-1);
+			if(!regex2.test(lastword2)){
+				layer.msg("终止纬度单位错误，纬度不填单位表示北纬！");
+				return;
+			}
+			var end = endLatitude.substring(0,endLatitude.length-1);
+			var array2;
+			if(lastword2 == "N"){
+				array2 = end.split("-");
+				if(array2.length==1){
+					end = (Number(array2[0])+90)+"°";
+				}else if(array2.length==2){
+					end = (Number(array2[0])+90)+"°"+array2[1]+"′";
+				}else{
+					end = (Number(array2[0])+90)+"°"+array2[1]+"′"+array2[2]+"″";
+				}
+				end = end;
+			}else if(lastword2 == "S"){
+				array2 = end.split("-");
+				if(array2.length==1){
+					end = (-(Number(array2[0]))+90)+"°";
+				}else if(array2.length==2){
+					end = (-(Number(array2[0]))+90)+"°"+array2[1]+"′";
+				}else{
+					end = (-(Number(array2[0]))+90)+"°"+array2[1]+"′"+array2[2]+"″";
+				}
+				end = end;
+			}else{
+				array2 = endLatitude.split("-");
+				if(array2.length==1){
+					endLatitude = (Number(array2[0])+90)+"°";
+				}else if(array2.length==2){
+					endLatitude = (Number(array2[0])+90)+"°"+array2[1]+"′";
+				}else{
+					endLatitude = (Number(array2[0])+90)+"°"+array2[1]+"′"+array2[2]+"″";
+				}
+				end = endLatitude;
+			}
+			if(array2.length==1){
+				if(Number(array2[0])>90){
+					layer.msg("纬度不能大于90°");
+					return ;
+				}
+			}else if(array2.length==2){
+				if(Number(array2[0])==90 &&　Number(array2[1])>0){
+					layer.msg("纬度不能大于90°");
+					return ;
+				}
+				if(Number(array2[1])>60){
+					layer.msg("纬度的秒不能大于60′");
+					return ;
+				}
+			}else{
+				if(Number(array2[0])== 90 && Number(array2[1])+Number(array2[2])>0){
+					layer.msg("纬度不能大于90°");
+					return ;
+				}
+				if(Number(array2[1])>60){
+					layer.msg("纬度的分不能大于60′");
+					return ;
+				}
+				if(Number(array2[2])>60){
+					layer.msg("纬度的秒不能大于60″");
+					return ;
+				}
+			}
+			detail.endLatitude = end;
+			//获取东经
+			var starLongitude = $("#starLongitude").val();
+			if(starLongitude == null || starLongitude == ""){
+				layer.msg("请填写起始经度！");
+				return;
+			}
+			if(!regex6.test(starLongitude)){
+				if(!regex7.test(starLongitude)){
+					if(!regex8.test(starLongitude)){
+						layer.msg("您输入的起始经度数据有误,请改正！");
+						return;
+					}
+				}
+			}
+			var lastword3 = starLongitude.charAt(starLongitude.length-1);
+			if(!regex1.test(lastword3)){
+				layer.msg("起始经度单位错误，经度不填单位表示东经！");
+				return;
+			}
+			var star2 = starLongitude.substring(0,starLongitude.length-1);
+			var array3;
+			if(lastword3 == "E"){
+				array3 = star2.split("-");
+				if(array3.length==1){
+					star2 = (Number(array3[0])+180)+"°";
+				}else if(array3.length==2){
+					star2 = (Number(array3[0])+180)+"°"+array3[1]+"′";
+				}else{
+					star2 = (Number(array3[0])+180)+"°"+array3[1]+"′"+array3[2]+"″";
+				}
+				star2 = star2;
+			}else if(lastword3 == "W"){
+				array3 = star2.split("-");
+				if(array3.length==1){
+					star2 = (-(Number(array3[0]))+180)+"°";
+				}else if(array3.length==2){
+					star2 = (-(Number(array3[0]))+180)+"°"+array3[1]+"′";
+				}else{
+					star2 = (-(Number(array3[0]))+180)+"°"+array3[1]+"′"+array3[2]+"″";
+				}
+				star2 = star2;
+			}else{
+				array3 = starLongitude.split("-");
+				if(array3.length==1){
+					starLongitude = (Number(array3[0])+180)+"°";
+				}else if(array3.length==2){
+					starLongitude = (Number(array3[0])+180)+"°"+array3[1]+"′";
+				}else{
+					starLongitude = (Number(array3[0])+180)+"°"+array3[1]+"′"+array3[2]+"″";
+				}
+				star2 = starLongitude;
+			}
+			if(array3.length==1){
+				if(Number(array3[0])>180){
+					layer.msg("经度不能大于180°");
+					return ;
+				}
+			}else if(array3.length==2){
+				if(Number(array3[0])==180 &&　Number(array3[1])>0){
+					layer.msg("经度不能大于180°");
+					return ;
+				}
+				if(Number(array3[1])>60){
+					layer.msg("经度的秒不能大于60′");
+					return ;
+				}
+			}else{
+				if(Number(array3[0])== 180 && Number(array3[1])+Number(array2[2])>0){
+					layer.msg("经度不能大于90°");
+					return ;
+				}
+				if(Number(array3[1])>60){
+					layer.msg("经度的分不能大于60′");
+					return ;
+				}
+				if(Number(array3[2])>60){
+					layer.msg("经度的秒不能大于60″");
+					return ;
+				}
+			}
+			detail.starLongitude = star2;
+			//获取西经
+			var endLongitude = $("#endLongitude").val();
+			if(endLongitude == null || endLongitude == ""){
+				layer.msg("请填写终止经度！");
+				return;
+			}
+			if(!regex6.test(endLongitude)){
+				if(!regex7.test(endLongitude)){
+					if(!regex8.test(endLongitude)){
+						layer.msg("您输入的终止经度数据有误,请改正！");
+						return;
+					}
+				}
+			}
+			var lastword4 = endLongitude.charAt(endLongitude.length-1);
+			if(!regex1.test(lastword4)){
+				layer.msg("终止经度单位错误，经度不填单位表示东经！");
+				return;
+			}
+			var end2 = endLongitude.substring(0,endLongitude.length-1);
+			var array4;
+			if(lastword4 == "E"){
+				array4 = end2.split("-");
+				if(array4.length==1){
+					end2 = (Number(array4[0])+180)+"°";
+				}else if(array4.length==2){
+					end2 = (Number(array4[0])+180)+"°"+array4[1]+"′";
+				}else{
+					end2 = (Number(array4[0])+180)+"°"+array4[1]+"′"+array4[2]+"″";
+				}
+				end2 = end2;
+			}else if(lastword4 == "W"){
+				array4 = end2.split("-");
+				if(array4.length==1){
+					end2 = (-(Number(array4[0]))+180)+"°";
+				}else if(array4.length==2){
+					end2 = (-(Number(array4[0]))+180)+"°"+array4[1]+"′";
+				}else{
+					end2 = (-(Number(array4[0]))+180)+"°"+array4[1]+"′"+array4[2]+"″";
+				}
+				end2 = end2;
+			}else{
+				array4 = endLongitude.split("-");
+				if(array4.length==1){
+					endLongitude = (Number(array4[0])+180)+"°";
+				}else if(array4.length==2){
+					endLongitude = (Number(array4[0])+180)+"°"+array4[1]+"′";
+				}else{
+					endLongitude = (Number(array4[0])+180)+"°"+array4[1]+"′"+array4[2]+"″";
+				}
+				end2 = endLongitude;
+			}
+			if(array4.length==1){
+				if(Number(array4[0])>180){
+					layer.msg("经度不能大于180°");
+					return ;
+				}
+			}else if(array4.length==2){
+				if(Number(array4[0])==180 &&　Number(array4[1])>0){
+					layer.msg("经度不能大于180°");
+					return ;
+				}
+				if(Number(array4[1])>60){
+					layer.msg("经度的秒不能大于60′");
+					return ;
+				}
+			}else{
+				if(Number(array4[0])== 180 && Number(array4[1])+Number(array4[2])>0){
+					layer.msg("经度不能大于90°");
+					return ;
+				}
+				if(Number(array4[1])>60){
+					layer.msg("经度的分不能大于60′");
+					return ;
+				}
+				if(Number(array4[2])>60){
+					layer.msg("经度的秒不能大于60″");
+					return ;
+				}
+			}
+			detail.endLongitude = end2;
+			// 为1时是规划目录图，比其他的多字段
+			if(category == "1"){
+				detail.nature = $("#nature").val();
+				if(detail.nature == null || detail.nature == ""){
+					layer.msg("请填写性质！");
+					return;
+				}
+				detail.measurementPeriod = $("#measurementPeriod").val();
+				if(detail.measurementPeriod == null || detail.measurementPeriod == ""){
+					layer.msg("请填写测量周期！");
+					return;
+				}
+				detail.publicationYear = $("#publicationYear").val();
+				if(detail.publicationYear == null || detail.publicationYear == ""){
+					layer.msg("请填写出版周期！");
+					return;
+				}/*else{
+					reg = /^\d{4}$/;
+					if(!reg.test(detail.publicationYear)){
+						layer.msg("请填写正确的年份！");
+						return;
+					}
+				}*/
+				detail.datumLatitude = $("#datumLatitude").val();
+				if(detail.datumLatitude == null || detail.datumLatitude == ""){
+					layer.msg("请填写基准纬度！");
+					return;
+				}
+				detail.mapProportion = $("#mapProportion").val();
+				if(detail.mapProportion == null || detail.mapProportion == ""){
+					layer.msg("请填写图积！");
+					return;
+				}
+				detail.adjustmentProperty = $("#adjustmentProperty").val();
+				if(detail.adjustmentProperty == null || detail.adjustmentProperty == ""){
+					layer.msg("请填写调整性质！");
+					return;
+				}
+			}
+			var day = "-01";
+			detail.publicationDate = $("#publicationDate").val()+day;
+			if(detail.publicationDate == null || detail.publicationDate == ""){
+				layer.msg("请填写出版日期！");
+				return;
+			}
+			detail.remarks = $("#remarks").val();
+			detail.status = $("#status").val();
+			var detailJson = JSON.stringify(detail);
+			var param = common.add_param("detail", detailJson);
+			var categoryId = $("#categoryId").val();
+			common.init("../detail/add?categoryId="+categoryId,"POST",catalog_detail_edit.editSuccess);
+			common.do_submit(param);
+		});
+		
+		/** 绑定返回按钮的click事件*/
+		 $("#back").on("click",function(){
+			 var flag = $("#flag").val();
+			 if(flag == "1"){
+				 window.history.go(-1);
+			 }else{
+				 var type = $("#type").val();
+				 var categoryId = $("#categoryId").val();
+				//调回用户列表显示页面
+				 common.toPage("../detail/index?type="+type+"&categoryId="+categoryId);
+				//执行刷新用户列表按钮
+				 parent.$("#refresh").click();
+			 }
+			
+		 })
+	}
+}

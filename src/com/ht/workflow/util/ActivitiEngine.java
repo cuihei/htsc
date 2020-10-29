@@ -1,0 +1,1603 @@
+package com.ht.workflow.util;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.PersistenceException;
+
+import org.activiti.bpmn.BpmnAutoLayout;
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.CallActivity;
+import org.activiti.bpmn.model.EndEvent;
+import org.activiti.bpmn.model.FlowElement;
+import org.activiti.bpmn.model.Gateway;
+import org.activiti.bpmn.model.IOParameter;
+import org.activiti.bpmn.model.SequenceFlow;
+import org.activiti.bpmn.model.StartEvent;
+import org.activiti.bpmn.model.UserTask;
+import org.activiti.engine.ActivitiObjectNotFoundException;
+import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
+import org.activiti.engine.FormService;
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.ManagementService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.repository.ProcessDefinitionQuery;
+import org.activiti.engine.runtime.Execution;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.DelegationState;
+import org.activiti.engine.task.IdentityLink;
+import org.activiti.engine.task.Task;
+import org.activiti.image.ProcessDiagramGenerator;
+import org.activiti.image.impl.DefaultProcessDiagramGenerator;
+import org.activiti.spring.SpringProcessEngineConfiguration;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.common.util.BeanUtil;
+import com.ht.common.util.ConfigLookupHelper;
+import com.ht.common.util.EnvironmentUtil;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.workflow.common.ActivitiTaskInfo;
+import com.ht.workflow.common.ITaskInfo;
+import com.ht.workflow.common.IWorkflowEngine;
+import com.ht.workflow.constants.WorkflowConstants;
+import com.ht.workflow.layout.ProcessImageLayoutUtil;
+import com.ht.workflow.service.IWorkflowService;
+import com.ht.workflow.service.WorkflowService;
+import com.sun.star.sdbc.SQLException;
+
+/**
+ * Activiti工作流引擎类
+ * @author 王有为
+ * @version 1.0 2016/09/11
+ */
+public class ActivitiEngine implements IWorkflowEngine
+{
+
+	/** 工作流表单服务 */
+	private FormService formService = null;
+	/** 工作流历史服务 */
+	private HistoryService historyService = null;
+	/** 工作流身份服务 */
+	private IdentityService identityService = null;
+	/** 工作流管理服务 */
+	private ManagementService managementService = null;
+	/** 工作流库服务 */
+	private RepositoryService repositoryService = null;
+	/** 工作流运行时服务 */
+	private RuntimeService runtimeService = null;
+	/** 工作流任务服务 */
+	private TaskService taskService = null;
+	/** 流程图像生成工具 */
+	ProcessDiagramGenerator processDiagramGenerator = null;
+	/** 独立流程引擎配置工具 */
+	SpringProcessEngineConfiguration configuration = null;
+
+	/**
+	 * Activiti工作流引擎类构造方法
+	 */
+	protected ActivitiEngine()
+	{
+		try
+		{
+			// 初始化流程引擎
+			ProcessEngines.init();
+			// 获取配置文件
+			InputStream stream = EnvironmentUtil.getResourceAsStream(ActivitiEngine.class, WorkflowConstants.WORKFLOW_SESSION_CONFIG_FILE);
+			// 创建独立流程引擎配置工具
+			configuration = (SpringProcessEngineConfiguration) ProcessEngineConfiguration.createProcessEngineConfigurationFromInputStream(stream,
+					"processEngineConfiguration");
+			// 创建工作流引擎
+			ProcessEngine processEngine = configuration.buildProcessEngine();
+			// 取得工作流表单服务
+			formService = processEngine.getFormService();
+			// 取得工作流历史服务
+			historyService = processEngine.getHistoryService();
+			// 取得工作流身份服务
+			identityService = processEngine.getIdentityService();
+			// 取得工作流管理服务
+			managementService = processEngine.getManagementService();
+			// 取得工作流库服务
+			repositoryService = processEngine.getRepositoryService();
+			// 取得工作流运行时服务
+			runtimeService = processEngine.getRuntimeService();
+			// 取得工作流任务服务
+			taskService = processEngine.getTaskService();
+			// 取得流程图像生成工具
+			processDiagramGenerator = processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator();
+			// 注册流程引擎
+			ProcessEngines.registerProcessEngine(processEngine);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * 部署所有流程模板
+	 */
+	@Override
+	public void deploy()
+	{
+		// 创建配置查询助手类实例
+		ConfigLookupHelper helper = ConfigLookupHelper.getInstance(EnvironmentUtil.getResourceUrl(WorkflowEngineFactory.class,
+				WorkflowConstants.WORKFLOW_CONFIG_FILE));
+		// 取得工作流引擎类型
+		String engineType = helper.getValue(WorkflowConstants.XPATH_ENGINE_TYPE);
+		// 取得工作流模板列表
+		List<String> templates = helper.getValues(StringUtils.replace(WorkflowConstants.XPATH_WORKFLOW_TEMPLATE, "{0}", engineType));
+
+		// 如果工作流库服务和工作流模板列表不为空
+		if (repositoryService != null && templates != null && !templates.isEmpty())
+		{
+
+			// 循环处理所有工作流模板
+			for (String template : templates)
+			{
+
+				// 如果工作流模板需要重新部署
+				if (needDeploy(template))
+				{
+
+					// 部署工作流模板
+					repositoryService.createDeployment().addClasspathResource(template).name(template).deploy();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 判断工作流模板资源是否需要重新部署
+	 * @param template 工作流模板资源
+	 * @return 判断结果（TRUE：需要重新部署；FALSE：不需要重新部署）
+	 */
+	private boolean needDeploy(String template)
+	{
+
+		// 声明判断结果
+		boolean result = true;
+
+		// 如果工作流库服务不为空
+		if (repositoryService != null)
+		{
+
+			// 取得工作流部署信息数组
+			List<Deployment> deployments = repositoryService.createDeploymentQuery().deploymentName(template).orderByDeploymenTime().desc().list();
+
+			// 如果工作流部署信息数组不为空
+			if (deployments != null && !deployments.isEmpty())
+			{
+
+				// 取得第一个工作流部署信息
+				Deployment deployment = deployments.get(0);
+
+				// 取得部署资源输入流
+				InputStream is = repositoryService.getResourceAsStream(deployment.getId(), template);
+				// 取得部署资源MD5码
+				String md5 = FileUtil.getFileMD5(is);
+
+				// 取得资源文件URL路径
+				String urlPath = StringUtils.startsWith(template, "/") ? template : new StringBuilder().append("/").append(template).toString();
+				// 取得资源文件MD5码
+				String _md5 = FileUtil.getFileMD5(EnvironmentUtil.getResourceAsStream(ActivitiEngine.class, urlPath));
+
+				// 如果MD5码相同
+				if (StringUtils.equals(md5, _md5))
+				{
+
+					// 设置判断结果
+					result = false;
+				}
+			}
+		}
+
+		// 返回判断结果
+		return result;
+	}
+
+	@Override
+	/**
+	 * 获取流程定义
+	 */
+	public List<ProcessDefinition> getProcessDefinition()
+	{
+		List<ProcessDefinition> list = null;
+		// 如果工作流库服务不为空
+		if (repositoryService != null)
+		{
+			// 创建一个流程定义的查询对象
+			ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery();
+			// 结果集
+			list = processDefinitionQuery.orderByProcessDefinitionVersion().asc().list();
+		}
+		return list;
+	}
+
+	@Override
+	/**
+	 * 获取流程定义
+	 */
+	public ProcessDefinition getProcessDefinitionId(String flowId)
+	{
+		ProcessDefinition process = null;
+		// 如果工作流库服务不为空
+		if (repositoryService != null)
+		{
+			// 创建一个流程定义的查询对象
+			ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery().processDefinitionId(flowId);
+			// 结果集
+			process = processDefinitionQuery.orderByProcessDefinitionVersion().asc().singleResult();
+		}
+		return process;
+	}
+
+	@Override
+	/**
+	 * 获取流程定义
+	 */
+	public ProcessDefinition getProcessDefinitionIdByKey(String processDefKey)
+	{
+		ProcessDefinition process = null;
+		// 如果工作流库服务不为空
+		if (repositoryService != null)
+		{
+			// 创建一个流程定义的查询对象
+			ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery().processDefinitionKey(processDefKey);
+			// 结果集
+			process = processDefinitionQuery.orderByProcessDefinitionVersion().asc().latestVersion().singleResult();
+		}
+		return process;
+	}
+
+	/**
+	 * 关闭流程引擎
+	 */
+	@Override
+	public void close()
+	{
+
+		// 销毁所有工作流引擎
+		ProcessEngines.destroy();
+	}
+
+	/**
+	 * 彻底删除流程
+	 * @param processKey
+	 */
+	@Override
+	public void removeProcess(String deploymentId)
+	{
+		repositoryService.deleteDeployment(deploymentId, true);
+	}
+
+	@Override
+	public void deleteProcessInst(String processInstId){
+		runtimeService.deleteProcessInstance(processInstId, null);
+	}
+	
+	@Override
+	public void deleteHiProcessInst(String processInstId) {
+		historyService.deleteHistoricProcessInstance(processInstId);
+		
+	}
+	
+	/**
+	 * 启动工作流
+	 * @param processId 工作流ID
+	 * @param launcher 工作流发起人
+	 * @param argumentList 流程参数列表
+	 * @return 工作流实例ID
+	 */
+	@Override
+	public String start(String processId, String launcher, ArgumentList argumentList)
+	{
+
+		// 声明工作流参数散列集
+		Map<String, Object> variablesMap = new HashMap<String, Object>();
+
+		// 如果流程参数里表不为空
+		if (argumentList != null && !argumentList.isEmpty())
+		{
+
+			// 声明流程参数名称
+			String variableName = null;
+
+			// 循环处理所有流程参数
+			for (Iterator<String> iterator = argumentList.getAllArgumentNames(); iterator.hasNext();)
+			{
+
+				// 取得流程参数名称
+				variableName = iterator.next();
+
+				// 想工作流参数散列击中添加参数
+				variablesMap.put(variableName, argumentList.getValue(variableName));
+			}
+		}
+
+		// 设置工作流发起人
+		identityService.setAuthenticatedUserId(launcher);
+		// 启动工作流
+		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processId, variablesMap);
+		// 返回工作流实例ID
+		return processInstance.getId();
+	}
+	
+	/**
+	 * 取得工作流任务列表
+	 * @param performer 执行者
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getAllTaskList(String processDefKey)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给执行者的任务列表
+			List<Task> tasks = taskService.createTaskQuery().processDefinitionKey(processDefKey).orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+	
+	/**
+	 * 取得工作流任务列表
+	 * @param performer 执行者
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getTaskList(String performer)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给执行者的任务列表
+			List<Task> tasks = taskService.createTaskQuery().taskAssignee(performer).orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 取得工作流任务列表
+	 * @param performer 执行者
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getTaskListByProcessInstId(String processInstId)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给执行者的任务列表
+			List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstId).orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 根据候选用户组和流程定义Key取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @param processDefKey 流程定义Key
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getTaskListByPeformerAndProcessKey(String peformer, String processDefKey)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给候选用户组的任务列表  此处改正通告编辑过来后取不到任务 所以待办任务中就显示不出来 2019.7.12
+			List<Task> tasks = taskService.createTaskQuery().taskAssignee(peformer).processDefinitionKey(processDefKey).orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 根据候选用户组取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getTaskListByCandidateGroup(String groupName)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给候选用户组的任务列表
+			List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(groupName).orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 根据候选用户组和流程定义Key取得工作流任务列表
+	 * @param groupName 用户组名称
+	 * @param processDefKey 流程定义Key
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getTaskListByCandidateGroupAndProcessKey(String groupName, String processDefKey)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给候选用户组的任务列表
+			List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(groupName).processDefinitionKey(processDefKey)
+					.orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 工具候选用户取得工作流任务列表
+	 * @param userName 用户名称
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getTaskListByCandidateUser(String userName)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给候选用户的任务列表
+			List<Task> tasks = taskService.createTaskQuery().taskCandidateUser(userName).orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 根据候选指定名称取得工作流任务列表
+	 * @param name 名称
+	 * @return 工作流任务列表
+	 */
+	@Override
+	public List<ITaskInfo> getTaskListByCandidateOrAssignee(String name)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得分配给候选用户的任务列表
+			List<Task> tasks = taskService.createTaskQuery().taskCandidateOrAssigned(name).orderByTaskCreateTime().desc().list();
+			// 生成工作流任务列表
+			taskInfos = generateTaskInfosList(tasks);
+		}
+
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 领取工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param performer 执行者
+	 * @return 处理结果（1：工作流任务领取成功；2：工作流任务无法找到；3：工作流任务已经被领取）
+	 */
+	@Override
+	public int claim(String taskId, String performer)
+	{
+
+		// 声明处理结果
+		int result = WorkflowConstants.TASK_CLAIM_STATUS_TASK_CLAIM_SUCCESSFULLY;
+
+		// 如果工作流任务不为空
+		if (taskService != null)
+		{
+
+			try
+			{
+
+				// 领取任务
+				taskService.claim(taskId, performer);
+			}
+			// 发生工作流任务不存在异常
+			catch (ActivitiObjectNotFoundException e)
+			{
+
+				// 设置处理结果
+				result = WorkflowConstants.TASK_CLAIM_STATUS_TASK_NOT_FOUND;
+			}
+			// 发生工作流任务已经被领取异常
+			catch (ActivitiTaskAlreadyClaimedException e)
+			{
+
+				// 设置处理结果
+				result = WorkflowConstants.TASK_CLAIM_STATUS_TASK_ALREADY_CLAIMED;
+			}
+		}
+
+		// 返回处理结果
+		return result;
+	}
+
+	/**
+	 * 执行工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param argumentList 流程参数列表
+	 */
+	@Override
+	public void perform(String taskId, ArgumentList argumentList)
+	{
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null && runtimeService != null)
+		{
+
+			// 取得工作流任务实例
+			Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+
+			// 如果流程参数里表不为空
+			if (argumentList != null && !argumentList.isEmpty()&&task!=null)
+			{
+
+				// 声明流程参数名称
+				String variableName = null;
+
+				// 循环处理所有流程参数  
+				try {  //有可能 iterator 取不到值为空
+					
+									
+					Iterator<String> iterator = argumentList.getAllArgumentNames(); 
+					while (iterator.hasNext()) {
+						// 取得流程参数名称
+						variableName = iterator.next();
+						// 设置运行时流程参数
+						if(variableName!=null)
+						runtimeService.setVariable(task.getExecutionId(), variableName, argumentList.getValue(variableName));
+					}
+			
+					
+				} catch (Exception e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+				}
+			}
+			// 获取委托状态
+			DelegationState delegationState = task.getDelegationState();
+			// 如果存在委托
+			if (delegationState != null)
+			{
+				if (delegationState.equals(DelegationState.PENDING))
+				{
+					taskService.resolveTask(taskId);
+				}
+			}
+			taskService.complete(taskId);
+		}
+	}
+
+	/**
+	 * 委派工作流任务
+	 * @param taskId 工作流任务ID
+	 * @param performer 执行者
+	 */
+	@Override
+	public void delegate(String taskId, String performer)
+	{
+
+		// 如果工作流任务服务和工作流运行时服务不为空
+		if (taskService != null)
+		{
+			// 将工作流任务委派给执行的执行者
+			taskService.delegateTask(taskId, performer);
+		}
+	}
+
+	/**
+	 * 获取当前任务受理信息
+	 * @param taskId 任务ID
+	 */
+	@Override
+	public List<IdentityLink> getIdentityLinkByTask(String taskId){
+		// 获取当前任务受理信息
+		List<IdentityLink>  identityLinks = taskService.getIdentityLinksForTask(taskId);
+		// 返回受理信息
+		return identityLinks;
+	}
+	
+	/**
+	 * 创建用户
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void createUser(String userId, String userName)
+	{
+		// 查询是否存在此用户
+		User isSingle = identityService.createUserQuery().userId(userId).singleResult();
+		// 如果用户不存在
+		if (isSingle == null)
+		{
+			// 新建用户
+			User user = identityService.newUser(userId);
+			user.setFirstName(userName);
+			// 保存用户
+			identityService.saveUser(user);
+		}
+	}
+
+	/**
+	 * 删除用户
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void deleteUser(String userName)
+	{
+		// 删除用户
+		identityService.deleteUser(userName);
+	}
+
+	/**
+	 * 创建用户组
+	 * @param groupName 用户组名称
+	 */
+	@Override
+	public void createGroup(String groupId, String groupName)
+	{
+
+		// 新建用户组
+		Group group = identityService.newGroup(groupId);
+		group.setName(groupName);
+		// 保存用户组
+		identityService.saveGroup(group);
+	}
+
+	/**
+	 * 删除用户组
+	 * @param groupName 用户组名称
+	 */
+	@Override
+	public void deleteGroup(String groupName)
+	{
+
+		// 删除用户组
+		identityService.deleteGroup(groupName);
+	}
+
+	/**
+	 * 得到用户组
+	 * @param groupName 用户组名称
+	 * @return
+	 */
+	@Override
+	public List<Group> getGroup(String groupName)
+	{
+		// 得到用户组
+		List<Group> list = identityService.createGroupQuery().groupId(groupName).list();
+		return list;
+	}
+
+	/**
+	 * 得到用户组
+	 * @param groupName 用户组名称
+	 * @return
+	 */
+	@Override
+	public List<Group> getGroups()
+	{
+		// 得到用户组
+		List<Group> list = identityService.createGroupQuery().list();
+		return list;
+	}
+
+	@Override
+	public List<User> getUsersByGroup(String groupId)
+	{
+		// 返回组内用户列表
+		return identityService.createUserQuery().memberOfGroup(groupId).list();
+	}
+
+	/**
+	 * 获取所有用户
+	 * @param groupName 组名称
+	 * @return 组内用户
+	 */
+	public List<User> findAllUser()
+	{
+		// 返回组内用户列表
+		return identityService.createUserQuery().list();
+	}
+
+	/**
+	 * 修改用户组
+	 * @param groupName 用户组名称
+	 * @return
+	 */
+	@Override
+	public void UpdateGroup(String groupid, String groupName)
+	{
+		// 得到用户组
+		List<Group> list = identityService.createGroupQuery().groupId(groupid).list();
+		if (list.size() > 0)
+		{
+			Group group = list.get(0);
+			group.setName(groupName);
+			// 保存用户组
+			identityService.saveGroup(group);
+		}
+	}
+
+	/**
+	 * 将用户添加到用户组中
+	 * @param groupName 用户组名称
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void addUserToGroup(String groupName, String userName)
+	{
+
+		// 将用户添加到用户组中
+		identityService.createMembership(userName, groupName);
+	}
+
+	/**
+	 * 批量将用户添加到用户组中
+	 * @param groupName 用户组名称
+	 * @param userNames 用户名称列表
+	 */
+	@Override
+	public void addUsersToGroup(String groupName, List<String> userNames)
+	{
+
+		// 如果用户名称列表不为空
+		if (userNames != null && !userNames.isEmpty())
+		{
+
+			// 循环处理用户名称列表
+			for (String userName : userNames)
+			{
+
+				// 将用户添加到用户组中
+				addUserToGroup(groupName, userName);
+			}
+		}
+	}
+
+	/**
+	 * 将用户从用户组中删除
+	 * @param groupName 用户组名称
+	 * @param userName 用户名称
+	 */
+	@Override
+	public void deleteUserFromGroup(String groupName, String userName)
+	{
+		// 将用户从用户组中删除
+		identityService.deleteMembership(userName, groupName);
+	}
+
+	/**
+	 * 批量将用户从用户组中删除
+	 * @param groupName 用户组名称
+	 * @param userNames 用户名称列表
+	 */
+	@Override
+	public void deleteUsersFromGroup(String groupName, List<String> userNames)
+	{
+
+		// 如果用户名称列表不为空
+		if (userNames != null && !userNames.isEmpty())
+		{
+
+			// 循环处理用户名称列表
+			for (String userName : userNames)
+			{
+
+				// 将用户添加到用户组中
+				deleteUserFromGroup(groupName, userName);
+			}
+		}
+	}
+
+	/**
+	 * 获取用户所属组列表
+	 * @param userName 用户
+	 * @return 组列表
+	 */
+	@Override
+	public List<Group> getGroupsByUser(String userName)
+	{
+		return identityService.createGroupQuery().groupMember(userName).list();
+	}
+
+	/**
+	 * 取得工作流结束时间
+	 * @param processId 工作流ID
+	 * @return 工作流结束时间
+	 */
+	@Override
+	public Date getProcessEndTime(String processId)
+	{
+
+		// 声明工作流结束时间
+		Date endTime = null;
+
+		// 如果工作流历史服务不为空
+		if (historyService != null)
+		{
+
+			// 取得已经结束的工作流实例
+			HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processId)
+					.singleResult();
+
+			// 如果已经结束的工作流实例不为空
+			if (historicProcessInstance != null)
+			{
+
+				// 取得工作流结束时间
+				endTime = historicProcessInstance.getEndTime();
+			}
+		}
+
+		// 返回工作流结束时间
+		return endTime;
+
+	}
+
+	/**
+	 * 生成工作流任务信息列表
+	 * @param tasks 工作流任务实例列表
+	 * @return 工作流任务信息列表
+	 */
+	private List<ITaskInfo> generateTaskInfosList(List<Task> tasks)
+	{
+
+		// 声明工作流任务列表
+		List<ITaskInfo> taskInfos = new ArrayList<ITaskInfo>();
+
+		// 如果分配给执行者的任务列表不为空
+		if (tasks != null && !tasks.isEmpty())
+		{
+
+			// 声明工作流任务信息散列表
+			ActivitiTaskInfo taskInfo = null;
+
+			// 循环处理工作流任务列表
+			for (Task task : tasks)
+			{
+				// 创建工作流任务
+				taskInfo = new ActivitiTaskInfo();
+
+				// 设置工作流任务执行者
+				taskInfo.setPerformer(task.getAssignee());
+				// 设置工作流任务种类
+				taskInfo.setCategory(task.getCategory());
+				// 设置工作流任务创建时间
+				taskInfo.setCreateTime(task.getCreateTime());
+				// 设置工作流任务代理状态
+				taskInfo.setDelegationState(task.getDelegationState() == DelegationState.PENDING ? WorkflowConstants.TASK_DELEGATION_STATE_PENDING
+						: WorkflowConstants.TASK_DELEGATION_STATE_RESOLVED);
+				// 设置工作流任务描述
+				taskInfo.setDescription(task.getDescription());
+				// 设置工作流任务处理日
+				taskInfo.setDueDate(task.getDueDate());
+				// 设置工作流任务执行ID
+				taskInfo.setExecutionId(task.getExecutionId());
+				// 设置工作流任务表单主键
+				taskInfo.setFormKey(task.getFormKey());
+				// 设置工作流任务ID
+				taskInfo.setId(task.getId());
+				// 设置工作流任务名称
+				taskInfo.setName(task.getName());
+				// 设置工作流任务所有者
+				taskInfo.setOwner(task.getOwner());
+				// 设置工作流任务父任务ID
+				taskInfo.setParentTaskId(task.getParentTaskId());
+				// 设置工作流任务优先级
+				taskInfo.setPriority(task.getPriority());
+				// 设置工作流定义ID
+				taskInfo.setProcessDefinitionId(task.getProcessDefinitionId());
+				// 取得工作流定义名称
+				String processDefInitName = repositoryService.createProcessDefinitionQuery().processDefinitionId(task.getProcessDefinitionId())
+						.singleResult().getName();
+				// 设置工作流定义名称
+				taskInfo.setProcessDefInitName(processDefInitName);
+				// 设置工作流实例ID
+				taskInfo.setProcessInstanceId(task.getProcessInstanceId());
+				// 设置工作流任务定义ID
+				taskInfo.setTaskDefinitionKey(task.getTaskDefinitionKey());
+				// 设置工作流任务参数
+				taskInfo.setTaskArgumentList(task.getTaskLocalVariables());
+				// 设置工作流参数列表
+				taskInfo.setProcessArgumentList(runtimeService.getVariables(task.getExecutionId()));
+				// 设置工作流任务
+				taskInfo.setTenantId(task.getTenantId());
+				// 设置工作流挂起状态
+				taskInfo.setSuspendState(task.isSuspended());
+				// 设置任务父流程ID
+				Execution execution = runtimeService.createExecutionQuery().executionId(task.getExecutionId()).singleResult();
+				Map<String, Object> superExecutionIdmap = BeanUtil.getInstance().getProperty(execution, "superExecutionId");
+				if (superExecutionIdmap != null)
+				{
+					if (superExecutionIdmap.get("superExecutionId") != null)
+					{
+						String superExecutionId = superExecutionIdmap.get("superExecutionId").toString();
+						String parentProcessInstId = runtimeService.createExecutionQuery().executionId(superExecutionId).singleResult().getProcessInstanceId();
+						taskInfo.setSuperProcessInstanceId(parentProcessInstId);
+					}
+				}
+				// 将工作流任务信息添加到工作流任务列表中
+				taskInfos.add(taskInfo);
+			}
+		}
+
+		// 返回工作流任务列表
+		return taskInfos;
+	}
+
+	/**
+	 * 获取所有组
+	 * @return
+	 */
+	public List<Group> findGroups()
+	{
+		// 返回组列表
+		return identityService.createGroupQuery().list();
+	}
+
+	/**
+	 * 获取组内用户
+	 * @param groupName 组名称
+	 * @return 组内用户
+	 */
+	public List<User> findUsersByGroupId(String groupName)
+	{
+		// 返回组内用户列表
+		return identityService.createUserQuery().memberOfGroup(groupName).list();
+	}
+
+	/**
+	 * 创建一个人工任务
+	 * @param id 任务ID
+	 * @param name 任务名称
+	 * @param assignee 受理人
+	 * @return 人工任务节点
+	 */
+	@Override
+	public UserTask createUserTask(String id, String name, List<String> candidateGroups, String assignee)
+	{
+		// 新建用户任务
+		UserTask userTask = new UserTask();
+		// 设置用户任务名称
+		userTask.setName(name);
+		// 设置用户任务ID
+		userTask.setId(id);
+		// 设置用户任务候选组
+		userTask.setCandidateGroups(candidateGroups);
+		// 设置用户
+		userTask.setAssignee("${" + assignee + "}");
+		// 返回用户任务
+		return userTask;
+	}
+
+	/**
+	 * 创建一个人工任务
+	 * @param id 任务ID
+	 * @param name 任务名称
+	 * @param assignee 受理人
+	 * @return 人工任务节点
+	 */
+	@Override
+	public UserTask createUserTask(String id, String name, String assinee)
+	{
+		// 新建用户任务
+		UserTask userTask = new UserTask();
+		// 设置用户任务名称
+		userTask.setName(name);
+		// 设置用户任务ID
+		userTask.setId(id);
+		// 设置用户
+		userTask.setAssignee("${" + assinee + "}");
+		// 返回用户任务
+		return userTask;
+	}
+
+	/**
+	 * 创建一个链接
+	 * @param from 链接起点
+	 * @param to 链接终点
+	 * @return 链接
+	 */
+	public SequenceFlow createSequenceFlow(String from, String to, String conditionExpression)
+	{
+		// 新建链接
+		SequenceFlow flow = new SequenceFlow();
+		// 设置链接来源
+		flow.setSourceRef(from);
+		// 设置连接去向
+		flow.setTargetRef(to);
+		// 设置条件表达式
+		flow.setConditionExpression(conditionExpression);
+		// 返回链接
+		return flow;
+	}
+
+	/**
+	 * 创建一个起始
+	 * @return
+	 */
+	public StartEvent createStartEvent()
+	{
+		// 新建开始节点
+		StartEvent startEvent = new StartEvent();
+		// 设置开始节点ID
+		startEvent.setId("ru_task_start");
+		// 返回开始节点
+		return startEvent;
+	}
+
+	/**
+	 * 创建一个结束
+	 * @return
+	 */
+	public EndEvent createEndEvent()
+	{
+		// 新建结束节点
+		EndEvent endEvent = new EndEvent();
+		// 设置结束节点ID
+		endEvent.setId("ru_task_end");
+		// 返回结束节点
+		return endEvent;
+	}
+
+	@Override
+	/**
+	 * 创建流程
+	 * @param processId 流程ID
+	 * @param processName 流程名称
+	 * @param taskList 任务列表
+	 * @param sequenceFlowList 流向列表
+	 * @param childProcesses 调用的子流程
+	 * @throws IOException 传输异常
+	 */
+	public String createProcess(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList, List<CallActivity> childProcesses, String layoutXml) throws IOException
+	{
+		// 创建流程视图操作模块
+		BpmnModel model = new BpmnModel();
+		// 新建流程对象
+		org.activiti.bpmn.model.Process process = new org.activiti.bpmn.model.Process();
+		// 将流程对象增加到流程视图
+		model.addProcess(process);
+		// 设置流程ID
+		process.setId(processId);
+		// 设置流程名称
+		process.setName(processName);
+		process.addFlowElement(createStartEvent());
+		process.addFlowElement(createEndEvent());
+		// 循环用户任务增加到流程视图
+		if (taskList != null)
+		{
+			for (int i = 0; i < taskList.size(); i++)
+			{
+				process.addFlowElement(taskList.get(i));
+			}
+		}
+		// 循环流向链接增加到流程视图
+		if (sequenceFlowList != null)
+		{
+			for (int i = 0; i < sequenceFlowList.size(); i++)
+			{
+				process.addFlowElement(sequenceFlowList.get(i));
+			}
+		}
+		if (gatewayList != null)
+		{
+			// 循环网关增加到流程视图
+			for (int i = 0; i < gatewayList.size(); i++)
+			{
+				process.addFlowElement(gatewayList.get(i));
+			}
+		}
+		// 将调用的流程集合增加到流程视图
+		if (childProcesses != null)
+		{
+			for (int i = 0; i < childProcesses.size(); i++)
+			{
+				process.addFlowElement(childProcesses.get(i));
+			}
+		}
+		try
+		{
+			// 执行视图自动编辑器
+			// ProcessImageLayoutUtil.setModelLayout(processId,model,layoutXml);
+			// 执行视图自动编辑器
+			new BpmnAutoLayout(model).execute();
+			// 部署当前流程
+			repositoryService.createDeployment().addBpmnModel(processName + ".bpmn", model).name(processName).deploy();
+		}
+		catch (Exception e)
+		{
+			LogHelper.FATAL.log(e.getMessage(), e);
+		}
+		// 查询部署好的流程定义
+		ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery();
+		// 返回流程定义ID
+		return processDefinitionQuery.processDefinitionKey(processId).list().get(0).getId();
+	}
+
+	/**
+	 * 创建流程
+	 * @param processId 流程ID
+	 * @param processName 流程名称
+	 * @param taskList 任务列表
+	 * @param sequenceFlowList 流向列表
+	 * @throws IOException 传输异常
+	 */
+	@Override
+	public String createProcess(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList) throws IOException
+	{
+		// 创建流程视图操作模块
+		BpmnModel model = new BpmnModel();
+		// 新建流程对象
+		org.activiti.bpmn.model.Process process = new org.activiti.bpmn.model.Process();
+		// 将流程对象增加到流程视图
+		model.addProcess(process);
+		// 设置流程ID
+		process.setId(processId);
+		// 设置流程名称
+		process.setName(processName);
+		process.addFlowElement(createStartEvent());
+		process.addFlowElement(createEndEvent());
+		// 循环用户任务增加到流程视图
+		if (taskList != null)
+		{
+			for (int i = 0; i < taskList.size(); i++)
+			{
+				process.addFlowElement(taskList.get(i));
+			}
+		}
+		// 循环流向链接增加到流程视图
+		if (sequenceFlowList != null)
+		{
+			for (int i = 0; i < sequenceFlowList.size(); i++)
+			{
+				process.addFlowElement(sequenceFlowList.get(i));
+			}
+		}
+		if (gatewayList != null)
+		{
+			// 循环网关增加到流程视图
+			for (int i = 0; i < gatewayList.size(); i++)
+			{
+				process.addFlowElement(gatewayList.get(i));
+			}
+		}
+		try
+		{
+			// 执行视图自动编辑器
+			new BpmnAutoLayout(model).execute();
+			// 部署当前流程
+			repositoryService.createDeployment().addBpmnModel(processName + ".bpmn", model).name(processName).deploy();
+		}
+		catch (Exception e)
+		{
+			LogHelper.FATAL.log(e.getMessage(), e);
+		}
+
+		// 查询部署好的流程定义
+		ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery();
+		// 返回流程定义ID
+		return processDefinitionQuery.processDefinitionKey(processId).list().get(0).getId();
+	}
+
+	/**
+	 * 获取流程图样式
+	 * @param processId 流程ID
+	 * @param processName 流程名称
+	 * @param taskList 任务列表
+	 * @param sequenceFlowList 流向列表
+	 * @param gatewayList 网关列表
+	 */
+	@Override
+	public String getLayoutXml(String processId, String processName, List<UserTask> taskList, List<SequenceFlow> sequenceFlowList,
+			List<Gateway> gatewayList)
+	{
+		// 创建流程视图操作模块
+		BpmnModel model = new BpmnModel();
+		// 新建流程对象
+		org.activiti.bpmn.model.Process process = new org.activiti.bpmn.model.Process();
+		// 将流程对象增加到流程视图
+		model.addProcess(process);
+		// 设置流程ID
+		process.setId(processId);
+		// 设置流程名称
+		process.setName(processName);
+		process.addFlowElement(createStartEvent());
+		process.addFlowElement(createEndEvent());
+		// 循环用户任务增加到流程视图
+		if (taskList != null)
+		{
+			for (int i = 0; i < taskList.size(); i++)
+			{
+				process.addFlowElement(taskList.get(i));
+			}
+		}
+		// 循环流向链接增加到流程视图
+		if (sequenceFlowList != null)
+		{
+			for (int i = 0; i < sequenceFlowList.size(); i++)
+			{
+				process.addFlowElement(sequenceFlowList.get(i));
+			}
+		}
+		if (gatewayList != null)
+		{
+			// 循环网关增加到流程视图
+			for (int i = 0; i < gatewayList.size(); i++)
+			{
+				process.addFlowElement(gatewayList.get(i));
+			}
+		}
+		try
+		{
+			// 保存样式XML
+			return ProcessImageLayoutUtil.saveModelLayoutXml(processId, model);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			return null;
+		}
+	}
+
+	/**
+	 * 生成流程图片
+	 * @throws IOException
+	 */
+	public void generateDiagram(String defId, String path) throws IOException
+	{
+		// 获取流程图流
+		InputStream processDiagram = repositoryService.getProcessDiagram(defId);
+		// 存储图片
+		FileUtils.copyInputStreamToFile(processDiagram, new File(path));
+	}
+
+	/**
+	 * 获取流程图片
+	 */
+	@Override
+	public void getDiagramPng(String defId) throws IOException
+	{
+		// 获取流程试图编辑器
+		BpmnModel bpmnModel = repositoryService.getBpmnModel(defId);
+		ProcessDiagramGenerator dpg = new DefaultProcessDiagramGenerator();
+		InputStream processDiagram = dpg.generateDiagram(bpmnModel, "png", configuration.getActivityFontName(), configuration.getLabelFontName(),
+				configuration.getClassLoader(), 1.0);
+		String root = System.getProperty("ht.root");
+		FileUtils.copyInputStreamToFile(processDiagram, new File(root + "/ht/workflow/png/" + defId.split(":")[0] + ".png"));
+	}
+	
+	@Override
+	public void getDiagramActPng(String defId,String executionId) throws IOException{
+		BpmnModel bpmnModel = repositoryService.getBpmnModel(defId);
+		ProcessDiagramGenerator dpg = new DefaultProcessDiagramGenerator();
+//		List<HistoricActivityInstance> history = historyService.createHistoricActivityInstanceQuery().processDefinitionId(defId).list();
+		List<String> listHistory = new ArrayList<String>();
+//		for (int i = 0; i < history.size(); i++)
+//		{
+//			listHistory.add(history.get(i).getActivityId());
+//		}
+		InputStream imageStream =  dpg.generateDiagram (bpmnModel, "png",runtimeService.getActiveActivityIds(executionId),listHistory,configuration.getActivityFontName(), configuration.getLabelFontName(),
+				configuration.getClassLoader(), 1.0);
+		String root = System.getProperty("ht.root");
+		FileUtils.copyInputStreamToFile(imageStream, new File(root + "/ht/workflow/png/" + defId.split(":")[0] + executionId + ".png"));
+	}
+
+	/**
+	 * 创建一个网关
+	 * @param id 网关ID
+	 */
+	@Override
+	public Gateway createGateway(String id, Gateway gateWay, List<SequenceFlow> incomingFlows, List<SequenceFlow> outgoingFlows)
+	{
+		// 设置网关ID
+		gateWay.setId(id);
+		// 设置来源链接
+		gateWay.setIncomingFlows(incomingFlows);
+		// 设置去向链接
+		gateWay.setOutgoingFlows(outgoingFlows);
+		return gateWay;
+	}
+
+	@Override
+	/**
+	 * 获取用户定义任务
+	 * @param processDefId 流程定义ID
+	 */
+	public List<UserTask> getUserTasks(String processDefId)
+	{
+		// 创建用户任务集合
+		List<UserTask> userList = new ArrayList<UserTask>();
+		// 获取流程模版
+		BpmnModel model = repositoryService.getBpmnModel(processDefId);
+		if (model != null)
+		{
+			// 获取模版内对象集合
+			Collection<FlowElement> flowElements = model.getMainProcess().getFlowElements();
+			// 循环对象集合
+			for (FlowElement e : flowElements)
+			{
+				// 发现当前对象类型为用户任务
+				if (e.getClass().getName().equals(UserTask.class.getName()))
+				{
+					// 将用户任务追加到集合
+					UserTask userTask = (UserTask) e;
+					userList.add(userTask);
+				}
+			}
+		}
+		// 返回用户任务集合
+		return userList;
+	}
+	
+	
+	@Override
+	/**
+	 * 获取流向
+	 * @param processDefId 流程定义ID
+	 * @id 网关ID
+	 */
+	public SequenceFlow getSequenceFlow(String processDefId,String id)
+	{
+		// 获取流程模版
+		BpmnModel model = repositoryService.getBpmnModel(processDefId);
+		if (model != null)
+		{
+			// 获取模版内对象集合
+			Collection<FlowElement> flowElements = model.getMainProcess().getFlowElements();
+			// 循环对象集合
+			for (FlowElement e : flowElements)
+			{
+				
+				// 发现当前对象类型为用户任务
+				if (e.getClass().getName().equals(SequenceFlow.class.getName()))
+				{
+					// 将用户任务追加到集合
+					SequenceFlow s = (SequenceFlow) e;
+					if (s.getId().equals(id))
+					{
+						return s;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	/**
+	 * 获取网关
+	 * @param processDefId 流程定义ID
+	 * @id 网关ID
+	 */
+	public Gateway getGateway(String processDefId,String id)
+	{
+		// 获取流程模版
+		BpmnModel model = repositoryService.getBpmnModel(processDefId);
+		if (model != null)
+		{
+			// 获取模版内对象集合
+			Collection<FlowElement> flowElements = model.getMainProcess().getFlowElements();
+			// 循环对象集合
+			for (FlowElement e : flowElements)
+			{
+				
+				// 发现当前对象类型为用户任务
+				if (Gateway.class.isAssignableFrom(e.getClass()))
+				{
+					// 将用户任务追加到集合
+					Gateway s = (Gateway) e;
+					if (s.getId().equals(id))
+					{
+						return s;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 创建子流程调用
+	 * @param id 键值
+	 * @param calledProcessId 被调用的流程定义key
+	 * @param incomingFlows 来源列表
+	 * @param outgoingFlows 去向列表
+	 * @param inParameters 主流程传来的参数集合
+	 * @param outParameters 传出主流程的参数集合
+	 */
+	@Override
+	public CallActivity createChildProcess(String id, String calledProcessId, List<SequenceFlow> incomingFlows, List<SequenceFlow> outgoingFlows,
+			List<IOParameter> inParameters, List<IOParameter> outParameters)
+	{
+		// 创建流程调用实例
+		CallActivity call = new CallActivity();
+		// 设置键值
+		call.setId(id);
+		// 设置去向集合
+		call.setOutgoingFlows(outgoingFlows);
+		// 设置来源集合
+		call.setIncomingFlows(incomingFlows);
+		// 设置调用的流程key
+		call.setCalledElement(calledProcessId);
+		// 设置输入参数
+		call.setInParameters(inParameters);
+		// 设置输出参数
+		call.setOutParameters(outParameters);
+		// 返回调用对象
+		return call;
+	}
+
+	/**
+	 * 判断组是否为空_1030
+	 */
+	public List<ProcessDefinition> GetAllProcessDefinition()
+	{
+		List<ProcessDefinition> idList = repositoryService.createProcessDefinitionQuery().list();
+		return idList;
+	}
+
+	/**
+	 * 得到一个BpmnModel
+	 */
+	public BpmnModel GetModelById(String id)
+	{
+		BpmnModel model = repositoryService.getBpmnModel(id);
+		return model;
+	}
+
+	@Override
+	public User getUserById(String id)
+	{
+		List<User> users = identityService.createUserQuery().userId(id).list();
+		if (users.size() > 0) { return users.get(0); }
+		return null;
+	}
+
+	@Override
+	public Object getProcessArgs(String processInstId, String key)
+	{
+		return runtimeService.getVariable(processInstId, key);
+	}
+	
+	@Override
+	public void setProcessArg(String processInstId,String key,String value){
+		runtimeService.setVariable(processInstId, key, value);
+	}
+
+	@Override
+	public Object getHistProcessArgs(String processInstId, String key)
+	{
+		if(historyService != null){
+			HistoricVariableInstance inst = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstId).variableName(key).singleResult();;
+			if (inst != null)
+			{
+				return inst.getValue();
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * 挂起流程实例
+	 * @param processInstId 流程实例ID
+	 */
+	@Override
+	public void suspendProcessInstanceById(String processInstId)
+	{
+		runtimeService.suspendProcessInstanceById(processInstId);
+	}
+
+	/**
+	 * 激活流程实例
+	 * @param processInstId 流程实例ID
+	 */
+	@Override
+	public void activateProcessInstanceById(String processInstId)
+	{
+		runtimeService.activateProcessInstanceById(processInstId);
+	}
+
+	
+	
+	/**
+	 * 删除流程实例  2018.5.17 未使用
+	 * */
+	public static void main(String[] args) throws SQLException, PersistenceException
+	{
+		IWorkflowService wService = new WorkflowService();
+		wService.removeProcess("223446");
+		wService.deploy();
+	}
+	
+	
+	
+	
+	
+	
+}

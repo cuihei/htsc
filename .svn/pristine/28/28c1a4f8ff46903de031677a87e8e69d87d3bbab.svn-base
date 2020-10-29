@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<delegates>
+		<delegate>
+			<functions>
+				<function name="getZjZlpf" description="获取质检的质量评分">
+					<params>
+						<param key="taskDefId" value="u_task_zhijian_zjjilub,u_task_zhijian_xgzjjilub"/>
+					</params>
+				</function>
+				<function name="getZjPfdj" description="获取质检的质量评分等級">
+					<params>
+						<param key="taskDefId" value="u_task_zhijian_zjjilub,u_task_zhijian_xgzjjilub"/>
+					</params>
+				</function>
+				<function name="getZjPfAndDj" description="获取质检的质量评分和等級">
+					<params>
+						<param key="taskDefId" value="u_task_zhijian_zjjilub,u_task_zhijian_xgzjjilub"/>
+					</params>
+				</function>
+				<function name="getSdZlpf" description="获取审定的质量评分">
+					<params>
+						<param key="taskDefId" value="u_task_shending_sdjilub,u_task_xgsdjilub,u_task_sdy_xgsdjilub,u_task_shending_xgsdjilub"/>
+					</params>
+				</function>
+				<function name="getSdPfdj" description="获取审定的质量评分等級">
+					<params>
+						<param key="taskDefId" value="u_task_shending_sdjilub,u_task_xgsdjilub,u_task_sdy_xgsdjilub,u_task_shending_xgsdjilub"/>
+					</params>
+				</function>
+				<function name="getPfAndDj" description="获取审定的质量评分和等級">
+					<params>
+						<param key="taskDefId" value="u_task_shending_sdjilub,u_task_sdjilub,u_task_shending_sdjlb,u_task_xgsdjilub,u_task_zxzljcjl,u_task_zxzljcjlb"/>
+					</params>
+				</function>
+				<function name="getnoticelist" description="获取改正通告资料">
+					<params>
+						<param key="formIds" value="01161032213290058,0116104143110089,01161050123140100"/>
+					</params>
+				</function>
+			</functions>
+		</delegate>
+	</delegates>
+</configuration>

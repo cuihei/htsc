@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="SEA_MAP_COMPILATION_SOURCE_DATA_ALL" name="源数据" isExecutable="true">
+    <startEvent id="startevent1" name="开始"></startEvent>
+    <userTask id="u_task_distribution_group" name="制图科长分配编绘组长" activiti:candidateGroups="${group_ztkz}"></userTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="u_task_distribution_group"></sequenceFlow>
+    <userTask id="u_task_distribution_worker" name="编绘组长分配编绘员" activiti:assignee="${user_bhzz}"></userTask>
+    <sequenceFlow id="flow2" sourceRef="u_task_distribution_group" targetRef="u_task_distribution_worker"></sequenceFlow>
+    <callActivity id="c_task_ysjbhjh" name="源数据编绘计划" calledElement="SEA_MAP_COMPILATION_SOURCE_DATA_PLAN">
+      <extensionElements>
+        <activiti:in source="user_bhy" target="user_bhy"></activiti:in>
+      </extensionElements>
+    </callActivity>
+    <callActivity id="c_task_ysjbhzy" name="源数据编绘作业" calledElement="SEA_MAP_COMPILATION_SOURCE_DATA">
+      <extensionElements>
+        <activiti:in source="user_bhy" target="user_bhy"></activiti:in>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="flow3" sourceRef="u_task_distribution_worker" targetRef="c_task_ysjbhjh"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="u_task_distribution_worker" targetRef="c_task_ysjbhzy"></sequenceFlow>
+    <endEvent id="endevent1" name="结束"></endEvent>
+    <sequenceFlow id="flow5" sourceRef="c_task_ysjbhjh" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="c_task_ysjbhzy" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_SEA_MAP_COMPILATION_SOURCE_DATA_ALL">
+    <bpmndi:BPMNPlane bpmnElement="SEA_MAP_COMPILATION_SOURCE_DATA_ALL" id="BPMNPlane_SEA_MAP_COMPILATION_SOURCE_DATA_ALL">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="120.0" y="180.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="u_task_distribution_group" id="BPMNShape_u_task_distribution_group">
+        <omgdc:Bounds height="55.0" width="142.0" x="211.0" y="170.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="u_task_distribution_worker" id="BPMNShape_u_task_distribution_worker">
+        <omgdc:Bounds height="55.0" width="134.0" x="407.0" y="170.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="c_task_ysjbhjh" id="BPMNShape_c_task_ysjbhjh">
+        <omgdc:Bounds height="55.0" width="105.0" x="599.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="c_task_ysjbhzy" id="BPMNShape_c_task_ysjbhzy">
+        <omgdc:Bounds height="55.0" width="105.0" x="599.0" y="250.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="790.0" y="180.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="155.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="211.0" y="197.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="353.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="407.0" y="197.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="541.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="651.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="651.0" y="145.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="541.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="651.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="651.0" y="250.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="704.0" y="117.0"></omgdi:waypoint>
+        <omgdi:waypoint x="807.0" y="117.0"></omgdi:waypoint>
+        <omgdi:waypoint x="807.0" y="180.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="704.0" y="277.0"></omgdi:waypoint>
+        <omgdi:waypoint x="807.0" y="277.0"></omgdi:waypoint>
+        <omgdi:waypoint x="807.0" y="215.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

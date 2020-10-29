@@ -1,0 +1,10 @@
+<%@ include file="../../TagLibs.jsp"%>
+<jsp:include page="../../Main.jsp"></jsp:include>
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/datum/books/books.js"></script>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.ht.common.util.TreeNode"%>
+<%@page import="com.ht.common.util.Tree"%>
+<%@page import="com.ht.common.util.LoginUtil"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<input id="flag"  name="flag" value="${flag}" type="hidden">
+

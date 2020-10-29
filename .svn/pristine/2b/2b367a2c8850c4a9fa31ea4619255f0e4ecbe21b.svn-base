@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.statisticalanalysis.view.CompilationYearPlanView" table="V_COMPILATION_YEAR_PLAN">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="mapNo" type="java.lang.String">
+            <column name="map_no" />
+        </property>
+        <property name="mapName" type="java.lang.String">
+            <column name="map_name" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+         <property name="type" type="java.lang.String">
+            <column name="type" />
+        </property>
+        <property name="frederickCycle" type="java.lang.String">
+            <column name="frederick_cycle" />
+        </property>
+        <!-- <property name="testingCycle" type="java.lang.String">
+            <column name="testing_cycle" />
+        </property> -->
+        <property name="lastTimeProperty" type="java.lang.String">
+            <column name="last_time_property" />
+        </property>
+        <property name="lastTimeDate" type="java.lang.String">
+            <column name="last_time_date" />
+        </property>
+        <property name="planType" type="java.lang.String">
+            <column name="plan_type" />
+        </property>
+       
+        <property name="planExchangeTime" type="date">
+            <column name="plan_exchange_time" />
+        </property>
+        <property name="actualExchangeTime" type="date">
+            <column name="actual_exchange_time" />
+        </property>
+         <property name="taskReleaseTime" type="date">
+            <column name="task_release_time" />
+        </property>
+        <property name="planCompleteTime" type="date">
+            <column name="plan_complete_time" />
+        </property>
+        <property name="compilationProperty" type="java.lang.String">
+            <column name="compilation_property" />
+        </property>
+        <property name="compilationContent" type="java.lang.String">
+            <column name="compilation_content" />
+        </property>
+        <property name="adjustmentCoefficient" type="java.lang.String">
+            <column name="adjustment_coefficient" />
+        </property>
+        <property name="taskDefId" type="java.lang.String">
+            <column name="task_def_id" />
+        </property>
+        <property name="startTime" type="date">
+            <column name="start_time" />
+        </property>
+        <property name="endTime" type="date">
+            <column name="end_time" />
+        </property>
+        <property name="assigneeName" type="java.lang.String">
+            <column name="assignee_name" />
+        </property>
+        <property name="processInstId" type="java.lang.String">
+            <column name="process_inst_id" />
+        </property>
+          <property name="processDefKey" type="java.lang.String">
+            <column name="process_def_key" />
+        </property>
+    </class>
+    <query name="getCompilationYearPlan">
+    	<![CDATA[ from CompilationYearPlanView]]>
+    </query>
+    <query name="getCompilationYearPlanById">
+    	<![CDATA[ from CompilationYearPlanView where id = :id]]>
+    </query>
+    <query name="getCompilationYearPlanByIdAndDefId">
+    	<![CDATA[ from CompilationYearPlanView where id = :id and taskDefId = :taskDefId order by startTime desc nulls last]]>
+    </query>
+</hibernate-mapping>

@@ -1,0 +1,277 @@
+package com.ht.service.impl.statisticalanalysis;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import com.ht.common.exception.CommonException;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.ExcelFileUtil;
+import com.ht.common.util.ExportExcel;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.datum.fileddata.FiledDataDao;
+import com.ht.persistence.dao.inter.statisticalanalysis.DynamicTableDao;
+import com.ht.persistence.dao.inter.system.workflow.task.FlowsDao;
+import com.ht.persistence.model.datum.fileddata.FiledData;
+import com.ht.persistence.model.statisticalanalysis.CompilationDynamicSummary;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationMonthPlanView;
+import com.ht.persistence.model.statisticalanalysis.view.DynamicTable;
+import com.ht.persistence.model.statisticalanalysis.view.DynamicTableView;
+import com.ht.persistence.model.system.workflow.task.Flows;
+import com.ht.service.inter.statisticalanalysis.DynamicTableService;
+
+/**
+ * 港口航道图月度在编动态Service实现类
+ * @author zyd
+ *
+ */
+public class DynamicTableServiceImpl implements DynamicTableService {
+	
+	/**
+	 * 注入港口航道图月度在编动态Dao
+	 */
+	@Resource(name="dynamicTableDao")
+	DynamicTableDao dynamicTableDao;
+	
+	@Resource(name="flowsDao")
+	FlowsDao flowsDao;
+
+	/**
+	 * 注入外业汇交Dao
+	 */
+	@Resource(name="filedDataDao")
+	FiledDataDao filedDataDao;
+	/**
+	 * 获取所有港口航道图月度在编动态
+	 */
+	@Override
+	public List<DynamicTable> getDynamicTable(String start,String end,String year) throws Exception {
+		List<DynamicTable> result =  new ArrayList<DynamicTable>();
+		try {
+			List<DynamicTableView>  list = new ArrayList<DynamicTableView>();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date date1 = null;
+			Date date2 = null;
+			if(start != null && end != null){
+				date1 = sdf.parse(start);
+			    date2 = sdf.parse(end);
+			    Calendar c= Calendar.getInstance();  
+			    c.setTime(date2);
+			    c.add(Calendar.DAY_OF_MONTH, 1);
+			    date2=c.getTime();
+			    list = dynamicTableDao.getDynamicTableView(date1,date2);
+			}else{
+				DynamicTableView c= new DynamicTableView();
+				c.setYear(year);
+				list = dynamicTableDao.getDynamicTableByYear(c);
+			}
+			List<Flows> flowsList =  new ArrayList<Flows>();
+			if(list != null){
+				if(list.size()>0){
+					for (int i = 0; i < list.size(); i++) {
+						String remarks = null;
+						// 根据图号查找外业汇交是否有记录，没有就是未汇交
+						FiledData filedData = new FiledData();
+						filedData.setPicNo(list.get(i).getMapNo());
+						filedData = filedDataDao.getFiledDataByPicNo(filedData);
+						if(filedData == null){
+							remarks = "未汇交";
+						}else{
+							String processInstId = list.get(i).getProcessInstId();
+							String taskDefId = list.get(i).getTaskDefId();
+							List<String> ids = new ArrayList<String>();
+							ids.add(taskDefId);
+							
+							Date endTime = null;
+							flowsList = flowsDao.getProcessFlowsByProcessInstIdAndTaskDefId(processInstId, ids);
+							if(flowsList != null && flowsList.size()>0){
+								for (int j = 0; j < flowsList.size(); j++) {
+									String type = flowsList.get(j).getType();
+									if(type.equals("审定完成")){
+										endTime = flowsList.get(j).getEndTime();
+									}
+								}
+							}
+							if(endTime != null){
+								Date curDate =null;
+								if(date2 != null){
+									curDate = date2;
+								}else{
+									curDate = new Date();
+								}
+								int n = endTime.compareTo(curDate);
+								// 如果审定完成时间endTime大于结束时间   
+								if(n > 0 ){
+									remarks = "编绘中";
+								}else{
+									remarks = "完成";
+								}
+							}else{
+								remarks = "编绘中";
+							}
+						}
+						DynamicTable dt = new DynamicTable();
+						dt.setId(list.get(i).getId());
+						dt.setMapNo(list.get(i).getMapNo());
+						dt.setArea(list.get(i).getArea());
+						dt.setMapName(list.get(i).getMapName());
+						dt.setScale(list.get(i).getScale());
+						dt.setProperty(list.get(i).getProperty());
+						dt.setPlanExchangeTime(list.get(i).getPlanExchangeTime());
+						dt.setActualExchangeTime(list.get(i).getActualExchangeTime());
+						dt.setTaskReleaseTime(list.get(i).getTaskReleaseTime());
+						dt.setPlanCompleteTime(list.get(i).getPlanCompleteTime());
+						dt.setRemarks(remarks);
+						result.add(dt);
+					}
+				}
+			}
+			return result;
+		}catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 获取一条月度在编动态
+	 */
+	@Override
+	public DynamicTableView getDynamicTableById(String id) {
+		try {
+			DynamicTableView dt = new DynamicTableView();
+			dt.setId(id);
+			// 根据id获取月度在编动态
+			return dynamicTableDao.getDynamicTableById(dt);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 新增一条
+	 * @param c
+	 * @throws Exception
+	 */
+	@Override
+	public void addDynamicTable(CompilationDynamicSummary d) throws Exception {
+		try {
+			//执行保存操作
+			dynamicTableDao.addDynamicTable(d);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 导出
+	 */
+	@Override
+	public void export(String monthPlans,HttpServletResponse respose) throws Exception{
+		try
+		{
+			// 获取路径
+			String folderPath = FileUtil.ROOT_PATH + "dzy\\export\\" + "dynamicTable";
+			// 判断文件夹是否存在，不存在则创建
+			if(!FileUtil.exists(folderPath)){
+				FileUtil.CreateFolder(folderPath);
+			}
+			String path = folderPath + "\\" + ("港口航道图——月度在编动态")  + ".xls";
+			// 数组的形式创建表格标题行
+			List<DynamicTable> list = (List<DynamicTable>) DataConverter.convertJson2List(monthPlans,DynamicTable.class);
+			String[] col = {"图名","图号","海区","比例尺(1:)","性质","计划汇交时间","实际汇交时间","任务下达时间","计划完成时间","动态"};
+			// 数组的形式创建表格值（对应实体类的字段）
+			String[] zd = {"mapName","mapNo","area","scale","property","planExchangeTime",
+					"actualExchangeTime","taskReleaseTime","planCompleteTime","remarks"};
+			List<DynamicTableView> dynamicTableList = new ArrayList<DynamicTableView>();
+			for (int i = 0; i < list.size(); i++) {
+				DynamicTableView dynamicTable = this.getDynamicTableById(list.get(i).getId());
+				dynamicTableList.add(dynamicTable);
+			}
+			List<DynamicTable> result =  new ArrayList<DynamicTable>();
+			List<Flows> flowsList =  new ArrayList<Flows>();
+			if(dynamicTableList != null){
+				if(dynamicTableList.size()>0){
+					for (int i = 0; i < dynamicTableList.size(); i++) {
+						String remarks = null;
+						// 根据图号查找外业汇交是否有记录，没有就是未汇交
+						FiledData filedData = new FiledData();
+						filedData.setPicNo(dynamicTableList.get(i).getMapNo());
+						filedData = filedDataDao.getFiledDataByPicNo(filedData);
+						if(filedData == null){
+							remarks = "未汇交";
+						}else{
+							String processInstId = dynamicTableList.get(i).getProcessInstId();
+							String taskDefId = dynamicTableList.get(i).getTaskDefId();
+							List<String> ids = new ArrayList<String>();
+							ids.add(taskDefId);
+							
+							Date endTime = null;
+							flowsList = flowsDao.getProcessFlowsByProcessInstIdAndTaskDefId(processInstId, ids);
+							if(flowsList != null && flowsList.size()>0){
+								for (int j = 0; j < flowsList.size(); j++) {
+									String type = flowsList.get(j).getType();
+									if(type.equals("审定完成")){
+										endTime = flowsList.get(j).getEndTime();
+									}
+								}
+							}
+							if(endTime != null){
+								Date curDate =new Date();
+								int n = endTime.compareTo(curDate);
+								// 如果审定完成时间endTime大于结束时间   
+								if(n > 0 ){
+									remarks = "编绘中";
+								}else{
+									remarks = "完成";
+								}
+							}else{
+								remarks = "编绘中";
+							}
+						}
+						DynamicTable dt = new DynamicTable();
+						dt.setId(dynamicTableList.get(i).getId());
+						dt.setMapNo(dynamicTableList.get(i).getMapNo());
+						dt.setArea(dynamicTableList.get(i).getArea());
+						dt.setMapName(dynamicTableList.get(i).getMapName());
+						dt.setScale(dynamicTableList.get(i).getScale());
+						dt.setProperty(dynamicTableList.get(i).getProperty());
+						dt.setPlanExchangeTime(dynamicTableList.get(i).getPlanExchangeTime());
+						dt.setActualExchangeTime(dynamicTableList.get(i).getActualExchangeTime());
+						dt.setTaskReleaseTime(dynamicTableList.get(i).getTaskReleaseTime());
+						dt.setPlanCompleteTime(dynamicTableList.get(i).getPlanCompleteTime());
+						dt.setRemarks(remarks);
+						result.add(dt);
+					}
+				}
+			}
+			if(result.size() > 0){
+				ExportExcel ee = new ExportExcel();
+				boolean exportResult = ee.exportExcel("月度在编动态", col, zd, result,path);
+				if(exportResult){
+					ExcelFileUtil.download(path, respose);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			throw new CommonException("导出失败，原因："+e.getMessage());
+		}
+	}
+
+}

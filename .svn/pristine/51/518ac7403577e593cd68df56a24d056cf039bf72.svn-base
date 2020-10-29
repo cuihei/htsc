@@ -1,0 +1,54 @@
+package com.ht.service.inter.background.organization.organization;
+
+import java.util.List;
+
+import com.ht.persistence.model.background.organization.organization.Organization;
+
+/**
+ * 组织机构
+ * @author 侯晨
+ */
+public interface OrganizationService {
+	
+	/**
+	  * 保存组织机构数据
+	  * @param organization组织机构数据
+	  * @throws Exception
+	  */
+	public void addOrganization(String organization) throws Exception;
+	
+	/**
+	  * 更新组织机构数据
+	  * @param organization组织机构数据
+	  * @throws Exception
+	  */
+	public void modifyOrganization(String organization) throws Exception;
+	
+	/**
+	  * 删除组织机构
+	  * @param id 组织机构标识
+	  * @throws Exception
+	  */
+	public void delOrganization(String organization) throws Exception;
+	
+	/**
+	  * 查询所有组织机构数据
+	  * @throws Exception
+	  */
+	public List<Organization> getOrganization() throws Exception;
+	
+	/**
+	  * 查询一条组织机构数据
+	  * @param id 组织机构标识
+	  * @throws Exception
+	  */
+	public Organization getOrganization(String id) throws Exception;
+	
+	/**
+	 * 获取Organization对象父节点下的所有子节点，形成树结构
+	 * @param Organization Organization对象
+	 * @return 返回树结构字符串
+	 */
+	public String getOrganizationTree() throws Exception;
+	
+}

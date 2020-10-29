@@ -1,0 +1,61 @@
+package com.ht.persistence.dao.inter.system.workflow.process;
+
+import java.util.List;
+
+import org.hibernate.SQLQuery;
+
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.persistence.model.system.workflow.process.ProcessFlow;
+
+public interface ProcessFlowDao{
+	/**
+	 * 查找实体对象
+	 * @param id ID
+	 * @return 实体对象，若不存在则返回null
+	 */
+	ProcessFlow getProcessFlow(ProcessFlow processFlow) throws Exception;
+	
+	/**
+	 * 查找所有实体对象集合
+	 * @return 所有实体对象集合
+	 */
+	List<ProcessFlow> getProcessFlowList() throws Exception;
+
+	/**
+	* 新增
+	 */
+	void addProcessFlow(ProcessFlow processFlow) throws Exception;
+
+	/**
+	 * 更新实体对象
+	 * @param entity 实体对象
+	 * @return void    返回类型 
+	 */
+	void modifyProcessFlow(ProcessFlow processFlow) throws Exception;
+	
+	/**
+	 * 删除实体对象
+	 * @param entity 实体对象
+	 * @return void    返回类型 
+	 */
+	void delProcessFlow(ProcessFlow processFlow) throws Exception;
+
+	List<ProcessFlow> getProcessFlowByProcessInstId(String processInstId) throws Exception;
+
+	ProcessFlow getProcessFlowByAdvice(String advice,String processInstId);
+
+	ProcessFlow getProcessFlowByAdvice1(String advice, String processInstId);
+	
+/*	List<ProcessFlow> addProcessBackHis(String taskId);
+
+	void intoProcessBackHis(ProcessBackHis processBackHis);*/
+	//错误图片
+	
+
+
+
+
+
+	
+
+}

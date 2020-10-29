@@ -1,0 +1,926 @@
+package com.ht.front.pages.system.workflow.task;
+
+import java.util.Calendar;
+import java.util.List;
+
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+import com.ht.front.model.Base;
+import com.ht.front.model.Button;
+import com.ht.front.model.Div;
+import com.ht.front.model.I;
+import com.ht.front.model.InputGroup;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.Script;
+import com.ht.front.model.Select;
+import com.ht.front.model.Span;
+import com.ht.front.model.TextArea;
+import com.ht.front.model.TextBox;
+import com.ht.front.util.FrontUtil;
+import com.ht.persistence.model.background.organization.employee.User;
+import com.ht.service.impl.system.workflow.task.ProcessTypeEnum;
+import com.ht.service.impl.system.workflow.util.BusinessUtil;
+
+/**
+ * 待办任务页面生成类 
+ * @author 王有为
+ * @date 2016/10/31
+ */
+public class RuTaskPage {
+	/**
+	 * 页面实例
+	 */
+	private static RuTaskPage page = null;
+	
+	/**
+	 * 获取页面实例
+	 * @return
+	 */
+	public static RuTaskPage getInstance(){
+		if (page == null) {
+			page = new RuTaskPage();
+		}
+		return page;
+	}
+	
+	public String getRuTaskPage(String processDefKey,List<User> users,boolean flag,boolean isRutask){
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, BusinessUtil.getInstance().getDecriptionNameByProcess(processDefKey));
+		util.createRowSpace(root);
+		// 创建行
+		Base rowBg = util.createRow(root);
+		if(flag){
+			if(isRutask){
+				/** 创建按钮组行  开始*/
+				// 创建按钮组
+				Base column = util.createColumn(rowBg, "12", "12", "12", null);
+				// 构建创建div
+				CssClass css = new CssClass("fa fa-check");
+				I i = I.getInstance(css);
+				css = new CssClass("btn btn-success");
+				Button button = Button.getButtonWithIcon("batchApprove", css, "审核", i);
+				column.addChildNode(button);
+			}
+		}
+
+		Base colInput = util.createColumn(rowBg, "2", "2");
+		Span span = Span.getDefault("年份:");
+		CssClass css = new CssClass("fa fa-calendar");
+		I i = I.getInstance(css);
+		span.addChildNode(i);
+		Calendar cal = Calendar.getInstance();
+		int year = cal.get(Calendar.YEAR);
+		TextBox text = TextBox.getDefault("year", String.valueOf(year), "年份");
+		InputGroup ig = InputGroup.getInstance(span, text);
+		colInput.addChildNode(ig);
+		
+		// 创建Grid
+		util.createGrid(root,"dv_ru_task");
+		// 创建任务提交模态窗口
+		Div modalDiv = buildTaskPerformModal(processDefKey);
+		// 创建多任务提交模态窗口
+		Div modalDiv1 = buildMutiTaskPerformModal();
+		// 创建挂起激活按钮组
+		Base suspendReason = createSuspendReason();
+		// 创建委托按钮组
+		Base delegateUser = createDelegateUser(users);
+		// 构建隐藏按钮
+		root.addChildNode(modalDiv);
+		root.addChildNode(modalDiv1);
+		root.addChildNode(suspendReason);
+		root.addChildNode(delegateUser);
+		// 创建返回按钮
+		// 创建按钮行
+		Base row = util.createRow(root);
+		Base column = util.createColumn(row, "3", "2","2",null);
+		css = new CssClass("btn btn-default");
+		Button btn = Button.getInstance("goback", css, "返回");
+		Prop prop = new Prop("style","display:none;");
+		btn.addProp(prop);
+		column.addChildNode(btn);
+		// 返回节点值
+		if(processDefKey.equals("CATALOG_MANAGEMENT")||processDefKey.equals("DATA_INPUT")||processDefKey.equals("DATA_BORROWING")||processDefKey.equals("DATA_RETURN")){
+			return root.getNode() + buildMlTemplate();
+		}else{
+			return root.getNode() + buildTemplate(ProcessTypeEnum.valueOf(processDefKey),isRutask);
+		}
+		
+	}
+	
+	/**
+	 * 创建任务提交模态窗口
+	 * @param processDefKey
+	 * @return
+	 */
+	private Div buildTaskPerformModal(String processDefKey){
+		/** 创建Modal Dialog 审批 开始*/
+		CssClass modelCss = new CssClass("modal fade");
+		Div modalDiv = Div.getInstance("myModal", modelCss, null);
+		// 创建div
+		CssClass dialogCss = new CssClass("modal-dialog");
+		Div dialogDiv = Div.getInstance(null, dialogCss, null);
+		modalDiv.addChildNode(dialogDiv);
+		// 创建div 
+		CssClass contentCss = new CssClass("modal-content");
+		Div contentDiv = Div.getInstance(null, contentCss, null);
+		dialogDiv.addChildNode(contentDiv);
+		// 创建header div
+		CssClass headerCss = new CssClass("modal-header");
+		Div headerDiv = Div.getInstance(null, headerCss, null);
+		contentDiv.addChildNode(headerDiv);
+		// 构建关闭按钮
+		CssClass closeCss = new CssClass("close");
+		Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+		Prop closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		Prop closeProps = new Prop();
+		closeProps.setPropKey("aria-hidden");
+		closeProps.setPropValue("true");
+		// 绑定属性
+		closeBtn.addProp(closeProp);
+		closeBtn.addProp(closeProps);
+		headerDiv.addChildNode(closeBtn);
+		/**
+		 * 通告改正至开始
+		 */
+		// 创建标题div
+		Calendar cal = Calendar.getInstance();
+		int year = cal.get(Calendar.YEAR);
+		
+		CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv = Div.getInstance("dv_notice1", titleCss, "改正通告：");
+		headerDiv.addChildNode(titleDiv);
+		
+		InputGroup yearText = InputGroup.getInGroup("年份", "year1", String.valueOf(year), "请选择年份");
+		Prop PropText = new Prop("style","width:98%");
+		yearText.addProp(PropText);
+		headerDiv.addChildNode(yearText);
+		
+		InputGroup text = InputGroup.getInGroup("项号", "opinion1", null, "请输入项号");
+		PropText = new Prop("style","width:98%;margin-top:5px");
+		text.addProp(PropText);
+		headerDiv.addChildNode(text);
+		
+		titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		titleDiv = Div.getInstance("dv_notice2", titleCss, "航海通告：");
+		headerDiv.addChildNode(titleDiv);
+		
+		yearText = InputGroup.getInGroup("年份", "year2", String.valueOf(year), "请选择年份");
+		
+		PropText = new Prop("style","width:98%");
+		yearText.addProp(PropText);
+		headerDiv.addChildNode(yearText);
+		
+		text = InputGroup.getInGroup("项号", "opinion2", null, "请输入项号");
+		PropText = new Prop("style","width:98%;margin-top:5px");
+		text.addProp(PropText);
+		headerDiv.addChildNode(text);
+		/**
+		 * 通告改正至结束
+		 */
+		/**
+		 * 通告改正至开始
+		 */
+		// 创建标题div
+		CssClass titleCss1 = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv1 = Div.getInstance("dv_remark", titleCss1, "备注：");
+		headerDiv.addChildNode(titleDiv1);
+		TextBox text1 = TextBox.getDefault("remark",null,"请输入备注");
+		Prop PropText1 = new Prop("style","width:98%");
+		text1.addProp(PropText1);
+		headerDiv.addChildNode(text1);
+		/**
+		 * 通告改正至结束
+		 */
+		//提交按钮
+		CssClass subCss = new CssClass("btn btn-primary btn-top");
+		if(processDefKey.equals("CATALOG_MANAGEMENT")||processDefKey.equals("DATA_INPUT")||processDefKey.equals("DATA_BORROWING")||processDefKey.equals("DATA_RETURN")){
+			Button subBtn = Button.getInstance("submitOpinion", subCss, "通过");
+			Prop prop = new Prop("onclick", "ru_task.submitOpinion()");
+			subBtn.addProp(prop);
+			headerDiv.addChildNode(subBtn);
+		}else{
+			Button subBtn = Button.getInstance("submitOpinion", subCss, "提交");
+			Prop prop = new Prop("onclick", "ru_task.submitOpinion()");
+			subBtn.addProp(prop);
+			headerDiv.addChildNode(subBtn);
+		}
+		//退回按钮
+		CssClass backCss = new CssClass("btn btn-default btn-top");
+		Button backBtn = Button.getInstance("backOpinion", backCss, "退回");
+		Prop prop = new Prop("onclick", "ru_task.backOpinion()");
+		backBtn.addProp(prop);
+		prop = new Prop("style", "margin-left:5px;");
+		backBtn.addProp(prop);
+		headerDiv.addChildNode(backBtn);
+		//取消按钮
+		CssClass cancelCss = new CssClass("btn btn-default cus-cancel  btn-top");
+		Button cancelBtn = Button.getInstance("back", cancelCss, "取消");
+		Prop cancelProp = new Prop();
+		cancelProp.setPropKey("data-dismiss");
+		cancelProp.setPropValue("modal");
+		cancelBtn.addProp(cancelProp);
+		headerDiv.addChildNode(cancelBtn);
+		/** Modal Dialog 结束*/
+		return modalDiv;
+	}
+	
+	/**
+	 * 创建多任务提交模态窗口
+	 * @return
+	 */
+	private Div buildMutiTaskPerformModal(){
+		/** 创建Modal Dialog 审批 开始*/
+		CssClass modelCss1 = new CssClass("modal fade");
+		Div modalDiv1 = Div.getInstance("myModalBatch", modelCss1, null);
+		// 创建div
+		CssClass dialogCss1 = new CssClass("modal-dialog");
+		Div dialogDiv1 = Div.getInstance(null, dialogCss1, null);
+		modalDiv1.addChildNode(dialogDiv1);
+		// 创建div 
+		CssClass contentCss1 = new CssClass("modal-content");
+		Div contentDiv1 = Div.getInstance(null, contentCss1, null);
+		dialogDiv1.addChildNode(contentDiv1);
+		// 创建header div
+		CssClass headerCss1 = new CssClass("modal-header");
+		Div headerDiv1 = Div.getInstance(null, headerCss1, null);
+		contentDiv1.addChildNode(headerDiv1);
+		// 构建关闭按钮
+		CssClass closeCss1 = new CssClass("close");
+		Button closeBtn1 = Button.getInstance(null, closeCss1, "&times;");
+		Prop closeProp1 = new Prop();
+		closeProp1.setPropKey("data-dismiss");
+		closeProp1.setPropValue("modal");
+		Prop closeProps1 = new Prop();
+		closeProps1.setPropKey("aria-hidden");
+		closeProps1.setPropValue("true");
+		// 绑定属性
+		closeBtn1.addProp(closeProp1);
+		closeBtn1.addProp(closeProps1);
+		headerDiv1.addChildNode(closeBtn1);
+		
+		CssClass titleCss1 = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv1 = Div.getInstance(null, titleCss1, "批量审核：");
+		headerDiv1.addChildNode(titleDiv1);
+		//提交按钮
+		CssClass subCss1 = new CssClass("btn btn-primary");
+		Button subBtn = Button.getInstance("submitBatchOpinion", subCss1, "提交");
+		Prop prop1 = new Prop("onclick", "ru_task.submitBatchOpinion()");
+		subBtn.addProp(prop1);
+		headerDiv1.addChildNode(subBtn);
+		//退回按钮
+		CssClass backCss1 = new CssClass("btn btn-default bk-margin-5");
+		Button backBtn1 = Button.getInstance("backBatchOpinion", backCss1, "退回");
+		Prop prop2 = new Prop("onclick", "ru_task.backBatchOpinion()");
+		backBtn1.addProp(prop2);
+		headerDiv1.addChildNode(backBtn1);
+		//取消按钮
+		CssClass cancelCss1 = new CssClass("btn btn-default cus-cancel");
+		Button cancelBtn1 = Button.getInstance("backBatch", cancelCss1, "取消");
+		Prop cancelProp1 = new Prop();
+		cancelProp1.setPropKey("data-dismiss");
+		cancelProp1.setPropValue("modal");
+		cancelBtn1.addProp(cancelProp1);
+		cancelProp1 = new Prop();
+		cancelProp1.setPropKey("style");
+		cancelProp1.setPropValue("margin-right: 20px;float: right; margin-top: 6px;");
+		cancelBtn1.addProp(cancelProp1);
+		headerDiv1.addChildNode(cancelBtn1);
+		/** Modal Dialog 结束*/
+		return modalDiv1;
+	}
+	
+	/**
+	 * 创建按钮模版
+	 * @param type
+	 * @param isRuTask
+	 * @return
+	 */
+	private String buildTemplate(ProcessTypeEnum type,Boolean isRuTask){
+		String scripts = "";
+		// 创建审批按钮
+		Script script = Script.getInstance("plan");
+		CssClass css = new CssClass("fa fa-eye");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-success");
+		Button tempelate = Button.getButtonWithIcon(null, css, null, i);
+		Prop prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("plan");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("编绘计划问题");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("plan(this,"+isRuTask+")");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		if(isRuTask){
+			// 创建审批按钮
+			script = Script.getInstance("planDisable");
+			css = new CssClass("fa fa-eye");
+			i = I.getInstance(css);
+			css = new CssClass("btn");
+			tempelate = Button.getButtonWithIcon(null, css, null, i);
+			prop = new Prop();
+			prop.setPropKey("name");
+			prop.setPropValue("plan");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("编绘计划问题");
+			tempelate.addProp(prop);
+			prop = new Prop("disabled","disabled");
+			tempelate.addProp(prop);
+			prop = new Prop("style","background-color:gray");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("plan(this");
+			tempelate.addProp(prop);
+			script.addChildNode(tempelate);
+		}
+ 		
+		scripts += script.getNode();
+		
+		script = Script.getInstance("operation");
+		// 创建操作按钮
+		if (isRuTask)
+		{
+			css = new CssClass("fa fa-file-text-o");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-success");
+			tempelate = Button.getButtonWithIcon(null, css, null, i);
+			prop = new Prop();
+			prop.setPropKey("name");
+			prop.setPropValue("operation");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			if (!type.equals(ProcessTypeEnum.TASK_BOOK))
+			{
+				prop.setPropValue("操作");
+			}
+			else{
+				prop.setPropValue("查看");
+			}
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("ru_task.operation(this)");
+			tempelate.addProp(prop);
+			script.addChildNode(tempelate);
+		}
+		if (!type.equals(ProcessTypeEnum.TASK_BOOK)&&!type.equals(ProcessTypeEnum.PROBLEM_SUBMIT))
+		{
+			// 查看全部表单
+			css = new CssClass("fa fa-eye");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-info bk-margin-5");
+			tempelate = Button.getButtonWithIcon(null, css, null, i);
+			prop = new Prop();
+			prop.setPropKey("name");
+			prop.setPropValue("formValue");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("查看所有表单");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("ru_task.formValue(this)");
+			tempelate.addProp(prop);
+			script.addChildNode(tempelate);
+			// 导出经历簿
+			css = new CssClass("fa fa-file");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-warning");
+			tempelate = Button.getButtonWithIcon(null, css, null, i);
+			prop = new Prop();
+			prop.setPropKey("name");
+			prop.setPropValue("export");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("导出经历簿");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("ru_task.exportBook(this)");
+			tempelate.addProp(prop);
+			script.addChildNode(tempelate);
+		}
+		scripts += script.getNode();
+		
+		script = Script.getInstance("operationDisable");
+		// 创建操作按钮
+		css = new CssClass("fa fa-file-text-o");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-success");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("operation");
+		prop = new Prop("disabled","disabled");
+		tempelate.addProp(prop);
+		prop = new Prop("style","background-color:gray");
+		tempelate.addProp(prop);
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		if (!type.equals(ProcessTypeEnum.TASK_BOOK))
+		{
+			prop.setPropValue("操作");
+		}
+		else{
+			prop.setPropValue("查看");
+		}
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		if (!type.equals(ProcessTypeEnum.TASK_BOOK))
+		{
+			css = new CssClass("fa fa-eye");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-info bk-margin-5");
+			tempelate = Button.getButtonWithIcon(null, css, null, i);
+			prop = new Prop();
+			prop.setPropKey("name");
+			prop.setPropValue("formValue");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("查看所有表单");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("ru_task.formValue(this)");
+			tempelate.addProp(prop);
+			script.addChildNode(tempelate);
+			// 导出经历簿
+			css = new CssClass("fa fa-file");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-warning");
+			tempelate = Button.getButtonWithIcon(null, css, null, i);
+			prop = new Prop();
+			prop.setPropKey("name");
+			prop.setPropValue("export");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("导出经历簿");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("ru_task.exportBook(this)");
+			tempelate.addProp(prop);
+			script.addChildNode(tempelate);
+		}
+		scripts += script.getNode();
+		// 创建审批按钮
+		script = Script.getInstance("approve");
+		css = new CssClass("fa fa-check");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("approve");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("提交任务");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.approve(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		// 创建审批按钮
+		script = Script.getInstance("approveDisable");
+		css = new CssClass("fa fa-check");
+		i = I.getInstance(css);
+		css = new CssClass("btn");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("approve");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("提交任务");
+		tempelate.addProp(prop);
+		prop = new Prop("disabled","disabled");
+		tempelate.addProp(prop);
+		prop = new Prop("style","background-color:gray");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.approve(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		
+		scripts += script.getNode();
+		// 创建流转状态按钮
+		script = Script.getInstance("flow");
+		css = new CssClass("fa fa-exchange");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-warning");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("flow");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("流转状态");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.flow(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		// 创建查看按钮
+		script = Script.getInstance("show");
+		css = new CssClass("fa fa-eye");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("show");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("查看详情");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("hi_task.show(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		/**
+		 * 创建流程控制按钮组
+		 */
+		script = Script.getInstance("control");
+		// 委托按钮
+		css = new CssClass("fa fa-hand-o-right");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-inverse");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("delegate");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("委托");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.delegate(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		// 终止
+		css = new CssClass("fa fa-lock");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-danger bk-margin-5");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("suspend");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("挂起任务");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.suspend(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		// 激活任务
+		css = new CssClass("fa fa-unlock");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info bk-margin-5");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("activate");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("激活任务");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.activate(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		return scripts;
+	}
+	
+	
+	private String buildMlTemplate(){
+		String scripts = "";
+		Script script = Script.getInstance("operation");
+		CssClass css = new CssClass("fa fa-eye");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-info bk-margin-5");
+		Button tempelate = Button.getButtonWithIcon(null, css, null, i);
+		Prop prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("dataDetail");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("查看");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.catalogDetail(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		// 创建审批按钮
+		script = Script.getInstance("approve");
+		css = new CssClass("fa fa-check");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("approve");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("审核");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.approve(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		// 创建流转状态按钮
+		script = Script.getInstance("flow");
+		css = new CssClass("fa fa-exchange");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-warning");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("flow");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("流转状态");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.flow(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		
+		/**
+		 * 创建流程控制按钮组
+		 */
+		script = Script.getInstance("control");
+		// 委托按钮
+		css = new CssClass("fa fa-hand-o-right");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-inverse");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("delegate");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("委托");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.delegate(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		// 终止
+		css = new CssClass("fa fa-lock");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-danger bk-margin-5");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("suspend");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("挂起任务");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.suspend(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		// 激活任务
+		css = new CssClass("fa fa-unlock");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-info bk-margin-5");
+		tempelate = Button.getButtonWithIcon(null, css, null, i);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("activate");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("激活任务");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("ru_task.activate(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);
+		scripts += script.getNode();
+		return scripts;
+	}
+	
+	/**
+	 * 获取流转状态页面
+	 * @param taskInstId 任务实例ID
+	 * @param processInstId 流程实例ID
+	 * @return 页面信息
+	 */
+	public String getFlowsPage(String taskInstId,String processInstId){
+		// 创建前端工具
+		FrontUtil util = new FrontUtil();
+		// 创建根
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "流转状态");
+		// 创建DIV
+		Base div = util.createGrid(root,"dv_flows");
+		// 创建间隔
+		util.createRowSpace(root);
+		// 创建按钮行
+		Base row = util.createRow(root);
+		// 创建返回按钮
+		Base column = util.createColumn(row, "3", "2","2",null);
+		util.createCancelButton(column);
+		// 创建隐藏域
+		InputHidden hidden = InputHidden.getInstance("taskInstId", taskInstId);
+		root.addChildNode(hidden);
+		hidden = InputHidden.getInstance("processInstId", processInstId);
+		root.addChildNode(hidden);
+		// 返回页面信息
+		return root.getNode();
+	}
+	
+	private Base createSuspendReason(){
+		/** 创建Modal Dialog 挂起 激活 开始*/
+		CssClass modelCss = new CssClass("modal fade");
+		Div modalDiv = Div.getInstance("myModalSuspendReason", modelCss, null);
+		// 创建div
+		CssClass dialogCss = new CssClass("modal-dialog");
+		Div dialogDiv = Div.getInstance(null, dialogCss, null);
+		modalDiv.addChildNode(dialogDiv);
+		// 创建div 
+		CssClass contentCss = new CssClass("modal-content");
+		Div contentDiv = Div.getInstance(null, contentCss, null);
+		dialogDiv.addChildNode(contentDiv);
+		// 创建header div
+		CssClass headerCss = new CssClass("modal-header");
+		Div headerDiv = Div.getInstance(null, headerCss, null);
+		contentDiv.addChildNode(headerDiv);
+		// 构建关闭按钮
+		CssClass closeCss = new CssClass("close");
+		Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+		Prop closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		Prop closeProps = new Prop();
+		closeProps.setPropKey("aria-hidden");
+		closeProps.setPropValue("true");
+		// 绑定属性
+		closeBtn.addProp(closeProp);
+		closeBtn.addProp(closeProps);
+		headerDiv.addChildNode(closeBtn);
+		// 创建标题div
+		CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv = Div.getInstance(null, titleCss, "请输入您选择此操作的原因：");
+		headerDiv.addChildNode(titleDiv);
+		TextArea textArea = TextArea.getInstance("reason", null, "15", null);
+		Prop PropTextArea = new Prop();
+		PropTextArea.setPropKey("cols");
+		PropTextArea.setPropValue("90");
+		textArea.addProp(PropTextArea);
+		headerDiv.addChildNode(textArea);
+		// 提交按钮
+		CssClass subCss = new CssClass("btn btn-primary btn-top");
+		Button subBtn = Button.getInstance("suspendOrActivate", subCss, "确定");
+		headerDiv.addChildNode(subBtn);
+		// 取消按钮
+		CssClass cancelCss = new CssClass("btn btn-default cus-cancel btn-top");
+		Button cancelBtn = Button.getInstance("suspendOrActivateCancel", cancelCss, "取消");
+		Prop cancelProp = new Prop();
+		cancelProp.setPropKey("data-dismiss");
+		cancelProp.setPropValue("modal");
+		cancelBtn.addProp(cancelProp);
+		headerDiv.addChildNode(cancelBtn);
+		/** Modal Dialog 结束*/
+		return modalDiv;
+	}
+	
+	/**
+	 * 创建流程用户模式窗口
+	 * @return
+	 */
+	private Base createDelegateUser(List<User> users){// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		/** 创建Modal Dialog 挂起 激活 开始*/
+		CssClass modelCss = new CssClass("modal fade");
+		Div modalDiv = Div.getInstance("myModalDelegateUser", modelCss, null);
+		// 创建div
+		CssClass dialogCss = new CssClass("modal-dialog");
+		Div dialogDiv = Div.getInstance(null, dialogCss, null);
+		modalDiv.addChildNode(dialogDiv);
+		// 创建div 
+		CssClass contentCss = new CssClass("modal-content");
+		Div contentDiv = Div.getInstance(null, contentCss, null);
+		dialogDiv.addChildNode(contentDiv);
+		// 创建header div
+		CssClass headerCss = new CssClass("modal-header");
+		Div headerDiv = Div.getInstance(null, headerCss, null);
+		contentDiv.addChildNode(headerDiv);
+		// 构建关闭按钮
+		CssClass closeCss = new CssClass("close");
+		Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+		Prop closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		Prop closeProps = new Prop();
+		closeProps.setPropKey("aria-hidden");
+		closeProps.setPropValue("true");
+		// 绑定属性
+		closeBtn.addProp(closeProp);
+		closeBtn.addProp(closeProps);
+		headerDiv.addChildNode(closeBtn);
+		// 创建标题div
+		CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv = Div.getInstance(null, titleCss, "请选择委托人：");
+		headerDiv.addChildNode(titleDiv);
+		Select select = Select.getDefaultWithOption("delegateUser",users,"id","userName", false);
+		headerDiv.addChildNode(select);
+		// 提交按钮
+		CssClass subCss = new CssClass("btn btn-primary btn-top");
+		Button subBtn = Button.getInstance("delegate", subCss, "确定");
+		headerDiv.addChildNode(subBtn);
+		// 取消按钮
+		CssClass cancelCss = new CssClass("btn btn-default cus-cancel btn-top");
+		Button cancelBtn = Button.getInstance("delegateCancel", cancelCss, "取消");
+		Prop cancelProp = new Prop();
+		cancelProp.setPropKey("data-dismiss");
+		cancelProp.setPropValue("modal");
+		cancelBtn.addProp(cancelProp);
+		headerDiv.addChildNode(cancelBtn);
+		/** Modal Dialog 结束*/
+		return modalDiv;
+	}
+	
+	public String getDelegatePage(List<User> users){
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "可指派的任务");
+		util.createRowSpace(root);
+		// 创建DIV
+		util.createGrid(root,"dv_delegate_task");
+		/**
+		 * 创建流程控制按钮组
+		 */
+		Script script = Script.getInstance("templeteDelegate");
+		// 委托按钮
+		CssClass css = new CssClass("fa fa-hand-o-right");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-success");
+		Button tempelate = Button.getButtonWithIcon(null, css, null, i);
+		Prop prop = new Prop("title","委托");
+		tempelate.addProp(prop);
+		prop = new Prop("onclick","delegate_task.delegate(this)");
+		tempelate.addProp(prop);
+		script.addChildNode(tempelate);	
+		Base delegateUser = createDelegateUser(users);
+		root.addChildNode(delegateUser);
+		return root.getNode() + script.getNode();
+	}
+}

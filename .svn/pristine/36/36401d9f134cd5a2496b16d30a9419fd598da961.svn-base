@@ -1,0 +1,63 @@
+package com.ht.service.constant.experiencebook;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.ht.common.constant.CommonConstants;
+import com.ht.common.util.SpringUtil;
+import com.ht.persistence.dao.inter.complication.formprop.FormPropDao;
+import com.ht.persistence.dao.inter.system.symbol.SymbolDao;
+import com.ht.persistence.model.complication.formprop.FormPropFormView;
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.persistence.model.system.symbol.Symbol;
+
+public class BaseExperience
+{
+	public void setProps(Map<String,Object> map,String formId,List<FormValue> valueList,String name){
+		FormPropDao formPropDao = (FormPropDao) SpringUtil.getBean("formPropDao");
+		SymbolDao symbolDao = (SymbolDao) SpringUtil.getBean("symbolDao");
+		List<FormPropFormView> props = formPropDao.getFormPropList(formId);
+		String[] templeteTextArray = CommonConstants.TEMPLETE_TEXT_ARRAY;
+		for (int i = 0; i < props.size(); i++)
+		{
+			FormPropFormView propViews = props.get(i);
+			String propKey = propViews.getPropKey();
+			String propType = propViews.getPropType();
+			if (valueList != null)
+			{
+				for (int j = 0; j < valueList.size(); j++)
+				{
+					if (valueList.get(j).getPropKey().equals(propKey)&&!StringUtils.isEmpty(valueList.get(j).getPropValue()))
+					{
+						Object value= valueList.get(j).getPropValue();
+						/*if(Arrays.binarySearch(templeteTextArray,"kendoselect")!=-1){
+							propType="text";
+						}*/
+						for (String string : templeteTextArray) {
+							if(string.equalsIgnoreCase(propType)){
+								propType="text";
+					 		}
+						}
+						if("imgselect".equals(propType)){
+							propType="img";
+							Symbol symbol=new Symbol();
+							symbol.setCode((String)value);
+							try {
+								symbol = symbolDao.getSymbolsListByCode(symbol);
+								if(symbol!=null){
+									value="/ht"+symbol.getImgUrl();
+								}
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						map.put(propType+"_"+name+"_"+propKey,value);
+					}
+				}
+			}
+		}
+	}
+}

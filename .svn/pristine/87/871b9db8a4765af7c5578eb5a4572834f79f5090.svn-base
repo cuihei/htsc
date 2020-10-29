@@ -1,0 +1,165 @@
+package com.ht.persistence.dao.impl.system.workflow.process;
+
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.springframework.util.CollectionUtils;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessFormDao;
+import com.ht.persistence.model.system.workflow.process.ProcessForm;
+import com.ht.persistence.model.system.workflow.process.ProcessFormProp;
+
+public class ProcessFormDaoImpl extends BaseDaoImpl implements ProcessFormDao
+{
+
+	@Override
+	public ProcessForm getProcessForm(ProcessForm processForm) throws Exception
+	{
+		List<ProcessForm> result = null;
+		try
+		{
+			// 获取
+			result = this.findByNamedQueryAndNamedParam("findProcessFormById", "id", processForm.getId());
+			if (CollectionUtils.isEmpty(result)) { return null; }
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+		return result.get(0);
+	}
+
+	@Override
+	public ProcessForm getProcessFormByProAndTask(ProcessForm processForm) throws Exception
+	{
+		List<ProcessForm> result = null;
+		try
+		{
+			// 获取
+			result = this.findByNamedQueryAndNamedParam("findProcessFormByProAndTask", new String[]
+			{ "processDefId", "taskDefId" }, new Object[]
+			{ processForm.getProcessDefId().split(":")[0], processForm.getTaskDefId() });
+			if (CollectionUtils.isEmpty(result)) { return null; }
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+		return result.get(0);
+	}
+
+	@Override
+	public List<ProcessForm> getProcessFormByProcessDefId(ProcessForm processForm) throws Exception
+	{
+		List<ProcessForm> result = null;
+		try
+		{
+			// 获取
+			result = this.findByNamedQueryAndNamedParam("getProcessFormByProcessDefId", new String[]
+			{ "processDefId" }, new Object[]
+			{ processForm.getProcessDefId().split(":")[0] });
+			if (CollectionUtils.isEmpty(result)) { return null; }
+			return result;
+		}
+		catch (Exception e)
+		{
+			throw e;
+		}
+	}
+
+	@Override
+	public List<ProcessForm> getProcessFormList() throws Exception
+	{
+		List<ProcessForm> list = null;
+		try
+		{
+			// 获取目录明细列表
+			list = this.findByNamedQuery("findProcessFormList");
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+		return list;
+	}
+
+	@Override
+	public void addProcessForm(ProcessForm processForm) throws Exception
+	{
+		this.save(processForm);
+	}
+
+	@Override
+	public void modifyProcessForm(ProcessForm processForm) throws Exception
+	{
+		this.update(processForm);
+	}
+
+	@Override
+	public void delProcessForm(ProcessForm processForm) throws Exception
+	{
+		this.delete(processForm);
+	}
+
+	@Override
+	public List<ProcessFormProp> getProcessFormProp(String processDefId, String taskDefId) throws Exception
+	{
+		try
+		{
+			String sql = "select a.* from PROCESS_FORM_PROP a  where a.PROCESS_FORM_ID = (select id from process_form b where b.PROCESS_DEF_ID = ? and b.TASK_DEF_ID = ?) order by to_number(num)";
+			// 获取目录明细列表
+			SQLQuery query  = this.getSession().createSQLQuery(sql);
+			query.addEntity(ProcessFormProp.class);
+			query.setString(0, processDefId);
+			query.setString(1, taskDefId);
+			List<ProcessFormProp> list = query.list();
+			return list;
+		}
+		catch (Exception e)
+		{
+			throw e;
+		}
+	}
+	
+	@Override
+	public List<ProcessFormProp> getProcessFormProp(String formId) throws Exception
+	{
+		try
+		{
+			String sql = "select a.* from PROCESS_FORM_PROP a  where a.PROCESS_FORM_ID = ?";
+			// 获取目录明细列表
+			SQLQuery query  = this.getSession().createSQLQuery(sql);
+			query.addEntity(ProcessFormProp.class);
+			query.setString(0, formId);
+			List<ProcessFormProp> list = query.list();
+			return list;
+		}
+		catch (Exception e)
+		{
+			throw e;
+		}
+	}
+
+	@Override
+	public void saveProcessFormProp(ProcessFormProp entity) throws Exception
+	{
+		this.saveOrUpdate(entity);
+	}
+	
+	@Override
+	public void deleteProcessFormProp(List<ProcessFormProp> entity) throws Exception
+	{
+		this.deleteAll(entity);
+	}
+	
+	@Override
+	public void insertProcessFormProp(List<ProcessFormProp> list) throws Exception
+	{
+		this.saveOrUpdateAll(list);
+	}
+}

@@ -1,0 +1,195 @@
+package com.ht.service.impl.correctionnoticesearch;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.persistence.dao.inter.correctionnoticesearch.CorrectionNoticeDao;
+import com.ht.persistence.model.correctionnotice.CorrectionNotice;
+import com.ht.persistence.model.correctionnotice.NoticeBaseData;
+import com.ht.persistence.model.correctionnotice.NoticeYear;
+import com.ht.service.inter.correctionnoticesearch.CorrectionNoticeService;
+
+public class CorrectionNoticeServiceImpl implements CorrectionNoticeService {
+	// 项号数字位数
+	private static final String STR_FORMAT = "00000";
+	// 改正通告查询Dao CorrectionNoticeDao 
+	@Resource(name = "correctionNoticeDao")
+	private CorrectionNoticeDao correctionNoticeDao;
+	
+	@Override
+	public List<CorrectionNotice> queryNoticeByCondition(String ChartNo, String key,
+			String ddlType, String startTime, String endTime, String ddlAct,String NoticesNo,String NoticesNo2) throws Exception {
+		/*
+		 * 拼接查询条件
+		*/
+		String strWhere = "i.State=17 and iss.YearID = y.ID and i.IssueID=iss.ID and i.ActID=a.ID and i.NoticeTypeID=n.ID";
+
+		 String fNoticesNo = "1";
+		  if (StringUtils.isNotEmpty(NoticesNo))
+	        {
+	            fNoticesNo =NoticesNo;
+	        }
+		//字段
+		 String fields = "M.*";
+		
+		//String orderby = "i.CreateTime desc,i.issueid,i.NoticeTypeId,to_number(substr(i.ItemNo,instr(i.ItemNo,'-') +1))";
+		
+		
+		//拆分关键字
+		if(null!=key&&""!=key){
+			String[] keys = key.trim().split(" +");
+			//拼入关键字
+			for (String k : keys) {
+				strWhere = strWhere + " and (i.CnDocumentContent LIKE '%" + k.trim() + "%' or i.Title  LIKE '%" + k.trim() + "%')";
+			}
+		}
+		//拼入图号
+		if(null!=ChartNo&&""!=ChartNo){
+			strWhere = strWhere + " and i.ChartNo LIKE '%" + ChartNo.trim()+ "%'";	
+		}
+		/*//拼入开始时间
+		if(null!=startTime&&""!=startTime){
+			 strWhere = strWhere + " and i.CreateTime >= to_date('" +startTime.trim()+ "','yyyy-MM-dd')";
+		}
+		//拼入结束时间
+		if(null!=endTime&&""!=endTime){
+			strWhere = strWhere + " and i.CreateTime < to_date('" + endTime.trim() + "','yyyy-MM-dd') + 1";
+		}*/
+		//拼入改正行为
+		if(null!=ddlAct&&""!=ddlAct){
+			 strWhere = strWhere + " and i.ActID = " + NumberFormat.getInstance().parse(ddlAct);  
+		}
+		//拼入改正行为
+		if(null!=ddlType&&""!=ddlType){
+			strWhere = strWhere + " and i.NoticeTypeID = "  + NumberFormat.getInstance().parse(ddlType);  
+		}else
+        {
+            strWhere = strWhere + " and i.NoticeTypeID <> 3";
+        }
+		String tableName = " (select y.ID yearid,y.Name YearName,i.ID,i.IssueID,i.ItemNo,i.CreateTime,i.Title,i.ChartNo,iss.IssueNo,iss.TotalIssueNo,iss.ReleaseTime,a.Name as Act,n.Name as NoticeType,y.name || lpad(substr(i.ItemNo,instr(i.ItemNo,'-') +1),5,'0') as yearitemno from  Year y,Item i,Issue iss,Act a,NoticeType n where 1=1 and " + strWhere + ") M ";
+		
+		String str = "";
+		if (endTime==null||endTime=="")
+        {
+			if(startTime!=""&&startTime!=null){
+				str = " and to_number(yearitemno) = to_number('" + startTime + "00000')";
+			}
+        }else{
+        	 if (StringUtils.isEmpty(NoticesNo2))
+             {
+                 str = " and to_number(yearitemno) >= to_number('" +startTime + formatNo(fNoticesNo)+ "') and to_number(yearitemno) < to_number('" + endTime+ "00000') +100000";
+             }
+             else
+             {
+                 str = " and to_number(yearitemno) >= to_number('" +startTime +  formatNo(fNoticesNo) + "') and to_number(yearitemno) <= to_number('" + endTime+formatNo(NoticesNo2) + "')";
+             }
+        }
+		//排序方式
+		String orderby = "yearitemno";
+		String sql = "select " + fields + " from " + tableName + " where 1=1  " + str + " order by " + orderby;
+		return correctionNoticeDao.queryByCondition(sql);
+	}
+
+	@Override
+	public NoticeBaseData queryById(String id) {
+		// TODO Auto-generated method stub
+		return correctionNoticeDao.queryById(id);
+	}
+
+	@Override
+	public List<NoticeBaseData> getDdlTypeList() {
+		// TODO Auto-generated method stub
+		return correctionNoticeDao.getDdlTypeList();
+	}
+
+	@Override
+	public List<NoticeBaseData> getDdlActList() {
+		// TODO Auto-generated method stub
+		return correctionNoticeDao.getDdlActList();
+	}
+
+	@Override
+	public List<CorrectionNotice> queryNewestByCondition(String IssueID) throws Exception{
+	
+		//字段
+		String fields = "i.ID,i.IssueID,i.ItemNo,i.CreateTime,i.Title,i.ChartNo,iss.IssueNo,iss.TotalIssueNo,iss.ReleaseTime,a.Name as Act,n.Name as NoticeType";
+		//表名
+		String tableName = " Item i,Issue iss,Act a,NoticeType n";
+		//排序方式
+		String orderby = "iss.TotalIssueNo desc,i.CreateTime desc,i.issueid,i.NoticeTypeId,to_number(substr(i.ItemNo,instr(i.ItemNo,'-') +1))";
+		/*
+		 * 拼接查询条件
+		*/
+		String strWhere = "iss.State=17 and i.IssueID=iss.ID and i.ActID=a.ID and i.NoticeTypeID=n.ID";
+		
+		if(null!=IssueID&&""!=IssueID){
+			strWhere = strWhere + " and iss.ID =" + NumberFormat.getInstance().parse(IssueID);	
+		}
+		String sql = "select " + fields + " from " + tableName + " where 1=1 and " + strWhere + " order by " + orderby;
+		return correctionNoticeDao.queryByCondition(sql);
+	}
+	/**
+	 * 根据项号等条件查询改正通告
+	 * */
+	@Override
+	public List<CorrectionNotice> queryNoticeByItemNoCondition(String itemNo,
+			String key, String ddlType, String startTime, String ddlAct)
+			throws Exception {
+		//字段
+		String fields = "y.ID yearid,y.name yearname,i.ID,i.IssueID,i.ItemNo,i.CreateTime,i.Title,i.ChartNo,iss.IssueNo,iss.TotalIssueNo,iss.ReleaseTime,a.Name as Act,n.Name as NoticeType";
+		//表名
+		String tableName = "Year y,Item i,Issue iss,Act a,NoticeType n";
+		//排序方式
+		String orderby = "iss.ReleaseTime,iss.IssueNo,i.Priority";
+		/*
+		 * 拼接查询条件
+		*/
+		String strWhere = "i.State=17 and iss.YearID = y.ID and i.IssueID=iss.ID and i.ActID=a.ID and i.NoticeTypeID=n.ID";
+		//拆分关键字
+		if(null!=key&&""!=key){
+			String[] keys = key.trim().split(" +");
+			//拼入关键字
+			for (String k : keys) {
+				strWhere = strWhere + " and (i.CnDocumentContent LIKE '%" + k.trim() + "%' or i.Title  LIKE '%" + k.trim() + "%')";
+			}
+		}
+		//拼入项号
+		if(null!=itemNo&&""!=itemNo){
+			 strWhere = strWhere + " and to_number(substr(i.ItemNo,instr(i.ItemNo,'-') +1)) = " +itemNo;
+		}
+		//拼入年份
+		if(null!=startTime&&""!=startTime){
+			strWhere = strWhere + " and y.ID = " + startTime;
+		}
+		//拼入改正行为
+		if(null!=ddlAct&&""!=ddlAct){
+			 strWhere = strWhere + " and i.ActID = " + NumberFormat.getInstance().parse(ddlAct);  
+		}
+		//拼入改正行为
+		if(null!=ddlType&&""!=ddlType){
+			strWhere = strWhere + " and i.NoticeTypeID = "  + NumberFormat.getInstance().parse(ddlType);  
+		}
+		String sql = "select " + fields + " from " + tableName + " where 1=1 and " + strWhere + " order by " + orderby;
+		return correctionNoticeDao.queryByCondition(sql);
+	}
+	
+	
+	
+	public static String formatNo(String no)
+	{
+		Integer intHao = Integer.parseInt(no);
+		DecimalFormat df = new DecimalFormat(STR_FORMAT);
+		return df.format(intHao);
+	}
+
+	@Override
+	public List<NoticeYear> getYearList() {
+		
+		return correctionNoticeDao.getYearList();
+	}
+}

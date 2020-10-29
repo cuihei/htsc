@@ -1,0 +1,535 @@
+package com.ht.action.datum.fileddata;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import com.ht.action.base.BaseAction;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.ExcelFileUtil;
+import com.ht.common.util.ExportExcel;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.LoginUtil;
+import com.ht.front.pages.datum.fileddata.FiledDataPage;
+import com.ht.persistence.model.background.authority.role.RoleUsers;
+import com.ht.persistence.model.background.organization.employee.User;
+import com.ht.persistence.model.background.organization.organization.OrganizationUsersRelation;
+import com.ht.persistence.model.datum.bookinfo.BookFile;
+import com.ht.persistence.model.datum.fileddata.FiledData;
+import com.ht.persistence.model.datum.fileddata.ViewFiledData;
+import com.ht.service.inter.background.authority.role.RoleUsersService;
+import com.ht.service.inter.background.dicdata.basedata.BaseDataService;
+import com.ht.service.inter.background.organization.employee.UserService;
+import com.ht.service.inter.background.organization.organization.OrganizationUsersRelationService;
+import com.ht.service.inter.datum.fileddata.FiledDataService;
+import com.ht.service.inter.datum.type.DatumCategoryService;
+
+/**
+ * 外业数据action
+ * @author zyd
+ *
+ */
+@SuppressWarnings("serial")
+public class FiledDataAction extends BaseAction {
+	
+	/**
+	 * 注入外业汇交service
+	 */
+	@Resource(name="filedDataService")
+	FiledDataService filedDataService;
+	
+	/**
+	 * 注入用户service
+	 * */
+	@Resource(name = "userService")
+	UserService userService;
+	
+	/**
+	 * 注入roleUsersService
+	 */
+	@Resource(name = "roleUsersService")
+	RoleUsersService roleUsersService;
+	
+	/**
+	 * 注入资料类别Service
+	 */
+	@Resource(name="datumcategoryService")
+	DatumCategoryService datumcategoryService;
+	
+	/**
+	 * 注入基础数据baseDataService
+	 */
+	@Resource(name="baseDataService")
+	BaseDataService baseDataService;
+	
+
+	/**
+	 * 注入机构service
+	 * */
+	@Resource(name = "organizationUsersRelationService")
+	OrganizationUsersRelationService organizationUsersRelationService;
+	
+	
+	
+	//必须的参数，参数名与表单名相同
+    private File upload;
+    //必须的参数，格式：表单名+FileName，表示上传的文件名  
+    private String uploadFileName;
+    //必须的参数，格式：表单名+ContentType，表示上传文件类型
+    private String uploadContentType;
+
+    
+	public File getUpload() {
+		return upload;
+	}
+
+	public void setUpload(File upload) {
+		this.upload = upload;
+	}
+
+	public String getUploadFileName() {
+		return uploadFileName;
+	}
+
+	public void setUploadFileName(String uploadFileName) {
+		this.uploadFileName = uploadFileName;
+	}
+
+	public String getUploadContentType() {
+		return uploadContentType;
+	}
+
+	public void setUploadContentType(String uploadContentType) {
+		this.uploadContentType = uploadContentType;
+	}
+	
+	
+	/**
+	 * 初始化外业汇交页面，返回成功列表页面
+	 * @return
+	 */
+	public String init()  throws Exception{
+		// 创建图书资料页面初始化类
+		FiledDataPage fdPage = new FiledDataPage();
+		String userNo = LoginUtil.getInstance().getLoginNo(request);
+		List<User> users = userService.getUserByNo(userNo);
+		String userId = null;
+		if (users != null)
+		{
+			userId = users.get(0).getId();
+		}
+		
+		//获取指定机构人员的列表 2018.6.11
+		List<OrganizationUsersRelation> result = new ArrayList<OrganizationUsersRelation>();
+		List<OrganizationUsersRelation> list1 =organizationUsersRelationService.getUsersByOrgId("11031944208210186");
+		List<OrganizationUsersRelation> list2 =organizationUsersRelationService.getUsersByOrgId("11031942356660184");
+		List<OrganizationUsersRelation> list3 =organizationUsersRelationService.getUsersByOrgId("11031934398610176");
+
+		//总工程师（中心领导） 11031944208210186
+		//出版管理科   				11031942356660184
+		//编绘管理科  				11031934398610176
+		result.addAll(list1);
+		result.addAll(list2);
+		result.addAll(list3);
+		
+		
+		
+		
+		// 根据当前登录人获取拥有的角色列表
+		List<RoleUsers> roleList = roleUsersService.getRoleUsersByUserId(userId);
+		List<String> ids =  new ArrayList<String>();
+		if (roleList.size()>0)
+		{
+			for (int i = 0; i < roleList.size(); i++)
+			{
+				ids.add(roleList.get(i).getRoleId());
+			}
+		}
+		
+	    Integer flag=1;
+		if(ids != null&& ids.size()>0) {
+			if(ids.contains("11031915039750121")) {
+				/////1、表示不是资料管理员   0当前登陆为资料管理员
+				flag = 0;
+			}
+		}
+		
+	    ///当前用户是否为资料管理员
+		request.setAttribute("flag", flag);
+		
+		// 将获取的节点字符串返回给前台页面
+		//request.setAttribute("html", page.getListNode(baseDataService,datumcategoryService,ids,result,userService));
+		request.setAttribute("html", fdPage.getListNode(baseDataService,datumcategoryService,ids,result,userService));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 获取所有外业汇交数据
+	
+	/**
+	 * 获取所有外业汇交数据
+	 * @return
+	 */
+	public void getFiledData(){
+		try {
+			String userNo = LoginUtil.getInstance().getLoginNo(request);
+			List<FiledData> list = new ArrayList<FiledData>();
+			
+			List<User> users = userService.getUserByNo(userNo);
+			String userId = null;
+			if (users != null)
+			{
+				userId = users.get(0).getId();
+			}
+			// 根据当前登录人获取拥有的角色列表
+			List<RoleUsers> roleList = roleUsersService.getRoleUsersByUserId(userId);
+			List<String> ids =  new ArrayList<String>();
+			if (roleList.size()>0)
+			{
+				for (int i = 0; i < roleList.size(); i++)
+				{
+					ids.add(roleList.get(i).getRoleId());
+				}
+			}
+			if(ids.contains("11031915039750121")){
+				list = filedDataService.getFiledData();
+			}else{
+				list = filedDataService.getFiledDataByStatus();
+			}
+			
+			// 返回客户端消息
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 初始化外业汇交编辑页面
+	 * @return 
+	 */
+	public String editInit(){
+		// 接收前台传来的id
+		String id = getParam("id");
+		String mark = getParam("mark");
+		// 创建外业汇交页面初始化类
+		FiledDataPage fdPage = new FiledDataPage();
+		// 将获取的节点字符串返回给前台页面
+		request.setAttribute("html", fdPage.getEditNode(id,userService,baseDataService,filedDataService,mark));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 外业汇交添加
+	 */
+	public void addFiledData(){
+		try {
+			// 获取参数
+			String filedData = getParam("filedData");
+			String LoginUser = LoginUtil.getInstance().getLoginNo(request);
+			 List<User> userList = userService.getUserByNo(LoginUser);
+				if(userList!=null&&userList.size()>0){
+					User user =userList.get(0);
+					if(user!=null){
+						LoginUser=user.getUserName();
+					}
+				}
+			// 执行添加
+			filedDataService.addFiledData(filedData,LoginUser);
+			// 成功返回消息
+			writeSuccessResult("保存成功");
+		} catch (Exception e) {
+	
+			// 错误返回消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 外业资料删除
+	 */
+	public void remove(){
+		// 获取fileddata标识
+		String filedData = getParam("filedData");
+		try {
+			String msg = filedDataService.deleteFiledData(filedData);
+			writeSuccessResult(msg);
+			
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	public void getFiledDataByCode(){
+		// 获取bookInfo标识
+		String picNo = getParam("picNo");
+		try {
+			FiledData b = filedDataService.getFiledDataByPicNo(picNo);
+			writeSuccessResult(b);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 导出
+	 * @throws Exception
+	 */
+	public void export() throws Exception{
+		
+		// 获取图书资料标识
+		String fileddatas = getParam("fileddatas");
+		// 获取路径
+		String folderPath = FileUtil.ROOT_PATH + "dzy\\export\\" + "fileddata";
+		// 判断文件夹是否存在，不存在则创建
+		if(!FileUtil.exists(folderPath)){
+			FileUtil.CreateFolder(folderPath);
+		}
+		String path = folderPath + "\\" + ("外业资料") + GenerateSequenceUtil.generateSequenceNo() + ".xls";
+		// 将Json转换为list
+		List<ViewFiledData> list = (List<ViewFiledData>) DataConverter.convertJson2List(fileddatas,ViewFiledData.class);
+		// 数组的形式创建表格标题行
+		String[] col = {"图号","海区","比例尺(1:)","项目名称","测量周期","汇交时间","数据名称","数据形式","原始文件名称","份数","状态","接收人"};
+		// 数组的形式创建表格值（对应实体类的字段）
+		String[] zd = {"picNo","seaArea","scale","projectName","measureCycle","concurrentTime","dataName",
+						"dataForm","originalFileName","copies","state","recipient"};
+		
+		List<ViewFiledData> filedDataList = new ArrayList<ViewFiledData>();
+		for (int i = 0; i < list.size(); i++) {
+			ViewFiledData vFileddata = filedDataService.getViewFiledData(list.get(i).getId());
+			filedDataList.add(vFileddata);
+		}
+		if(filedDataList.size() > 0){
+			ExportExcel ee = new ExportExcel();
+			boolean exportResult = ee.exportExcel("外业资料", col, zd, filedDataList,path);
+			if(exportResult){
+				ExcelFileUtil.download(path, respose); 
+			}
+		}
+	}
+	
+	/**
+	 * 上传文件
+	 */
+	public void uploadFile() throws Exception {
+		try{
+			// 获取文件夹Id
+			String filedDataId = getParam("filedDataId");
+			filedDataService.uploadFile(filedDataId,upload,uploadFileName);
+			writeSuccessResult();
+		}catch (Exception e){
+			LogHelper.ERROR.log(e.getMessage());
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 初始化外业汇交附件页面，返回成功列表页面
+	 * @return
+	 */
+	public String fileInit(){
+		try {
+			String filedDataId = getParam("id");
+			// 创建图书资料页面初始化类
+			FiledDataPage ddata = new FiledDataPage();
+			String userNo = LoginUtil.getInstance().getLoginNo(request);
+			List<User> users = userService.getUserByNo(userNo);
+			String userId = null;
+			if (users != null)
+			{
+				userId = users.get(0).getId();
+			}
+			// 根据当前登录人获取拥有的角色列表
+			List<RoleUsers> roleList = roleUsersService.getRoleUsersByUserId(userId);
+			List<String> jurisList=new ArrayList<String>(); 
+			jurisList.add("11031915039750121");
+			boolean jurisdiction = this.getUserJurisdiction(roleList, jurisList);
+			// 将获取的节点字符串返回给前台页面
+			request.setAttribute("html", ddata.getFileListNode(filedDataId,jurisdiction));
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return SUCCESS;
+	}
+	
+	/**
+	 * 初始化外业汇交借阅页面
+	 * @return
+	 * @throws Exception
+	 */
+	public String borrowingInit() throws Exception{
+		// 获取文件Id
+		String filedDataId = getParam("id");
+		// 获取一条图书信息
+		FiledData filedData = filedDataService.getFiledData(filedDataId);
+		FiledDataPage filedDataPage = new FiledDataPage();
+		//将获取的节点字符串返回到前台页面
+		request.setAttribute("html", filedDataPage.getBorrowing(filedData));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 初始化外业汇交批量借阅页面
+	 * @return
+	 * @throws Exception
+	 */
+	public String batchBorrowingInit() throws Exception{
+		// 获取资料Id
+		String ids = getParam("ids");
+		//获取人员id
+		String userNo=getParam("userNo");
+		FiledDataPage filedDataPage = new FiledDataPage();
+		//将获取的节点字符串返回到前台页面
+		request.setAttribute("html", filedDataPage.getBatchBorrowing(ids,userNo));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 新增借阅
+	 * @throws Exception
+	 */
+	public void addBorrowing() throws Exception {
+		// 获取前台传入参数
+		String borrowing = getParam("borrowing");
+		// 获取图号
+		String picNo = getParam("picNo");
+		// 获取剩余数量
+		String surplus = getParam("surplus");
+		// 获取图书信息
+		FiledData filedData = filedDataService.getFiledDataByPicNo(picNo);
+		// 执行保存操作
+		try {
+			filedDataService.addBorrowing(borrowing,filedData,surplus);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 返回客户端消息
+		writeSuccessResult(borrowing);
+	}
+	
+	/**
+	 * 初始化外业汇交归还页面
+	 * @return
+	 * @throws Exception
+	 */
+	public String returnInit() throws Exception{
+		String id = getParam("id");
+		FiledDataPage filedDataPage = new FiledDataPage();
+		FiledData filedData = filedDataService.getFiledData(id);
+		//将获取的节点字符串返回到前台页面
+		request.setAttribute("html", filedDataPage.getReturn(filedData));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 外业汇交资料归还
+	 */
+	public void returnFiledData() throws Exception{
+		// 获取前台传入参数
+		String bookReturn = getParam("bookReturn");
+		// 获取图书编号
+		String picNo = getParam("picNo");
+		// 获取归还数量
+		String returnNo = getParam("returnNo");
+		// 获取图书信息
+		FiledData filedData = filedDataService.getFiledDataByPicNo(picNo);
+		// 执行保存操作
+		try {
+			filedDataService.returnBook(bookReturn,filedData,returnNo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 返回客户端消息
+		writeSuccessResult(bookReturn);
+	}
+	
+	/**
+	 * 获取所有外业汇交资料附件
+	 * @return
+	 */
+	public void getFiledDataFile(){
+		String bookFile = getParam("bookFile");
+		try {
+			// 执行查询操作
+			List<BookFile> list = filedDataService.getFileByBookId(bookFile);
+			// 返回客户端消息
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 根据条件模糊查询
+	 */
+	public void getList(){
+		try {
+			// 获取参数
+			String fileds = getParam("fileds");
+			// 获取出版年月结束日期
+			String concurrentTimeTwo = getParam("concurrentTimeTwo");
+			
+			String userNo = LoginUtil.getInstance().getLoginNo(request);
+			List<FiledData> list = new ArrayList<FiledData>();
+			
+			List<User> users = userService.getUserByNo(userNo);
+			String userId = null;
+			if (users != null)
+			{
+				userId = users.get(0).getId();
+			}
+			// 根据当前登录人获取拥有的角色列表
+			List<RoleUsers> roleList = roleUsersService.getRoleUsersByUserId(userId);
+			List<String> ids =  new ArrayList<String>();
+			if (roleList.size()>0)
+			{
+				for (int i = 0; i < roleList.size(); i++)
+				{
+					ids.add(roleList.get(i).getRoleId());
+				}
+			}
+			// 执行查询
+			if(ids.contains("11031915039750121")){//查看所有
+				 list = filedDataService.getList(fileds,concurrentTimeTwo);
+			}else{//查看审核通过的
+				list = filedDataService.getOtherList(fileds, concurrentTimeTwo);
+			}
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取借阅列表
+	 */
+	public void getBorrowingList(){
+		try {
+			// 获取参数
+			String ids = getParam("ids");
+			// 执行查询
+			List<ViewFiledData> list = filedDataService.getFiledDataList(ids);
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+			writeFailResult(e.getMessage());
+		}
+	}
+
+}
+

@@ -1,0 +1,61 @@
+package com.ht.service.inter.background.dicdata.defectform;
+
+import java.util.List;
+
+import com.ht.persistence.model.background.dicdata.defectform.DefectForm;
+
+/** 
+* @ClassName: DefectFormService 
+* @Description: TODO(缺陷表单的接口) 
+* @author penghao
+* @date 2016年11月16日 上午10:20:38 
+*  
+*/
+public interface DefectFormService {
+	
+	/**
+	 * 获取缺陷集合
+	 * @param splitId 
+	 * @param taskInsId 流程任务实例id
+	 * @param processInsId 流程实例id
+	 * @return
+	 */
+	List<DefectForm> getDefectFormList(String taskInstId,String processInstId, String splitId);
+	
+	/**
+	 * 保存数据
+	 * @param params json字符串
+	 * @return
+	 */
+	void add(String params) throws Exception;
+	
+	/**
+	 * 删除数据
+	 * @param ids
+	 * @return
+	 */
+	void delete(String ids);
+	
+	/**
+	 * 根据id获取缺陷表单数据
+	 * @param id
+	 * @return
+	 */
+	DefectForm getDefectFormById(String id);
+
+	List<DefectForm> getDefectFormListByProcessInstIdAndFormId(String processInstId, String formId);
+
+	List<DefectForm> getDefectFormListByProcessInstIdAndTaskId(String processInstId, String taskInstId);
+
+	void modifyCount(DefectForm defectForm,String taskInstId,String processInstId);
+
+	void updateGrading(DefectForm defectForm,String taskInstId,String processInstId);
+
+	List<DefectForm> getListByInstId(String processInstId, String splitId);
+
+	List<DefectForm> getDefectFormListByTaskInstIds(String processInstId,
+			String taskInstId);
+	//获取评分记录
+	
+	Integer getDefectFormNum(String taskinstId, String processInstId);
+}

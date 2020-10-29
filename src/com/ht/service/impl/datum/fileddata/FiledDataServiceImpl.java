@@ -1,0 +1,549 @@
+package com.ht.service.impl.datum.fileddata;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.ht.common.util.ConvertUtil;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.FileUtil;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.datum.bookinfo.BookFileDao;
+import com.ht.persistence.dao.inter.datum.bookinfo.ReturnBookDao;
+import com.ht.persistence.dao.inter.datum.datum.BorrowingDao;
+import com.ht.persistence.dao.inter.datum.fileddata.FiledDataDao;
+import com.ht.persistence.model.datum.bookinfo.BookFile;
+import com.ht.persistence.model.datum.bookinfo.BookInfo;
+import com.ht.persistence.model.datum.bookinfo.ReturnBook;
+import com.ht.persistence.model.datum.bookinfo.ViewBookInfo;
+import com.ht.persistence.model.datum.books.Books;
+import com.ht.persistence.model.datum.datum.Borrowing;
+import com.ht.persistence.model.datum.fileddata.FiledData;
+import com.ht.persistence.model.datum.fileddata.ViewFiledData;
+import com.ht.service.impl.background.dicdata.constants.BaseDataConstants;
+import com.ht.service.inter.datum.fileddata.FiledDataService;
+
+/**
+ * 外业汇交Service实现类
+ * @author zyd
+ *
+ */
+public class FiledDataServiceImpl implements FiledDataService {
+	
+	/**
+	 * 注入外业汇交Dao
+	 */
+	@Resource(name="filedDataDao")
+	FiledDataDao filedDataDao;
+	
+	/**
+	 * 注入BookFileDao
+	 */
+	@Resource (name = "bookFileDao")
+	private BookFileDao bookFileDao;
+	
+	/**
+	 * 注入借阅记录Dao
+	 */
+	@Resource (name = "BorrowingDao")
+	private BorrowingDao BorrowingDao;
+	
+	/**
+	 * 注入归还记录Dao
+	 */
+	@Resource (name = "returnBookDao")
+	private ReturnBookDao returnBookDao;
+	
+	/**
+	 * 添加外业汇交数据
+	 */
+	@Override
+	public void addFiledData(String filedDataParam,String LoginUser) throws Exception {
+		try {
+			// 将JSON转为对象
+			FiledData filedData = (FiledData) DataConverter.convertJson2Object(filedDataParam, FiledData.class);
+			// 如果Id不为空，则进行更新
+			if(filedData.getId() != null) {
+				
+				FiledData fd = new FiledData();
+				fd.setId(filedData.getId());
+				fd = filedDataDao.getFiledData(filedData);
+				//设置状态
+				if (filedData.getCopies().equals("0")) {
+					filedData.setState("110319542370421");
+				}else{
+					filedData.setState("11031954066330412");
+				}
+				fd.setPicNo(filedData.getPicNo());
+				fd.setSeaArea(filedData.getSeaArea());
+				fd.setScale(filedData.getScale());
+				fd.setProjectName(filedData.getProjectName());
+				fd.setMeasureCycle(filedData.getMeasureCycle());
+				fd.setConcurrentTime(filedData.getConcurrentTime());
+				fd.setDataName(filedData.getDataName());
+				fd.setOriginalFileName(filedData.getOriginalFileName());
+				fd.setCopies(filedData.getCopies());
+				fd.setState(filedData.getState());
+				fd.setRecipient(filedData.getRecipient());
+				fd.setTotal(filedData.getTotal());
+				fd.setCanBorrowing(filedData.getCanBorrowing());
+				fd.setEntry(LoginUser);
+				fd.setCreationDate(new Date());
+				fd.setCreator(LoginUser);
+				fd.setModifyDate(new Date());
+				fd.setModifier(LoginUser);
+				// 执行更新
+				filedDataDao.modifyFiledData(fd);
+			}else {
+				// 如果Id为空，则进行添加
+				filedData.setId(GenerateSequenceUtil.generateSequenceNo());
+				//设置状态
+				if (filedData.getCopies().equals("0")) {
+					filedData.setState("110319542370421");
+				}else{
+					filedData.setState("11031954066330412");
+				}
+				
+				// 执行添加
+				filedData.setEntry(LoginUser);
+				filedData.setStatus(BaseDataConstants.CATALOG_STATUS_INIT);
+				// 执行添加
+				filedDataDao.addFiledData(filedData);
+			}
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+			throw e;
+		}
+		
+	}
+	
+	/**
+	 * 修改外业汇交数据
+	 */
+	@Override
+	public void modifyFiledData(String FiledData) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * 删除外业汇交数据
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public String deleteFiledData(String filedData) throws Exception {
+		try {
+			List<FiledData> list = (List<FiledData>) DataConverter.convertJson2List(filedData,FiledData.class);
+			for (int i = 0; i < list.size(); i++) {
+				FiledData data = filedDataDao.getFiledData(list.get(i));
+				if(data!=null){
+					 if(data.getCopies().equals(data.getTotal())&&data.getCopies().equals(data.getCanBorrowing())){
+						// 删除图书资料
+						filedDataDao.deleteFiledData(data);
+						
+						BookFile bookFile =new BookFile();
+						bookFile.setBookId(data.getId());
+						//获取图书附件列表
+						List<BookFile> filelist = bookFileDao.getFileByBookId(bookFile);
+						for (BookFile bookFile2 : filelist) {
+							//删除附件
+							bookFileDao.removeBookFile(bookFile2);
+						}
+					
+					}else{
+						return "删除失败，该资料外借中";
+					}
+				}else{
+					return "删除失败,该资料不存在";
+				}
+				
+			}
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			return "系统异常请联系管理员";
+		}
+		return "删除成功";
+	}
+	
+	/**
+	 * 获取所有外业汇交数据
+	 */
+	@Override
+	public List<FiledData> getFiledData() throws Exception {
+		try {
+			// 获取所有外业汇交
+			return filedDataDao.getFiledData();
+		}catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 获取所有外业汇交数据
+	 */
+	@Override
+	public List<FiledData> getFiledDataByStatus() throws Exception {
+		try {
+			// 获取所有外业汇交
+			return filedDataDao.getFiledDataByStatus();
+		}catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 获取一条外业汇交数据
+	 */
+	@Override
+	public FiledData getFiledData(String id) throws Exception {
+		try {
+			FiledData filedData = new FiledData();
+			filedData.setId(id);
+			// 根据id获取图书资料
+			return filedDataDao.getFiledData(filedData);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 附件上传
+	 */
+	@Override
+	public void uploadFile(String FiledDataId, File upload, String uploadFileName) throws Exception {
+		try {
+			// 获取项目在服务器的路径
+			String serverPath ="D:\\";
+	 		// 新建一个路径，在最后以当前年月日新建一个文件夹
+	 		String path = "\\upload\\bookinfo\\"+ ConvertUtil.convertDateToString("yyyyMMdd",new Date());
+	 		// 创建文件夹
+	 		FileUtil.CreateFolder(serverPath+path);
+	        InputStream is = new FileInputStream(upload);
+	        OutputStream os = new FileOutputStream(new File(serverPath+path, uploadFileName));
+	        // 截取文件后缀名
+	        String suffixName = uploadFileName.substring(uploadFileName.lastIndexOf("."));
+	        // 获取文件大小
+	        int size = is.available();
+	        String spaceSize = null;
+	        if(size > 0){
+	        	// 大小除以1024，计算出等于多少kb
+	        	int spacesize = size / 1024;
+	        	spaceSize = Integer.toString(spacesize)+"kb";
+	        }else {
+	        	spaceSize = "";
+	        }
+	        byte[] buffer = new byte[500];
+	        int length = 0;
+	        while(-1 != (length = is.read(buffer, 0, buffer.length)))
+	        {
+	            os.write(buffer);
+	        }
+	        os.close();
+	        is.close();
+	        FiledData filedData = new FiledData();
+	        filedData.setId(FiledDataId);
+			// 根据id获取图书资料
+	        filedData = filedDataDao.getFiledData(filedData);
+			String bookName = filedData.getDataName();
+	        BookFile bookFile = new BookFile();
+	        bookFile.setId(GenerateSequenceUtil.generateSequenceNo());
+	        bookFile.setBookId(FiledDataId);
+	        bookFile.setBookName(bookName);
+	        bookFile.setFileName(uploadFileName);
+	        bookFile.setFilePath(path);
+	        bookFile.setSpaceSize(spaceSize);
+	        bookFile.setSuffixName(suffixName);
+	        bookFile.setCreator("");
+	        bookFile.setCreationDate(new Date());
+	        bookFile.setModifier("");
+	        bookFile.setModifyDate(new Date());
+	        // 添加文件数据
+	        bookFileDao.addBookFile(bookFile);
+		}catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 添加借阅记录
+	 */
+	@Override
+	public void addBorrowing(String BorrowingParam,FiledData FiledData, String surplus) {
+		try {
+			// 将JSON转成对象
+			Borrowing borrowing = (Borrowing) DataConverter.convertJson2Object(BorrowingParam, Borrowing.class);
+			// 添加Borrowing
+			borrowing.setId(GenerateSequenceUtil.generateSequenceNo());
+			borrowing.setCreator("");
+			borrowing.setCreationDate(new Date());
+			borrowing.setModifier("");
+			borrowing.setModifyDate(new Date());
+			// 设置份数
+			FiledData.setCopies(surplus);
+			//设置状态
+			if (surplus.equals("0")) {
+				FiledData.setState("110319542370421");
+			}else{
+				FiledData.setState("11031954066330412");
+			}
+			// 执行借阅记录的添加
+			BorrowingDao.addBorrowing(borrowing);
+			// 更新外业汇交记录
+			filedDataDao.modifyFiledData(FiledData);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 添加归还记录
+	 */
+	@Override
+	public void returnBook(String returnBookParam,FiledData FiledData, String returnNo) {
+		try {
+			// 将JSON转成对象
+			ReturnBook returnBook = (ReturnBook) DataConverter.convertJson2Object(returnBookParam, ReturnBook.class);
+			// 添加Borrowing
+			returnBook.setId(GenerateSequenceUtil.generateSequenceNo());
+			returnBook.setCreator("");
+			returnBook.setCreationDate(new Date());
+			returnBook.setModifier("");
+			returnBook.setModifyDate(new Date());
+			// 执行归还记录的添加
+			returnBookDao.addReturnBook(returnBook);
+			
+			// 获取剩余份数
+			String copies = FiledData.getCopies();
+			int num = Integer.parseInt(copies);
+			int returnNum = Integer.parseInt(returnNo);
+			// 计算归还后的总数
+			int sum = num+returnNum;
+			String copiesSum = String.valueOf(sum);
+			//设置状态
+			if (copiesSum.equals("0")) {
+				FiledData.setState("110319542370421");
+			}else{
+				FiledData.setState("11031954066330412");
+			}
+			FiledData.setCopies(copiesSum);
+			filedDataDao.modifyFiledData(FiledData);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 从外业汇交视图根据Id获取一条数据
+	 */
+	@Override
+	public ViewFiledData getViewFiledData(String id) {
+		try {
+			ViewFiledData vFiledData = new ViewFiledData();
+			vFiledData.setId(id);
+			// 根据id获取图书资料
+			return filedDataDao.getViewFiledData(vFiledData);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据图号获取一条数据
+	 */
+	@Override
+	public FiledData getFiledDataByPicNo(String picNo) {
+		try {
+			FiledData filedData = new FiledData();
+			filedData.setPicNo(picNo);
+			// 根据id获取图书资料
+			return filedDataDao.getFiledDataByPicNo(filedData);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 获取外业汇交资料附件
+	 */
+	@Override
+	public List<BookFile> getFileByBookId(String bookFileParam) {
+		try {
+			BookFile bookFile = (BookFile) DataConverter.convertJson2Object(bookFileParam,BookFile.class);
+			// 获取部分资料
+			return bookFileDao.getFileByBookId(bookFile);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据条件模糊查询
+	 */
+	@Override
+	public List<FiledData> getList(String fileds, String concurrentTimeTwo) {
+		try {
+			// 将Json转成对象
+			FiledData filedData = (FiledData) DataConverter.convertJson2Object(fileds, FiledData.class);
+			// 获取图号
+			String picNo = filedData.getPicNo();
+			// 获取比例尺
+			String scale = filedData.getScale();
+			// 获取项目名称
+			String projectName = filedData.getProjectName();
+			
+			// 拼接sql
+			String hql = "select * from FILED_DATA f where 1=1";
+			if(picNo != null && picNo != ""){
+				hql += " and f.PIC_NO like '%" + picNo + "%'";
+			}
+			if(scale != null && scale != ""){
+				hql += " and f.SCALE like '%" + scale + "%'";
+			}
+			if(projectName != null && projectName != ""){
+				hql += " and f.PROJECT_NAME like '%" + projectName + "%'";
+			}
+			// 获取汇交时间
+			Date concurrentTime = filedData.getConcurrentTime();
+			// 判断日期是否为空
+			if(concurrentTime != null){
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				String date = sdf.format(concurrentTime);
+				if(date != null && date != ""){
+					hql += " and f.CONCURRENT_TIME >= to_date (' "+ date+" ','yyyy-mm-dd')";
+				}
+			}
+			if(concurrentTimeTwo != null && concurrentTimeTwo != ""){
+				hql += " and f.CONCURRENT_TIME <= to_date (' "+ concurrentTimeTwo+" ','yyyy-mm-dd')";
+			}
+			hql += " order by CONCURRENT_TIME DESC ";
+			
+			return filedDataDao.getList(hql);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据条件模糊查询
+	 */
+	@Override
+	public List<FiledData> getOtherList(String fileds, String concurrentTimeTwo) {
+		try {
+			// 将Json转成对象
+			FiledData filedData = (FiledData) DataConverter.convertJson2Object(fileds, FiledData.class);
+			// 获取图号
+			String picNo = filedData.getPicNo();
+			// 获取比例尺
+			String scale = filedData.getScale();
+			// 获取项目名称
+			String projectName = filedData.getProjectName();
+			
+			// 拼接sql
+			String hql = "select * from FILED_DATA f where 1=1";
+			if(picNo != null && picNo != ""){
+				hql += " and f.PIC_NO like '%" + picNo + "%'";
+			}
+			if(scale != null && scale != ""){
+				hql += " and f.SCALE like '%" + scale + "%'";
+			}
+			if(projectName != null && projectName != ""){
+				hql += " and f.PROJECT_NAME like '%" + projectName + "%'";
+			}
+			// 获取汇交时间
+			Date concurrentTime = filedData.getConcurrentTime();
+			// 判断日期是否为空
+			if(concurrentTime != null){
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				String date = sdf.format(concurrentTime);
+				if(date != null && date != ""){
+					hql += " and f.CONCURRENT_TIME >= to_date (' "+ date+" ','yyyy-mm-dd')";
+				}
+			}
+			if(concurrentTimeTwo != null && concurrentTimeTwo != ""){
+				hql += " and f.CONCURRENT_TIME <= to_date (' "+ concurrentTimeTwo+" ','yyyy-mm-dd') ";
+			}
+			hql += " and f.status = '审核通过' ";
+			
+			hql += " order by CONCURRENT_TIME DESC ";
+			
+			return filedDataDao.getList(hql);
+		} catch (Exception e) {
+			LogHelper.ERROR.log(e.getMessage(),e);
+			throw e;
+		}
+	}
+	
+	
+	/**
+	 * 获取多条图书资料
+	 */
+	@Override
+	public List<ViewFiledData> getFiledDataList(String ids) throws Exception {
+		List<ViewFiledData> fileddatalist = new ArrayList<ViewFiledData>();
+		try {
+			if (StringUtils.isNotEmpty(ids)) {
+				// 将用户String类型转成Plan对象
+				String[] idsArray = ids.split(",");
+				for (int i = 0; i < idsArray.length; i++) {
+					String sql = "select * from V_FILED_DATA_USERS where id = "+idsArray[i]; 
+					fileddatalist.add(filedDataDao.getFiledDataBySql(sql));
+				}
+			}
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+		return fileddatalist;
+	}
+
+	@Override
+	public FiledData getFiledDataByCode(String picNo) {
+		FiledData filedData = new FiledData();
+		filedData.setPicNo(picNo);
+		return filedDataDao.getFiledDataByPicNo(filedData);
+	}
+	
+	
+}

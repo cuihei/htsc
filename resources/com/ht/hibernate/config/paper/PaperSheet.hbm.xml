@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.paper.PaperSheet" table="PAPER_SHEET">
+        <id name="id" type="java.lang.String">
+            <column name="sheetver_sheetver_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="cmmnts" type="java.lang.String">
+            <column name="cmmnts" />
+        </property>
+        <property name="layout" type="java.lang.String">
+            <column name="layout" />
+        </property>
+        <property name="margnb" type="java.lang.String">
+            <column name="margnb" />
+        </property>
+        <property name="margnl" type="java.lang.String">
+            <column name="margnl" />
+        </property>
+        <property name="margnr" type="java.lang.String">
+            <column name="margnr" />
+        </property>
+        <property name="margnt" type="java.lang.String">
+            <column name="margnt" />
+        </property>
+        <property name="pheigh" type="java.lang.String">
+            <column name="pheigh" />
+        </property>
+        <property name="ppsize" type="java.lang.String">
+            <column name="ppsize" />
+        </property>
+       	<property name="pwidth" type="java.lang.String">
+            <column name="pwidth" />
+        </property>
+        <property name="sheet1" type="java.lang.String">
+            <column name="sheet1" />
+        </property>
+        <property name="sheet2" type="java.lang.String">
+            <column name="sheet2" />
+        </property>
+        <property name="tsheet" type="java.lang.String">
+            <column name="tsheet" />
+        </property>
+    </class>
+    <query name="getPaperSheet">
+    	<![CDATA[ from PaperSheet where id = :id]]>
+    </query>
+</hibernate-mapping>

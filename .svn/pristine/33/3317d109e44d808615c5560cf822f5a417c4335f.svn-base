@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="PROBLEM_SUBMIT" name="疑难问题汇交记录" isExecutable="true">
+    <startEvent id="startevent1" name="开始"></startEvent>
+    <endEvent id="endevent1" name="结束"></endEvent>
+    <userTask id="u_task_bhy" name="编绘员记录问题" activiti:assignee="${user_bhy}"></userTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="u_task_bhy"></sequenceFlow>
+    <userTask id="u_task_bhgly" name="编绘管理员记录" activiti:candidateGroups="${group_bhgly}"></userTask>
+    <sequenceFlow id="flow2" sourceRef="u_task_bhy" targetRef="u_task_bhgly"></sequenceFlow>
+    <userTask id="u_task_sdy" name="审定员记录处理方法" activiti:assignee="${user_sdy}"></userTask>
+    <sequenceFlow id="flow3" sourceRef="u_task_bhgly" targetRef="u_task_sdy"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="u_task_sdy" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_PROBLEM_SUBMIT">
+    <bpmndi:BPMNPlane bpmnElement="PROBLEM_SUBMIT" id="BPMNPlane_PROBLEM_SUBMIT">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="40.0" y="40.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="620.0" y="40.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="u_task_bhy" id="BPMNShape_u_task_bhy">
+        <omgdc:Bounds height="55.0" width="105.0" x="120.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="u_task_bhgly" id="BPMNShape_u_task_bhgly">
+        <omgdc:Bounds height="55.0" width="105.0" x="270.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="u_task_sdy" id="BPMNShape_u_task_sdy">
+        <omgdc:Bounds height="55.0" width="131.0" x="420.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="75.0" y="57.0"></omgdi:waypoint>
+        <omgdi:waypoint x="120.0" y="57.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="225.0" y="57.0"></omgdi:waypoint>
+        <omgdi:waypoint x="270.0" y="57.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="375.0" y="57.0"></omgdi:waypoint>
+        <omgdi:waypoint x="420.0" y="57.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="551.0" y="57.0"></omgdi:waypoint>
+        <omgdi:waypoint x="620.0" y="57.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

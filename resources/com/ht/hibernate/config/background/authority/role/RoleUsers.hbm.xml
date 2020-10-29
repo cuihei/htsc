@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.authority.role.RoleUsers" table="ROLE_USERS_RELATION">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="roleId" type="java.lang.String">
+            <column name="role_id" />
+        </property>
+        <property name="userId" type="java.lang.String">
+            <column name="user_id" />
+        </property>
+       <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getRoleUsers">
+    	<![CDATA[ from RoleUsers]]>
+    </query>
+    <query name="getUsersByRoleId">
+    	<![CDATA[ from RoleUsers where roleId= :roleId]]> 
+    </query>
+     <query name="getRoleUsersByUserId">
+    	<![CDATA[ from RoleUsers where userId= :userId]]> 
+    </query>
+</hibernate-mapping>

@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.catalog.area.CatalogArea" table="CATALOG_AREA">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="areaName" type="java.lang.String">
+            <column name="area_name" />
+        </property>
+        <property name="areaImg" type="java.lang.String">
+            <column name="area_img" />
+        </property>
+       <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        
+        <many-to-one name="baseData" column="category_id" cascade="none" class="com.ht.persistence.model.background.dicdata.basedata.BaseData" lazy="false" 
+        not-found="ignore">
+        </many-to-one> 
+    </class>
+    
+    <query name="getAreaList">
+    	<![CDATA[ from CatalogArea]]>
+    </query>
+    
+    <query name="getCatalogAreaById">
+    	<![CDATA[ from CatalogArea where id =:id]]>
+    </query>
+    
+    <query name="getIdByName">
+    	<![CDATA[ from CatalogArea where areaName =:name]]>
+    </query>
+    
+    <!-- 根据目录类型ID获取目录区域 -->
+    <query name="getCatalogAreaListByCategoryId">
+    	<![CDATA[ from CatalogArea where baseData.id =:id]]>
+    </query>
+    
+    <query name="isExistArea">
+    	<![CDATA[ from CatalogArea where baseData.id= :categoryId and areaName= :areaName and id!= :id]]> 
+    </query>
+    
+    <query name="checkDetailExist">
+    	<![CDATA[ from CatalogDetail where areaId =:id]]>
+    </query>
+    
+     <query name="isAddExistArea">
+    	<![CDATA[ from CatalogArea where baseData.id= :categoryId and areaName= :areaName]]> 
+    </query>
+</hibernate-mapping>

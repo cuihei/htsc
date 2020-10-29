@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.system.workflow.process.ProcessStatus" table="PROCESS_STATUS">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+		<property name="formId" type="java.lang.String">
+            <column name="FROM_ID" />
+        </property>
+        
+        <property name="processDefId" type="java.lang.String">
+            <column name="PROCESS_DEF_ID" />
+        </property>
+        
+        <property name="taskDefId" type="java.lang.String">
+            <column name="TASK_DEF_ID" />
+        </property>
+        
+        <property name="status" type="java.lang.String">
+            <column name="STATUS" />
+        </property>
+	
+		 <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+	
+    </class>
+    <query name="findProcessStatusList">
+    	<![CDATA[ from ProcessStatus]]>
+    </query>
+    <query name="findProcessStatusById">
+    	<![CDATA[ from ProcessStatus where id= :id]]> 
+    </query>
+    <query name="findProcessStatusByProAndTask">
+    	<![CDATA[ from ProcessStatus where processDefId= :processDefId and taskDefId =:taskDefId]]> 
+    </query>
+</hibernate-mapping>

@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.ht.persistence.model.system.workflow.task.HiTask" table="V_HI_TASK">
+		<id name="taskInstId" type="java.lang.String">
+			<column name="task_id" />
+		</id>
+		<property name="processDefId" type="java.lang.String">
+			<column name="process_def_id" />
+		</property>
+		<property name="taskDefId" type="java.lang.String">
+			<column name="task_def_id" />
+		</property>
+		<property name="processDefName" type="java.lang.String">
+			<column name="process_def_name" />
+		</property>
+		<property name="processDefKey" type="java.lang.String">
+			<column name="process_def_key" />
+		</property>
+		<property name="processInstId" type="java.lang.String">
+			<column name="process_inst_id" />
+		</property>
+		<property name="executionId" type="java.lang.String">
+			<column name="execution_id" />
+		</property>
+		<property name="taskName" type="java.lang.String">
+			<column name="task_name" />
+		</property>
+		<property name="assignee" type="java.lang.String">
+			<column name="assignee" />
+		</property>
+		<property name="assigneeName" type="java.lang.String">
+			<column name="assignee_name" />
+		</property>
+		<property name="startTime" type="timestamp">
+			<column name="start_time" />
+		</property>
+		<property name="endTime" type="timestamp">
+			<column name="end_time" />
+		</property>
+		<property name="claimTime" type="timestamp">
+			<column name="claim_time" />
+		</property>
+		<property name="deleteReason" type="java.lang.String">
+			<column name="delete_reason" />
+		</property>
+		<property name="parentProcessInstId" type="java.lang.String">
+			<column name="parent_process_inst_id" />
+		</property>
+		<property name="groupId" type="java.lang.String">
+			<column name="group_id" />
+		</property>
+		<property name="groupName" type="java.lang.String">
+			<column name="group_name" />
+		</property>
+		<property name="processEndTime" type="timestamp">
+			<column name="process_end_time" />
+		</property>
+		<property name="recordId" type="java.lang.String">
+			<column name="record_id" />
+		</property>
+	</class>
+
+	<query name="getHiTaskByParentProcessIdAndProcessDefKey">
+    	<![CDATA[ from HiTask where parentProcessInstId = :parentProcessInstId and processDefKey = :processDefKey]]>
+	</query>
+	
+	<query name="getHiTaskByAssignee">
+    	<![CDATA[ from HiTask where assignee = :assignee]]>
+	</query>
+	
+	<query name="getHiTaskByAssigneeAndProcessDefKey">
+    	<![CDATA[ from HiTask where assignee = :assignee and processDefKey = :processDefKey and endTime is not null]]>
+	</query>
+	<query name="getHiTaskByAssigneeAndProcessInstId">
+    	<![CDATA[ from HiTask where assignee = :assignee and processDefKey = :processDefKey and processInstId = :processInstId  and endTime is not null]]>
+	</query>
+	<query name="getHiTaskByGroupAndProcessDefKey">
+    	<![CDATA[ from HiTask where groupId = :groupId and processDefKey = :processDefKey and endTime is not null]]>
+	</query>
+	<query name="getHiTaskByGroupAndProcessInstId">
+    	<![CDATA[ from HiTask where groupId = :groupId and processDefKey = :processDefKey and processInstId = :processInstId and endTime is not null]]>
+	</query>
+	<query name="getHiTaskByProcessId">
+    	<![CDATA[ from HiTask where processInstId = :processInstId]]>
+	</query>
+	
+	<query name="getHiTaskByProcessDefKey">
+    	<![CDATA[ from HiTask where processDefKey in (:processDefKeys)]]>
+	</query>
+	
+	<query name="getCompleteTask">
+    	<![CDATA[ from HiTask where processDefKey in (:processDefKeys) and processEndTime is not null]]>
+	</query>
+	<query name="getCompleteTaskByDate">
+    	<![CDATA[ from HiTask where processDefKey in (:processDefKeys) and processEndTime is not null and endTime is not null and endTime>:startTime and endTime<:endTime]]>
+	</query>
+	
+	<query name="getHiTaskByProcessInstIdAndTaskDefId">
+    	<![CDATA[ from HiTask where processInstId = :processInstId and taskDefId =:taskDefId]]>
+	</query>
+	
+	<query name="getHiTaskNotInProcessInstId">
+    	<![CDATA[ from HiTask where processInstId != :processInstId and parentProcessInstId =:parentProcessInstId and processEndTime is not null]]>
+	</query>
+	
+	<query name="getTaskByParentProcessInstId">
+    	<![CDATA[ from HiTask where parentProcessInstId = :parentProcessInstId]]>
+	</query>
+</hibernate-mapping>

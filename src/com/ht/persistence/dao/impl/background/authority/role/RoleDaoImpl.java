@@ -1,0 +1,76 @@
+package com.ht.persistence.dao.impl.background.authority.role;
+
+import java.util.List;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+
+import com.ht.persistence.dao.inter.background.authority.role.RoleDao;
+import com.ht.persistence.model.background.authority.role.Role;
+
+/**
+ * Role 接口的实现类
+ * @author 侯晨
+ *
+ */
+public class RoleDaoImpl extends BaseDaoImpl implements RoleDao{
+
+	/**
+	 * 增加一个Role
+	 * @param Role Role实体
+	 */
+	@Override
+	public void addRole(Role role) {
+		this.save(role);
+	}
+
+	/**
+	 * 更新一个Role
+	 * @param Role Role实体
+	 */
+	@Override
+	public void modifyRole(Role role) {
+	
+		
+		this.update(role);
+	}
+
+	/**
+	 * 删除Role 相关
+	 * @param Role Role对象
+	 */
+	@Override
+	public void delRole(Role role) {
+		this.delete(role);
+	}
+
+	/**
+	 * 获取所有Role
+	 * @return List<Role>对象列表
+	 */
+	@Override
+	public List<Role> getRole() {
+		try {
+			@SuppressWarnings("unchecked")
+			List<Role> result = this.findByNamedQuery("getRole");
+			return result;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * 获取一条Role
+	 * @param Role Role对象
+	 * @return Role对象
+	 */
+	@Override
+	public Role getRole(Role role) {
+		@SuppressWarnings("unchecked")
+		List<Role> result = this.findByNamedQueryAndNamedParam("getRoleById", "id",role.getId());
+		if(result.size()>0){
+			return result.get(0);
+		}
+		return null;
+	}
+}

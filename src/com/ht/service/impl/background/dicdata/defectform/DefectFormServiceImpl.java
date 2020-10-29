@@ -1,0 +1,258 @@
+package com.ht.service.impl.background.dicdata.defectform;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.LoginUtil;
+import com.ht.persistence.dao.inter.background.dicdata.basedata.BaseDataDao;
+import com.ht.persistence.dao.inter.background.dicdata.defectform.DefectFormDao;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessFlowDao;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.background.dicdata.defectform.DefectForm;
+import com.ht.persistence.model.system.workflow.process.ProcessFlow;
+import com.ht.service.inter.background.dicdata.defectform.DefectFormService;
+import com.ht.workflow.service.IWorkflowService;
+
+/**
+ * @ClassName: DefectFormServiceImpl
+ * @Description: TODO(缺陷表单业务处理类)
+ * @author penghao
+ * @date 2016年11月6日 下午2:36:22
+ */
+@SuppressWarnings("unchecked")
+public class DefectFormServiceImpl implements DefectFormService
+{
+
+	/**
+	 * 注入缺陷数据处理Dao
+	 */
+	@Resource
+	private DefectFormDao defectFormDao;
+	
+	@Resource
+	private BaseDataDao baseDataDao;
+
+	/**
+	 * 获取缺陷列表
+	 */
+	@Override
+	public List<DefectForm> getDefectFormList(String taskInstId, String processInstId, String splitId)
+	{
+		List<DefectForm> list = null;
+		try
+		{
+			DefectForm df = new DefectForm();
+			df.setTaskInstId(taskInstId);
+			df.setProcessInstId(processInstId);
+			df.setSplitId(splitId);
+			list = defectFormDao.getDefectFormList(df);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return list;
+	}
+	
+	
+	/**
+	 * 获取缺陷列表
+	 */
+	@Override
+	public List<DefectForm> getListByInstId(String processInstId, String splitId)
+	{
+		List<DefectForm> list = null;
+		try
+		{
+			DefectForm df = new DefectForm();
+			df.setProcessInstId(processInstId);
+			df.setSplitId(splitId);
+			list = defectFormDao.getDefectFormList(df);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return list;
+	}
+	
+	
+	/**
+	 * 获取缺陷列表
+	 */
+	@Override
+	public List<DefectForm> getDefectFormListByTaskInstIds(String processInstId, String taskInstId)
+	{
+		List<DefectForm> list = null;
+		try
+		{
+			list = defectFormDao.getDefectFormListByTaskInstIds(processInstId, taskInstId);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return list;
+	}
+	
+	
+	/**
+	 * 获取缺陷列表
+	 */
+	@Override
+	public List<DefectForm> getDefectFormListByProcessInstIdAndTaskId(String processInstId,String taskInstId)
+	{
+		List<DefectForm> list = null;
+		try
+		{
+			DefectForm df = new DefectForm();
+			df.setProcessInstId(processInstId);
+			df.setTaskInstId(taskInstId);
+			list = defectFormDao.getDefectFormListByProcessInstIdAndTaskId(df);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return list;
+	}
+	
+	/**
+	 * 获取缺陷列表
+	 */
+	@Override
+	public List<DefectForm> getDefectFormListByProcessInstIdAndFormId(String processInstId,String formId)
+	{
+		List<DefectForm> list = null;
+		try
+		{
+			DefectForm df = new DefectForm();
+			df.setProcessInstId(processInstId);
+			df.setFormId(formId);
+			list = defectFormDao.getDefectFormListByProcessInstIdAndFormId(df);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return list;
+	}
+
+	@Resource
+	IWorkflowService service;
+	
+	@Resource
+	ProcessFlowDao processFlowDao;
+	
+	/**
+	 * 保存数据
+	 */
+	@Override
+	public void add(String params) throws Exception
+	{
+		DefectForm defectForm = null;
+		try
+		{
+			defectForm = (DefectForm) DataConverter.convertJson2Object(params, DefectForm.class);
+			//设置图名
+			String layserId =defectForm.getLayer();
+			String layer = "";
+			if(StringUtils.isNotBlank(layserId)){
+				String[] layerIds =layserId.split(",");
+				for (int j=0;j<layerIds.length;j++)
+				{
+					String id = layerIds[j];
+					BaseData data = new BaseData();
+					data.setId(id);
+					BaseData bd = baseDataDao.getBaseData(data);
+					if(bd !=null && StringUtils.isNotBlank(bd.getValue())){
+						layer +=bd.getValue()+" ";
+					}
+				}
+			}
+			defectForm.setLayerName(layer);
+			
+			// 如果id为空，添加
+			if (StringUtils.isBlank(defectForm.getId()))
+			{
+				defectForm.setId(GenerateSequenceUtil.generateSequenceNo());
+				defectFormDao.add(defectForm);
+				
+			}
+			else
+			{
+				defectFormDao.modifyDefectForm(defectForm);
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+			System.out.println(e.getMessage());
+		}
+	}
+
+	/**
+	 * 删除实体数据
+	 */
+	@Override
+	public void delete(String id)
+	{
+		try
+		{
+			// 将用户String类型转化成集合
+			DefectForm defectForm = new DefectForm();
+			defectForm.setId(id);
+			defectForm = defectFormDao.getDefectFormById(defectForm);
+			// 删除对象
+			defectFormDao.delDefectForm(defectForm);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+		}
+	}
+
+	/**
+	 * 根据id获取缺陷
+	 */
+	@Override
+	public DefectForm getDefectFormById(String id)
+	{
+		DefectForm defectForm = new DefectForm();
+		defectForm.setId(id);
+		return defectFormDao.getDefectFormById(defectForm);
+	}
+	
+	/**
+	 * 根据id获取缺陷
+	 */
+	@Override
+	public void modifyCount(DefectForm defectForm,String taskInstId,String processInstId)
+	{
+		defectFormDao.modifyCount(defectForm,taskInstId,processInstId);
+	}
+	
+	/**
+	 * 根据id获取缺陷
+	 */
+	@Override
+	public void updateGrading(DefectForm defectForm,String taskInstId,String processInstId)
+	{
+		defectFormDao.updateGrading(defectForm,taskInstId,processInstId);
+	}
+	
+	//判断是否存在评分记录
+		@Override
+		public Integer getDefectFormNum(String taskinstId,String processInstId) {
+			
+	         return defectFormDao.getDefectFormNum(taskinstId,processInstId);
+			
+		}
+
+}

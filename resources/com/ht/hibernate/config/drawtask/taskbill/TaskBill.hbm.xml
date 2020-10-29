@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.drawtask.taskbill.TaskBill" table="TASKBOOK_PLAN_RELATION">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="taskBookId" type="java.lang.String">
+            <column name="taskBook_Id" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        <property name="revision" type="java.lang.String">
+            <column name="revision" />
+        </property>
+        
+        <many-to-one name="plan" column="plan_id" cascade="none" class="com.ht.persistence.model.drawtask.plan.Plan" lazy="false" 
+        not-found="ignore">
+        </many-to-one> 
+         
+       <many-to-one name="taskBook" column="taskbook_id" cascade="none" class="com.ht.persistence.model.drawtask.taskbook.book.TaskBook" lazy="false" 
+        not-found="ignore">
+        </many-to-one> 
+    </class>
+    
+    <query name="findTaskBillList">
+    	<![CDATA[ from TaskBill where taskBook.taskBookType= :flag]]>
+    </query>
+     <query name="findListByPlanIdAndFlag">
+    	<![CDATA[ from TaskBill where taskBook.taskBookType= :flag and taskBook.id= :taskBookId]]>
+    </query>
+    <query name="getListByTaskBookId">
+    	<![CDATA[ from TaskBill where taskBook.id= :taskBookId]]>
+    </query>
+    <query name="findPlanByTaskId">
+    	<![CDATA[ from TaskBill where taskBook.id= :taskId]]>
+    </query>
+     <query name="findPlanByPlanId">
+    	<![CDATA[ from TaskBill where planId= :planId]]>
+    </query>
+     <query name="findListByTaskBookId">
+    	<![CDATA[ from TaskBill where taskBookId= :taskBookId]]>
+    </query>
+</hibernate-mapping>

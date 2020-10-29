@@ -1,0 +1,621 @@
+package com.ht.front.pages.drawtask.plan;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+
+import com.ht.action.system.workflow.taskconfig.TaskConfigurationBaseDate;
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+import com.ht.front.model.Base;
+import com.ht.front.model.Button;
+import com.ht.front.model.Div;
+import com.ht.front.model.File;
+import com.ht.front.model.Form;
+import com.ht.front.model.I;
+import com.ht.front.model.InputGroup;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.Script;
+import com.ht.front.model.Span;
+import com.ht.front.model.TextBox;
+import com.ht.front.template.EditPage;
+import com.ht.front.util.FrontUtil;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.catalog.area.CatalogArea;
+import com.ht.persistence.model.drawtask.plan.Plan;
+import com.ht.service.impl.background.dicdata.constants.BaseDataConstants;
+import com.ht.service.inter.background.dicdata.basedata.BaseDataService;
+import com.ht.service.inter.catalog.area.CatalogAreaService;
+import com.ht.service.inter.drawtask.plan.PlanService;
+
+/** 
+* @ClassName: PlanPage 
+* @Description: 计划页面
+* @author penghao
+* @date 2016年10月19日 下午4:46:26 
+*  
+*/
+public class PlanPage {
+	
+	/**
+	 * 页面实例
+	 */
+	private static PlanPage page = null;
+	
+	/**
+	 * 获取页面实例
+	 * @return
+	 */
+	public static PlanPage getInstance(){
+		if (page == null) {
+			page = new PlanPage();
+		}
+		return page;
+	}
+	
+	/**
+	 * 
+	 * 初始化目录页面
+	 * @param 
+	 * @return 节点字符串
+	 */
+	public String getListPage(BaseDataService baseDataService,String type,String categoryId,boolean jurisdiction){
+		
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		if(type.equals("1")){// 年度计划
+			util.createHeaderBar(root, "指令性任务");
+		}else if(type.equals("2")){// 月度计划
+			util.createHeaderBar(root, "月度任务");
+		}else if(type.equals("3")){// 临时计划
+			util.createHeaderBar(root, "临时性任务");
+		}
+		 util.createRowSpace(root);
+		/** 创建按钮组行  开始*/
+		// 创建行
+		Base rowBg = util.createRow(root);
+		// 创建按钮组
+		Base column = util.createColumn(rowBg, "10", "10", "10", null);
+		if(!type.equals("2")){
+			if(type.equals("1")){
+				// 构建年度部局计划按钮
+				CssClass css = new CssClass("fa fa-plus");
+				I i = I.getInstance(css);
+				css = new CssClass("btn btn-success bk-margin-5");
+				Button button = Button.getButtonWithIcon("planAttachment", css, "年度部局计划", i);
+				column.addChildNode(button);
+			}
+			if(jurisdiction){
+				// 构建创建按钮
+				CssClass css = new CssClass("fa fa-plus");
+				I i = I.getInstance(css);
+				css = new CssClass("btn btn-success bk-margin-5");
+				Button button = Button.getButtonWithIcon("add", css, "创建", i);
+				column.addChildNode(button);
+				// 构建删除按钮
+				css = new CssClass("fa fa-times");
+				i = I.getInstance(css);
+				css = new CssClass("btn btn-danger bk-margin-5");
+				button = Button.getButtonWithIcon("remove", css, "删除", i);
+				column.addChildNode(button);
+				// 构建导入按钮
+				css = new CssClass("fa fa-sign-in");
+				i = I.getInstance(css);
+				css = new CssClass("btn btn-info bk-margin-5 btn-settings");
+				button = Button.getButtonWithIcon("import", css, "导入", i);
+				column.addChildNode(button);
+			}
+		
+			// 构建导出按钮
+			CssClass	css = new CssClass("fa fa-sign-out");
+			I	i = I.getInstance(css);
+			css = new CssClass("btn btn-info bk-margin-5");
+			Button 		button = Button.getButtonWithIcon("export", css, "导出", i);
+			column.addChildNode(button);
+			// 构建刷新按钮
+			css = new CssClass("fa fa-refresh");
+			i = I.getInstance(css);
+			css = new CssClass("btn btn-warning bk-margin-5");
+			button = Button.getButtonWithIcon("refresh", css, "刷新", i);
+			column.addChildNode(button);
+			Base colInput = util.createColumn(rowBg, "2", "2", "2", null);
+			Span span = Span.getDefault("年份:");
+			css = new CssClass("fa fa-calendar");
+			i = I.getInstance(css);
+			span.addChildNode(i);
+			Calendar cal = Calendar.getInstance();
+			int year = cal.get(Calendar.YEAR);
+			TextBox text = TextBox.getDefault("year", String.valueOf(year), "年份");
+			InputGroup ig = InputGroup.getInstance(span, text);
+			colInput.addChildNode(ig);
+			/** 创建按钮组行  结束*/
+		}else{//月度计划
+			// 构建导出按钮
+			CssClass css = new CssClass("fa fa-sign-out");
+			I i = I.getInstance(css);
+			css = new CssClass("btn btn-info bk-margin-5");
+			Button button = Button.getButtonWithIcon("export", css, "导出", i);
+			column.addChildNode(button);
+			Base colInput = util.createColumn(rowBg, "2", "2", "2", null);
+			String dateStr=new SimpleDateFormat("yyyy-MM").format(new Date());
+			InputGroup ig = InputGroup.getDatePickerYearMonth("年月","yearMonth",dateStr,null);
+			colInput.addChildNode(ig);
+		}
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行  开始*/
+		// 创建Grid
+		Base rowGrid = util.createGrid(root,"plan");
+		/** 创建Grid行  结束*/
+		/** 创建Modal Dialog 导入  开始*/
+		CssClass modelCss = new CssClass("modal fade");
+		Div modalDiv = Div.getInstance("myModals", modelCss, null);
+		// 创建div
+		CssClass dialogCss = new CssClass("modal-dialog");
+		Div dialogDiv = Div.getInstance(null, dialogCss, null);
+		modalDiv.addChildNode(dialogDiv);
+		// 创建div 
+		CssClass contentCss = new CssClass("modal-content");
+		Div contentDiv = Div.getInstance(null, contentCss, null);
+		dialogDiv.addChildNode(contentDiv);
+		// 创建header div
+		CssClass headerCss = new CssClass("modal-header");
+		Div headerDiv = Div.getInstance(null, headerCss, null);
+		contentDiv.addChildNode(headerDiv);
+		// 构建关闭按钮
+		CssClass closeCss = new CssClass("close");
+		Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+		Prop closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		Prop closeProps = new Prop();
+		closeProps.setPropKey("aria-hidden");
+		closeProps.setPropValue("true");
+		// 绑定属性
+		closeBtn.addProp(closeProp);
+		closeBtn.addProp(closeProps);
+		headerDiv.addChildNode(closeBtn);
+		// 创建标题div
+		CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv = Div.getInstance(null, titleCss, "导入计划");
+		headerDiv.addChildNode(titleDiv);
+		// 创建form表单
+		CssClass formCss = new CssClass("form-search");
+		Form form = Form.getInstance("importForm",formCss,null);
+		Prop formProp = new Prop();
+		formProp.setPropKey("method");
+		formProp.setPropValue("post");
+		form.addProp(formProp);
+		Prop formProps = new Prop();
+		formProp.setPropKey("enctype");
+		formProp.setPropValue("multipart/form-data");
+		form.addProp(formProp);
+		form.addProp(formProps);
+		headerDiv.addChildNode(form);
+		//文件导入和模板下载
+		CssClass inputCss = new CssClass("row");
+		Div inputDiv = Div.getInstance(null, inputCss, null);
+		form.addChildNode(inputDiv);
+		// 创建文件导入input框
+		CssClass fileCss = new CssClass("file-input");
+		File file = File.getInstance("uploadFile", fileCss);
+		Prop fileProp = new Prop();
+		fileProp.setPropKey("name");
+		fileProp.setPropValue("upload");
+		file.addProp(fileProp);
+		inputDiv.addChildNode(file);
+		//标识隐藏
+		InputHidden formHidden = InputHidden.getInstance("type", type);
+		Prop hiddenProp = new Prop();
+		hiddenProp.setPropKey("name");
+		hiddenProp.setPropValue("type");
+		formHidden.addProp(hiddenProp);
+		form.addChildNode(formHidden);
+		//标识隐藏
+		InputHidden CategoryIdHidden = InputHidden.getInstance("categoryId", categoryId);
+		Prop cateProp = new Prop();
+		cateProp.setPropKey("name");
+		cateProp.setPropValue("categoryId");
+		CategoryIdHidden.addProp(cateProp);
+		form.addChildNode(CategoryIdHidden);
+		//模板下载按钮
+		CssClass tempCss = new CssClass("btn btn-primary btn-export");
+		Button tempBtn = Button.getInstance("exportTemplate", tempCss, "下载模板");
+		inputDiv.addChildNode(tempBtn);
+		// 构建导入按钮
+		CssClass importCss = new CssClass("import-submit btn btn-primary");
+		Button importBtn = Button.getInstance("importSubmit", importCss, "导入");
+		Prop importProp = new Prop();
+		importProp.setPropKey("data-dismiss");
+		importProp.setPropValue("modal");
+		importBtn.addProp(importProp);
+		headerDiv.addChildNode(importBtn);
+		/** Modal Dialog 结束*/
+		// 将行加入到容器
+		root.addChildNode(modalDiv);
+		// 添加编辑按钮
+		Script script = Script.getInstance("editTemplate");
+		if(jurisdiction){
+			CssClass editCss = new CssClass("fa fa-edit");
+			I editI = I.getInstance(editCss);
+			editCss = new CssClass("btn btn-success bk-margin-4 btn-settings");
+			Button tempelate = Button.getButtonWithIcon(null, editCss, null, editI);
+			Prop prop = new Prop();
+			prop.setPropKey("name");
+			prop.setPropValue("editPlan");
+			// 绑定属性
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("title");
+			prop.setPropValue("编辑");
+			tempelate.addProp(prop);
+			prop = new Prop();
+			prop.setPropKey("onclick");
+			prop.setPropValue("editPage(this)");
+			tempelate.addProp(prop);
+			script.addChildNode(tempelate);
+		}
+		
+		
+		//计划类型隐藏域
+		InputHidden hidden1 = InputHidden.getInstance("type", type);
+		root.addChildNode(hidden1);
+		//是否隐藏操作栏
+		InputHidden jurisdictionHidden = InputHidden.getInstance("jurisdiction", jurisdiction+"");
+		root.addChildNode(jurisdictionHidden);
+		InputHidden hidden2 = InputHidden.getInstance("categoryId", categoryId);
+		root.addChildNode(hidden2);
+		return root.getNode()+script.getNode();
+	}
+	
+	/**
+	 * 
+	 * 初始化Form页面
+	 * @param
+	 * @return 节点字符串
+	 */
+	public String getEditPage(BaseDataService baseDataService,PlanService planService,String id,String type,String categoryId) {
+		EditPage edit = new EditPage();
+		Base editPage = null;
+		// 获取目录区域列表
+		List<BaseData> planlist = null;
+		// 获取年度计划
+		Plan plan = null;
+		try {
+			//获取目录区域
+			planlist = baseDataService.getBaseDataByTypeId("03021018116440084");
+		} catch (Exception e) {
+			e.getMessage();
+		}
+		if (StringUtils.isNotBlank(id)) {
+			try {
+				// 根据ID获取计划
+				plan = planService.getPlanById(id);
+			} catch (Exception e) {
+				e.getMessage();
+			}
+			List<Base> param = new ArrayList<Base>();
+			FrontUtil util = FrontUtil.getInstance();
+			String areaId = null;
+			if(plan.getSeaArea()!=null){
+				areaId = plan.getSeaArea();
+			}
+			
+			if(type.equals("3")){
+				/*InputGroup ig = InputGroup.getInGroup("", "catalogAreaId", plan.getSeaArea()==null?null:plan.getSeaArea(), "海区 ");
+				param.add(ig);*/
+				Base selectgroup = util.creatDefaultSelectGroup("海&#12288&#12288区", "catalogAreaId", planlist, "value", "value",areaId);
+				param.add(selectgroup);
+			}else{
+				Base selectgroup = util.creatDefaultSelectGroup("海区选择", "catalogAreaId", planlist, "value", "value",areaId);
+				param.add(selectgroup);
+			}
+			InputGroup ig = InputGroup.getInGroup("图&#12288&#12288号", "mapNo", plan.getMapNo()==null?null:plan.getMapNo(), "图号 ");
+			param.add(ig);
+			if(type.equals("3")){
+				ig = InputGroup.getInGroup("任务名&#12288", "mapName", plan.getMapName()==null?null:plan.getMapName(), "任务名 ");
+				param.add(ig);
+			}else{
+				ig = InputGroup.getInGroup("图&#12288&#12288名", "mapName", plan.getMapName()==null?null:plan.getMapName(), "图名 ");
+				param.add(ig);
+			}
+			
+			ig = InputGroup.getInGroup("比例尺(1:)", "scale", plan.getScale()==null?"":plan.getScale(), "比例尺");
+			param.add(ig);
+			ig = InputGroup.getInGroup("类&#12288&#12288别", "type", plan.getType()==null?null:plan.getType(), "类别 ");
+			param.add(ig);
+			String datestr = null;
+			if(plan.getDeliverTime()!= null){
+				datestr = DateFormatUtils.format(plan.getDeliverTime(), "yyyy-MM-dd");
+			}
+			ig = InputGroup.getDatePicker("汇交时间","deliverTime",datestr,"资料汇交时间");
+			param.add(ig);
+			String dateStrYear = null;
+			if(plan.getYear()!= null){
+				dateStrYear = plan.getYear();
+			}
+			String spanText = "年&#12288&#12288份" + "：";
+			Span span = Span.getDefault(spanText);
+			TextBox text = TextBox.getDefault("year", dateStrYear, "年份");
+			ig = InputGroup.getInstance(span, text);
+			param.add(ig);
+			if(!type.contains(BaseDataConstants.BHJH_TYPE_NDJH)){
+				ig = InputGroup.getInGroup("所属月份", "planMonth", plan.getPlanMonth()==null?null:plan.getPlanMonth(), "所属月份");
+				param.add(ig);
+			}
+			ig = InputGroup.getInGroup("基测周期", "measurementPeriod", plan.getMeasurementPeriod()==null?null:plan.getMeasurementPeriod(), "基测周期");
+			param.add(ig);
+			
+			List<BaseData>  taskSources = baseDataService.getBaseDataByTypeId(TaskConfigurationBaseDate.SOURCE_TYPE);
+			
+			Base selectgroup1 = util.creatDefaultSelectGroup("任务来源", "taskSource", taskSources, "id", "value",plan.getTaskSource()==null?"":plan.getTaskSource());
+			param.add(selectgroup1);
+			ig = InputGroup.getInGroup("上次测量/编绘性质", "nature", plan.getNature()==null?null:plan.getNature(), "上次测量/编绘性质");
+			param.add(ig);
+			String lastYear = null;
+			if(plan.getYear()!= null){
+				lastYear = plan.getLastYear();
+			}
+			spanText = "上次测量年份" + "：";
+			span = Span.getDefault(spanText);
+			text = TextBox.getDefault("lastYear", lastYear, "上次测量年份");
+			ig = InputGroup.getInstance(span, text);
+			param.add(ig);
+			ig = InputGroup.getInGroup("说&#12288&#12288明", "discription", plan.getDiscription()==null?null:plan.getDiscription(), "说明");
+			param.add(ig);
+			
+			editPage = edit.createEditPage(param);
+			if(type.equals("1")){// 年度计划
+				util.createHeaderBar(editPage, "指令性任务编辑");
+			}else if(type.equals("2")){// 月度计划
+				util.createHeaderBar(editPage, "月度任务编辑");
+			}else if(type.equals("3")){// 临时计划
+				util.createHeaderBar(editPage, "临时任务编辑");
+			}
+			InputHidden hidden1 = InputHidden.getInstance("planId", id);
+			InputHidden hidden2 = InputHidden.getInstance("typeCode", type);
+			InputHidden hidden3 = InputHidden.getInstance("categoryId", categoryId);
+			InputHidden hidden4 = InputHidden.getInstance("relationId", plan.getRelationId());
+			editPage.addChildNode(hidden1);
+			editPage.addChildNode(hidden2);
+			editPage.addChildNode(hidden3);
+			editPage.addChildNode(hidden4);
+		}else{
+			List<Base> param = new ArrayList<Base>();
+			FrontUtil util = FrontUtil.getInstance();
+			if(type.equals("3")){
+				/*InputGroup ig = InputGroup.getInGroup("海&#12288&#12288区", "catalogAreaId", null, "海区 ");
+				param.add(ig);*/
+				Base selectgroup = util.creatDefaultSelectGroup("海&#12288&#12288区", "catalogAreaId", planlist, "value", "value",false);
+				param.add(selectgroup);
+			}else{
+				Base selectgroup = util.creatDefaultSelectGroup("海区选择", "catalogAreaId", planlist, "value", "value",false);
+				param.add(selectgroup);
+			}
+			InputGroup ig = InputGroup.getInGroup("图&#12288&#12288号", "mapNo", null, "图号 ");
+			param.add(ig);
+			if(type.equals("3")){
+				ig = InputGroup.getInGroup("任务名&#12288", "mapName", null, "任务名 ");
+				param.add(ig);
+			}else{
+				ig = InputGroup.getInGroup("图&#12288&#12288名", "mapName", null, "图名 ");
+				param.add(ig);
+			}
+			ig = InputGroup.getInGroup("比例尺(1:)", "scale", "", "比例尺(1:)");
+			param.add(ig);
+			ig = InputGroup.getInGroup("类&#12288&#12288别", "type", null, "类别 ");
+			param.add(ig);
+			String date = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
+			ig = InputGroup.getDatePicker("汇交时间","deliverTime",date,"资料汇交时间");
+			param.add(ig);
+			String spantext = "年&#12288&#12288份" + "：";
+			Span span = Span.getDefault(spantext);
+			Calendar cal = Calendar.getInstance();
+			int year = cal.get(Calendar.YEAR);
+			TextBox text = TextBox.getDefault("year", String.valueOf(year), "年份");
+			ig = InputGroup.getInstance(span, text);
+			param.add(ig);
+			if(!type.contains(BaseDataConstants.BHJH_TYPE_NDJH)){
+				ig = InputGroup.getInGroup("所属月份", "planMonth", null, "所属月份");
+				param.add(ig);
+			}
+			ig = InputGroup.getInGroup("基测周期", "measurementPeriod", null, "基测周期");
+			param.add(ig);
+			List<BaseData>  taskSources = baseDataService.getBaseDataByTypeId(TaskConfigurationBaseDate.SOURCE_TYPE);
+			
+			Base selectgroup1 = util.creatDefaultSelectGroup("任务来源", "taskSource", taskSources, "id", "value", false);
+			param.add(selectgroup1);
+			ig = InputGroup.getInGroup("上次测量/编绘性质", "nature", null, "上次测量/编绘性质");
+			param.add(ig);
+			spantext = "上次测量年份" + "：";
+			span = Span.getDefault(spantext);
+			text = TextBox.getDefault("lastYear", String.valueOf(year), "上次测量年份");
+			ig = InputGroup.getInstance(span, text);
+			param.add(ig);
+			ig = InputGroup.getInGroup("说&#12288&#12288明", "discription", null, "说明");
+			param.add(ig);
+			
+			editPage = edit.createEditPage(param);
+			if(type.equals("1")){// 年度计划
+				util.createHeaderBar(editPage, "指令性任务创建");
+			}else if(type.equals("2")){// 月度计划
+				util.createHeaderBar(editPage, "月度任务创建");
+			}else if(type.equals("3")){// 临时计划
+				util.createHeaderBar(editPage, "临时任务创建");
+			}
+			InputHidden hidden1 = InputHidden.getInstance("planId", id);
+			InputHidden hidden2 = InputHidden.getInstance("typeCode", type);
+			InputHidden hidden3 = InputHidden.getInstance("categoryId", categoryId);
+			editPage.addChildNode(hidden1);
+			editPage.addChildNode(hidden2);
+			editPage.addChildNode(hidden3);
+			}
+			return editPage.getNode();
+	}
+	
+	/**
+	 * 
+	 * 初始化年度布局页面
+	 * @param 
+	 * @return 节点字符串
+	 */
+	public String getPlanAttachmentPage(String year){
+		
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "年度部局计划");
+		 util.createRowSpace(root);
+		/** 创建按钮组行  开始*/
+		// 创建行
+		Base rowBg = util.createRow(root);
+		// 创建按钮组
+		Base column = util.createColumn(rowBg, "10", "10", "10", null);
+		// 构建上传按钮
+		CssClass css = new CssClass("fa fa-cloud-upload");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-info search bk-margin-5  btn-setting");
+		Button button = Button.getButtonWithIcon("upload", css, "上传", i);
+		column.addChildNode(button);
+		// 构建删除按钮
+		css = new CssClass("fa fa-times");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-danger bk-margin-5");
+		button = Button.getButtonWithIcon("remove", css, "删除", i);
+		column.addChildNode(button);
+		// 构建返回按钮
+		css = new CssClass("fa fa-mail-reply-all");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-success bk-margin-5 search");
+		button = Button.getButtonWithIcon("back", css, "返回", i);
+		column.addChildNode(button);
+		/** 创建按钮组行  结束*/
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行  开始*/
+		// 创建Grid
+		Base rowGrid = util.createGrid(root,"planAttachment");
+		/** 创建Grid行  结束*/
+		/** 创建Modal Dialog 导入  开始*/
+		CssClass modelCss = new CssClass("modal fade");
+		Div modalDiv = Div.getInstance("myModal", modelCss, null);
+		// 创建div
+		CssClass dialogCss = new CssClass("modal-dialog");
+		Div dialogDiv = Div.getInstance(null, dialogCss, null);
+		modalDiv.addChildNode(dialogDiv);
+		// 创建div 
+		CssClass contentCss = new CssClass("modal-content");
+		Div contentDiv = Div.getInstance(null, contentCss, null);
+		dialogDiv.addChildNode(contentDiv);
+		// 创建header div
+		CssClass headerCss = new CssClass("modal-header");
+		Div headerDiv = Div.getInstance(null, headerCss, null);
+		contentDiv.addChildNode(headerDiv);
+		// 构建关闭按钮
+		CssClass closeCss = new CssClass("close");
+		Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+		Prop closeProp = new Prop();
+		closeProp.setPropKey("data-dismiss");
+		closeProp.setPropValue("modal");
+		Prop closeProps = new Prop();
+		closeProps.setPropKey("aria-hidden");
+		closeProps.setPropValue("true");
+		// 绑定属性
+		closeBtn.addProp(closeProp);
+		closeBtn.addProp(closeProps);
+		headerDiv.addChildNode(closeBtn);
+		// 创建标题div
+		CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+		Div titleDiv = Div.getInstance(null, titleCss, "上传文件");
+		headerDiv.addChildNode(titleDiv);
+		// 创建form表单
+		CssClass formCss = new CssClass("form-search");
+		Form form = Form.getInstance("importForm",formCss,null);
+		Prop formProp = new Prop();
+		formProp.setPropKey("method");
+		formProp.setPropValue("post");
+		form.addProp(formProp);
+		Prop formProps = new Prop();
+		formProp.setPropKey("enctype");
+		formProp.setPropValue("multipart/form-data");
+		form.addProp(formProp);
+		form.addProp(formProps);
+		headerDiv.addChildNode(form);
+		//文件导入和模板下载
+		CssClass inputCss = new CssClass("row");
+		Div inputDiv = Div.getInstance(null, inputCss, null);
+		form.addChildNode(inputDiv);
+		// 创建文件导入input框
+		CssClass fileCss = new CssClass("file-input");
+		File file = File.getInstance("uploadPlanFile", fileCss);
+		Prop fileProp = new Prop();
+		fileProp.setPropKey("name");
+		fileProp.setPropValue("uploadPlan");
+		file.addProp(fileProp);
+		inputDiv.addChildNode(file);
+		// 构建导入按钮
+		CssClass importCss = new CssClass("import-submit btn btn-primary");
+		Button importBtn = Button.getInstance("doUpload", importCss, "上传文件");
+		/*Prop importProp = new Prop();
+		importProp.setPropKey("data-dismiss");
+		importProp.setPropValue("modal");
+		importBtn.addProp(importProp);*/
+		headerDiv.addChildNode(importBtn);
+		/** Modal Dialog 结束*/
+		// 将行加入到容器
+		root.addChildNode(modalDiv);
+		// 添加编辑按钮
+		CssClass editCss = new CssClass("fa fa-cloud-download");
+		I editI = I.getInstance(editCss);
+		editCss = new CssClass("btn btn-success bk-margin-5 btn-settings");
+		Button tempelate = Button.getButtonWithIcon(null, editCss, null, editI);
+		Prop prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("edit");
+		// 绑定属性
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("下载");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("down(this)");
+		tempelate.addProp(prop);
+		Script script = Script.getInstance("downTemplate");
+		script.addChildNode(tempelate);
+		// 添加预览按钮
+		CssClass previewCss = new CssClass("fa fa-eye");
+		I previewI = I.getInstance(previewCss);
+		previewCss = new CssClass("btn btn-success bk-margin-5");
+		Button preview = Button.getButtonWithIcon(null, previewCss, null, previewI);
+		prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("preview");
+		// 绑定属性
+		preview.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("预览");
+		preview.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("preview(this)");
+		preview.addProp(prop);
+		script.addChildNode(preview);
+		//隐藏域
+		InputHidden hidden = InputHidden.getInstance("year", year);
+		root.addChildNode(hidden);
+		return root.getNode()+script.getNode();
+	}
+	
+}

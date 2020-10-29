@@ -1,0 +1,22 @@
+package com.ht.service.inter.complication.seamap.paper;
+
+import java.util.List;
+
+import com.ht.persistence.model.complication.seamap.source.SeaMap;
+import com.ht.persistence.model.complication.seamap.source.TransferStatus;
+
+public interface PaperService {
+  /**
+   * 查询
+   * @return 纸海图list
+   * @throws Exception
+   */
+  public List<SeaMap> findPaperList() throws Exception;
+  
+  /**
+   * 查询
+   * @return 纸海图一条流转状态list
+   * @throws Exception
+   */
+  public List<TransferStatus> findPaperStatus(String id) throws Exception;
+}

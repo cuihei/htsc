@@ -1,0 +1,96 @@
+package com.ht.persistence.dao.impl.statisticalanalysis;
+
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.statisticalanalysis.CompilationCompleteStatusDao;
+import com.ht.persistence.dao.inter.statisticalanalysis.CompilationResultSummaryDao;
+import com.ht.persistence.dao.inter.statisticalanalysis.DynamicTableDao;
+import com.ht.persistence.model.statisticalanalysis.CompilationResultsSummary;
+import com.ht.persistence.model.statisticalanalysis.view.CompilationResultSummaryView;
+import com.ht.persistence.model.statisticalanalysis.view.DynamicTableView;
+
+/**
+ * BookInfo数据映射操作类
+ * @author zyd
+ *
+ */
+public class CompilationResultSummaryDaoImpl extends BaseDaoImpl implements CompilationResultSummaryDao {
+
+	/**
+	 * 获取所有港口航道图
+	 */
+	@Override
+	public List<CompilationResultSummaryView> getCompilationResultSummary(Date date1,Date date2) {
+		if(date1 != null && date2 != null){
+			List<CompilationResultSummaryView> list = null;
+			try {
+				String hql = "from CompilationResultSummaryView where actualExchangeTime>= :beginDate  and actualExchangeTime<= :endDate";
+				Query query = this.getSession().createQuery(hql);
+				query.setDate("beginDate",date1);     
+				query.setDate("endDate",date2);  
+				list = query.list();
+			} catch (Exception e) {
+				LogHelper.ERROR.log(e.getMessage());
+			}
+			return list;
+		}else{
+			List<CompilationResultSummaryView> list = null;
+			try {
+				String hql = "from CompilationResultSummaryView ";
+				Query query = this.getSession().createQuery(hql);
+				list = query.list();
+			} catch (Exception e) {
+				LogHelper.ERROR.log(e.getMessage());
+			}
+			return list;
+		}
+	}
+	
+	/**
+	 * 获取一条数据
+	 */
+	@Override
+	public CompilationResultSummaryView getSubmissionSummaryById(CompilationResultSummaryView crs) {
+		try {
+			@SuppressWarnings("unchecked")
+			// 执行查询
+			List<CompilationResultSummaryView> result = this.findByNamedQueryAndNamedParam("getSubmissionSummaryById", "id", crs.getId());
+			if(result.size() > 0){
+				return result.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * 新增一条
+	 * @param c 
+	 * @throws Exception
+	 */
+	@Override
+	public void addCompilationResultSummary(CompilationResultsSummary c) {
+		this.save(c);
+	}
+	
+	@Override
+	public List<CompilationResultSummaryView> getSubmissionSummaryByYear(CompilationResultSummaryView crs) {
+		try {
+			@SuppressWarnings("unchecked")
+			// 执行查询
+			List<CompilationResultSummaryView> result = this.findByNamedQueryAndNamedParam("getSubmissionSummaryByYear", "year", crs.getYear());
+			System.out.println(result.size());
+			return result;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+}

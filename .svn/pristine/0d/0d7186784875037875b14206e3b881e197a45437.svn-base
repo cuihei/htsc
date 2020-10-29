@@ -1,0 +1,254 @@
+package com.ht.service.impl.background.organization.organization;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.LogHelper;
+import com.ht.persistence.dao.inter.background.organization.employee.UserDao;
+import com.ht.persistence.dao.inter.background.organization.organization.OrganizationDao;
+import com.ht.persistence.dao.inter.background.organization.organization.OrganizationUsersRelationDao;
+import com.ht.persistence.model.background.organization.employee.User;
+import com.ht.persistence.model.background.organization.employee.UserOrgView;
+import com.ht.persistence.model.background.organization.organization.Organization;
+import com.ht.persistence.model.background.organization.organization.OrganizationUsersRelation;
+import com.ht.service.inter.background.organization.organization.OrganizationUsersRelationService;
+
+/**
+ * 组织机构人员关系
+ * @author 侯晨
+ */
+public class OrganizationUsersRelationServiceImpl implements OrganizationUsersRelationService {
+	/**
+	 * 注入organizationUsersRelationDao
+	 * */
+	@Resource(name = "organizationUsersRelationDao") 
+	private OrganizationUsersRelationDao organizationUsersRelationDao;
+	
+	/**
+	 * 注入organizationDao
+	 * */
+	@Resource(name = "organizationDao") 
+	private OrganizationDao organizationDao;
+	
+	/**
+	 * 注入userDao
+	 * */
+	@Resource(name = "userDao") 
+	private UserDao userDao;
+	
+	/**
+	 * 新增组织机构人员关系
+	 * @param organizationUsersRelationParam 
+	 * @throws Exception
+	 */
+	@Override
+	public void addOrganizationUsersRelation(String organizationUsersRelationParam) throws Exception {
+		try {
+			//将组织机构String类型转成OrganizationUsersRelation类型
+			OrganizationUsersRelation organizationUsersRelation = (OrganizationUsersRelation) DataConverter
+					.convertJson2Object(organizationUsersRelationParam, OrganizationUsersRelation.class);
+			organizationUsersRelationDao.addOrganizationUsersRelation(organizationUsersRelation);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 更新组织机构人员关系
+	 * @param organizationUsersRelationParam 
+	 * @throws Exception
+	 */
+	@Override
+	public void modifyOrganizationUsersRelation(String organizationUsersRelationParam) throws Exception {
+		try {
+			//将组织机构String类型转成OrganizationUsersRelation类型
+			OrganizationUsersRelation organizationUsersRelation = (OrganizationUsersRelation) DataConverter
+					.convertJson2Object(organizationUsersRelationParam, OrganizationUsersRelation.class);
+			organizationUsersRelationDao.modifyOrganizationUsersRelation(organizationUsersRelation);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	 * 删除组织机构人员关系
+	 * @param organizationParm 
+	 * @throws Exception
+	 */
+	@Override
+	public void delOrganizationUsersRelation(String id) throws Exception {
+		try {
+			// 创建一个新的OrganizationUsersRelation对象
+			OrganizationUsersRelation organizationUsersRelation = new OrganizationUsersRelation();
+			organizationUsersRelation.setId(id);
+			// 删除OrganizationUsersRelation
+			organizationUsersRelationDao.delOrganizationUsersRelation(organizationUsersRelation);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 获取所有OrganizationUsersRelation列表
+	 * @return List<OrganizationUsersRelation> 获取组织人员关系列表
+	 * @throws Exception
+	 */
+	@Override
+	public List<OrganizationUsersRelation> getOrganizationUsersRelation() throws Exception {
+		try {
+			// 获取所有OrganizationUsersRelation
+			return organizationUsersRelationDao.getOrganizationUsersRelation();
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据id获取OrganizationUsersRelation
+	 * @param id 
+	 * @throws Exception
+	 */
+	@Override
+	public OrganizationUsersRelation getOrganizationUsersRelation(String id) throws Exception {
+		try {
+			//创建新的OrganizationUsersRelation对象
+			OrganizationUsersRelation organizationUsersRelation = new OrganizationUsersRelation();
+			organizationUsersRelation.setId(id);
+			return organizationUsersRelationDao.getOrganizationUsersRelation(organizationUsersRelation);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	  * 获取某组织机构下人员信息列表
+	  * @param orgId
+	  * @throws Exception
+	  */
+	@Override
+	public List<OrganizationUsersRelation> getUsersByOrgId(
+			String orgId) throws Exception {
+		try {
+			// 创建一个新的OrganizationUsersRelation对象
+			OrganizationUsersRelation organizationUsersRelation = new OrganizationUsersRelation();
+			organizationUsersRelation.setOrgId(orgId);
+			return organizationUsersRelationDao.getUsersByOrgId(organizationUsersRelation);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+	/**
+	  * 提交某组织机构下人员关系
+	  * @param orgId 组织机构Id users 人员标识list
+	  * @throws Exception
+	  */
+	@Override
+	public void addOrgUsers(String orgId, String users) throws Exception {
+		// 将前台传回来的用户标识转化成list
+		List<User> userList = (List<User>) DataConverter.convertJson2List(users, User.class);
+		OrganizationUsersRelation our = new OrganizationUsersRelation();
+		our.setOrgId(orgId);
+		// 根据orgId取得所有该机构下的人员
+		List<OrganizationUsersRelation> list = organizationUsersRelationDao.getUsersByOrgId(our);
+		// 先将该组织下的人员全部放到公共组织里
+		if(list.size()>0){
+			for (int j = 0; j < list.size(); j++) {
+				// 在将人员放到公共部门中
+				OrganizationUsersRelation orgUser = list.get(j);
+				orgUser.setOrgId("10191641226710006");//公共部门的id
+				orgUser.setCreator("");
+				orgUser.setCreationDate(new Date());
+				orgUser.setModifier("");
+				orgUser.setModifyDate(new Date());
+				organizationUsersRelationDao.modifyOrganizationUsersRelation(orgUser);
+			}
+		}
+		// 再根据选中的人员重新插入新的组织机构和人员的关系
+		for (int i = 0; i < userList.size(); i++) {
+			User user = userList.get(i);
+			OrganizationUsersRelation ou = new OrganizationUsersRelation();
+			ou.setUserId(user.getId());
+			ou = organizationUsersRelationDao.getUsersByUserId(ou);
+			// 插入新的关系数据
+			ou.setOrgId(orgId);
+			organizationUsersRelationDao.modifyOrganizationUsersRelation(ou);
+		}
+	}
+
+	/**
+	 * 获取某组织机构下人员以及公共部门的人员信息列表
+	 * @param RoleUsersRel 组织人员关系数据
+	 * @param userList 某组织机构下人员
+	 * @return List<OrgUsers> 组织人员关系列表
+	 */
+	@Override
+	public List<UserOrgView> getOrgUsers(String organizationUsersRelation, List<UserOrgView> userList) throws Exception {
+		OrganizationUsersRelation our = new OrganizationUsersRelation();
+		our.setId(organizationUsersRelation);
+		// 得到人员组织关系数据
+		List<OrganizationUsersRelation> orgUsersList = organizationUsersRelationDao.getOrgUsers(our);
+		for (int i = 0; i < orgUsersList.size(); i++) {
+			// 查询得到人员信息
+			User user = new User();
+			user.setId(orgUsersList.get(i).getUserId());
+			User u = userDao.getUser(user);
+			
+			UserOrgView ou = new UserOrgView();
+			ou.setId(u.getId());
+			ou.setUserNo(u.getUserNo());
+			ou.setUserName(u.getUserName());
+			Organization org = new Organization();
+			org.setId(orgUsersList.get(i).getOrgId());
+			org = organizationDao.getOrganization(org);
+			ou.setOrgName(org.getOrgName());
+			ou.setOrgId(orgUsersList.get(i).getOrgId());
+			userList.add(ou);
+		}
+		return userList;
+	}
+
+	/**
+	 * 根据人员ID获取关系信息
+	 * @param userId 用户Id
+	 * @return organizationUsersRelation实体
+	 */
+	@Override
+	public OrganizationUsersRelation getUsersByUserId(String userId)
+			throws Exception {
+		try {
+			// 创建一个新的OrganizationUsersRelation对象
+			OrganizationUsersRelation organizationUsersRelation = new OrganizationUsersRelation();
+			organizationUsersRelation.setUserId(userId);
+			// 删除OrganizationUsersRelation
+			return organizationUsersRelationDao.getUsersByUserId(organizationUsersRelation);
+		} catch (Exception e) {
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 抛出异常
+			throw e;
+		}
+	}
+
+}

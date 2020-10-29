@@ -1,0 +1,135 @@
+package com.ht.action.background.dicdata.coefficient;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import com.ht.action.base.BaseAction;
+import com.ht.common.util.LogHelper;
+import com.ht.exception.DBException;
+import com.ht.front.pages.background.dicdata.coefficient.CoefficientPage;
+import com.ht.persistence.model.background.dicdata.coefficient.Coefficient;
+import com.ht.service.inter.background.dicdata.basedata.BaseDataService;
+import com.ht.service.inter.background.dicdata.coefficient.CoefficientService;
+
+/**
+ * 调整系数访问操作action
+ * @author liukai
+ */
+@SuppressWarnings("serial")
+public class CoefficientAction extends BaseAction {
+
+	/**
+	 * 注入用户coefficientService
+	 * */
+	@Resource(name = "coefficientService")
+	CoefficientService coefficientService;
+	
+	/**
+	 * 注入用户baseDataService
+	 * */
+	@Resource(name = "baseDataService")
+	BaseDataService baseDataService;
+	
+	/**
+	 * 初始化数据列表页面，返回成功列表页面
+	 * */
+	public String init() {
+		CoefficientPage page = new CoefficientPage();
+		//将获取的列表页面返回到前台页面
+		request.setAttribute("html", page.getListPage());
+		return SUCCESS;
+	}
+
+	/**
+	 * 初始化新增和编辑数据页面，返回成功页面
+	 * @throws DBException 
+	 * */
+	public String editInit() throws DBException {
+		// 接收要修改的人员编号
+		String id = getParam("id");
+		CoefficientPage page = new CoefficientPage();
+		//将获取的新增、编辑页面返回到前台页面
+		request.setAttribute("html", page.getEditPage(coefficientService,baseDataService,id));
+		return SUCCESS;
+	}
+	
+	/**
+	 * 新增数据
+	 * @param coe String类型的coe对象
+	 * @throws Exception
+	 */
+	public void addCoe() {
+		try {
+			// 获取前台传入参数
+			String coe = getParam("coe");
+			coefficientService.add(coe);
+			writeSuccessResult(coe);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(),e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	/**
+	 * 删除coe数据
+	 * @param coes 包含工标识的coe对象
+	 * @throws Exception
+	 */
+	public void remove() {
+		// 获取User标识
+		String coes = getParam("coes");
+		try {
+			// 执行删除操作,返回前台判断标识
+			coefficientService.delete(coes);
+			// 返回客户端消息
+			writeSuccessResult();
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	/**
+	 * 获取coe列表数据
+	 * @throws Exception
+	 */
+	public void getCoeList() {
+		try {
+			// 执行查询操作
+			List<Coefficient> list = coefficientService.getList();
+			// 返回客户端消息
+			writeSuccessResult(list);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 返回客户端错误消息
+			writeFailResult(e.getMessage());
+		}
+	}
+
+	/**
+	 * 根据Id获取coe
+	 * @param id 标识
+	 * @throws Exception
+	 */
+	public void getCoeById() {
+		// 获取User标识
+		String id = getParam("id");
+		try {
+			// 执行查询操作
+			Coefficient coe = coefficientService.getCoefficientById(id);
+			// 返回客户端消息
+			writeSuccessResult(coe);
+		} catch (Exception e) {
+			// 写入错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			// 写失败信息到客户端
+			writeFailResult(e.getMessage());
+		}
+	}
+}

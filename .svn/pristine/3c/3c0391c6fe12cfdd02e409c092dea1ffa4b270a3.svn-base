@@ -1,0 +1,355 @@
+package com.ht.service.impl.system.workflow.task;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+
+import org.activiti.engine.repository.ProcessDefinition;
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.ht.common.util.BuildExcelTemplate;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.GenerateSequenceUtil;
+import com.ht.common.util.LogHelper;
+import com.ht.common.util.LoginUtil;
+import com.ht.exception.DBException;
+import com.ht.persistence.dao.inter.background.organization.employee.UserDao;
+import com.ht.persistence.dao.inter.complication.form.FormContentDao;
+import com.ht.persistence.dao.inter.complication.formprop.FormValueDao;
+import com.ht.persistence.dao.inter.system.notice.NoticeDao;
+import com.ht.persistence.dao.inter.system.notice.UserNoticeDao;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessFlowDao;
+import com.ht.persistence.dao.inter.system.workflow.process.ProcessFormDao;
+import com.ht.persistence.dao.inter.system.workflow.publish.VProcessDetailDao;
+import com.ht.persistence.dao.inter.system.workflow.task.TaskDao;
+import com.ht.persistence.model.background.organization.employee.User;
+import com.ht.persistence.model.complication.form.FormContent;
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.persistence.model.system.notice.Notice;
+import com.ht.persistence.model.system.notice.UserNotice;
+import com.ht.persistence.model.system.workflow.process.ProcessFlow;
+import com.ht.persistence.model.system.workflow.publish.VProcessDetail;
+import com.ht.service.impl.system.workflow.util.BusinessUtil;
+import com.ht.service.inter.system.workflow.task.TaskFormService;
+import com.ht.service.inter.system.workflow.task.TaskService;
+import com.ht.workflow.service.IWorkflowService;
+
+/**
+ * @ClassName: taskServiceImpl
+ * @Description: 流程任务业务处理类
+ * @author penghao
+ * @date 2016年10月28日 上午11:32:15
+ */
+public class TaskFormServiceImpl implements TaskFormService
+{
+
+	@Resource
+	IWorkflowService service;
+
+	/**
+	 * 注入流程表单Dao
+	 */
+	@Resource
+	private ProcessFormDao ProcessFormDao;
+
+	/**
+	 * 注入表单内容Dao
+	 */
+	@Resource
+	private FormContentDao formContentDao;
+
+	@Resource
+	UserDao userDao;
+
+	@Resource
+	ProcessFlowDao processFlowDao;
+
+	/**
+	 * 注入formValueDao
+	 */
+	@Resource(name = "formValueDao")
+	private FormValueDao formValueDao;
+	
+	@Resource
+	VProcessDetailDao vProcessDetailDao;
+	
+	@Resource(name = "taskService")
+	private TaskService taskService;
+
+	/**
+	 * 获取表单内容
+	 * @param taskDefId 流程任务定义id
+	 * @param processDefId 流程定义id
+	 * @param taskInstId 流程任务实例id
+	 * @param processInstId 流程实例id
+	 * @return String
+	 */
+	@Override
+	public String getFormContent(String formId) throws Exception
+	{
+		// 获取formId
+		String page = null;
+		try
+		{
+			FormContent content = new FormContent();
+			content.setFormId(formId);
+			// 根据formId获取表单内容
+			content = formContentDao.getFormContent(content);
+			if (content != null && StringUtils.isNotEmpty(content.getContent()))
+			{
+				page = content.getContent();
+			}
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw e;
+		}
+		return page;
+	}
+
+	@Resource
+	NoticeDao noticeDao;
+
+	@Resource
+	UserNoticeDao usernoticeDao;
+
+	@Resource
+	TaskDao taskDao;
+
+	@Override
+	public void assignedUser(String taskId, String processInstId, String processDefId, String taskDefId, String userId, String parentProcessInstId)
+			throws DBException
+	{
+		try
+		{
+			// 定义流程变量
+			Map<String, Object> v = new HashMap<String, Object>();
+			List<String> agrKeys = BusinessUtil.getInstance().getProcessNextTasksAllotedArgkey(processDefId.split(":")[0], taskDefId);
+			if (agrKeys != null)
+			{
+				if (agrKeys.size()>0)
+				{
+					for (int i = 0; i < agrKeys.size(); i++)
+					{
+						v.put(agrKeys.get(i), userId);
+					}
+				}
+			}
+			// 
+			Map<String, Object> vOther = BusinessUtil.getInstance().getProcessNextTaskArgs(processDefId.split(":")[0], taskDefId);
+			// 质检次数和审定次数
+			if (vOther.containsKey("zj_time"))
+			{
+				v.put("zj_time", 2);
+			}
+			// 质检次数和审定次数
+			if (vOther.containsKey("sd_time"))
+			{
+				v.put("sd_time", 2);
+			}
+			// 是否同意
+			v.put("agree", true);
+			User user = new User();
+			user.setId(userId);
+			user = userDao.getUser(user);
+			service.claim(taskId, userId);
+			service.perform(taskId, DataConverter.convertObject2Json(v));
+			String taskResult = "分配人员成功:" + user.getUserName();
+			String type = "待编绘";
+			ProcessFlow processFlow = new ProcessFlow();
+			processFlow.setUserNo(LoginUtil.getInstance().getCurrentUser());
+			processFlow.setProcessInstId(processInstId);
+			processFlow.setTaskId(taskId);
+			processFlow.setId(GenerateSequenceUtil.generateSequenceNo());
+			processFlow.setTaskResult(taskResult);
+			processFlow.setType(type);
+			processFlowDao.addProcessFlow(processFlow);
+			// 发送通知
+			Notice notice = new Notice();
+			notice.setNotice_Type("10301416596850001");
+			notice.setTitle("系统通知");
+			// new日期对象
+			Date date = new Date();
+			ProcessDefinition info = service.getProcessDefinitionId(processDefId);
+			// 转换提日期输出格式
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			notice.setDescription("您有一条" + info.getName() + "的任务，发布时间为：" + dateFormat.format(date));
+			String noticeId = GenerateSequenceUtil.generateSequenceNo();
+			notice.setId(noticeId);
+			noticeDao.addNotice(notice);
+			UserNotice usernotice = new UserNotice();
+			usernotice.setId(GenerateSequenceUtil.generateSequenceNo());
+			usernotice.setNotice_id(noticeId);
+			usernotice.setUser_id(userId);
+			usernotice.setIs_read("否");
+			// 设置发布时间
+			usernotice.setRelease_time(dateFormat.format(date));
+			usernoticeDao.addUserNotice(usernotice);
+			//设置状态
+			VProcessDetail detail = vProcessDetailDao.getProcessDetailByProcessInstId(processInstId);
+			if (detail == null) {
+				detail = vProcessDetailDao.getProcessDetailByProcessInstId(parentProcessInstId);
+			}
+			taskService.updateBusinessStatus(detail,processDefId,taskDefId,true);
+			// 流程组内指定用户自动领取任务
+//			service.claimTaskByUserInGroup(processInstId);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw new DBException("发生错误：" + e.getMessage());
+		}
+	}
+	
+	
+	@Override
+	public InputStream getTemplate(List<Map<String, String>> formPropList, String sheetName) throws Exception
+	{
+		// 行标志 同一个row_flag 为同一行的属性
+		List<String> list = new ArrayList<String>();
+		for (int i = 0; i < formPropList.size(); i++)
+		{
+			String val = formPropList.get(i).get("name");
+			list.add(val);
+		}
+		// 第一行标题
+		String[] title = new String[list.size()];
+		for (int i = 0; i < list.size(); i++)
+		{
+			title[i] = list.get(i);
+		}
+		InputStream stream = null;
+		try
+		{
+			stream = BuildExcelTemplate.getTemplate(sheetName, title);
+		}
+		catch (Exception e)
+		{
+			LogHelper.ERROR.log(e.getMessage());
+		}
+		return stream;
+
+	}
+
+	@SuppressWarnings("unused")
+	@Override
+	public String addFormByExcel(File file, String props, String taskInstId, String processInstId) throws Exception
+	{
+		// 执行保存操作
+		StringBuffer failMsg = new StringBuffer();
+		try
+		{
+			// 创建文件流
+			FileInputStream is = new FileInputStream(file);
+			// 加载文件流
+			XSSFWorkbook wbs = new XSSFWorkbook(is);
+			// 读取第一个Sheet
+			XSSFSheet firstSheet = wbs.getSheetAt(0);
+			// 遍历行
+			int failNum = 0;
+			int count = 0;
+			/* // 获取到表头 XSSFRow row = firstSheet.getRow(0); String[] title = new String[row.getLastCellNum()]; for(int i = 0;
+			 * i<row.getLastCellNum();i++){ title[i] = row.getCell(i).toString(); } */
+			@SuppressWarnings("unchecked")
+			List<Map<String, String>> formPropList = (List<Map<String, String>>) DataConverter.convertJson2List(props, Map.class);
+			if(formPropList!=null&&formPropList.size()>0){
+				outterLoop: for (int i = 1; i < firstSheet.getLastRowNum() + 1; i++)
+					{
+						// 获得行对象
+						XSSFRow row = firstSheet.getRow(i);
+						String rowFlag = GenerateSequenceUtil.generateSequenceNo();
+						if (null != row)
+						{
+							for (int j = 0; j < row.getLastCellNum(); j++)
+							{
+								//获取表单中字段的类型
+								String type = formPropList.get(0).get("type");
+								if(type.equals("file")||type.equals("img")){
+									failMsg.append("不能导入文件或图片");
+									return failMsg.toString();
+								}
+								FormValue formValue = new FormValue();
+								String required = formPropList.get(j).get("required");
+								// 行标志 同一个row_flag 为同一行的属性
+								String key = formPropList.get(j).get("key");
+								String formId = formPropList.get(j).get("formId");
+								String val = row.getCell(j)==null?"":row.getCell(j).toString();
+								if(required.equals("是")){
+									if(val.equals("")){
+										failMsg.append("添加失败:"+formPropList.get(j).get("name")+"不能为空");
+										return failMsg.toString();
+									}
+								}
+								// 给FormValue对象设置属性值
+								formValue.setId(GenerateSequenceUtil.generateSequenceNo());
+								formValue.setFormId(formId);
+								formValue.setPropKey(key);
+								if(this.isNumeric(val)&&!val.equals("")){
+									double parseDouble = Double.parseDouble(val);
+									if((int)parseDouble==parseDouble){
+										val=(int)parseDouble+"";
+									}else{
+										val=parseDouble+"";
+									}
+									formValue.setPropValue(val);
+								}else{
+									formValue.setPropValue(val);
+								}
+								formValue.setTaskInstId(taskInstId);
+								formValue.setRowFlag(rowFlag);
+								formValue.setProcessInstId(processInstId);
+								formValueDao.addFormValue(formValue);
+							}
+							count++;
+						}
+					}
+					failMsg.append("<p>共成功导入" + count + "条数据，失败" + failNum + "条！</p>");
+				
+			}
+		}
+		catch (Exception e)
+		{
+			// 写错误日志
+			LogHelper.ERROR.log(e.getMessage(), e);
+			throw e;
+		}
+		return failMsg.toString();
+	}
+	//判断是否是数字
+	public boolean isNumeric(String str){ 
+		   Pattern pattern = Pattern.compile("^[1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*$"); 
+		   Matcher isNum = pattern.matcher(str);
+		   if( !isNum.matches() ){
+		       return false; 
+		   } 
+		   return true; 
+	}
+
+/*	获取计划分配人的名称*/
+	
+	public String getplanName(String taskId, String processInstId, String processDefId, String taskDefId, String userId, String parentProcessInstId)
+	{
+		String plannameHis=null;
+		
+
+			plannameHis=taskDao.getplanName(taskId,processInstId,processDefId,taskDefId,userId,parentProcessInstId);
+
+		return plannameHis; 
+		}
+	
+}

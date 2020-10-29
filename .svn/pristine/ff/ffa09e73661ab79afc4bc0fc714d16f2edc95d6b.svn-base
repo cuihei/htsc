@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.ht.persistence.model.drawtask.tasksplit.TaskSplit"
+		table="COMPILATION_TASK">
+
+		<id name="id" type="java.lang.String">
+			<column name="id" />
+			<generator class="assigned" />
+		</id>
+		<property name="taskType" type="java.lang.String">
+			<column name="task_type" />
+		</property>
+
+		<property name="status" type="java.lang.String">
+			<column name="status" />
+		</property>
+
+		<set name="vProcessDetail" fetch="join" lazy="false">
+			<key column="detail_record_id" />
+			<one-to-many
+				class="com.ht.persistence.model.system.workflow.publish.VProcessDetail" />
+		</set>
+
+		<many-to-one name="taskBill" column="taskbook_plan_id"
+			cascade="none" class="com.ht.persistence.model.drawtask.taskbill.TaskBill"
+			lazy="false" not-found="ignore">
+		</many-to-one>
+	</class>
+
+	<query name="CheckSplitIfExist">
+    	<![CDATA[ from TaskSplit where taskBill.id= :taskBookPlanId and taskType= :taskType]]>
+	</query>
+
+	<query name="findCompilationList">
+    	<![CDATA[ from TaskSplit where taskType= :flag]]>
+	</query>
+
+	<query name="findCompilationListById">
+    	<![CDATA[ from TaskSplit where id= :id]]>
+	</query>
+
+	<query name="findCompilationListByTaskBookType">
+    	<![CDATA[ from TaskSplit where taskBill.taskBook.taskBookType= :taskBookType]]>
+	</query>
+
+	<query name="findCompilationListByTaskBookIdAndType">
+    	<![CDATA[ from TaskSplit where taskBill.taskBook.taskBookType= :taskBookType and taskBill.taskBook.id = :taskBookId]]>
+	</query>
+</hibernate-mapping>

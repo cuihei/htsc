@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.complication.seamap.source.SourceStatus" table="V_PROCESS_FLOW">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="process_Inst_Id" type="java.lang.String">
+            <column name="process_inst_id" />
+        </property>
+        <property name="process_Def_Id" type="java.lang.String">
+            <column name="process_def_id" />
+        </property>
+        <property name="user_No" type="java.lang.String">
+            <column name="user_no" />
+        </property>
+        <property name="user_Name" type="java.lang.String">
+            <column name="user_name" />
+        </property>
+        <property name="type" type="java.lang.String">
+            <column name="type" />
+        </property>
+        <property name="task_Id" type="java.lang.String">
+            <column name="task_id" />
+        </property>
+        <property name="task_Result" type="java.lang.String">
+            <column name="task_result" />
+        </property>
+        <property name="update_Date" type="timestamp">
+            <column name="update_date" />
+        </property>
+        <property name="advice" type="java.lang.String">
+            <column name="advice" />
+        </property>
+        <property name="process_Name" type="java.lang.String">
+            <column name="process_name" />
+        </property>
+        <property name="task_Name" type="java.lang.String">
+            <column name="task_name" />
+        </property>
+        <property name="start_Time" type="timestamp">
+            <column name="start_time" />
+        </property>
+        <property name="end_Time" type="timestamp">
+            <column name="end_time" />
+        </property>
+    </class>
+    <query name="getProcessFlowByParam">
+    	<![CDATA[ from SourceStatus where process_inst_id= :process_Inst_Id and task_id= :task_Id]]> 
+    </query>
+</hibernate-mapping>

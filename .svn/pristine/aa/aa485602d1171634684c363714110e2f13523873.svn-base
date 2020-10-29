@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	     xmlns:aop="http://www.springframework.org/schema/aop"
+	     xmlns:tx="http://www.springframework.org/schema/tx"
+	     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<bean id="publishService" class="com.ht.service.impl.system.workflow.publish.PublishServiceImpl" scope="prototype"></bean>
+	
+	<bean id="taskService" class="com.ht.service.impl.system.workflow.task.TaskServiceImpl" scope="prototype"></bean>
+	
+	<bean id="taskConfigurationService" class="com.ht.service.impl.system.workflow.taskconfig.TaskConfigurationServiceImpl" scope="prototype"></bean>
+	<!-- 后台管理 -->
+	<!-- 人员信息 -->
+	<bean id="userService" class="com.ht.service.impl.background.organization.employee.UserServiceImpl" scope="prototype"></bean>
+	
+	<!-- 基础数据 -->
+	<bean id="baseDataService" class="com.ht.service.impl.background.dicdata.basedata.BaseDataServiceImpl" scope="prototype"></bean>
+
+	<!-- 组织机构 -->
+	<bean id="organizationService" class="com.ht.service.impl.background.organization.organization.OrganizationServiceImpl" scope="prototype"></bean>
+
+	<!-- 组织机构人员 -->	
+	<bean id="organizationUsersRelationService" class="com.ht.service.impl.background.organization.organization.OrganizationUsersRelationServiceImpl" scope="prototype"></bean>
+	
+	<!-- 权限 -->
+	<bean id="authService" class="com.ht.service.impl.background.authority.auth.AuthServiceImpl" scope="prototype"></bean>
+	
+	<!-- 角色 -->
+	<bean id="roleService" class="com.ht.service.impl.background.authority.role.RoleServiceImpl" scope="prototype"></bean>
+
+	<!-- 系统访问日志 -->
+	<bean id="syslogService" class="com.ht.service.impl.background.monitor.accesslog.SyslogServiceImpl" scope="prototype"></bean>
+	
+	<!-- 类别数据 -->
+	<bean id="typeService" class="com.ht.service.impl.background.dicdata.type.TypeServiceImpl" scope="prototype"></bean>
+	
+	<!-- 应用资源 -->
+	<bean id="applicationService" class="com.ht.service.impl.background.application.ApplicationServiceImpl" scope="prototype"></bean>
+
+	<!-- 应用资源视图 -->
+	<bean id="viewApplicationService" class="com.ht.service.impl.background.application.ViewApplicationServiceImpl" scope="prototype"></bean>
+	
+	<!-- 系统操作日志 -->
+	<bean id="syslogOperationService" class="com.ht.service.impl.background.monitor.operationlog.SyslogOperationServiceImpl" scope="prototype"></bean>
+
+	<!-- 角色人员 -->
+	<bean id="roleUsersService" class="com.ht.service.impl.background.authority.role.RoleUsersServiceImpl" scope="prototype"></bean>
+	
+	<!-- 角色权限 -->
+	<bean id="roleAppService" class="com.ht.service.impl.background.authority.auth.RoleAppServiceImpl" scope="prototype"></bean>
+	
+	<!-- 目录区域 -->
+	<bean id="catalogAreaService" class="com.ht.service.impl.catalog.area.CatalogAreaServiceImpl" scope="prototype"></bean>
+	
+	<!-- 目录详情Service -->
+	<bean id="catalogDetailService" class="com.ht.service.impl.catalog.detail.CatalogDetailServiceImpl" scope="prototype"></bean>
+
+	<!-- 编绘计划 -->
+	<bean id="planService" class="com.ht.service.impl.drawtask.plan.PlanServiceImpl" scope="prototype"></bean>
+	
+	<!-- 编绘任务书 -->
+	<bean id="taskBookService" class="com.ht.service.impl.drawtask.taskbook.book.TaskBookServiceImpl" scope="prototype"></bean>
+	
+	<!-- 任务书和计划关联Service -->
+	<bean id="taskBookPlanRelationService" class="com.ht.service.impl.drawtask.taskbook.relation.TaskBookPlanRelationServiceImpl" scope="prototype"></bean>
+	
+	<!-- 通知 -->
+	<bean id="noticeService" class="com.ht.service.impl.system.notice.NoticeServiceImpl" scope="prototype"></bean>
+
+	<!-- 产品修改源数据service -->
+	<bean id="productUpdSourceDataService" class="com.ht.service.impl.datum.productupdsourcedata.ProductUpdSourceDataServiceImpl" scope="prototype"></bean>
+	
+	<!-- 通知人员关系 -->
+	<bean id="usernoticeService" class="com.ht.service.impl.system.notice.UserNoticeServiceImpl" scope="prototype"></bean>
+	
+	<!-- 资料类别 -->
+	<bean id="datumcategoryService" class="com.ht.service.impl.datum.type.DatumCategoryServiceImpl" scope="prototype"></bean>
+
+	<!-- 资料文件 -->
+	<bean id="datumFileService" class="com.ht.service.impl.datum.datum.DatumFileServiceImpl" scope="prototype"></bean>
+	
+	<!-- 资料文件视图 -->
+	<bean id="vdatumFileService" class="com.ht.service.impl.datum.datum.VDatumFileServiceImpl" scope="prototype"></bean>
+
+	<!-- 图书借阅 -->
+	<bean id="borrowingService" class="com.ht.service.impl.datum.datum.BorrowingServiceImpl" scope="prototype"></bean>
+
+	<!-- 历史任务书 -->
+	<bean id="historyTaskBookService" class="com.ht.service.impl.drawtask.taskbook.history.HistoryTaskBookServiceImpl" scope="prototype"></bean>
+	
+	<!-- 模板 -->
+	<bean id="modelService" class="com.ht.service.impl.system.document.template.ModelServiceImpl" scope="prototype"></bean>
+	
+	<!-- 模板项 -->
+	<bean id="modelitemService" class="com.ht.service.impl.system.document.template.ModelItemServiceImpl" scope="prototype"></bean>
+	
+	<!-- 模板类型 -->
+	<bean id="modeltypeService" class="com.ht.service.impl.system.document.type.ModelTypeServiceImpl" scope="prototype"></bean>
+
+	<!-- 历史目录 -->
+	<bean id="historyCatalogDetailService" class="com.ht.service.impl.catalog.history.HistoryCatalogDetailServiceImpl" scope="prototype"></bean>
+	
+	<!--改正通告 -->
+	<bean id="correctionNoticeService" class="com.ht.service.impl.correctionnoticesearch.CorrectionNoticeServiceImpl" scope="prototype"></bean>
+	
+	<!--编绘任务清单-->
+	<bean id="taskBillService" class="com.ht.service.impl.drawtask.taskbill.TaskBillServiceImpl" scope="prototype"></bean>
+	
+	<!--人员通知关系视图-->
+	<bean id="usernoticeviewService" class="com.ht.service.impl.system.notice.UserNoticeViewServiceImpl" scope="prototype"></bean>
+
+	<!--源数据 -->
+	<bean id="sourceService" class="com.ht.service.impl.complication.seamap.source.SourceServiceImpl" scope="prototype"></bean>
+	
+	<!--电子海图编绘 -->
+	<bean id="electronService" class="com.ht.service.impl.complication.seamap.electron.ElectronServiceImpl" scope="prototype"></bean>
+	
+	<!--纸海图编绘 -->
+	<bean id="paperService" class="com.ht.service.impl.complication.seamap.paper.PaperServiceImpl" scope="prototype"></bean>
+	
+	<!--纸海图编绘 -->
+	<bean id="papermapotherService" class="com.ht.service.impl.experiencebook.PaperMapOtherServiceImpl" scope="prototype"></bean>
+	
+
+	<bean id="processFlowService" class="com.ht.service.impl.system.workflow.process.ProcessFlowServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processLogService" class="com.ht.service.impl.system.workflow.process.ProcessLogServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processLogDetailService" class="com.ht.service.impl.system.workflow.process.ProcessLogDetailServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processUserService" class="com.ht.service.impl.system.workflow.process.ProcessUserServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processFormService" class="com.ht.service.impl.system.workflow.process.ProcessFormServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processStatusService" class="com.ht.service.impl.system.workflow.process.ProcessStatusServiceImpl" scope="prototype"></bean>
+	
+	<!-- 流程任务处理 -->
+	<bean id="taskFormService" class="com.ht.service.impl.system.workflow.task.TaskFormServiceImpl" scope="prototype"></bean>
+	
+	<!--改正通告编辑 -->
+	<bean id="corNoticeService" class="com.ht.service.impl.complication.correctionnotice.correctionnotice.CorNoticeServiceImpl" scope="prototype"></bean>
+	
+	<!--改正通告编辑模板 -->
+	<bean id="templeteService" class="com.ht.service.impl.complication.correctionnotice.templete.TempleteServiceImpl" scope="prototype"></bean>
+	
+	<!--源数据小改正 -->
+	<bean id="sourSmallCorService" class="com.ht.service.impl.complication.correctionnotice.sourcedatasmallcorrection.SourSmallCorServiceImpl" scope="prototype"></bean>
+	
+	<!--电子海图小改正-->
+	<bean id="eleSmallCorService" class="com.ht.service.impl.complication.smallcorrection.electron.EleSmallCorServiceImpl" scope="prototype"></bean>
+	
+	<!--纸海图小改正 -->
+	<bean id="paperSmallCorService" class="com.ht.service.impl.complication.smallcorrection.paper.PaperSmallCorServiceImpl" scope="prototype"></bean>
+	
+	<!--工程图电子海图编绘 -->
+	<bean id="proElectronService" class="com.ht.service.impl.complication.project.electron.ProElectronServiceImpl" scope="prototype"></bean>
+	
+	<!--工程图纸海图编绘 -->
+	<bean id="proPaperService" class="com.ht.service.impl.complication.project.paper.ProPaperServiceImpl" scope="prototype"></bean>
+	
+	<!--类别管理 -->
+	<bean id="catalogTypeService" class="com.ht.service.impl.catalog.type.CatalogTypeServiceImpl" scope="prototype"></bean>
+	
+	<!--表单属性 -->
+	<bean id="formPropService" class="com.ht.service.impl.complication.formprop.FormPropServiceImpl" scope="prototype"></bean>
+	
+	<!--表单明细 -->
+	<bean id="formValueService" class="com.ht.service.impl.complication.formprop.FormValueServiceImpl" scope="prototype"></bean>
+	
+	<!--表单管理 -->
+	<bean id="formService" class="com.ht.service.impl.complication.form.FormServiceImpl" scope="prototype"></bean>
+
+	<!--表单视图 -->
+	<bean id="formFormValueService" class="com.ht.service.impl.complication.formprop.FormFormValueServiceImpl" scope="prototype"></bean>
+	
+	<!--编绘任务拆分-->
+	<bean id="taskSplitService" class="com.ht.service.impl.drawtask.tasksplit.TaskSplitServiceImpl" scope="prototype"></bean>
+	
+	<!--工作流转日志视图-->
+	<bean id="vProcessDetailService" class="com.ht.service.impl.system.workflow.publish.VProcessDetailServiceImpl" scope="prototype"></bean>
+	
+	<!--表单明细 -->
+	<bean id="formContentService" class="com.ht.service.impl.complication.form.FormContentServiceImpl" scope="prototype"></bean>
+
+	<!--图书资料 -->
+	<bean id="bookInfoService" class="com.ht.service.impl.datum.bookinfo.BookInfoServiceImpl" scope="prototype"></bean>
+
+	<!--图书资料视图 -->
+	<bean id="viewBookInfoService" class="com.ht.service.impl.datum.bookinfo.ViewBookInfoServiceImpl" scope="prototype"></bean>
+	
+	<!--海图 -->
+	<bean id="booksService" class="com.ht.service.impl.datum.books.BooksServiceImpl" scope="prototype"></bean>
+	
+	<bean id="formDocumentService" class="com.ht.service.impl.system.document.template.FormDocumentServiceimpl" scope="prototype"></bean>
+
+	<!--表单明细 -->
+	<bean id="flowsService" class="com.ht.service.impl.system.workflow.task.FlowsServiceImpl" scope="prototype"></bean>
+
+	<!-- 资料文件 -->
+	<bean id="bookFileService" class="com.ht.service.impl.datum.bookinfo.BookFileServiceImpl" scope="prototype"></bean>
+	
+	<!-- 归还图书 -->
+	<bean id="returnBookService" class="com.ht.service.impl.datum.bookinfo.ReturnBookServiceImpl" scope="prototype"></bean>
+
+	<!-- 外业汇交 -->
+	<bean id="filedDataService" class="com.ht.service.impl.datum.fileddata.FiledDataServiceImpl" scope="prototype"></bean>
+	
+	<!-- 缺陷 -->
+	<bean id="defectService" class="com.ht.service.impl.background.dicdata.defect.DefectServiceImpl" scope="prototype"></bean>
+	
+	<!-- 缺陷项目 -->
+	<bean id="defectItemService" class="com.ht.service.impl.background.dicdata.defectitem.DefectItemServiceImpl" scope="prototype"></bean>
+	
+	<!-- 缺陷 -->
+	<bean id="defectTypeService" class="com.ht.service.impl.background.dicdata.defecttype.DefectTypeServiceImpl" scope="prototype"></bean>
+	
+	<!-- 缺陷表单 -->
+	<bean id="defectFormService" class="com.ht.service.impl.background.dicdata.defectform.DefectFormServiceImpl" scope="prototype"></bean>
+	
+	<!-- 统计分析编绘计划 -->
+	<!-- 编绘计划（生产管理） -->
+	<bean id="compilationYearPlanService" class="com.ht.service.impl.statisticalanalysis.CompilationYearPlanServiceImpl" scope="prototype"></bean>
+
+	<!-- 港口航道图完成情况 -->
+	<bean id="compilationCompleteStatusService" class="com.ht.service.impl.statisticalanalysis.CompilationCompleteStatusServiceImpl" scope="prototype"></bean>
+
+	<!-- 港口航道图月度在编动态 -->
+	<bean id="dynamicTableService" class="com.ht.service.impl.statisticalanalysis.DynamicTableServiceImpl" scope="prototype"></bean>
+
+	<!-- 港口航道图月度汇交 -->
+	<bean id="compilationResultSummaryService" class="com.ht.service.impl.statisticalanalysis.CompilationResultSummaryServiceImpl" scope="prototype"></bean>
+
+	<!-- 港口航道图月度汇交 -->
+	<bean id="compilationMonthPlanService" class="com.ht.service.impl.statisticalanalysis.CompilationMonthPlanServiceImpl" scope="prototype"></bean>
+	
+	<!-- 调整系数 -->
+	<bean id="coefficientService" class="com.ht.service.impl.background.dicdata.coefficient.CoefficientServiceImpl" scope="prototype"></bean>
+	
+	<!-- 比例尺管理 -->
+	<bean id="scaleControlService" class="com.ht.service.impl.background.dicdata.scalecontrol.ScaleControlServiceImpl" scope="prototype"></bean>
+	
+	<!-- 调整系数 -->
+	<bean id="mapsService" class="com.ht.service.impl.system.maps.MapsServiceImpl" scope="prototype"></bean>
+
+	<!-- 小改正符号管理-->
+	<bean id="symbolService" class="com.ht.service.impl.system.symbol.SymbolServiceImpl" scope="prototype"></bean>
+
+	<!--工天 -->
+	<bean id="workDaysService" class="com.ht.service.impl.system.workDays.CompilationWorkDaysServiceImpl" scope="prototype"></bean>
+
+	<!--经历簿 -->
+	<bean id="seaMapService" class="com.ht.service.impl.experiencebook.SeaMapServiceImpl" scope="prototype"></bean>
+	<bean id="correctionService" class="com.ht.service.impl.experiencebook.CorrectionNoticeServiceImpl" scope="prototype"></bean>
+	
+	<!--纸海图编绘经历簿查询  -->
+	<bean id="paperChartService" class="com.ht.service.impl.paper.PaperChartServiceImpl" scope="prototype"></bean>
+	<bean id="paperPanelService" class="com.ht.service.impl.paper.PaperPanelServiceImpl" scope="prototype"></bean>
+	<bean id="paperSheetService" class="com.ht.service.impl.paper.PaperSheetServiceImpl" scope="prototype"></bean>
+	
+	<!--小改正经历簿 -->
+	<bean id="minorCorrectionService" class="com.ht.service.impl.experiencebook.MinorCorrectionServiceImpl" scope="prototype"></bean>
+	
+	<!--工程专题图经历薄-->
+	<bean id="projectMapService" class="com.ht.service.impl.experiencebook.ProjectMapServiceImpl" scope="prototype"></bean>
+
+	<!-- 编绘任务书 -->
+	<bean id="createTaskService" class="com.ht.service.impl.drawtask.taskbook.create.CreateTaskServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processDelegateService" class="com.ht.service.impl.system.workflow.process.ProcessDelegateServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processTaskRelationService" class="com.ht.service.impl.system.workflow.process.ProcessTaskRelationServiceImpl" scope="prototype"></bean>
+	
+	<bean id="correctionNoticeBookService" class="com.ht.service.impl.datum.correctionnoticebook.CorrectionNoticeBookServiceImpl" scope="prototype"></bean>
+	
+	<!--用户指派记录Service -->
+	<bean id="assignUserRecordService" class="com.ht.service.impl.system.assign.AssignUserRecordServiceImpl" scope="prototype"></bean>
+	<!--改正通告期号时段Service -->
+	<bean id="yearIssueService" class="com.ht.service.impl.system.issue.YearIssueServiceImpl" scope="prototype"></bean>
+	<!--质量分析统计表Service -->
+	<bean id="qualityAnalysisStatisticsService" class="com.ht.service.impl.statisticalanalysis.QualityAnalysisStatisticsServiceImpl" scope="prototype"></bean>
+	
+	<bean id="processPlanService" class="com.ht.service.impl.complication.formprop.ProcessPlanServiceImpl" scope="prototype"></bean>
+	
+	<bean id="compilationChildTaskService" class="com.ht.service.impl.statisticalanalysis.CompilationChildTaskServiceImpl" scope="prototype"></bean>
+
+</beans>

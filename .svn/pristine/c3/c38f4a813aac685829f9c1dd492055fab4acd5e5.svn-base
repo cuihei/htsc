@@ -1,0 +1,145 @@
+package com.ht.persistence.model.datum.bookinfo;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.ht.persistence.model.base.BaseModel;
+
+/**
+ * 归还记录实体类
+ * @author zyd
+ *
+ */
+@Entity
+@Table(name = "RETURN_BOOK")
+public class ReturnBook extends BaseModel {
+	
+	@Id
+	@Column(name = "id", length = 64)
+	private String id; //标识
+	
+	@Column(name = "borrow_id", length = 100, nullable = false)
+	private String borrowId; //
+	
+	@Column(name = "book_no", length = 100, nullable = false)
+	private String bookNo; //图书编号
+
+	@Column(name = "book_name", length = 64, nullable = false)
+	private String bookName; //图书名称
+	
+	@Column(name = "type", length = 20, nullable = false)
+	private String type; //图书类型
+
+	@Column(name = "return_person", length = 100, nullable = false)
+	private String returnPerson; //归还人
+
+	@Column(name = "return_date", length = 254, nullable = false)
+	private Date returnDate; //归还时间
+
+	@Column(name = "return_no", length = 254, nullable = false)
+	private String returnNo; //归还数量
+	
+	@Column(name = "borrowDays", length = 254, nullable = false)
+	private String borrowDays; //借阅天数
+	
+	@Column(name = "status", length = 20)
+	private String status; //状态
+	
+	@Column(name = "cur_return_no", length = 20)
+	private String curReturnNo; //本次归还数量
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getBookNo() {
+		return bookNo;
+	}
+
+	public void setBookNo(String bookNo) {
+		this.bookNo = bookNo;
+	}
+
+	public String getBookName() {
+		return bookName;
+	}
+
+	public void setBookName(String bookName) {
+		this.bookName = bookName;
+	}
+
+	public String getReturnPerson() {
+		return returnPerson;
+	}
+
+	public void setReturnPerson(String returnPerson) {
+		this.returnPerson = returnPerson;
+	}
+
+	public Date getReturnDate() {
+		return returnDate;
+	}
+
+	public void setReturnDate(Date returnDate) {
+		this.returnDate = returnDate;
+	}
+
+	public String getReturnNo() {
+		return returnNo;
+	}
+
+	public void setReturnNo(String returnNo) {
+		this.returnNo = returnNo;
+	}
+
+	public String getBorrowDays() {
+		return borrowDays;
+	}
+
+	public void setBorrowDays(String borrowDays) {
+		this.borrowDays = borrowDays;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getCurReturnNo() {
+		return curReturnNo;
+	}
+
+	public void setCurReturnNo(String curReturnNo) {
+		this.curReturnNo = curReturnNo;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getBorrowId()
+	{
+		return borrowId;
+	}
+
+	public void setBorrowId(String borrowId)
+	{
+		this.borrowId = borrowId;
+	}
+
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.paper.PaperPanel" table="PAPER_PANEL">
+        <id name="id" type="java.lang.String">
+            <column name="panelvr_panelver_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="pannam" type="java.lang.String">
+            <column name="pannam" />
+        </property>
+        <property name="pannum" type="java.lang.String">
+            <column name="pannum" />
+        </property>
+        <property name="panpos" type="java.lang.String">
+            <column name="panpos" />
+        </property>
+        <property name="profile_id" type="java.lang.String">
+            <column name="profile_id" />
+        </property>
+        <property name="datum" type="java.lang.String">
+            <column name="datum" />
+        </property>
+        <property name="helmert" type="java.lang.String">
+            <column name="helmert" />
+        </property>
+        <property name="shiftxy" type="java.lang.String">
+            <column name="shiftxy" />
+        </property>
+        <property name="shiftlatlong" type="java.lang.String">
+            <column name="shiftlatlong" />
+        </property>
+       	<property name="align_lat1" type="java.lang.String">
+            <column name="align_lat1" />
+        </property>
+        <property name="align_lon1" type="java.lang.String">
+            <column name="align_lon1" />
+        </property>
+        <property name="align_lat2" type="java.lang.String">
+            <column name="align_lat2" />
+        </property>
+        <property name="align_lon2" type="java.lang.String">
+            <column name="align_lon2" />
+        </property>
+        <property name="origin_x" type="java.lang.String">
+            <column name="origin_x" />
+        </property>
+        <property name="origin_y" type="java.lang.String">
+            <column name="origin_y" />
+        </property>
+        <property name="boundary" type="java.lang.String">
+            <column name="boundary" />
+        </property>
+    </class>
+    <query name="getPaperPanel">
+    	<![CDATA[ from PaperPanel where id = :id]]>
+    </query>
+</hibernate-mapping>

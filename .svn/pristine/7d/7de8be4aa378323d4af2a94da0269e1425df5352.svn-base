@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	     xmlns:aop="http://www.springframework.org/schema/aop"
+	     xmlns:tx="http://www.springframework.org/schema/tx"
+	     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<bean id="baseDao" class="com.ht.persistence.dao.impl.base.BaseDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 后台管理 -->
+	<!-- 人员信息Dao -->
+	<bean id="userDao" class="com.ht.persistence.dao.impl.background.organization.employee.UserDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 基础数据Dao -->
+	<bean id="baseDataDao" class="com.ht.persistence.dao.impl.background.dicdata.basedata.BaseDataDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 组织机构Dao -->
+	<bean id="organizationDao" class="com.ht.persistence.dao.impl.background.organization.organization.OrganizationDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 组织机构人员Dao -->
+	<bean id="organizationUsersRelationDao" class="com.ht.persistence.dao.impl.background.organization.organization.OrganizationUsersRelationDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 权限Dao -->
+	<bean id="authDao" class="com.ht.persistence.dao.impl.background.authority.auth.AuthDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 角色Dao -->
+	<bean id="roleDao" class="com.ht.persistence.dao.impl.background.authority.role.RoleDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 系统访问日志Dao -->
+	<bean id="syslogDao" class="com.ht.persistence.dao.impl.background.monitor.accesslog.SyslogDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 类别数据Dao -->
+	<bean id="typeDao" class="com.ht.persistence.dao.impl.background.dicdata.type.TypeDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 应用资源Dao -->
+	<bean id="applicationDao" class="com.ht.persistence.dao.impl.background.application.ApplicationDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 应用资源视图Dao -->
+	<bean id="viewApplicationDao" class="com.ht.persistence.dao.impl.background.application.ViewApplicationDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 系统操作日志Dao -->
+	<bean id="syslogOperationDao" class="com.ht.persistence.dao.impl.background.monitor.operationlog.SyslogOperationDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 角色人员Dao -->
+	<bean id="roleUsersDao" class="com.ht.persistence.dao.impl.background.authority.role.RoleUsersDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 角色权限Dao -->
+	<bean id="roleAppDao" class="com.ht.persistence.dao.impl.background.authority.auth.RoleAppDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 目录区域Dao -->
+	<bean id="catalogAreaDao" class="com.ht.persistence.dao.impl.catalog.area.CatalogAreaDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 目录详情Dao -->
+	<bean id="catalogDetailDao" class="com.ht.persistence.dao.impl.catalog.detail.CatalogDetailDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 编绘计划Dao -->
+	<bean id="planDao" class="com.ht.persistence.dao.impl.drawtask.plan.PlanDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 编绘任务书Dao -->
+	<bean id="taskBookDao" class="com.ht.persistence.dao.impl.drawtask.taskbook.book.TaskBookDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+		<!-- 编绘任务书 修订记录Dao -->
+	<bean id="taskBookEditHisDao" class="com.ht.persistence.dao.impl.drawtask.taskbook.book.TaskBookEditHisDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 任务书和计划关联Dao -->
+	<bean id="taskBookPlanRelationDao" class="com.ht.persistence.dao.impl.drawtask.taskbook.relation.TaskBookPlanRelationDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 通知Dao -->
+	<bean id="noticeDao" class="com.ht.persistence.dao.impl.system.notice.NoticeDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 产品修改源数据Dao -->
+	<bean id="productUpdSourceDataDao" class="com.ht.persistence.dao.impl.datum.productupdsourcedata.ProductUpdSourceDataDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 人员通知关系Dao -->
+	<bean id="usernoticeDao" class="com.ht.persistence.dao.impl.system.notice.UserNoticeDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 资料类别Dao -->
+	<bean id="datumcategoryDao" class="com.ht.persistence.dao.impl.datum.type.DatumCategoryDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 资料文件Dao -->
+	<bean id="DatumFileDao" class="com.ht.persistence.dao.impl.datum.datum.DatumFileDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 资料文件Dao -->
+	<bean id="bookFileDao" class="com.ht.persistence.dao.impl.datum.bookinfo.BookFileDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 资料文件视图Dao -->
+	<bean id="vdatumFileDao" class="com.ht.persistence.dao.impl.datum.datum.VDatumFileDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 图书借阅Dao -->
+	<bean id="BorrowingDao" class="com.ht.persistence.dao.impl.datum.datum.BorrowingDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 历史任务Dao -->
+	<bean id="historyTaskBookDao" class="com.ht.persistence.dao.impl.drawtask.taskbook.history.HistoryTaskBookDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 模板Dao -->
+	<bean id="modelDao" class="com.ht.persistence.dao.impl.system.document.template.ModelDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 模板项Dao -->
+	<bean id="modelitemDao" class="com.ht.persistence.dao.impl.system.document.template.ModelItemDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 模板类型Dao -->
+	<bean id="modeltypeDao" class="com.ht.persistence.dao.impl.system.document.type.ModelTypeDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 历史目录 -->
+	<bean id="historyCatalogDetailDao" class="com.ht.persistence.dao.impl.catalog.history.HistoryCatalogDetailDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--改正通告 -->
+	<bean id="correctionNoticeDao" class="com.ht.persistence.dao.impl.correctionnoticesearch.CorrectionNoticeDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory_s"></property>
+	</bean>
+	 
+	<!--编绘任务清单-->
+	<bean id="taskBillDao" class="com.ht.persistence.dao.impl.drawtask.taskbill.TaskBillDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--人员通知关系视图-->
+	<bean id="usernoticeviewDao" class="com.ht.persistence.dao.impl.system.notice.UserNoticeViewDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--源数据-->
+	<bean id="sourceDao" class="com.ht.persistence.dao.impl.complication.seamap.source.SourceDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--电子海图编绘-->
+	<bean id="electronDao" class="com.ht.persistence.dao.impl.complication.seamap.electron.ElectronDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--纸海图编绘-->
+	<bean id="paperDao" class="com.ht.persistence.dao.impl.complication.seamap.paper.PaperDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	
+	<bean id="processFlowDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessFlowDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processLogDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessLogDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processLogDetailDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessLogDetailDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processUserDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessUserDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processFormDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessFormDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processStatusDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessStatusDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--改正通告编辑-->
+	<bean id="corNoticeDao" class="com.ht.persistence.dao.impl.complication.correctionnotice.correctionnotice.CorNoticeDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--源数据小改正-->
+	<bean id="sourSmallCorDao" class="com.ht.persistence.dao.impl.complication.correctionnotice.sourcedatasmallcorrection.SourSmallCorDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--改正通告编辑模板-->
+	<bean id="templeteDao" class="com.ht.persistence.dao.impl.complication.correctionnotice.templete.TempleteDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--纸海图小改正-->
+	<bean id="paperSmallCorDao" class="com.ht.persistence.dao.impl.complication.smallcorrection.paper.PaperSmallCorDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--电子海图小改正-->
+	<bean id="eleSmallCorDao" class="com.ht.persistence.dao.impl.complication.smallcorrection.electron.EleSmallCorDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--工程图电子海图编绘-->
+	<bean id="proElectronDao" class="com.ht.persistence.dao.impl.complication.project.electron.ProElectronDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--工程图纸海图编绘-->
+	<bean id="proPaperDao" class="com.ht.persistence.dao.impl.complication.project.paper.ProPaperDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--表单属性-->
+	<bean id="formPropDao" class="com.ht.persistence.dao.impl.complication.formprop.FormPropDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--表单明细-->
+	<bean id="formValueDao" class="com.ht.persistence.dao.impl.complication.formprop.FormValueDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--表单管理-->
+	<bean id="formDao" class="com.ht.persistence.dao.impl.complication.form.FormDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--表单视图-->
+	<bean id="formFormValueDao" class="com.ht.persistence.dao.impl.complication.formprop.FormFormValueDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--编绘任务拆分-->
+	<bean id="taskSplitDao" class="com.ht.persistence.dao.impl.drawtask.tasksplit.TaskSplitDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--工作流转日志视图-->
+	<bean id="vProcessDetailDao" class="com.ht.persistence.dao.impl.system.workflow.publish.VProcessDetailDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!--表单内容管理-->
+	<bean id="formContentDao" class="com.ht.persistence.dao.impl.complication.form.FormContentDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 图书资料 -->
+	<bean id="bookInfoDao" class="com.ht.persistence.dao.impl.datum.bookinfo.BookInfoDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 图书资料视图 -->
+	<bean id="viewBookInfoDao" class="com.ht.persistence.dao.impl.datum.bookinfo.ViewBookInfoDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 归还图书 -->
+	<bean id="returnBookDao" class="com.ht.persistence.dao.impl.datum.bookinfo.ReturnBookDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 外业汇交 -->
+	<bean id="filedDataDao" class="com.ht.persistence.dao.impl.datum.fileddata.FiledDataDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 海图 -->
+	<bean id="booksDao" class="com.ht.persistence.dao.impl.datum.books.BooksDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="formDocumentDao" class="com.ht.persistence.dao.impl.system.document.template.FormDocumentDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 流转状态 -->
+	<bean id="flowsDao" class="com.ht.persistence.dao.impl.system.workflow.task.FlowsDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 待办任务 -->
+	<bean id="taskDao" class="com.ht.persistence.dao.impl.system.workflow.task.TaskDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 缺陷-->
+	<bean id="defectDao" class="com.ht.persistence.dao.impl.background.dicdata.defect.DefectDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 编绘计划（生产管理）-->
+	<bean id="compilationYearPlanDao" class="com.ht.persistence.dao.impl.statisticalanalysis.CompilationYearPlanDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 港口航道图完成情况-->
+	<bean id="compilationCompleteStatusDao" class="com.ht.persistence.dao.impl.statisticalanalysis.CompilationCompleteStatusDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 港口航道图月度在编动态-->
+	<bean id="dynamicTableDao" class="com.ht.persistence.dao.impl.statisticalanalysis.DynamicTableDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 港口航道图月度汇交-->
+	<bean id="compilationResultSummaryDao" class="com.ht.persistence.dao.impl.statisticalanalysis.CompilationResultSummaryDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 港口航道图月度编绘计划-->
+	<bean id="compilationMonthPlanDao" class="com.ht.persistence.dao.impl.statisticalanalysis.CompilationMonthPlanDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 缺陷项目-->
+	<bean id="defectItemDao" class="com.ht.persistence.dao.impl.background.dicdata.defectitem.DefectItemDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 缺陷类别-->
+	<bean id="defectTypeDao" class="com.ht.persistence.dao.impl.background.dicdata.defecttype.DefectTypeDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 缺陷表单-->
+	<bean id="defectFormDao" class="com.ht.persistence.dao.impl.background.dicdata.defectform.DefectFormDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 调整系数-->
+	<bean id="coefficientDao" class="com.ht.persistence.dao.impl.background.dicdata.coefficient.CoefficientDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 比例尺管理Dao -->
+	<bean id="scaleControlDao" class="com.ht.persistence.dao.impl.background.dicdata.scalecontrol.ScaleControlDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 工天-->
+	<bean id="compilationWorkDaysDao" class="com.ht.persistence.dao.impl.statisticalanalysis.CompilationWorkDaysDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 图幅管理-->
+	<bean id="mapsDao" class="com.ht.persistence.dao.impl.system.maps.MapsDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 小改正符号管理-->
+	<bean id="symbolDao" class="com.ht.persistence.dao.impl.system.symbol.SymbolDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--纸海图编绘经历簿查询  -->
+	<!-- <bean id="paperChartDao" class="com.ht.persistence.dao.impl.paper.PaperChartDaoImpl" scope="prototype">
+	 	<property name="sessionFactory" ref="sessionFactory_paper"></property> 
+	</bean>
+	<bean id="paperPanelDao" class="com.ht.persistence.dao.impl.paper.PaperPanelDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory_paper"></property>
+	</bean>
+	<bean id="paperSheetDao" class="com.ht.persistence.dao.impl.paper.PaperSheetDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory_paper"></property>
+	</bean> -->
+	<bean id="paperChartDao" class="com.ht.persistence.dao.impl.paper.PaperChartDaoImpl" scope="prototype">
+	 	<property name="sessionFactory" ref="sessionFactory"></property> 
+	</bean>
+	<bean id="paperPanelDao" class="com.ht.persistence.dao.impl.paper.PaperPanelDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="paperSheetDao" class="com.ht.persistence.dao.impl.paper.PaperSheetDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 创建编绘任务书Dao -->
+	<bean id="createTaskDao" class="com.ht.persistence.dao.impl.drawtask.taskbook.create.CreateTaskDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processDelegateDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessDelegateDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processTaskRelationDao" class="com.ht.persistence.dao.impl.system.workflow.process.ProcessTaskRelationDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="correctionNoticeBookDao" class="com.ht.persistence.dao.impl.datum.correctionnoticebook.CorrectionNoticeBookDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!--用户指派记录Dao-->
+	<bean id="assignUserRecordDao" class="com.ht.persistence.dao.impl.system.assign.AssignUserRecordDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!--改正通告期号时段Dao-->
+	<bean id="yearIssueDao" class="com.ht.persistence.dao.impl.system.issue.YearIssueDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="processPlanDao" class="com.ht.persistence.dao.impl.complication.formprop.ProcessPlanDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="compilationChildTaskDao" class="com.ht.persistence.dao.impl.statisticalanalysis.CompilationChildTaskDaoImpl" scope="prototype">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	
+</beans>

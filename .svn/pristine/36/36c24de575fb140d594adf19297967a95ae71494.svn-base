@@ -1,0 +1,667 @@
+
+package com.ht.persistence.dao.impl.system.workflow.task;
+
+import com.ht.persistence.dao.impl.base.BaseDaoImpl;
+import com.ht.persistence.dao.inter.system.workflow.task.TaskDao;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskAnalysis;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBookUpTime;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskPlan;
+import com.ht.persistence.model.system.workflow.process.ProcessTypeCount;
+import com.ht.persistence.model.system.workflow.task.HiTask;
+import com.ht.persistence.model.system.workflow.task.RuTask;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.exception.ViolatedConstraintNameExtracter;
+
+public class TaskDaoImpl  extends BaseDaoImpl  implements TaskDao
+{
+	
+	/**
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getAllRuTask()
+  {
+    List<RuTask> list = findByNamedQuery("getAllRuTask");
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getRuTaskByProcessDefKey(RuTask ruTask)
+  {
+    String[] params = { "processDefKey" };
+    String[] values = { ruTask.getProcessDefKey() };
+    List<RuTask> list = findByNamedQueryAndNamedParam("getRuTaskByProcessDefKey", params, values);
+    return list;
+  }	
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+  
+  public List<RuTask> getRuTaskByProcessDefKey(RuTask ruTask, String page, String pageSize)
+  {
+    String sql = "SELECT PROCESS_INST_ID,PROCESS_DEF_ID,TASK_ID,TASK_DEF_ID,PROCESS_DEF_NAME,TASK_NAME,CREATION_DATE,MAIN_PROCESS_INST_ID,EXCUTION_ID,PARENT_PROCESS_INST_ID,GROUP_ID,GROUP_NAME,ASSIGNEE,ASSIGNEE_NAME,SUSPEND_STATE,PROCESS_DEF_KEY,END_TIME FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY CREATION_DATE DESC) rn,V_RU_TASK.* FROM  V_RU_TASK where PROCESS_DEF_KEY in  (:processDefKeys)) WHERE rn = 1";
+    SQLQuery query = getSession().createSQLQuery(sql);
+    List<String> param = new ArrayList();
+    param.add(ruTask.getProcessDefKey());
+    query.setParameterList("processDefKeys", param);
+    query.addEntity(RuTask.class);
+    List<RuTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize))
+      .setMaxResults(Integer.parseInt(pageSize)).list();
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+  public int getRuTaskByProcessDefKeyCount(RuTask ruTask)
+  {
+    String sql = "SELECT PROCESS_INST_ID,PROCESS_DEF_ID,TASK_ID,TASK_DEF_ID,PROCESS_DEF_NAME,TASK_NAME,CREATION_DATE,MAIN_PROCESS_INST_ID,EXCUTION_ID,PARENT_PROCESS_INST_ID,GROUP_ID,GROUP_NAME,ASSIGNEE,ASSIGNEE_NAME,SUSPEND_STATE,PROCESS_DEF_KEY,END_TIME FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY CREATION_DATE DESC) rn,V_RU_TASK.* FROM  V_RU_TASK where PROCESS_DEF_KEY in  (:processDefKeys)) WHERE rn = 1";
+    SQLQuery query = getSession().createSQLQuery(sql);
+    List<String> param = new ArrayList();
+    param.add(ruTask.getProcessDefKey());
+    query.setParameterList("processDefKeys", param);
+    query.addEntity(RuTask.class);
+    int count = query.list().size();
+    return count;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getRuTaskInProcessDefKey(List<String> name)
+  {
+    List<RuTask> list = findByNamedQueryAndNamedParam("getRuTaskInProcessDefKey", "processDefKey", name);
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getRuTaskInProcessDefKey(List<String> name, String page, String pageSize)
+  {
+    String hql = "from RuTask where processDefKey in (:processDefKeys) order by createTime desc";
+    Query query = getSession().createQuery(hql);
+    query.setParameterList("processDefKeys", name);
+    List<RuTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize))
+      .setMaxResults(Integer.parseInt(pageSize)).list();
+    return list;
+  }
+	@Override
+  public List<RuTask> getRuTaskInProcessDefKeyByYear(List<String> name, String page, String pageSize, String year)
+  {
+    String hql = "from RuTask where processDefKey in (:processDefKeys) and (to_char(createTime,'yyyy'))='" + year + "' order by createTime desc";
+    Query query = getSession().createQuery(hql);
+    query.setParameterList("processDefKeys", name);
+    List<RuTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize)).setMaxResults(Integer.parseInt(pageSize)).list();
+    return list;
+  }
+	@Override
+  public int getRuTaskInProcessDefKeyCount(List<String> name)
+  {
+    String hql = "from RuTask where processDefKey in (:processDefKeys) order by createTime desc";
+    Query query = getSession().createQuery(hql);
+    query.setParameterList("processDefKeys", name);
+    int count = query.list().size();
+    return count;
+  }
+	@Override
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+  public List<RuTask> getRuTaskByGroupIdAndProcessDefId(RuTask ruTask)
+  {
+    String[] params = { "groupId", "processDefId" };
+    String[] values = { ruTask.getGroupId(), ruTask.getProcessDefId() };
+    List<RuTask> list = findByNamedQueryAndNamedParam("getRuTaskByGroupIdAndProcessDefId", params, values);
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param groupId 受理组ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getRuTaskByGroupId(RuTask ruTask)
+  {
+    String[] params = { "groupId" };
+    String[] values = { ruTask.getGroupId() };
+    List<RuTask> list = findByNamedQueryAndNamedParam("getRuTaskByGroupId", params, values);
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getRuTaskByParentProcessInstId(RuTask ruTask)
+  {
+    String[] params = { "parentProcessInstId" };
+    String[] values = { ruTask.getParentProcessInstId() };
+    List<RuTask> list = findByNamedQueryAndNamedParam("getRuTaskByParentProcessInstId", params, values);
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getRuTaskByProcessInstId(RuTask ruTask)
+  {
+    String[] params = { "processInstId" };
+    String[] values = { ruTask.getProcessInstId() };
+    List<RuTask> list = findByNamedQueryAndNamedParam("getRuTaskByProcessInstId", params, values);
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<RuTask> getRuTaskByAssigneeList(List<String> assigneeList)
+  {
+    List<RuTask> list = findByNamedQueryAndNamedParam("getRuTaskByAssigneeList", "assigneeList", assigneeList);
+    return list;
+  }
+	/**
+	 * 根据任务受理组取得任务
+	 * @param parentProcessInstId 父流程实例ID
+	 * @return 任务列表
+	 */
+	@Override
+  public List<ProcessTypeCount> getRuTaskCountGroupByKey(String userId, String groupId)
+  {
+    String sql = "select tmp.Process_Def_Id,tmp.PROCESS_DEF_KEY,tmp.PROCESS_DEF_NAME,count(*) as cnt from (";
+    sql = sql + "select Process_Def_Id,PROCESS_DEF_KEY,PROCESS_DEF_NAME from V_RU_TASK  where ASSIGNEE = " + userId;
+    if (!StringUtils.isEmpty(groupId)) {
+      sql = 
+        sql + " union all select Process_Def_Id,PROCESS_DEF_KEY,PROCESS_DEF_NAME from V_RU_TASK  where  GROUP_ID in (" + groupId + ") ";
+    }
+    sql = sql + "  ) tmp group by tmp.Process_Def_Id,tmp.PROCESS_DEF_KEY,tmp.PROCESS_DEF_NAME";
+    SQLQuery query = getSession().createSQLQuery(sql);
+    query.addEntity(ProcessTypeCount.class);
+    List<ProcessTypeCount> list = query.list();
+    return list;
+  }
+	@Override
+  public int updateTable(String tableName, String id, String key, String tableStatusName, String status)
+  {
+    String sql = "update " + tableName + " set " + tableStatusName + " = '" + status + "' where " + key + " = '" + 
+      id + "'";
+    return getSession().createSQLQuery(sql).executeUpdate();
+  }
+	@Override
+  public List<HiTask> getHiTaskByParentProcessIdAndProcessDefKey(String parentProcessInstId, String processDefKey)
+  {
+    String[] params = { "parentProcessInstId", "processDefKey" };
+    String[] values = { parentProcessInstId, processDefKey };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByParentProcessIdAndProcessDefKey", params, 
+      values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByProcessId(String processInstId)
+  {
+    String[] params = { "processInstId" };
+    String[] values = { processInstId };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByProcessId", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByAssignee(String assignee)
+  {
+    String[] params = { "assignee" };
+    String[] values = { assignee };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByAssignee", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByAssigneeAndProcessDefKey(String assignee, String processDefKey)
+  {
+    String[] params = { "assignee", "processDefKey" };
+    String[] values = { assignee, processDefKey };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByAssigneeAndProcessDefKey", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByAssigneeAndProcessInstId(String assignee, String processDefKey, String processInstId)
+  {
+    String[] params = { "assignee", "processDefKey", "processInstId" };
+    String[] values = { assignee, processDefKey, processInstId };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByAssigneeAndProcessInstId", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByGroupAndProcessDefKey(String group, String processDefKey)
+  {
+    String[] params = { "groupId", "processDefKey" };
+    String[] values = { group, processDefKey };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByGroupAndProcessDefKey", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByGroupAndProcessInstId(String group, String processDefKey, String processInstId)
+  {
+    String[] params = { "groupId", "processDefKey", "processInstId" };
+    String[] values = { group, processDefKey, processInstId };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByGroupAndProcessInstId", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByProcessDefKey(List<String> processDefKeys)
+  {
+    String[] params = { "processDefKeys" };
+    Object[] values = { processDefKeys };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByProcessDefKey", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getCompleteTask(List<String> processDefKeys, String page, String pageSize)
+  {
+    String sql = "SELECT task_id,process_def_id,task_def_id,process_def_name,process_def_key,process_inst_id,execution_id,task_name,assignee,assignee_name,start_time,end_time,claim_time,delete_reason,parent_process_inst_id,group_id,group_name,process_end_time,record_id FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY PROCESS_END_TIME DESC) rn,V_HI_TASK.* FROM  V_HI_TASK where PROCESS_DEF_KEY in  (:processDefKeys) and PROCESS_END_TIME is not null) WHERE rn = 1";
+    SQLQuery query = getSession().createSQLQuery(sql);
+    query.setParameterList("processDefKeys", processDefKeys);
+    query.addEntity(HiTask.class);
+    List<HiTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize))
+      .setMaxResults(Integer.parseInt(pageSize)).list();
+    return list;
+  }
+	@Override
+  public List<HiTask> getCompleteTaskByYear(List<String> processDefKeys, String page, String pageSize, String year)
+  {
+    String sql = "SELECT b.taskbook_no,e.*,e.record_id FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY PROCESS_END_TIME DESC) rn,V_HI_TASK.*FROM  V_HI_TASK where PROCESS_DEF_KEY in  (:processDefKeys)  and PROCESS_END_TIME is not null) e,compilation_child_task a,COMPILATION_TASK_BOOK b WHERE rn = 1 and a.id=e.record_id and a.PARENT_TASKBOOK_ID=b.id and substr(b.taskbook_no,0,4)='" + year + "'";
+    SQLQuery query = getSession().createSQLQuery(sql);
+    query.setParameterList("processDefKeys", processDefKeys);
+    query.addEntity(HiTask.class);
+    List<HiTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize))
+      .setMaxResults(Integer.parseInt(pageSize)).list();
+    return list;
+  }
+	@Override
+  public List<HiTask> getCompleteTask(List<String> processDefKeys)
+  {
+    String[] params = { "processDefKeys" };
+    Object[] values = { processDefKeys };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getCompleteTask", params, values);
+    return list;
+  }
+	@Override
+  public int getCompleteTaskCount(List<String> processDefKeys)
+  {
+    String sql = "SELECT * FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY PROCESS_END_TIME DESC) rn,V_HI_TASK.* FROM  V_HI_TASK where PROCESS_DEF_KEY in  (:processDefKeys) and PROCESS_END_TIME is not null) WHERE rn = 1";
+    SQLQuery query = getSession().createSQLQuery(sql);
+    query.setParameterList("processDefKeys", processDefKeys);
+    query.addEntity(HiTask.class);
+    int count = query.list().size();
+    return count;
+  }
+	@Override
+  public List<HiTask> getCompleteTask(List<String> processDefKeys, Date startTime, Date endTime)
+  {
+    String[] params = { "processDefKeys", "startTime", "endTime" };
+    Object[] values = { processDefKeys, startTime, endTime };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getCompleteTaskByDate", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskByProcessInstIdAndTaskDefId(String processInstId, String taskDefId)
+  {
+    String[] params = { "processInstId", "taskDefId" };
+    Object[] values = { processInstId, taskDefId };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskByProcessInstIdAndTaskDefId", params, values);
+    return list;
+  }
+	@Override
+  public List<HiTask> getHiTaskNotInProcessInstId(String processInstId, String parentProcessInstId)
+  {
+    String[] params = { "processInstId", "parentProcessInstId" };
+    Object[] values = { processInstId, parentProcessInstId };
+    List<HiTask> list = findByNamedQueryAndNamedParam("getHiTaskNotInProcessInstId", params, values);
+    return list;
+  }
+	/**
+	 * 根据流程分组获取经办
+	 * 
+	 * @param assignee
+	 * @param processDefKey
+	 * @return
+	 */
+	@Override
+	public List<HiTask> getHiTaskGroupByProcessInstId(String assignee, String processDefKey) {
+		String sql = "select task_id,process_def_id,task_def_id,process_def_name,process_def_key,process_inst_id,execution_id,task_name,assignee,assignee_name,start_time,end_time,claim_time,delete_reason,parent_process_inst_id,group_id,group_name,process_end_time,record_id from (select row_number()over(partition by process_inst_id order by end_time desc nulls last)rn, t.* from(select * from v_hi_task where process_def_key=? and assignee=?) t)t  where t.rn=1";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		query.setParameter(0, processDefKey);
+		query.setParameter(1, assignee);
+		query.addEntity(HiTask.class);
+		List<HiTask> list = query.list();
+		return list;
+	}
+
+	@Override
+	public List<HiTask> getTaskByParentProcessInstId(String parentProcessInstId) {
+		String[] params = { "parentProcessInstId" };
+		Object[] values = { parentProcessInstId };
+		List<HiTask> list = this.findByNamedQueryAndNamedParam("getTaskByParentProcessInstId", params, values);
+		return list;
+	}
+	@Override
+	public RuTask getRtByParentProcessInstId(String parentProcessInstId) {
+		String[] params = { "parentProcessInstId" };
+		String[] values = { parentProcessInstId };
+		List<RuTask> list = this.findByNamedQueryAndNamedParam("getRtByParentProcessInstId", params, values);
+
+		if (list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
+	/**
+	 *   获取本任务的计划中 分配的人员
+	 */
+	@Override
+	public String getplanName(String taskId, String processInstId, String processDefId, String taskDefId, String userId, String parentProcessInstId) {
+		String PlanName=null;
+	
+			
+			//质检组长分配人员  u_task_distribution_zhijian
+		if(taskDefId.indexOf("u_task_distribution_zhijian")	>-1){
+		String sql ="select ASSIGNEE_NAME from v_hi_task where PARENT_PROCESS_INST_ID='"+parentProcessInstId+"' and TASK_NAME='分配任务给质检员' and PROCESS_DEF_NAME  in('纸海图编绘计划','源数据编绘计划','电子海图编绘计划')   and rownum=1 order by claim_time";
+		SQLQuery query = this.getSession().createSQLQuery(sql);	
+         PlanName = query.uniqueResult().toString();
+	      //组长分配人员
+     	return PlanName;
+			} else  if(taskDefId.indexOf("u_task_distribution_shending")	>-1){//审定组长分配人员 u_task_distribution_shending
+	String sql ="select ASSIGNEE_NAME from v_hi_task where PARENT_PROCESS_INST_ID='"+parentProcessInstId+"' and TASK_NAME='分配任务给审定员' and PROCESS_DEF_NAME  in('纸海图编绘计划','源数据编绘计划','电子海图编绘计划')   and rownum=1 order by claim_time";
+	SQLQuery query = this.getSession().createSQLQuery(sql);	
+     PlanName = query.uniqueResult().toString();
+   	return PlanName;
+		}
+		return PlanName;		
+	}
+	
+	
+	///获取任务分析表中的年份。
+	
+	@Override
+	public List<String> getAllTaskYear() {
+		String sql = "select substr(taskbook_no,1,4) from COMPILATION_TASK_BOOK where rowid in (select max(rowid) from COMPILATION_TASK_BOOK group by substr(taskbook_no,1,4) ) ";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		List<String> list = query.list();
+		return list;
+	}
+	
+	//更新表的状态和时间
+	public int updateTaskUpTime(String type,String sta) {
+	   //获取当前的日期
+        Date date = new Date();
+        //设置要获取到什么样的时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //获取String类型的时间
+        String createdate = sdf.format(date);
+		String sql = "update COMPILATION_TASK_UPTIME Set state=?,up_date=? WHERE ID='"+type+"'";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+	    query.setString(0,sta);
+	    query.setString(1,createdate);
+	    return query.executeUpdate();
+
+	}
+	
+	
+	///更改更新表中的状态。
+	//先清除表 在新增表 1 正在更新中  0 已经停止更新
+	public List<String> taskupTimeStr(String type) {
+		String sql = "select state,up_date from COMPILATION_TASK_UPTIME where id ='"+type+"'";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		List<String> list = query.list();
+		return list;
+	}
+
+	@Override
+	public void addTaslAllList(List<Map<String, Object>> listAll) {
+		/*开始循环插入*/
+		for (int i = 0; i < listAll.size(); i++) {
+				   
+		String uid=UUID.randomUUID().toString().replace("-", "").toLowerCase();
+		String sqlinsert = "Insert into COMPILATION_TASK_ANALYSIS (ID,APPRVOE_END_TIME,APPRVOE_EXPECTED_TIME,APPRVOE_PERSON,APPRVOE_START_TIME,CHECK_WORKDAYS,COMPILATION_END_TIME,COMPILATION_EXPECTED_TIME,COMPILATION_GROUP,COMPILATION_PERSON,COMPILATION_START_TIME,COMPILATION_WORKDAYS,CREATE_TIME,CURR_USER,END_TIME,EXAMINE_WORKDAYS,EXCUTION_ID,GROUP_,LAST_UPDATE_USER,MAP_NAME,MAP_NO,PARENT_PROCESS_INST_ID,PERFORMER,PROCESS_DEF_ID,PROCESS_DEF_NAME,PROCESS_INST_ID,QUALITY_END_TIME,QUALITY_EXPECTED_TIME,QUALITY_PERSON,QUALITY_SCORE,QUALITY_START_TIME,RECORD_ID,REMARK,SCALE,SCORE,STATUS,SUSPEND_STATE,TASK_BOOK_TIME,TASK_DEF_ID,TASK_INST_ID,TASK_NAME,TASKBOOK_NO,ZL_TIME,ZT_TIME,PROCESS_END_TIME) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	   Query query= this.getSession().createSQLQuery(sqlinsert);
+	    query.setString(0,uid);
+		query.setString(1,listAll.get(i).get("apprvoeEndTime")!=null?listAll.get(i).get("apprvoeEndTime").toString():null);
+		query.setString(2,listAll.get(i).get("apprvoeExpectedTime")!=null?listAll.get(i).get("apprvoeExpectedTime").toString():null);
+		query.setString(3,listAll.get(i).get("apprvoePerson")!=null?listAll.get(i).get("apprvoePerson").toString():null);
+		query.setString(4,listAll.get(i).get("apprvoeStartTime")!=null?listAll.get(i).get("apprvoeStartTime").toString():null);
+		query.setString(5,listAll.get(i).get("checkWorkdays")!=null?listAll.get(i).get("checkWorkdays").toString():null);
+		query.setString(6,listAll.get(i).get("compilationEndTime")!=null?listAll.get(i).get("compilationEndTime").toString():null);
+		query.setString(7,listAll.get(i).get("compilationExpectedTime")!=null?listAll.get(i).get("compilationExpectedTime").toString():null);
+		query.setString(8,listAll.get(i).get("compilationGroup")!=null?listAll.get(i).get("compilationGroup").toString():null);
+		query.setString(9,listAll.get(i).get("compilationPerson")!=null?listAll.get(i).get("compilationPerson").toString():null);
+		query.setString(10,listAll.get(i).get("compilationStartTime")!=null?listAll.get(i).get("compilationStartTime").toString():null);
+		query.setString(11,listAll.get(i).get("compilationWorkdays")!=null?listAll.get(i).get("compilationWorkdays").toString():null);
+		query.setString(12,listAll.get(i).get("taskBookTime")!=null?listAll.get(i).get("taskBookTime").toString():null);
+		query.setString(13,listAll.get(i).get("currUser")!=null?listAll.get(i).get("currUser").toString():null);
+		query.setString(14,listAll.get(i).get("endTime")!=null?listAll.get(i).get("endTime").toString():null);
+		query.setString(15,listAll.get(i).get("examineWorkdays")!=null?listAll.get(i).get("examineWorkdays").toString():null);
+		query.setString(16,listAll.get(i).get("excutionId")!=null?listAll.get(i).get("excutionId").toString():null);
+		query.setString(17,listAll.get(i).get("group")!=null?listAll.get(i).get("group").toString():null);
+		query.setString(18,listAll.get(i).get("lastUpdateUser")!=null?listAll.get(i).get("lastUpdateUser").toString():null);
+		query.setString(19,listAll.get(i).get("mapName")!=null?listAll.get(i).get("mapName").toString():null);
+		query.setString(20,listAll.get(i).get("mapNo")!=null?listAll.get(i).get("mapNo").toString():null);
+		query.setString(21,listAll.get(i).get("parentProcessInstId")!=null?listAll.get(i).get("parentProcessInstId").toString():null);
+		query.setString(22,listAll.get(i).get("performer")!=null?listAll.get(i).get("performer").toString():null);
+		query.setString(23,listAll.get(i).get("processDefId")!=null?listAll.get(i).get("processDefId").toString():null);
+		query.setString(24,listAll.get(i).get("processDefName")!=null?listAll.get(i).get("processDefName").toString():null);
+		query.setString(25,listAll.get(i).get("processInstId")!=null?listAll.get(i).get("processInstId").toString():null);
+		query.setString(26,listAll.get(i).get("qualityEndTime")!=null?listAll.get(i).get("qualityEndTime").toString():null);
+		query.setString(27,listAll.get(i).get("qualityExpectedTime")!=null?listAll.get(i).get("qualityExpectedTime").toString():null);
+		query.setString(28,listAll.get(i).get("qualityPerson")!=null?listAll.get(i).get("qualityPerson").toString():null);
+		query.setString(29,listAll.get(i).get("qualityScore")!=null?listAll.get(i).get("qualityScore").toString():null);
+		query.setString(30,listAll.get(i).get("qualityStartTime")!=null?listAll.get(i).get("qualityStartTime").toString():null);
+		query.setString(31,listAll.get(i).get("recordId")!=null?listAll.get(i).get("recordId").toString():null);
+		query.setString(32,listAll.get(i).get("remark")!=null?listAll.get(i).get("remark").toString():null);
+		query.setString(33,listAll.get(i).get("scale")!=null?listAll.get(i).get("scale").toString():null);
+		query.setString(34,listAll.get(i).get("score")!=null?listAll.get(i).get("score").toString():null);
+		query.setString(35,listAll.get(i).get("status")!=null?listAll.get(i).get("status").toString():null);
+		query.setString(36,listAll.get(i).get("suspendState")!=null?listAll.get(i).get("suspendState").toString():null);
+		query.setString(37,listAll.get(i).get("taskBookTime")!=null?listAll.get(i).get("taskBookTime").toString():null);
+		query.setString(38,listAll.get(i).get("taskDefId")!=null?listAll.get(i).get("taskDefId").toString():null);
+		query.setString(39,listAll.get(i).get("taskInstId")!=null?listAll.get(i).get("taskInstId").toString():null);
+		query.setString(40,listAll.get(i).get("taskName")!=null?listAll.get(i).get("taskName").toString():null);
+		query.setString(41,listAll.get(i).get("taskbookNo")!=null?listAll.get(i).get("taskbookNo").toString():null);
+		query.setString(42,listAll.get(i).get("zlTime")!=null?listAll.get(i).get("zlTime").toString():null);
+		query.setString(43,listAll.get(i).get("ztTime")!=null?listAll.get(i).get("ztTime").toString():null);
+		query.setString(44,listAll.get(i).get("processEndTime")!=null?listAll.get(i).get("processEndTime").toString():null);
+		query.executeUpdate();
+		//
+
+		}
+	
+		updateTaskUpTime("task","0");
+	}
+	@Override
+  public void addTaslAllListPlan(List<Map<String, Object>> listAll)
+  {		
+		///改变更新表状态
+
+	/*开始循环插入*/
+    for (int i = 0; i < listAll.size(); i++)
+    {
+      String uid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+      String sqlinsert = "Insert into COMPILATION_TASK_PLAN (ID,APPRVOE_END_TIME,APPRVOE_EXPECTED_TIME,APPRVOE_PERSON,APPRVOE_START_TIME,CHECK_WORKDAYS,COMPILATION_END_TIME,COMPILATION_EXPECTED_TIME,COMPILATION_GROUP,COMPILATION_PERSON,COMPILATION_START_TIME,COMPILATION_WORKDAYS,CREATE_TIME,CURR_USER,END_TIME,EXAMINE_WORKDAYS,EXCUTION_ID,GROUP_,LAST_UPDATE_USER,MAP_NAME,MAP_NO,PARENT_PROCESS_INST_ID,PERFORMER,PROCESS_DEF_ID,PROCESS_DEF_NAME,PROCESS_INST_ID,QUALITY_END_TIME,QUALITY_EXPECTED_TIME,QUALITY_PERSON,QUALITY_SCORE,QUALITY_START_TIME,RECORD_ID,REMARK,SCALE,SCORE,STATUS,SUSPEND_STATE,TASK_BOOK_TIME,TASK_DEF_ID,TASK_INST_ID,TASK_NAME,TASKBOOK_NO,ZL_TIME,ZT_TIME,PROCESS_END_TIME) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      Query query = getSession().createSQLQuery(sqlinsert);
+      query.setString(0, uid);
+      query.setString(1, ((Map)listAll.get(i)).get("apprvoeEndTime") != null ? ((Map)listAll.get(i)).get("apprvoeEndTime").toString() : null);
+      query.setString(2, ((Map)listAll.get(i)).get("apprvoeExpectedTime") != null ? ((Map)listAll.get(i)).get("apprvoeExpectedTime").toString() : null);
+      query.setString(3, ((Map)listAll.get(i)).get("apprvoePerson") != null ? ((Map)listAll.get(i)).get("apprvoePerson").toString() : null);
+      query.setString(4, ((Map)listAll.get(i)).get("apprvoeStartTime") != null ? ((Map)listAll.get(i)).get("apprvoeStartTime").toString() : null);
+      query.setString(5, ((Map)listAll.get(i)).get("checkWorkdays") != null ? ((Map)listAll.get(i)).get("checkWorkdays").toString() : null);
+      query.setString(6, ((Map)listAll.get(i)).get("compilationEndTime") != null ? ((Map)listAll.get(i)).get("compilationEndTime").toString() : null);
+      query.setString(7, ((Map)listAll.get(i)).get("compilationExpectedTime") != null ? ((Map)listAll.get(i)).get("compilationExpectedTime").toString() : null);
+      query.setString(8, ((Map)listAll.get(i)).get("compilationGroup") != null ? ((Map)listAll.get(i)).get("compilationGroup").toString() : null);
+      query.setString(9, ((Map)listAll.get(i)).get("compilationPerson") != null ? ((Map)listAll.get(i)).get("compilationPerson").toString() : null);
+      query.setString(10, ((Map)listAll.get(i)).get("compilationStartTime") != null ? ((Map)listAll.get(i)).get("compilationStartTime").toString() : null);
+      query.setString(11, ((Map)listAll.get(i)).get("compilationWorkdays") != null ? ((Map)listAll.get(i)).get("compilationWorkdays").toString() : null);
+      query.setString(12, ((Map)listAll.get(i)).get("taskBookTime") != null ? ((Map)listAll.get(i)).get("taskBookTime").toString() : null);
+      query.setString(13, ((Map)listAll.get(i)).get("currUser") != null ? ((Map)listAll.get(i)).get("currUser").toString() : null);
+      query.setString(14, ((Map)listAll.get(i)).get("endTime") != null ? ((Map)listAll.get(i)).get("endTime").toString() : null);
+      query.setString(15, ((Map)listAll.get(i)).get("examineWorkdays") != null ? ((Map)listAll.get(i)).get("examineWorkdays").toString() : null);
+      query.setString(16, ((Map)listAll.get(i)).get("excutionId") != null ? ((Map)listAll.get(i)).get("excutionId").toString() : null);
+      query.setString(17, ((Map)listAll.get(i)).get("group") != null ? ((Map)listAll.get(i)).get("group").toString() : null);
+      query.setString(18, ((Map)listAll.get(i)).get("lastUpdateUser") != null ? ((Map)listAll.get(i)).get("lastUpdateUser").toString() : null);
+      query.setString(19, ((Map)listAll.get(i)).get("mapName") != null ? ((Map)listAll.get(i)).get("mapName").toString() : null);
+      query.setString(20, ((Map)listAll.get(i)).get("mapNo") != null ? ((Map)listAll.get(i)).get("mapNo").toString() : null);
+      query.setString(21, ((Map)listAll.get(i)).get("parentProcessInstId") != null ? ((Map)listAll.get(i)).get("parentProcessInstId").toString() : null);
+      query.setString(22, ((Map)listAll.get(i)).get("performer") != null ? ((Map)listAll.get(i)).get("performer").toString() : null);
+      query.setString(23, ((Map)listAll.get(i)).get("processDefId") != null ? ((Map)listAll.get(i)).get("processDefId").toString() : null);
+      query.setString(24, ((Map)listAll.get(i)).get("processDefName") != null ? ((Map)listAll.get(i)).get("processDefName").toString() : null);
+      query.setString(25, ((Map)listAll.get(i)).get("processInstId") != null ? ((Map)listAll.get(i)).get("processInstId").toString() : null);
+      query.setString(26, ((Map)listAll.get(i)).get("qualityEndTime") != null ? ((Map)listAll.get(i)).get("qualityEndTime").toString() : null);
+      query.setString(27, ((Map)listAll.get(i)).get("qualityExpectedTime") != null ? ((Map)listAll.get(i)).get("qualityExpectedTime").toString() : null);
+      query.setString(28, ((Map)listAll.get(i)).get("qualityPerson") != null ? ((Map)listAll.get(i)).get("qualityPerson").toString() : null);
+      query.setString(29, ((Map)listAll.get(i)).get("qualityScore") != null ? ((Map)listAll.get(i)).get("qualityScore").toString() : null);
+      query.setString(30, ((Map)listAll.get(i)).get("qualityStartTime") != null ? ((Map)listAll.get(i)).get("qualityStartTime").toString() : null);
+      query.setString(31, ((Map)listAll.get(i)).get("recordId") != null ? ((Map)listAll.get(i)).get("recordId").toString() : null);
+      query.setString(32, ((Map)listAll.get(i)).get("remark") != null ? ((Map)listAll.get(i)).get("remark").toString() : null);
+      query.setString(33, ((Map)listAll.get(i)).get("scale") != null ? ((Map)listAll.get(i)).get("scale").toString() : null);
+      query.setString(34, ((Map)listAll.get(i)).get("score") != null ? ((Map)listAll.get(i)).get("score").toString() : null);
+      query.setString(35, ((Map)listAll.get(i)).get("status") != null ? ((Map)listAll.get(i)).get("status").toString() : null);
+      query.setString(36, ((Map)listAll.get(i)).get("suspendState") != null ? ((Map)listAll.get(i)).get("suspendState").toString() : null);
+      query.setString(37, ((Map)listAll.get(i)).get("taskBookTime") != null ? ((Map)listAll.get(i)).get("taskBookTime").toString() : null);
+      query.setString(38, ((Map)listAll.get(i)).get("taskDefId") != null ? ((Map)listAll.get(i)).get("taskDefId").toString() : null);
+      query.setString(39, ((Map)listAll.get(i)).get("taskInstId") != null ? ((Map)listAll.get(i)).get("taskInstId").toString() : null);
+      query.setString(40, ((Map)listAll.get(i)).get("taskName") != null ? ((Map)listAll.get(i)).get("taskName").toString() : null);
+      query.setString(41, ((Map)listAll.get(i)).get("taskbookNo") != null ? ((Map)listAll.get(i)).get("taskbookNo").toString() : null);
+      query.setString(42, ((Map)listAll.get(i)).get("zlTime") != null ? ((Map)listAll.get(i)).get("zlTime").toString() : null);
+      query.setString(43, ((Map)listAll.get(i)).get("ztTime") != null ? ((Map)listAll.get(i)).get("ztTime").toString() : null);
+      query.setString(44, ((Map)listAll.get(i)).get("processEndTime") != null ? ((Map)listAll.get(i)).get("processEndTime").toString() : null);
+      query.executeUpdate();
+    }
+	updateTaskUpTime("plan","0");
+  }
+	@Override
+	public void delAllTempTask() {
+		/*清除临时表中的数据*/
+		
+	    String sqlcount="SELECT count(*) FROM COMPILATION_TASK_ANALYSIS"; 
+		Query query1 = this.getSession().createSQLQuery(sqlcount);
+		Integer count=((Number)query1.uniqueResult()).intValue();
+		
+		if(count>0) {
+		String sqldel = "DELETE FROM COMPILATION_TASK_ANALYSIS";
+		Query querydel= this.getSession().createSQLQuery(sqldel);
+		querydel.executeUpdate();
+		}
+		
+	}
+	
+	@Override
+	public void delAllTempTaskPlan() {
+		/*清除计划临时表中的数据*/
+		
+	    String sqlcount="SELECT count(*) FROM COMPILATION_TASK_PLAN"; 
+		Query query1 = this.getSession().createSQLQuery(sqlcount);
+		Integer count=((Number)query1.uniqueResult()).intValue();
+		
+		if(count>0) {
+		String sqldel = "DELETE FROM COMPILATION_TASK_PLAN";
+		Query querydel= this.getSession().createSQLQuery(sqldel);
+		querydel.executeUpdate();
+		}
+		
+	}
+	/*	获取所有任务  新任务完成情况	*/
+//	@Override
+//	public List<TaskAnalysis> getTaskAll() {
+//		String sql = "select * from COMPILATION_TASK_ANALYSIS ORDER BY CREATE_TIME";
+//		SQLQuery query = this.getSession().createSQLQuery(sql);
+//		@SuppressWarnings("unchecked")
+//		List<TaskAnalysis> list = query.list();
+//		return list;
+//	}
+//
+	// 临时表编绘任务完成情况
+	@Override
+	public List<TaskAnalysis> getTaskAll(String year,String compType){
+			try {
+			String hql0="from TaskAnalysis where  create_time like :param";
+			String hql1="from TaskAnalysis where  status ='审定完成' and create_time like :param";
+			String hql2="from TaskAnalysis where  status !='审定完成' and create_time like :param";
+		
+			// 编绘任务完成情况
+			    	//全部计划
+				if (compType.equals("0")) {	return this.getSession().createQuery(hql0).setString("param", "%"+year+"%").list();};
+				// 已完成
+				if (compType.equals("1")) {	return this.getSession().createQuery(hql1).setString("param", "%"+year+"%").list();};
+				// 未完成
+				if (compType.equals("2")) {	return this.getSession().createQuery(hql2).setString("param", "%"+year+"%").list();};
+
+			return null;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+	
+	
+	//计划 临时表编绘任务完成情况
+	@Override
+	public List<TaskPlan> getTaskAllPlan(String year,String compType){
+			try {
+			String hql0="from TaskPlan where  create_time like :param";
+			String hql1="from TaskPlan where  status ='审定完成' and create_time like :param";
+			String hql2="from TaskPlan where  status !='审定完成' and create_time like :param";
+		
+			// 编绘任务完成情况
+			    	//全部计划
+				if (compType.equals("0")) {	return this.getSession().createQuery(hql0).setString("param", "%"+year+"%").list();};
+				// 已完成
+				if (compType.equals("1")) {	return this.getSession().createQuery(hql1).setString("param", "%"+year+"%").list();};
+				// 未完成
+				if (compType.equals("2")) {	return this.getSession().createQuery(hql2).setString("param", "%"+year+"%").list();};
+
+			return null;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+	/**
+	 * 	//编绘计划已完成带年份 新
+	 */
+	public List<HiTask> getCompleteTaskByYear(List<String> processDefKeys, String page, String pageSize) {
+		String sql = "SELECT task_id,process_def_id,task_def_id,process_def_name,process_def_key,process_inst_id,execution_id,task_name,assignee,assignee_name,start_time,end_time,claim_time,delete_reason,parent_process_inst_id,group_id,group_name,process_end_time,record_id FROM (SELECT ROW_NUMBER() OVER(PARTITION BY PROCESS_INST_ID ORDER BY PROCESS_END_TIME DESC) rn,V_HI_TASK.* FROM  V_HI_TASK where PROCESS_DEF_KEY in  (:processDefKeys) and PROCESS_END_TIME is not null) WHERE rn = 1";
+		SQLQuery query = this.getSession().createSQLQuery(sql);
+		query.setParameterList("processDefKeys", processDefKeys);
+		query.addEntity(HiTask.class);
+		List<HiTask> list = query.setFirstResult((Integer.parseInt(page) - 1) * Integer.parseInt(pageSize))
+				.setMaxResults(Integer.parseInt(pageSize)).list();
+		return list;
+	}
+  
+  
+}

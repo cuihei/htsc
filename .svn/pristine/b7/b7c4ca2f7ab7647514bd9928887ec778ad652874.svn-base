@@ -1,0 +1,32 @@
+package com.ht.front.model;
+
+
+/**
+ * 复选框
+ * @author Administrator
+ * @date 2016/10/15
+ */
+public class Input extends Base{
+	/**
+	 * 构造器
+	 * @param id id属性
+	 * @param type type属性
+	 * @param name name属性
+	 * @param value value属性
+	 * @param css class属性
+	 * @param placeholder placeholder属性
+	 */
+	protected Input(String id, String name,String value,String content) {
+		super("checkbox", id, name,value,null,null,content);
+	}
+	
+	/**
+	 * 获取一个复选框
+	 * @param id 复选框ID
+	 * @param value 复选框value
+	 * @return 复选框
+	 */
+	public static Input getInstance(String id, String name,String value,String content){
+		return new Input(id,name,value,content);
+	}
+}

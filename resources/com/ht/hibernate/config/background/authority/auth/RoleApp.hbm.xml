@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.authority.auth.RoleApp" table="ROLE_APPLICATION_RELATION">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="roleId" type="java.lang.String">
+            <column name="role_id" />
+        </property>
+        <property name="appId" type="java.lang.String">
+            <column name="app_id" />
+        </property>
+        <property name="write" type="java.lang.Integer">
+            <column name="write" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getRoleApp">
+    	<![CDATA[ from RoleApp]]>
+    </query>
+    <query name="getAppsByRoleId">
+    	<![CDATA[ from RoleApp where roleId= :roleId  order by appId]]> 
+    </query>
+     <query name="getAppsByAppId">
+    	<![CDATA[ from RoleApp where appId= :appId]]> 
+    </query>
+</hibernate-mapping>

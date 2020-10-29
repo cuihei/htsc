@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.background.dicdata.defect.Defect" table="DEFECTIVE">
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>      
+        <property name="discription" type="java.lang.String">
+            <column name="discription" />
+        </property>
+        
+        <property name="deep" type="java.lang.String">
+            <column name="deep" />
+        </property>
+        
+        <property name="score" type="java.lang.String">
+            <column name="score" />
+        </property>
+        
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        
+        <many-to-one name="charttype" column="chart_type"  fetch="select" cascade="none" class="com.ht.persistence.model.background.dicdata.basedata.BaseData" lazy="false" 
+        not-found="ignore">
+        </many-to-one>
+        
+       <many-to-one name="type" column="defect_type"  fetch="select" cascade="none" class="com.ht.persistence.model.background.dicdata.defecttype.DefectType" lazy="false" 
+        not-found="ignore">
+        </many-to-one>
+        
+        <many-to-one name="item" column="defect_item"  fetch="select" cascade="none" class="com.ht.persistence.model.background.dicdata.defectitem.DefectItem" lazy="false" 
+        not-found="ignore">
+        </many-to-one>   
+       	
+    </class>
+    <query name="getDefectByCtIdAndDtIdAndItemIdAndDefect">
+    	<![CDATA[ from Defect where charttype.id = :charttypeId and type.id = :defecttypeId and item.id = :itemId and discription = :discription]]>
+    </query>
+    <query name="getDefectListBy3Id">
+    	<![CDATA[ from Defect where charttype.id = :charttypeId and type.id = :defecttypeId and item.id = :itemId]]>
+    </query>
+    <query name="getDefectList">
+    	<![CDATA[ from Defect]]>
+    </query>
+    <query name="getDefectById">
+    	<![CDATA[ from Defect where id = :id]]>
+    </query>
+    <query name="getDefectByDefectItemId">
+    	<![CDATA[ from Defect where item.id = :defectitemId]]>
+    </query>
+</hibernate-mapping>

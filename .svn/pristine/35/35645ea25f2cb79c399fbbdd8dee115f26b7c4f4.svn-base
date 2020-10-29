@@ -1,0 +1,136 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8" %>
+<META HTTP-EQUIV="pragma" CONTENT="no-cache"> 
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
+<META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT"> 
+<META HTTP-EQUIV="expires" CONTENT="0"> 
+<%@ include file="../../TagLibs.jsp"%>
+<jsp:include page="../../Main.jsp"></jsp:include>
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/drawtask/taskbook/TaskBook_edit.js"></script>
+<input type="hidden" id="processInstId" value="${processInstId}">
+<input type="hidden" id="taskId" value="${taskId}">
+<input type="hidden" id="revision" value="">
+<style>
+	.page_footer{
+		display:block;
+		padding-top:5px;
+	    text-align: right;
+    	font-size: 15px;
+	}
+	#taskbookNo{
+	float: right;}
+	#Enclosure{
+		font-size: 15px;
+		color: white;
+	}
+	#Enclosure:hover{
+		    background-color: #5cb85c;
+ 			border-color: #5cb85c;
+	}
+	#Enclosure:active {
+		    background-color: #5cb85c;
+ 			border-color: #5cb85c;
+	}
+	#Enclosure:visited{
+		    background-color: #5cb85c;
+ 			border-color: #5cb85c;
+	}
+	.modal-dialog {
+   		margin: 5% auto;
+	}
+	textarea {
+    	resize: none;
+	}
+	#myModal{
+		 overflow-y : hidden;  
+	 }
+	 .container-fluid{
+	 	height: 1111px;
+	 }
+#edithightId{ padding: 5px 0px 5px 0px}
+  .edithighttab{ padding: 5px 0px 5px 0px}
+</style>
+
+
+
+
+
+<table id="xdtbl"  border="1" cellpadding="0"  cellspacing="0"  bordercolor="#ccc"  style="border-collapse:collapse; width: 100%">
+<colgroup>
+<col style="width:10%">
+<col style="width:70%">
+<col style="width:10%">
+<col style="width:10%">
+</colgroup>
+<thead role="rowgroup">
+<tr role="row" style=" height: 20px;">
+<th scope="col" role="columnheader" rowspan="1" data-title="修改时间" data-index="2"  class="k-header k-with-icon k-filterable" data-role="columnsorter" style="font-size: 13px; text-align: center;">修订日期</th>
+<th scope="col" role="columnheader" rowspan="1" data-title="修改内容" data-index="2"  class="k-header k-with-icon k-filterable" data-role="columnsorter" style="font-size: 13px;text-align: center;">修订内容</th>
+<th scope="col" role="columnheader" rowspan="1" data-title="修订人" data-index="2"  class="k-header k-with-icon k-filterable" data-role="columnsorter" style="font-size: 13px;text-align: center;">修订人</th>
+<th scope="col" role="columnheader" rowspan="1" data-title="操作" data-index="2"  class="k-header k-with-icon k-filterable" data-role="columnsorter" style="font-size: 13px;text-align: center;">操   作</th>
+</tr>
+</thead>
+<tbody>
+    <tr id="edittr">
+        <td align="center"  id="data_1"  style="font-size: 13px;">${strDate}</td>
+        <td><textarea rows="3" cols="20"  id="editcount_1" style="width: 100%; height: 100%; outline:none;background:none;border: none; font-size: 13px; line-height: 20px;" ></textarea></td>
+        <td align="center"   style="font-size: 13px;"><input disabled="disabled" id="czr_1" style="text-align:center; border: none;background: none;outline: none;width: 100%;font-size: 13px;" type="text" value="${username}"></td>
+        <td align="center"><input id="add_1" type="button"  style="font-size: 13px;" value="新增"   onclick="addedit()"/></td>
+    </tr>
+</tbody>
+</table>
+
+
+
+<script type="text/javascript">
+
+function addedit(){
+	var taskbookid=$("#taskBookId").val();
+	var editcount=$.trim($("#editcount_1").val());
+	var creatro=$.trim($("#czr_1").val());
+	var taskbookNo=$("#taskbookNo").val();
+	var nowtime=$("#data_1").html();
+	// 	判断是否为编绘管理员，如果不是跳过新增操作
+	 if(creatro.indexOf("周志宏") >= 0||creatro.indexOf("徐卫国") >= 0 ){
+		 
+		 if(editcount.length>0){
+				 
+				 $.ajax({
+						type :"POST",
+						url :"../taskbook/editcontent",
+						dataType : "json",
+						data : {
+							taskbookid : taskbookid,
+							editcount : editcount,
+							creatro : creatro,
+							taskbookNo:taskbookNo,
+							nowtime:nowtime
+								},
+				       success : function(data){
+				      		if(data=="1"){ layer.msg("操作成功!");
+				      	
+				      		setTimeout(function () {location.reload(); }, 1000);
+
+				      		}
+				         
+			
+						}
+						});
+		      }else{layer.msg("请先添加”修订内容“，再点击新增！");}
+	
+	 
+	 
+	 }else{layer.msg("SORRY, 您的权限无法修订任务书！");}
+	
+};
+
+</script>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<msgs>
+	<type type="load">
+		<msg code="1" msgEn="Load successfully!" msgZh="加载成功"></msg>
+		<msg code="0" msgEn="Load failure!" msgZh="加载失败"></msg>
+	</type>
+	
+	<type type="add">
+		<msg code="1" msgEn="Add successfully!" msgZh="添加成功"></msg>
+		<msg code="0" msgEn="Add failure!" msgZh="添加失败"></msg>
+	</type>
+	
+	<type type="edit">
+		<msg code="1" msgEn="Edit successfully!" msgZh="编辑成功"></msg>
+		<msg code="0" msgEn="Edit failure!" msgZh="编辑失败"></msg>
+	</type>
+	
+	<type type="remove">
+		<msg code="1" msgEn="Remove successfully!" msgZh="删除成功"></msg>
+		<msg code="0" msgEn="Remove failure!" msgZh="删除失败"></msg>
+	</type>
+	
+	<type type="alloc">
+		<msg code="1" msgEn="Alloc successfully!" msgZh="分配成功"></msg>
+		<msg code="0" msgEn="Alloc failure!" msgZh="分配失败"></msg>
+	</type>
+	
+	<type type="login">
+		<msg code="1" msgEn="Login successfully!" msgZh="登录成功"></msg>
+		<msg code="0" msgEn="Login failure!" msgZh="登录失败"></msg>
+		<msg code="2" msgEn="UserNo can not be empty!" msgZh="请输入用户名！"></msg>
+		<msg code="3" msgEn="password can not be empty" msgZh="请输入密码！"></msg>
+	</type>
+	
+	<type type="process">
+		<msg code="0" msgEn="The approval role was set successfully!" msgZh="设置审批角色成功"></msg>
+		<msg code="1" msgEn="The consent option can not be null!" msgZh="同意选项不能为空"></msg>
+		<msg code="2" msgEn="The flow setting is successfully!" msgZh="设置流向成功"></msg>
+		<msg code="3" msgEn="Please fill in the process name!" msgZh="请填写流程名称"></msg>
+		<msg code="4" msgEn="The task list can not be empty!" msgZh="任务列表不能为空"></msg>
+	</type>
+</msgs>

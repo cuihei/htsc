@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.datum.datum.BorrowingReturn" table="V_BORROWING_RETURN_BOOK">
+
+		<id name="id" type="java.lang.String">
+            <column name="id" />
+        </id>
+        <property name="borrowId" type="java.lang.String">
+            <column name="borrow_id" />
+        </property>
+  		<property name="borrowCode" type="java.lang.String">
+            <column name="borrow_code" />
+        </property>
+        <property name="type" type="java.lang.String">
+            <column name="type" />
+        </property>
+        <property name="borrowBookName" type="java.lang.String">
+            <column name="borrow_book_name" />
+        </property>
+        <property name="jystatus" type="java.lang.String">
+            <column name="jystatus" />
+        </property>
+         <property name="ghstatus" type="java.lang.String">
+            <column name="ghstatus" />
+        </property>
+        <property name="borrowPerson" type="java.lang.String">
+            <column name="borrow_person" />
+        </property>
+        <property name="borrowDate" type="date">
+            <column name="borrow_date" />
+        </property>
+        <property name="borrowNo" type="java.lang.String">
+            <column name="borrow_no" />
+        </property>
+        <property name="returnDate" type="date">
+            <column name="return_date" />
+        </property>
+        <property name="returnNo" type="java.lang.String">
+            <column name="return_no" />
+        </property>
+         <property name="returnPerson" type="java.lang.String">
+            <column name="return_person" />
+         </property>
+    </class>
+    <query name="getBorrowingReturnList">
+    	<![CDATA[from BorrowingReturn order by borrowId]]>
+    </query>
+    <query name="getBorrowingReturnListByPerson">
+    	<![CDATA[from BorrowingReturn where borrowPerson = :borrowPerson order by borrowId]]>
+    </query>
+</hibernate-mapping>

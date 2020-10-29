@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.catalog.history.HistoryCatalogDetail" table="history_catalog_detail">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        <property name="detailId" type="java.lang.String">
+            <column name="detail_id" />
+        </property>
+        <property name="categoryId" type="java.lang.String">
+            <column name="category_id" />
+        </property>
+        <property name="areaId" type="java.lang.String">
+            <column name="area_id" />
+        </property>
+        <property name="mapNo" type="java.lang.String">
+            <column name="map_no" />
+        </property>
+        <property name="mapName" type="java.lang.String">
+            <column name="map_name" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="starLongitude" type="java.lang.String">
+            <column name="east_longitude" />
+        </property>
+        <property name="endLongitude" type="java.lang.String">
+            <column name="west_longitude" />
+        </property>
+        <property name="starLatitude" type="java.lang.String">
+            <column name="north_latitude" />
+        </property>
+        <property name="endLatitude" type="java.lang.String">
+            <column name="south_latitude" />
+        </property>
+        <property name="nature" type="java.lang.String">
+            <column name="nature" />
+        </property>
+         <property name="measurementPeriod" type="java.lang.String">
+            <column name="measurement_period" />
+        </property>
+         <property name="publicationYear" type="java.lang.String">
+            <column name="publication_year" />
+        </property>
+         <property name="datumLatitude" type="java.lang.String">
+            <column name="datum_latitude" />
+        </property>
+         <property name="mapProportion" type="java.lang.String">
+            <column name="map_proportion" />
+        </property>
+        <property name="adjustmentProperty" type="java.lang.String">
+            <column name="adjustment_property" />
+        </property>
+        <property name="publicationDate" type="java.util.Date">
+            <column name="publication_date" />
+        </property>
+        <property name="remarks" type="java.lang.String">
+            <column name="remarks" />
+        </property>
+        <property name="printNum" type="java.lang.String">
+            <column name="print_num" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+        
+    </class>
+    <query name="getHistoryList">
+    	<![CDATA[ from HistoryCatalogDetail]]>
+    </query>
+    
+    <query name="getHistoryListByCategoryId">
+    	<![CDATA[ from HistoryCatalogDetail where categoryId= :categoryId]]>
+    </query>
+</hibernate-mapping>

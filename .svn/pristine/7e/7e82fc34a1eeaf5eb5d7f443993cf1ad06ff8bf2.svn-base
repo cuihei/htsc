@@ -1,0 +1,245 @@
+package com.ht.persistence.model.system.workflow.task;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+/**
+ * 流程待办实体
+ * @author 王有为
+ * @date 2016/10/31
+ */
+@Entity
+@Table(name = "V_RU_TASK")
+public class RuTask {
+	/**
+	 *  流程定义ID
+	 */
+	private String processDefId = null;
+
+	/**
+	 *  流程定义KEY
+	 */
+	private String processDefKey = null;
+	
+	/**
+	 *  流程定义ID
+	 */
+	private String processDefName = null;
+	
+	/**
+	 *  任务定义ID
+	 */
+	private String taskDefId = null;
+	
+	/**
+	 *  流程实例ID
+	 */
+	private String processInstId = null;
+	
+	/**
+	 *  任务实例ID
+	 */
+	private String taskInstId = null;
+	
+	/**
+	 *  任务名称
+	 */
+	private String taskName = null;
+	
+	/**
+	 *  任务受理人
+	 */
+	private String assignee = null;
+	
+	/**
+	 *  任务受理人名称
+	 */
+	private String assigneeName = null;
+	
+	/**
+	 *  任务受理组
+	 */
+	private String groupId = null;
+	
+	/**
+	 * 任务受理组
+	 */
+	private String groupName = null;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
+	
+	/**
+	 *  主流程ID
+	 */
+	private String mainProcessInstId = null;
+	
+	/**
+	 *  父流程ID
+	 */
+	private String parentProcessInstId = null;
+	
+	/**
+	 * 任务挂起状态 1 激活 2挂起
+	 */
+	private Integer suspendState = null; 
+
+	/**
+	 * 流程结束时间
+	 */
+	private Date endTime = null;
+	
+	/**
+	 * 任务执行ID
+	 */
+	private String excutionId = null;
+	
+	public String getProcessDefId() {
+		return processDefId;
+	}
+
+	public void setProcessDefId(String processDefId) {
+		this.processDefId = processDefId;
+	}
+
+	public String getTaskDefId() {
+		return taskDefId;
+	}
+
+	public void setTaskDefId(String taskDefId) {
+		this.taskDefId = taskDefId;
+	}
+
+	public String getProcessInstId() {
+		return processInstId;
+	}
+
+	public void setProcessInstId(String processInstId) {
+		this.processInstId = processInstId;
+	}
+
+	public String getTaskInstId() {
+		return taskInstId;
+	}
+
+	public void setTaskInstId(String taskInstId) {
+		this.taskInstId = taskInstId;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+	
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getProcessDefName() {
+		return processDefName;
+	}
+
+	public void setProcessDefName(String processDefName) {
+		this.processDefName = processDefName;
+	}
+
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+	
+	public String getMainProcessInstId() {
+		return mainProcessInstId;
+	}
+
+	public void setMainProcessInstId(String mainProcessInstId) {
+		this.mainProcessInstId = mainProcessInstId;
+	}
+
+	public String getParentProcessInstId() {
+		return parentProcessInstId;
+	}
+
+	public void setParentProcessInstId(String parentProcessInstId) {
+		this.parentProcessInstId = parentProcessInstId;
+	}
+
+	public String getAssignee() {
+		return assignee;
+	}
+
+	public void setAssignee(String assignee) {
+		this.assignee = assignee;
+	}
+
+	public Integer getSuspendState() {
+		return suspendState;
+	}
+
+	public void setSuspendState(Integer suspendState) {
+		this.suspendState = suspendState;
+	}
+
+	public String getProcessDefKey()
+	{
+		return processDefKey;
+	}
+
+	public void setProcessDefKey(String processDefKey)
+	{
+		this.processDefKey = processDefKey;
+	}
+
+	public String getGroupName()
+	{
+		return groupName;
+	}
+
+	public void setGroupName(String groupName)
+	{
+		this.groupName = groupName;
+	}
+
+	public Date getEndTime()
+	{
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime)
+	{
+		this.endTime = endTime;
+	}
+
+	public String getExcutionId()
+	{
+		return excutionId;
+	}
+
+	public void setExcutionId(String excutionId)
+	{
+		this.excutionId = excutionId;
+	}
+
+	public String getAssigneeName()
+	{
+		return assigneeName;
+	}
+
+	public void setAssigneeName(String assigneeName)
+	{
+		this.assigneeName = assigneeName;
+	}
+}

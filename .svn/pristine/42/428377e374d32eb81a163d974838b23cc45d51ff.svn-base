@@ -1,0 +1,407 @@
+package com.ht.front.pages.complication.formprop;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ht.front.css.CssClass;
+import com.ht.front.css.Prop;
+import com.ht.front.model.Base;
+import com.ht.front.model.Button;
+import com.ht.front.model.Div;
+import com.ht.front.model.I;
+import com.ht.front.model.InputGroup;
+import com.ht.front.model.InputHidden;
+import com.ht.front.model.Script;
+import com.ht.front.model.Select;
+import com.ht.front.model.Span;
+import com.ht.front.model.TextArea;
+import com.ht.front.template.EditPage;
+import com.ht.front.template.ListPage;
+import com.ht.front.util.FrontUtil;
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.background.dicdata.type.Type;
+import com.ht.persistence.model.complication.form.Form;
+import com.ht.persistence.model.complication.formprop.FormProp;
+import com.ht.service.inter.complication.formprop.FormPropService;
+
+/**
+ * 表单属性类前台页面初始化类
+ */
+public class FormPropPage
+{
+
+	/**
+	 * 页面实例
+	 */
+	private static FormPropPage page = null;
+
+	/**
+	 * 获取页面实例
+	 * @return
+	 */
+	public static FormPropPage getInstance()
+	{
+		if (page == null)
+		{
+			page = new FormPropPage();
+		}
+		return page;
+	}
+
+	/**
+	 * 初始化页面
+	 * @return 节点字符串
+	 */
+	public String getListPage(String formId)
+	{
+		// 创建前端工具实例
+		FrontUtil util = FrontUtil.getInstance();
+		// 创建一个容器
+		Base root = util.createRoot();
+		util.createHeaderBar(root, "表单属性管理");
+		util.createRowSpace(root);
+		/** 创建按钮组行 开始 */
+		// 创建行
+		Base rowBg = util.createRow(root);
+		// 创建按钮组
+		Base column = util.createColumn(rowBg, "12", "12", "12", null);
+		// 构建创建div
+		CssClass css = new CssClass("fa fa-plus");
+		I i = I.getInstance(css);
+		css = new CssClass("btn btn-success btn-setting search");
+		Button button = Button.getButtonWithIcon("add", css, "添加", i);
+		column.addChildNode(button);
+		// 构建删除div
+		css = new CssClass("fa fa-times");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-danger bk-margin-5 search");
+		button = Button.getButtonWithIcon("remove", css, "删除", i);
+		column.addChildNode(button);
+		// 构建刷新按钮
+		css = new CssClass("fa fa-refresh");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-warning bk-margin-5 search");
+		button = Button.getButtonWithIcon("refresh", css, "刷新", i);
+		column.addChildNode(button);
+		// 构建返回按钮
+		css = new CssClass("fa fa-mail-reply-all");
+		i = I.getInstance(css);
+		css = new CssClass("btn btn-success bk-margin-5 search");
+		Button buttons = Button.getButtonWithIcon("back", css, "返回", i);
+		column.addChildNode(buttons);
+		/** 创建按钮组行 结束 */
+		// 创建一个行间隔
+		Base rowSpace = util.createRowSpace(root);
+		/** 创建Grid行 开始 */
+		// 创建Grid
+		Base rowGrid = util.createGrid(root, "formProp");
+		/** 创建Grid行 结束 */
+		// 创建表单id隐藏域
+		InputHidden hid = InputHidden.getInstance("form_id", formId);
+		root.addChildNode(hid);
+		/** 创建Grid行 结束 */
+		// 添加编辑按钮
+		CssClass editCss = new CssClass("fa fa-edit");
+		I editI = I.getInstance(editCss);
+		editCss = new CssClass("btn btn-success bk-margin-4");
+		Button tempelate = Button.getButtonWithIcon(null, editCss, null, editI);
+		Prop prop = new Prop();
+		prop.setPropKey("name");
+		prop.setPropValue("editFormProp");
+		// 绑定属性
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("title");
+		prop.setPropValue("编辑");
+		tempelate.addProp(prop);
+		prop = new Prop();
+		prop.setPropKey("onclick");
+		prop.setPropValue("editPage(this)");
+		tempelate.addProp(prop);
+		Script script = Script.getInstance("editTemplate");
+		script.addChildNode(tempelate);
+		return root.getNode() + script.getNode();
+	}
+
+	/**
+	 * 初始化新增/编辑页面
+	 * @return 节点字符串
+	 */
+	public String getEditPage(FormPropService service, String id, List<Form> formList, List<BaseData> baseDataList, String formId,
+			List<BaseData> requiredList,List<Type> list)
+	{
+		EditPage edit = new EditPage();
+		FrontUtil util = FrontUtil.getInstance();
+		List<Base> param = new ArrayList<Base>();
+		Base editPage = null;
+		// 获取数据
+		try
+		{
+			if (id != null)
+			{
+				FormProp formProp = service.getFormProp(id);
+//				Base base1 = util.creatDefaultSelectGroup("所属表单", "formId", formList, "id", "name", formId);
+//				Prop prop = new Prop();
+//				prop.setPropKey("disabled");
+//				prop.setPropValue("disabled");
+//				base1.addProp(prop);
+//				param.add(base1);
+
+				InputGroup tb = InputGroup.getInGroup("属性键", "propKey", formProp.getPropKey(), "请输入属性键");
+				param.add(tb);
+				tb = InputGroup.getInGroup("属性名称", "propName", formProp.getPropName(), "请输入属性名称");
+				param.add(tb);
+				Base base = util.creatDefaultSelectGroup("属性类型", "propType", baseDataList, "value", "value", formProp.getPropType());
+				param.add(base);
+				Div hiddenDiv = Div.getBlankDiv("hiddenDiv");
+				Prop prop = new Prop("style","display:none");
+				hiddenDiv.addProp(prop);
+				// 创建下拉菜单按钮
+				CssClass css = new CssClass("input-group");
+				Div div = Div.getInstance(null, css, null);
+				css = new CssClass("fa fa-plus");
+				I i = I.getInstance(css);
+				css = new CssClass("btn btn-success bk-margin-1 btn-setting");
+				Button button = Button.getButtonWithIcon("addBaseData", css, "选择下拉菜单数据", i);
+				div.addChildNode(button);
+				hiddenDiv.addChildNode(div);
+
+				/** 创建Modal Dialog 开始 */
+				CssClass modelCss = new CssClass("modal fade");
+				Div modalDiv = Div.getInstance("myModal", modelCss, null);
+				// 创建div
+				CssClass dialogCss = new CssClass("modal-dialog");
+				Div dialogDiv = Div.getInstance(null, dialogCss, null);
+				modalDiv.addChildNode(dialogDiv);
+				// 创建div
+				CssClass contentCss = new CssClass("modal-content");
+				Div contentDiv = Div.getInstance(null, contentCss, null);
+				dialogDiv.addChildNode(contentDiv);
+				// 创建header div
+				CssClass headerCss = new CssClass("modal-header");
+				Div headerDiv = Div.getInstance(null, headerCss, null);
+				contentDiv.addChildNode(headerDiv);
+
+				CssClass footerCss = new CssClass("modal-footer");
+				Div footerDiv = Div.getInstance("select", footerCss, null);
+				contentDiv.addChildNode(footerDiv);
+
+				// 构建关闭按钮
+				CssClass closeCss = new CssClass("close");
+				Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+				Prop closeProp = new Prop();
+				closeProp.setPropKey("data-dismiss");
+				closeProp.setPropValue("modal");
+				Prop closeProps = new Prop();
+				closeProps.setPropKey("aria-hidden");
+				closeProps.setPropValue("true");
+				// 绑定属性
+				closeBtn.addProp(closeProp);
+				closeBtn.addProp(closeProps);
+				headerDiv.addChildNode(closeBtn);
+				// 创建标题div
+				CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+				Div titleDiv = Div.getInstance(null, titleCss, "编辑下拉菜单数据");
+				headerDiv.addChildNode(titleDiv);
+
+				Div bodyDiv = Div.getBlankDiv("form_base");
+				headerDiv.addChildNode(bodyDiv);
+
+				Span spanText = Span.getInstance(null, "请在选择字典数据和手动录入下拉列表数据中，选择一个作为下拉列表值，如果都填，默认是字典数据。");
+				bodyDiv.addChildNode(spanText);
+				InputGroup modelText =InputGroup.getSelectGroup("选择字典数据","selectType", list, "id", "name",formProp.getSelectDic());
+				bodyDiv.addChildNode(modelText);
+				bodyDiv.addChildNode(util.createRowSpace());
+				modelText = InputGroup.getInGroup("下拉列表数据", "selectKey", formProp.getSelectData(), "请输入下拉列表的值，多个之间用逗号分隔");
+				bodyDiv.addChildNode(modelText);
+
+				// 构建确定按钮
+				CssClass importCss = new CssClass("import-submit btn btn-primary");
+				Button importBtn = Button.getInstance("importSubmit", importCss, "确定");
+				Prop importProp = new Prop();
+				importProp.setPropKey("data-dismiss");
+				importProp.setPropValue("modal");
+				importBtn.addProp(importProp);
+				headerDiv.addChildNode(importBtn);
+				/** Modal Dialog 结束 */
+
+				// 接收隐藏域的值
+				InputHidden hiddenText = InputHidden.getInstance("selectData", null);
+				Prop prop2 = new Prop();
+				prop2.setPropKey("value");
+				prop2.setPropValue(formProp.getSelectData());
+				hiddenText.addProp(prop2);
+				param.add(hiddenDiv);
+				hiddenText = InputHidden.getInstance("selectDic", null);
+				prop2 = new Prop();
+				prop2.setPropKey("value");
+				prop2.setPropValue(formProp.getSelectDic());
+				hiddenText.addProp(prop2);
+				tb = InputGroup.getInGroup("排序", "num", formProp.getNum(), "请输入排序值");
+				param.add(tb);
+				// 创建是否必填项下拉菜单
+				tb = InputGroup.getSelectGroup("是否必填项", "required", requiredList, "value", "value", formProp.getRequired());
+				param.add(tb);
+
+				css = new CssClass("input-group-addon");
+				Span span = Span.getInstance(css, "默认属性值");
+				css = new CssClass("form-control");
+				TextArea textArea = TextArea.getInstance("propDefaultValue", css, "5", formProp.getPropDefaultValue());
+				css = new CssClass("input-group");
+				Div divText = Div.getInstance(null, css, null);
+				divText.addChildNode(span);
+				divText.addChildNode(textArea);
+				param.add(divText);
+
+				editPage = edit.createRowEditPage(param);
+				InputHidden hidden = InputHidden.getInstance("formPropId", id);
+				editPage.addChildNode(hidden);
+				InputHidden hidden1 = InputHidden.getInstance("form_id", formId);
+				editPage.addChildNode(hidden1);
+				editPage.addChildNode(modalDiv);
+				editPage.addChildNode(hiddenText);
+			}
+			else
+			{
+//				Base base1 = util.creatDefaultSelectGroup("所属表单", "formId", formList, "id", "name", formId);
+//				Prop prop = new Prop();
+//				prop.setPropKey("disabled");
+//				prop.setPropValue("disabled");
+//				base1.addProp(prop);
+//				param.add(base1);
+
+				InputGroup tb = InputGroup.getInGroup("属性键", "propKey", null, "请输入属性键");
+				param.add(tb);
+				tb = InputGroup.getInGroup("属性名称", "propName", null, "请输入属性名称");
+				param.add(tb);
+
+				Span parentIdSpan = Span.getDefault("属性类型");
+				Select parentIdSelect = Select.getDefaultWithOption("propType", baseDataList, "value", "value", false);
+				param.add(InputGroup.getInstance(parentIdSpan, parentIdSelect));
+				
+				Div hiddenDiv = Div.getBlankDiv("hiddenDiv");
+				Prop prop = new Prop("style","display:none");
+				hiddenDiv.addProp(prop);
+				// 创建下拉菜单按钮
+				CssClass css = new CssClass("input-group");
+				Div div = Div.getInstance(null, css, null);
+				css = new CssClass("fa fa-plus");
+				I i = I.getInstance(css);
+				css = new CssClass("btn btn-success bk-margin-1 btn-setting");
+				Button button = Button.getButtonWithIcon("addBaseData", css, "编辑下拉菜单数据", i);
+				div.addChildNode(button);
+				hiddenDiv.addChildNode(div);
+				/** 创建Modal Dialog 开始 */
+				CssClass modelCss = new CssClass("modal fade");
+				Div modalDiv = Div.getInstance("myModal", modelCss, null);
+				// 创建div
+				CssClass dialogCss = new CssClass("modal-dialog");
+				Div dialogDiv = Div.getInstance(null, dialogCss, null);
+				modalDiv.addChildNode(dialogDiv);
+				// 创建div
+				CssClass contentCss = new CssClass("modal-content");
+				Div contentDiv = Div.getInstance(null, contentCss, null);
+				dialogDiv.addChildNode(contentDiv);
+				// 创建header div
+				CssClass headerCss = new CssClass("modal-header");
+				Div headerDiv = Div.getInstance(null, headerCss, null);
+				contentDiv.addChildNode(headerDiv);
+
+				CssClass footerCss = new CssClass("modal-footer");
+				Div footerDiv = Div.getInstance("select", footerCss, null);
+				contentDiv.addChildNode(footerDiv);
+
+				// 构建关闭按钮
+				CssClass closeCss = new CssClass("close");
+				Button closeBtn = Button.getInstance(null, closeCss, "&times;");
+				Prop closeProp = new Prop();
+				closeProp.setPropKey("data-dismiss");
+				closeProp.setPropValue("modal");
+				Prop closeProps = new Prop();
+				closeProps.setPropKey("aria-hidden");
+				closeProps.setPropValue("true");
+				// 绑定属性
+				closeBtn.addProp(closeProp);
+				closeBtn.addProp(closeProps);
+				headerDiv.addChildNode(closeBtn);
+				// 创建标题div
+				CssClass titleCss = new CssClass("modal-title bk-fg-primary model-custom");
+				Div titleDiv = Div.getInstance(null, titleCss, "编辑下拉列表数据");
+				headerDiv.addChildNode(titleDiv);
+
+				Div bodyDiv = Div.getBlankDiv("form_base");
+				headerDiv.addChildNode(bodyDiv);
+				Span spanText = Span.getInstance(null, "请在选择字典数据和手动录入下拉列表数据中，选择一个作为下拉列表值，如果都填，默认是字典数据。");
+				bodyDiv.addChildNode(spanText);
+				InputGroup modelText = InputGroup.getSelectGroup("选择字典数据","selectType", list, "id", "name",false);
+				bodyDiv.addChildNode(modelText);
+				bodyDiv.addChildNode(util.createRowSpace());
+				modelText = InputGroup.getInGroup("手动录入下拉列表数据", "selectKey", null, "请输入下拉列表的值，多个之间用逗号分隔");
+				bodyDiv.addChildNode(modelText);
+
+				// 构建确定按钮
+				CssClass importCss = new CssClass("import-submit btn btn-primary");
+				Button importBtn = Button.getInstance("importSubmit", importCss, "确定");
+				Prop importProp = new Prop();
+				importProp.setPropKey("data-dismiss");
+				importProp.setPropValue("modal");
+				importBtn.addProp(importProp);
+				headerDiv.addChildNode(importBtn);
+				/** Modal Dialog 结束 */
+				param.add(hiddenDiv);
+				tb = InputGroup.getInGroup("排序", "num", null, "请输入排序值");
+				param.add(tb);
+				// 接收隐藏域的值
+				InputHidden hiddenText = InputHidden.getInstance("selectData", null);
+				Prop prop2 = new Prop();
+				prop2.setPropKey("value");
+				prop2.setPropValue("");
+				hiddenText.addProp(prop2);
+				
+				hiddenText = InputHidden.getInstance("selectDic", null);
+				prop2 = new Prop();
+				prop2.setPropKey("value");
+				prop2.setPropValue("");
+				hiddenText.addProp(prop2);
+				// 创建是否必填项下拉菜单
+				tb = InputGroup.getSelectGroup("是否必填项", "required", requiredList, "value", "value", true);
+				param.add(tb);
+				css = new CssClass("input-group-addon");
+				Span span = Span.getInstance(css, "默认属性值");
+				css = new CssClass("form-control");
+				TextArea textArea = TextArea.getInstance("propDefaultValue", css, "5", "");
+				css = new CssClass("input-group");
+				Div divText = Div.getInstance(null, css, null);
+				divText.addChildNode(span);
+				divText.addChildNode(textArea);
+				param.add(divText);
+				editPage = edit.createRowEditPage(param);
+				InputHidden hidden1 = InputHidden.getInstance("form_id", formId);
+				editPage.addChildNode(hiddenText);
+				editPage.addChildNode(hidden1);
+				editPage.addChildNode(modalDiv);
+			}
+			// 返回节点字符串
+			return editPage.getNode();
+		}
+		catch (Exception e)
+		{
+			return e.getMessage();
+		}
+	}
+
+	/**
+	 * 初始化基础数据
+	 */
+	public String getFormBaseListPage()
+	{
+		ListPage list = new ListPage();
+		// 创建一个列表
+		Base listPage = list.createSubmitListPage("", "formPd");
+		// InputHidden hidden = InputHidden.getInstance("roleId", id);
+		// listPage.addChildNode(hidden);
+		// 返回节点字符串
+		return listPage.getNode();
+	}
+
+}

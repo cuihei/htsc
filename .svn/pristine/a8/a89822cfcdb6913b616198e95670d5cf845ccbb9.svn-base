@@ -1,0 +1,35 @@
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8" %>
+<%@ include file="../../TagLibs.jsp"%>
+<link rel="stylesheet" type="text/css" href="${STYLES_PATH}/admin.css" />
+<link rel="stylesheet" type="text/css" href="${STYLES_PATH}/tablecloth.min.css" />
+<link rel="stylesheet" type="text/css" href="${STYLES_PATH}/responsive.css" />
+<link href="${RESOURCE_PATH}/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+<link href="${RESOURCE_PATH}/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="${STYLES_PATH}/style.css" rel="stylesheet" />
+<link href="${STYLES_PATH}/custom.css" rel="stylesheet"></link>
+<link rel="stylesheet" type="text/css" href="${STYLES_PATH}/common.min.css" />
+<html>
+<head>
+</head>
+<body>
+	${html}
+</body>
+</html>
+<script src="${RESOURCE_PATH}/jquery/jquery-2.1.4.min.js"></script>
+<script src="${RESOURCE_PATH}/jquery/jquery.form.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/kendo.all.min.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/kendo.web.min.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/cultures/kendo.culture.zh-CN.min.js"></script>
+<script src="${RESOURCE_PATH}/kendo/js/messages/kendo.messages.zh-CN.min.js"></script>
+<script src="${RESOURCE_PATH}/bootstrap/js/bootstrap.min.js"></script>
+<script src="${SCRIPTS_PATH}/menu/jquery.mmenu.min.js"></script>
+<script src="${SCRIPTS_PATH}/menu/core.min.js"></script>
+<script src="${RESOURCE_PATH}/layer/1.9.3/layer.js"></script>
+<script src="${RESOURCE_PATH}/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="${SCRIPTS_PATH}/common/common.js"></script>
+<script src="${SCRIPTS_PATH}/message/message.js"></script>
+<script src="${SCRIPTS_PATH}/common/grid.js"></script>
+<script src="${SCRIPTS_PATH}/common/tree_view.js"></script>
+<script src="${SCRIPTS_PATH}/common/layer_custom.js"></script>
+<script src="${SCRIPTS_PATH}/common/form_element.js"></script>
+<script type="text/javascript" src="${SCRIPTS_PAGES_PATH}/background/workspace/workspace.js"></script>

@@ -1,0 +1,127 @@
+package com.ht.service.constant.experiencebook.sourcedata;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.ht.persistence.model.complication.formprop.FormValue;
+import com.ht.service.constant.experiencebook.BaseExperience;
+
+
+
+/**
+ * 源数据编绘经历簿导出更新资料采用示意图常量类
+ * @author penghao
+ * 2016/12/7
+ */
+public class UpdateDatumAdopSketchMap extends BaseExperience
+{
+	
+	Map<String,Object> map = new HashMap<String, Object>();
+	
+	/**
+	 * 更新资料采用示意图表单id
+	 */
+	public final String MAP_GXZLCYSYT_ID = "11031824531200015";
+	
+	/**
+	 * 书签
+	 */
+	public final String MARKER = "table_gxzlcysyt";
+	
+	// 标题
+	final String GXZLCYSYT_TITLE = "text_gxzlcysyt_title";
+		
+	// 编绘员
+	final String GXZLCYSYT_COMPILATION_PERSON = "mtext_gxzlcysyt_compilation_person";
+	
+	// 编绘时间
+	final String GXZLCYSYT_COMPILATION_DATE = "text_gxzlcysyt_compilation_date";
+	
+	// 质检员
+	final String GXZLCYSYT_QUALITY_PERSON = "mtext_gxzlcysyt_quality_person";
+	
+	// 质检时间
+	final String GXZLCYSYT_QUALITY_DATE = "text_gxzlcysyt_quality_date";
+	
+	// 生产部门意见
+	final String GXZLCYSYT_PD_OPINION = "text_gxzlcysyt_pd_opinion";
+	
+	// 生产部门意见时间
+	final String GXZLCYSYT_PD_OPINION_DATE = "text_gxzlcysyt_pd_opinion_date";
+	
+	// 生产部门签名
+	final String GXZLCYSYT_PD_OPINION_PERSON = "mtext_gxzlcysyt_pd_opinion_person";
+	
+	// 主管部门意见
+	final String GXZLCYSYT_AD_OPINION = "text_gxzlcysyt_ad_opinion";
+	
+	// 主管部门意见时间
+	final String GXZLCYSYT_AD_OPINION_DATE = "text_gxzlcysyt_ad_opinion_date";
+	
+	// 主管部门签名
+	final String GXZLCYSYT_AD_OPINION_PERSON = "text_gxzlcysyt_ad_opinion_person";
+
+	public void setDataProps(List<FormValue> valueList){
+		this.setProps(map, MAP_GXZLCYSYT_ID, valueList, "gxzlcysyt");
+	}
+
+	public void setGXZLCYSYT_TITLE(String title)
+	{
+		this.map.put(this.GXZLCYSYT_TITLE, title);
+	}
+	
+	public void setGXZLCYSYT_COMPILATION_PERSON(String person)
+	{
+		this.map.put(this.GXZLCYSYT_COMPILATION_PERSON, person);
+	}
+	
+	public void setGXZLCYSYT_COMPILATION_DATE(String date)
+	{
+		this.map.put(this.GXZLCYSYT_COMPILATION_DATE, date);
+	}
+	
+	public void setGXZLCYSYT_QUALITY_PERSON(String person)
+	{
+		this.map.put(this.GXZLCYSYT_QUALITY_PERSON, person);
+	}
+	
+	public void setGXZLCYSYT_QUALITY_DATE(String date)
+	{
+		this.map.put(this.GXZLCYSYT_QUALITY_DATE, date);
+	}
+	
+	public void setGXZLCYSYT_PD_OPINION(String opinion)
+	{
+		this.map.put(this.GXZLCYSYT_PD_OPINION, opinion);
+	}
+	
+	public void setGXZLCYSYT_PD_OPINION_DATE(String date)
+	{
+		this.map.put(this.GXZLCYSYT_PD_OPINION_DATE, date);
+	}
+	
+	public void setGXZLCYSYT_PD_OPINION_PERSON(String person)
+	{
+		this.map.put(this.GXZLCYSYT_PD_OPINION_PERSON, person);
+	}
+	
+	public void setGXZLCYSYT_AD_OPINION(String opinion)
+	{
+		this.map.put(this.GXZLCYSYT_AD_OPINION, opinion);
+	}
+	
+	public void setGXZLCYSYT_AD_OPINION_DATE(String date)
+	{
+		this.map.put(this.GXZLCYSYT_AD_OPINION_DATE, date);
+	}
+	
+	public void setGXZLCYSYT_AD_OPINION_PERSON(String person)
+	{
+		this.map.put(this.GXZLCYSYT_AD_OPINION_PERSON, person);
+	}
+	
+	public Map<String,Object> getUpdateDatumAdopSketchMap(){
+		return this.map;
+	}
+}

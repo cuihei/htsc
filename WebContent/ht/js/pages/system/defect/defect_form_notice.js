@@ -1,0 +1,462 @@
+$(function(){
+	
+
+
+	
+	
+	
+	
+	$("#splitter").kendoSplitter({
+		  orientation: "horizontal",
+		  panes: [ { size: "40%" }, {} ]
+		});
+	$("#right").kendoSplitter({
+		  orientation: "vertical",
+		  panes: [ { size: "75%" }, {} ]
+		});
+	//累计扣分
+	aggregate = 0;
+	level = "";
+	defect_form.init();
+})
+
+/** 绑定删除按钮的click事件*/
+function removePage(obj) {
+	var tr = $(obj).parent().parent();
+	defect_form.remove(tr);
+}
+
+var defect_form = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("bacthAdd");
+		loading.init();
+		try{
+			defect_form.createGrid();
+			defect_form.requestData();
+			defect_form.initMultiselect();
+			defect_form.bindPageEvent();
+			$("#number").keyup(function(){
+				var value = $("#number").val();
+				if(isNaN(Number(value))){
+					layer.msg("不能输入非数字，请重新输入！");
+					$("#number").val(1);
+				}else{
+					if(Number(value)<0||Number(value)>100){
+						layer.msg("请输入100以内的正整数！");
+						$("#number").val(100);
+					}
+				}
+			});
+			
+			$("#score").keyup(function(){
+				var value = $("#score").val();
+				if(isNaN(Number(value))){
+					layer.msg("不能输入非数字，请重新输入！");
+					$("#score").val(1);
+				}else{
+					if(Number(value)<0||Number(value)>100){
+						layer.msg("请输入100以内的正整数！");
+						$("#score").val(100);
+					}
+				}
+			});
+			//$("#number").attr("onkeyup","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+			//$("#number").attr("onafterpaste","value=(parseInt((value=value.replace(/[^\\d]/g,''))==''?'0':value,10))");
+		}
+		catch(err){
+			loading.close();
+		}
+		var charttypeId = $("#charttypeId").val();
+		var defecttype = $("#defecttype").length;
+		common.init("../defect/content?charttypeId="+charttypeId,"POST",
+				function(result){
+				$("#discription").kendoDropDownList({
+					optionLabel: "请选择......",
+					dataTextField: "discription",
+		            dataValueField: "id",
+		            dataSource: result.value,
+		            filter: "contains",
+		            suggest: false
+			    });
+		});
+		common.do_submit();
+	},
+	
+	/**
+	 * 删除缺陷
+	 */
+	remove : function(tr){
+		/*删除*/
+		layer.confirm('确认要删除吗？',function(index){
+			var rowData = grid.getSelectRowDataByRow(tr);
+			// 添加参数 @param 参数key；参数value
+			var processDefId = $("#processDefId").val();
+			var taskDefId = $("#taskDefId").val();
+			common.add_param("processDefId", processDefId);
+			common.add_param("taskDefId", taskDefId);
+			common.add_param("taskInstId", $("#taskInstId").val());
+			common.add_param("processInstId", $("#processInstId").val());
+			var param = common.add_param("id",rowData.id);
+			common.init("../defect/remove_form","POST",defect_form.removeSuccess);
+			// 执行提交操作
+			common.do_submit(param);
+		});
+	},
+	
+	/**
+	 * 删除成功
+	 * */
+	removeSuccess : function(result){
+		grid.init("bacthAdd");
+		layer.close(1);
+		if(result.code != 1){
+			layer.msg("删除失败！");
+			return;
+		}
+		layer.msg('删除成功');
+		defect_form.requestData();
+	},
+	
+	/**
+	 * 初始化多选控件
+	 */
+	initMultiselect : function(){
+		// 图层多选
+		$("#layer").kendoMultiSelect({
+	        placeholder: "请选择图层",
+	        dataTextField: "value",
+	        dataValueField: "id",
+	        autoBind:false
+	    });
+	},
+	
+	/**
+	 * 创建缺陷列表
+	 */
+	createGrid : function(){
+		var columns = defect_form.createColumns();
+		grid.createGrid(columns);
+	},
+	
+	/**
+	 * 构建缺陷列集合
+	 */
+	createColumns : function(){
+		grid.resetColumn;
+		grid.addColumn("120px","opinion","存在问题及处理意见");
+		grid.addColumn("100px","discription","缺陷描述");
+		grid.addColumn("100px","number","缺陷个数");
+		grid.addColumn("100px","deep","缺陷类别");
+		grid.addColumn("100px","score","扣分");
+		grid.addColumn("200px","remarks","备注");
+		return grid.addColumn("50px","handle","操作",kendo.template($("#removeTemplate").html()));
+	},
+		
+	/**
+	 * 发送数据请求
+	 */
+	requestData : function(){
+		var splitId = $("#splitId").val();
+		var taskInstId = $("#taskInstId").val();
+		var processInstId = $("#processInstId").val();
+		var processDefId = $("#processDefId").val();
+		var taskDefId = $("#taskDefId").val();
+		common.init("../defect/formlist?taskDefId="+taskDefId+"&processDefId="+processDefId+"&splitId="+splitId+"&taskInstId="+taskInstId+"&processInstId="+processInstId,"POST",defect_form.bindGrid);
+		common.do_submit();
+	},
+	
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindGrid : function(result){
+		grid.bindData(result);
+		var gridInst = $("#bacthAdd").data("kendoGrid");
+		var height = $(document.body).height()-($(document.body).height())*0.3;
+		gridInst.setOptions({
+			height:height,
+		});
+		var data = result.value;
+		if(data == undefined || data == null || data.length<=0){
+			return;
+		}else{
+			if(data[0].total != null && data[0].total !=""){
+				aggregate = data[0].total;
+			}
+			$("#total").val(data[0].total);
+			$("#grading").val(data[0].grading);
+		}
+	},
+	
+	/**
+	 * 计算扣分
+	 */
+	calculate : function(){
+		var num = $("#number").val();
+		if(defect_form.chkHalf($("#number").val())){
+			num = 0;
+		}
+		if(Number(num)<0){
+			layer.msg("缺陷个数不能填负数！");
+		}
+		if(Number(num)>100){
+			num = 100;
+		}
+		var reg1=/[a-zA-Z]+(?=\d+)|\d+(?=[a-zA-Z]+)/g;
+		var reg2= /^[A-Za-z]+$/;
+		if (reg1.test(num)||reg2.test(num)){//判断是否符合正则表达式
+			num = 0;
+		}
+		var score = 0;
+		if(level == "Ⅰ"){
+			score = 100;
+		}
+		else if(level == "Ⅱ"){
+			score = 5;
+		}else if(level == "Ⅲ"){
+			score = 1;
+		}else if(level == "Ⅳ"){
+			score = 0.5;
+		}
+		if(level == "Ⅰ"){
+			var sum = 100;
+		}else{
+			if(num == null || num == ""){
+				var sum = score;
+			}else{
+				var sum = num*(score);
+			}
+		}
+		$("#score").val(parseFloat(parseFloat(sum).toFixed(1)));
+		/*$("#actual").val(parseFloat(sum).toFixed(1));
+		var zong = (parseFloat(aggregate)+parseFloat(sum)).toFixed(1);
+		$("#total").val(parseFloat(zong));
+		$("#actualTotal").val(parseFloat(zong));
+		$("#grading").val(100-parseFloat(zong));*/
+	},
+	
+	/**
+	 * 计算扣分
+	 */
+	calculate1 : function(){
+		var num = $("#number").val();
+		if(defect_form.chkHalf($("#number").val())){
+			num = 0;
+		}
+		var coe = $("#cff").val();
+		if (coe == null || coe == "") {
+			coe = 1;
+			$("#coefficient").val(coe);
+		}
+		var sum = $("#score").val();
+		if (sum == null || sum == "") {
+			sum = 0;
+		}
+		var actualSum = (sum / coe).toFixed(1);
+		/*var sum = $("#score").val();
+		if(sum == null || sum ==""){
+			sum = 0;
+		}*/
+		/*$("#actual").val(parseFloat(sum).toFixed(1));
+		var zong = (parseFloat(aggregate)+parseFloat(sum)).toFixed(1);
+		$("#total").val(parseFloat(zong));
+		$("#actualTotal").val(parseFloat(zong));
+		$("#grading").val(100-parseFloat(zong));*/
+	},
+	
+	//全角转换为半角函数   
+	ToCDB :function (str)   
+	{   
+	    var tmp = "";   
+	    for(var i=0;i<str.length;i++)   
+	    {   
+	        if(str.charCodeAt(i)>65248&&str.charCodeAt(i)<65375){   
+	            tmp += String.fromCharCode(str.charCodeAt(i)-65248);   
+	        }else {   
+	            tmp += String.fromCharCode(str.charCodeAt(i));   
+	        }   
+	    }   
+	    return tmp; 
+	},
+	
+	chkHalf: function (str){  
+		 for (var i = 0; i < str.length; i++) {
+			strCode = str.charCodeAt(i);
+			if ((strCode > 65248) || (strCode == 12288)) {
+				return true;
+			}
+		}
+		 return false;
+	} ,
+	
+	/**
+	 * 保存后的回调函数
+	 */
+	addSuccess : function(result){
+		if(result.code != 1){
+			if(result.value != "" || result.value != null){
+				layer.msg(result.value);
+				return;
+			}
+			layer.msg("保存失败！");
+			return;
+		}
+		layer.msg("保存成功！");
+		$("#left :input").each(function () {
+			$(this).val("");
+	    });
+		$("#discription").data("kendoDropDownList").value("请选择......");
+		//重新发送数据请求
+		defect_form.requestData();
+	},
+	
+
+	/**
+	 * 保存后的回调函数
+	 */
+	updateSuccess : function(result){
+		if(result.code != 1){
+			if(result.value != "" || result.value != null){
+				layer.msg(result.value);
+				return;
+			}
+			layer.msg("保存失败！");
+			return;
+		}
+		layer.msg("保存成功！");
+		setTimeout('window.history.back()', 500);
+	},
+	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		/** 
+		 * 绑定选中缺陷内容的change事件
+		 */
+		$("#discription").change(function(){
+			//获取选中的缺陷的缺陷类别和扣分
+			var id = $("#discription").val();
+			if(id == null || id == ""){
+				level = "";
+				$("#deep").val(level);
+				$("#score").val("");
+			}else{
+				common.init("../defect/defect?id="+id,"POST",
+						function(result){
+					var data = result.value;
+					if(data == undefined){
+						return;
+					}
+					$("#deep").val(data.deep);
+					$("#number").val(1);
+					level = data.deep;
+					defect_form.calculate();
+				});
+				common.do_submit();
+			}
+		});
+		
+		/**
+		 * 绑定缺陷个数输入完之后的事件
+		 */
+		 $("#number").bind("input propertychange", function() {
+			 defect_form.calculate();
+		 });
+		 
+		 /**
+		 * 绑定扣分输入完之后的事件
+		 */
+		/* $("#score").bind("input propertychange", function() {
+			 defect_form.calculate1();
+		 });*/
+		 
+		 /** 绑定提交按钮的点击事件*/
+		 $("#submit").on("click",function(){
+			 
+				/*grid.addColumn("120px","opinion","存在问题及处理意见");
+				grid.addColumn("100px","discription","缺陷描述");
+				grid.addColumn("100px","number","缺陷个数");
+				grid.addColumn("100px","deep","缺陷类别");
+				grid.addColumn("100px","score","扣分");
+				grid.addColumn("200px","remarks","备注");
+				$("input").blur(function(){这里是失去焦点时的事件}) 
+				*/
+			 
+			 
+		 	var defect = {};
+		 	defect.splitId = $("#splitId").val();
+		 	defect.taskInstId = $("#taskInstId").val();
+		 	defect.processInstId = $("#processInstId").val();
+			defect.charttype = $("#charttype").val();
+			defect.opinion = $("#opinion").val();
+			if(defect.opinion == "" || defect.opinion == null){
+				return layer.msg("请填写存在问题及处理意见！");
+			}
+			var color = $("#discription").data("kendoDropDownList");
+			var dis = color.text();
+			if(dis == "请选择......"){
+				return layer.msg("请填写缺陷描述！");
+			}
+			defect.discription = dis;
+			defect.number = $("#number").val();
+			if(defect.number == "" || defect.number == null){
+				return layer.msg("请填写缺陷个数！");
+			}
+			defect.deep = $("#deep").val();
+			if(defect.deep == "" || defect.deep == null){
+				return layer.msg("请填写缺陷类别！");
+			}
+			var score = $("#score").val();
+			defect.score = score;
+			if(defect.score == "" || defect.score == null){
+				return layer.msg("请填写扣分！");
+			}
+			var remarks = $("#remarks").val();
+			if(remarks.length>50){
+				layer.msg("您输入的字符过长，请重新输入！");
+				return;
+			}
+			defect.remarks = remarks;
+			// 表单ID
+			defect.formId = $("#formId").val();
+			var defectJson = JSON.stringify(defect);
+			var processDefId = $("#processDefId").val();
+			var taskDefId = $("#taskDefId").val();
+			var processInstId = $("#processInstId").val();
+			common.add_param("processDefId", processDefId);
+			common.add_param("taskDefId", taskDefId);
+			common.add_param("processInstId", processInstId);
+			var param = common.add_param("defect", defectJson);
+			common.init("../defect/addform","POST",defect_form.addSuccess);
+			common.do_submit(param);
+		 });
+		
+		/** 绑定返回按钮的click事件*/
+		 $("#back").on("click",function(){
+			 var defect = {};
+			 var grading = $("#grading").val();
+				/*if(Number(grading)<=0||Number(grading)>=100){
+					return layer.msg("质量评分必须在0-100之间");
+				}*/
+		 	 // 选中图层
+		 	 defect.splitId = $("#splitId").val();
+			 defect.grading = $("#grading").val();
+			 defect.taskInstId = $("#taskInstId").val();
+			 defect.processInstId = $("#processInstId").val();
+			 var processDefId = $("#processDefId").val();
+			 var taskDefId = $("#taskDefId").val();
+			 common.add_param("processDefId", processDefId);
+			 common.add_param("processInstId", $("#processInstId").val());
+			 common.add_param("taskDefId", taskDefId);
+			 common.add_param("taskInstId", $("#taskInstId").val());
+			 var defectJson = JSON.stringify(defect);
+			 var param = common.add_param("defect", defectJson);
+			 common.init("../defect/updategrading","POST",defect_form.updateSuccess);
+			 common.do_submit(param);
+		 });
+	},
+}

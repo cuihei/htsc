@@ -1,0 +1,126 @@
+$(function() {
+	$("#workspace").on("click", function() {
+		common.toPage("../workSpace/init");
+	});
+	$("#notice").on("click", function() {
+		common.toPage("../workSpace/sysNoticeSeeMore?flag=0");
+	});
+	index.pageRedirect();
+	index.setIframeStyle();
+	var password = $("#password").val();
+	if(index.checkPassword(password) == false){
+		$("#updatepassword").click();
+	}
+})
+
+var index = {
+	/** 定位到指定页面 */
+	pageRedirect : function() {
+		var as = $(".sub").find("a");
+		$.each(as, function(i, item) {
+			var url = $(item).attr("_href");
+			if (url != null) {
+				$(item).on("click", function() {
+					common.toPage(".." + url);
+				})
+			}
+		});
+	},
+
+	setIframeStyle : function() {
+		var height = $("#index-body").outerHeight()-$("#header").outerHeight();
+		var width =  document.body.clientWidth;
+		$("#page").css("height", height);
+		$("#page").css("width",width-35);
+	},
+	
+	checkPassword : function(password){
+		var regUpper = /[A-Z]/;
+		var regLower = /[a-z]/;
+		var regNum = /[0-9]/;
+		var regStr = /[^A-Za-z0-9]/;
+		var complex = 0;
+		if (regLower.test()) {
+			++complex;
+		}
+		if (regUpper.test(password)) {
+			++complex;
+		}
+		if (regNum.test(password)) {
+			++complex;
+		}
+		if (regStr.test(password)) {
+			++complex;
+		}
+		if (complex < 3 || password.length < 8) {
+			return false;
+		}
+		return true;
+	}
+}
+
+function passwordEdit() {
+	var password = $("#password").val();
+	var closeBtn = 1;
+	if(index.checkPassword(password) == false){
+		closeBtn = 0;
+	}
+	$("#myModal").modal('show');
+	
+}
+
+function doSubmit() {
+	// 获取用户密码
+	var user = {};
+	user.userName = userName.value;
+	oldPassword = $("#oldPassword").val();
+	newPassword = $("#newPassword").val();
+	newPassword1 = $("#newPassword1").val();
+	if (oldPassword == "") {
+		layer.msg("请输入原密码！");
+		return;
+	}
+	if (newPassword == "") {
+		layer.msg("请输入新密码！");
+		return;
+	}
+	if (newPassword1 == "") {
+		layer.msg("请确定新密码！");
+		return;
+	}
+	if (newPassword != newPassword1) {
+		layer.msg("两次新密码不一致！");
+		return;
+	}
+	if(index.checkPassword(newPassword) == false){
+		layer.msg("长度至少有 8 个字符；至少包含以下四类字符中的三类：大写字母、小写字母、数字、以及特殊符号（如 !、@、#）");
+		return;
+	}
+	user.password = oldPassword + "," + newPassword;
+	var userJson = JSON.stringify(user);
+	var param = common.add_param("user", userJson);
+	common.init("../index/passwordedit", "POST", function(result) {
+		if (result.value != "修改成功") {
+			layer.msg(result.value);
+			return;
+		}
+		$("#oldPassword").val("");
+		$("#newPassword").val("");
+		$("#newPassword1").val("");
+		// layer.msg(result.value);
+		layer.closeAll();
+		layer.msg("修改成功，请重新登录！");
+		setTimeout('logoff()', 2000);
+
+	});
+	common.do_submit(param);
+}
+function logoff() {
+	window.location.href="../index/login";
+	//common.toPage("../index/login");
+}
+function back() {
+	$("#oldPassword").val("");
+	$("#newPassword").val("");
+	layer.closeAll();
+}

@@ -1,0 +1,170 @@
+package com.ht.persistence.dao.inter.drawtask.taskbook.book;
+
+import java.util.List;
+
+import com.ht.persistence.model.background.dicdata.basedata.BaseData;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBook;
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBookList;
+import com.ht.persistence.model.drawtask.taskbook.book.VTaskBook;
+
+/**
+ * TaskBookDao
+ * @author penghao
+ *
+ */
+public interface TaskBookDao {
+	
+	/**
+	 * 查找实体对象
+	 * 
+	 * @param id
+	 *            ID
+	 * @return 实体对象，若不存在则返回null
+	 */
+	TaskBook findById(String id) throws Exception;
+	/**
+	 * 查找实体对象
+	 * 
+	 * @param id
+	 *            ID
+	 * @return 实体对象，若不存在则返回null
+	 */
+	TaskBookList findBookListByid(String id) throws Exception;
+	/**
+	 * 查找所有实体对象集合
+	 * 
+	 * @return 所有实体对象集合
+	 */
+	List<TaskBook> findList() throws Exception;
+	/**
+	 * 查找所有实体对象集合
+	 * @param year 
+	 * 
+	 * @return 所有实体对象集合
+	 */
+	List<TaskBookList> findListIncludeTypeName(String year) throws Exception;
+	
+
+	
+	List<TaskBookList> findListByYearAndState(String year,String state) throws Exception;
+	/**
+	 * 查找所有改正通告实体对象集合
+	 * @param year 
+	 * 
+	 * @return 所有实体对象集合
+	 */
+	List<TaskBookList> findListCorrectionNotice() throws Exception;
+	/**
+	 * 查找所有实体对象集合
+	 * @param year 
+	 * 
+	 * @return 所有实体对象集合
+	 */
+	List<TaskBook> findListCorrectionNoticeByYear(String year) throws Exception;
+	/**
+	 * 根据任务书类型查找所有实体对象集合
+	 * 
+	 * @return 所有实体对象集合
+	 */
+	List<TaskBook> findByType(String taskBookType) throws Exception;
+	/**
+	 * 查询实体对象总数
+	 * 
+	 * @return 实体对象总数
+	 */
+	long count() throws Exception;
+	/**
+	 * 根据任务书序号获取实体对象列表  沪印绘 还是 沪印临
+	 * 
+	 * @return 实体对象列表
+	 */
+	List<TaskBook> countByNo(String noName) throws Exception;
+
+	/**
+	 * 判断实体对象是否存在
+	 * 
+	 * @param mapNo
+	 *            ID
+	 * @return 实体对象是否存在
+	 */
+	boolean exists(String taskBookNo) throws Exception;
+	/**
+	 * 保存实体对象
+	 * 
+	 * @param entity
+	 *            实体对象
+	 * @throws Exception 
+	 */
+	void addTaskBook(TaskBook taskBook) throws Exception;
+
+	/**
+	 * 更新实体对象
+	 * 
+	 * @param entity
+	 *            实体对象
+	 * @return 实体对象
+	 */
+	void modifyTaskBook(TaskBook taskBook) throws Exception;
+
+	/**
+	 * 删除实体对象
+	 * 
+	 * @param id
+	 *            ID
+	 */
+	void delTaskBook(String id) throws Exception;
+	/**
+	 * 删除实体对象
+	 * 
+	 * @param entity
+	 *            实体对象
+	 */
+	void delTaskBook(TaskBook taskBook) throws Exception;
+	/**
+	 * 获取技术要求
+	 * @return
+	 * @throws Exception
+	 */
+	public List<BaseData> getTechnologyDemand() throws Exception;
+	/**
+	 * 获取版次
+	 * @return
+	 * @throws Exception
+	 */
+	public List<BaseData> getVersion() throws Exception;
+	/**
+	 * 查询前五条数据
+	 * @return
+	 */
+	public List<TaskBook> findFiveList();
+	/**
+	 * 获取其他要求
+	 * @return
+	 * @throws Exception
+	 */
+	public List<BaseData> getOtherDemand() throws Exception;
+	/**
+	 * 获取技术标准
+	 * @return
+	 * @throws Exception
+	 */
+	public List<BaseData> getTechnologyStandard() throws Exception;
+	/**
+	 * 下发
+	 */
+	void issue(TaskBook tb) throws Exception;
+	
+	List<TaskBookList> findList(String year,boolean jurisdiction,String booktype) throws Exception;
+	/**
+	 * 获取已创建任务书列表
+	 * @param year
+	 * @param state
+	 * @return
+	 * @throws Exception 
+	 */
+	List<VTaskBook> findCreateTaskListByYearAndState(String year,
+			String state) throws Exception;
+	
+	
+	String findTaskselect(String taskselect);
+}

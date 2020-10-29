@@ -1,0 +1,22 @@
+package com.ht.persistence.dao.inter.drawtask.taskbook.book;
+
+import java.util.List;
+
+import com.ht.persistence.model.drawtask.taskbook.book.TaskBookEditHis;
+
+/**
+ * TaskBookDao
+ * @author weihua
+ *
+ */
+public interface TaskBookEditHisDao {
+
+	/*查询修订记录*/
+	List<TaskBookEditHis> findEditListById(String taskbookId) ;
+	
+	/*新增修订记录*/
+	public String addTaskBookEdit(String taskbookid, String editcount, String creatro, String taskbookNo,String nowtime);
+    //查询当前任务书的条数
+	int editcount(String taskbookid);
+	
+}

@@ -1,0 +1,108 @@
+package com.ht.action.base;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ht.common.util.ConfigLookupHelper;
+import com.ht.common.util.DataConverter;
+import com.ht.common.util.EnvironmentUtil;
+import com.ht.common.util.HttpClientUtil;
+import com.ht.common.util.LoginUtil;
+
+public class TabPageAction extends BaseAction
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public String initPage()
+	{
+		// 获取页面键值
+		String pageKey = getParam("key");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+		String year = sdf.format(new Date());
+		List<Map<String, String>> tabs = getPageTabs(pageKey);
+		List<String> tabItems = new ArrayList<String>();
+		List<String> tabContents = new ArrayList<String>();
+		for (int i = 0; i < tabs.size(); i++)
+		{
+			Map<String, String> tab = tabs.get(i);
+			String tabItem = tab.get("name");
+			String content = tab.get("content");
+			String listUrl = tab.get("listUrl");
+			if (StringUtils.isNotEmpty(listUrl))
+			{
+				listUrl = listUrl.replace("*", "&");
+				String loginUser = LoginUtil.getInstance().getLoginNo(request);
+				
+				listUrl = listUrl + "&userNo=" + loginUser + "&year=" + year;
+				String postContent = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + listUrl;
+				Integer count = getItemCount(postContent);
+				if (count != null)
+				{
+					tabItem = tabItem + "(" + count.toString() + ")";
+				}
+			}
+			tabItems.add(tabItem);
+			tabContents.add(content);
+		}
+		request.setAttribute("tabItems", tabItems);
+		request.setAttribute("tabContents", tabContents);
+		return SUCCESS;
+	}
+
+	/**
+	 * 获取指定tab页面承载的列表数量
+	 * @return
+	 */
+	private Integer getItemCount(String content)
+	{
+		try
+		{
+			String result = HttpClientUtil.sendPost(content, null);
+			if (StringUtils.isNotEmpty(result))
+			{
+				Map<String,Object> contentMap = (Map<String, Object>) DataConverter.convertJson2Object(result, Map.class);
+				if (contentMap != null)
+				{
+					String code = (String) contentMap.get("code");
+					if (StringUtils.isNotEmpty(code))
+					{
+						if (code.equals("1"))
+						{
+							List<Map<String, Object>> value = (List<Map<String, Object>>) contentMap.get("value");
+							if (value != null) { return value.size(); }
+						}
+					}
+				}
+			}
+			return null;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+
+	}
+
+	/**
+	 * 获取业务数据的显示列集合
+	 * @param processDefId 流程定义ID
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Map<String, String>> getPageTabs(String pageKey)
+	{
+		// 读取xml文件
+		String path = "/com/ht/front/config/tab-page-configuration.cfg.xml";
+		ConfigLookupHelper helper = ConfigLookupHelper.getInstance(EnvironmentUtil.getResourceUrl(path));
+		String pathTable = "configuration/pages/page[@key='" + pageKey + "']/tabs/tab";
+		List<Map<String, String>> listTab = (List<Map<String, String>>) helper.getAttributesValue(pathTable);
+		return listTab;
+	}
+}

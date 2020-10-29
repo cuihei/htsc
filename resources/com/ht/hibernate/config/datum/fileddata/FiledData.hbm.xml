@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ht.persistence.model.datum.fileddata.FiledData" table="FILED_DATA">
+
+        <id name="id" type="java.lang.String">
+            <column name="id" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="picNo" type="java.lang.String">
+            <column name="pic_no" />
+        </property>
+         <property name="seaArea" type="java.lang.String">
+            <column name="sea_area" />
+        </property>
+        <property name="scale" type="java.lang.String">
+            <column name="scale" />
+        </property>
+        <property name="projectName" type="java.lang.String">
+            <column name="project_name" />
+        </property>
+        <property name="measureCycle" type="java.lang.String">
+            <column name="measure_cycle" />
+        </property>
+        <property name="concurrentTime" type="date">
+            <column name="concurrent_time" />
+        </property>
+        <property name="dataName" type="java.lang.String">
+            <column name="data_name" />
+        </property>
+        <property name="dataForm" type="java.lang.String">
+            <column name="data_form" />
+        </property>
+        <property name="originalFileName" type="java.lang.String">
+            <column name="original_file_name" />
+        </property>
+        <property name="total" type="java.lang.String">
+            <column name="total" />
+        </property>
+        <property name="canBorrowing" type="java.lang.String">
+            <column name="can_borrowing" />
+        </property>
+        <property name="copies" type="java.lang.String">
+            <column name="copies" />
+        </property>
+        <property name="state" type="java.lang.String">
+            <column name="state" />
+        </property>
+        <property name="recipient" type="java.lang.String">
+            <column name="recipient" />
+        </property>
+        <property name="entry" type="java.lang.String">
+            <column name="entry" />
+        </property>
+        <property name="reviewers" type="java.lang.String">
+            <column name="reviewers" />
+        </property>
+         <property name="status" type="java.lang.String">
+            <column name="status" />
+        </property>
+        <property name="creator" type="java.lang.String">
+            <column name="creator" />
+        </property>
+        <property name="creationDate" type="timestamp">
+            <column name="creation_date" />
+        </property>
+        <property name="modifier" type="java.lang.String">
+            <column name="modifier" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" />
+        </property>
+    </class>
+    <query name="getFiledData">
+    	<![CDATA[ from FiledData]]>
+    </query>
+    <query name="getFiledDataById">
+    	<![CDATA[ from FiledData where id= :id]]> 
+    </query>
+    <query name="getFiledDataByPicNo">
+    	<![CDATA[ from FiledData where picNo= :picNo order by creationDate desc]]> 
+    </query>
+  
+</hibernate-mapping>

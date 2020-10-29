@@ -1,0 +1,165 @@
+$(function(){
+	coefficient.init();
+})
+
+/** 绑定编辑用户窗口按钮的click事件*/
+function editPage(obj) {
+	var tr = $(obj).parent().parent();
+	coefficient.toEditPage(tr);
+}
+
+var coefficient = {
+	/**
+	 * 初始化
+	 */
+	init : function(){
+		grid.init("coe");
+		loading.init();
+		try{
+			//创建用户列表
+			coefficient.createCoeGrid();
+			//请求用户列表数据
+			coefficient.requestCoeData();
+			//绑定页面事件
+			coefficient.bindPageEvent();
+		}
+		catch(err){
+			loading.close();
+		}
+	},
+	
+	/**
+	 * 构建用户列表列集合
+	 */
+	createCoeColumns : function(){
+		grid.resetColumn();
+		grid.addColumn("20%","mapNo","图号");
+		grid.addColumn("20%","mapName","图名");
+		grid.addColumn("25%","scale","比例尺 1:");
+		grid.addColumn("25%","typeName","调整系数类型")
+		grid.addColumn("25%","firstEdition","首版");
+		grid.addColumn("25%","reprint","再版");
+		return grid.addColumn("15%","handle","操作",kendo.template($("#editTemplate").html()));
+	},
+	
+	/**
+	 * 创建用户列表
+	 */
+	createCoeGrid : function(){
+		var columns = coefficient.createCoeColumns();
+	
+		grid.createGrid(columns);
+	},
+	
+	/**
+	 * 发送数据请求
+	 */
+	requestCoeData : function(){
+		common.init("../coefficient/list","POST",coefficient.bindCoeGrid);
+		common.do_submit();
+	},
+	
+	/**
+	 * 删除成功
+	 * */
+	removeSuccess : function(result){
+		if(result.code == 1){
+			layer.close(1);
+			layer.msg('删除成功');
+			window.location.reload();
+			common.do_submit();
+		}
+		
+	},
+	
+	/**
+	 * 接收服务器响应数据,绑定表格
+	 * 这是一个回调函数，不用手动调用
+	 */
+	bindCoeGrid : function(result){
+		var data = result.value;
+		if(data != null){
+			for(var i=0;i<data.length;i++){
+				// 海图类型
+				var type = data[i].type;
+				if(type != null &&　type.value != null){
+					data[i]["typeName"] = type.value;
+				}
+			}
+		}
+		grid.bindData(result);
+		//grid.setEvents();
+	},
+	
+	/**
+	 * 跳转到用户增加页面
+	 */
+	toCoeAddPage : function(){
+		common.toPage("../coefficient/init_edit");
+	},
+	
+	/**
+	 * 删除用户
+	 */
+	removeCoes : function(){
+		var rowDatas = grid.getSelectRowsData();
+		if (rowDatas.length<=0) {
+			layer.msg('未选择任何行!', {icon:5,time:1000});
+			return;
+		}
+		/*删除*/
+		layer.confirm('确认要删除吗？',function(index){
+			// 获取Grid的选中行
+			var rowDatas = grid.getSelectRowsData();
+			var coes = [];
+			$.each(rowDatas,function(i,item){
+				var id = $("#coe").data("kendoGrid").dataItem(item).id;
+				var coe = {};
+				coe.id = id;
+				coes.push(coe);
+			});
+			var param = JSON.stringify(coes);
+			// 添加参数 @param 参数key；参数value
+			var data = common.add_param("coes",param);
+			common.init("../coefficient/remove","POST",coefficient.removeSuccess);
+			// 执行提交操作
+			common.do_submit(data);
+		});
+	},
+	
+	/**
+	 * 跳转到用户编辑页面
+	 */
+	toEditPage : function(tr){
+		// 获取选中行数据对象
+		var rowData = grid.getSelectRowDataByRow(tr);
+		// 获取用户ID
+		var id = rowData.id;
+		// 跳转到用户编辑页面
+		common.toPage("../coefficient/init_edit?id="+id);
+	},
+	
+	/**
+	 * 绑定页面事件
+	 */
+	bindPageEvent : function(){
+		/** 
+		 * 绑定增加用户窗口按钮的click事件
+		 */
+		$("#add").on("click",function(){
+			coefficient.toCoeAddPage();
+		});
+		
+		/** 
+		 * 绑定删除用户窗口按钮的click事件
+		 */
+		$("#remove").on("click",function(){
+			coefficient.removeCoes();
+		});
+		
+		/** 绑定刷新用户列表窗口按钮的click事件*/
+		$("#refresh").on("click",function(){
+			window.location.reload();
+		});
+	}
+}
